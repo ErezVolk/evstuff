@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+import argparse
+import csv
+import os
+import sqlalchemy
+import sqlalchemy.orm
+import sqlalchemy.ext.declarative
+from tatoeba import Base
+from tatoeba import JpnIndex
+from tatoeba import Link
+from tatoeba import Sentence
+from tatoeba import UserLanguage
+from tatoeba import UserRating
+
+
+class LoadJpnIndex(object):
+    model = JpnIndex
+    fields = ('jp_id', 'en_id', 'text')
+    sids = set()
+
+    @classmethod
+    def want(cls, row):
+        if any(int(row[f]) <= 0 for f in ('jp_id', 'en_id')):
+            return False
+        cls.sids.add(row['jp_id'])
+        cls.sids.add(row['en_id'])
+        return True
+
+
+class LoadUserLanguage(object):
+    model = UserLanguage
+    fields = ('lang', 'skill_level', 'username', 'details')
+    natives = set()
+
+    @classmethod
+    def want(cls, row):
+        if row['lang'] != 'jpn':
+            return False
+        if row['skill_level'] != '5':
+            return False
+        cls.natives.add(row['username'])
+        return True
+
+
+class LoadUserRating(object):
+    model = UserRating
+    fields = ('username', 'sid', 'rating', 'date_added', 'modified')
+    native_sids = set()
+
+    @classmethod
+    def want(cls, row):
+        if row['username'] not in LoadUserLanguage.natives:
+            return False
+        if row['rating'] != '1':
+            return False
+        cls.native_sids.add(row['sid'])
+        return True
+
+
+class LoadLink(object):
+    model = Link
+    fields = ('src_id', 'dst_id')
+
+    @classmethod
+    def want(cls, row):
+        return any(
+            any(sid in ids for ids in (LoadJpnIndex.sids, LoadUserRating.native_sids))
+            for sid in (row['src_id'], row['dst_id'])
+        )
+
+
+class LoadSentence(object):
+    model = Sentence
+    fields = ('id', 'lang', 'text')
+
+    @classmethod
+    def want(cls, row):
+        return row['id'] in LoadJpnIndex.sids
+
+
+HOW_TO_LOAD = [
+    LoadJpnIndex,
+    # LoadUserLanguage,
+    # LoadUserRating,
+    # LoadLink,
+    LoadSentence,
+]
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-o', '--output', metavar='SQLITE_FILE',
+                        help='File to write',
+                        default='tatoeba.sqlite')
+    parser.add_argument('inputs', metavar='CSV_FILE', nargs='*',
+                        help='Only update these fields')
+    args = parser.parse_args()
+
+    if os.path.isfile(args.output):
+        os.unlink(args.output)
+
+    engine = sqlalchemy.create_engine('sqlite:///%s' % args.output)
+    Base.metadata.create_all(bind=engine)
+
+    session_factory = sqlalchemy.orm.session.sessionmaker(bind=engine, autocommit=True)
+
+    only_these_tables = {
+        os.path.splitext(os.path.basename(fn))[0]: fn
+        for fn in args.inputs or []
+    }
+    session = session_factory()
+    for htl in HOW_TO_LOAD:
+        model = htl.model
+        table = model.__tablename__
+        if not only_these_tables:
+            fn = '%s.csv' % table
+        elif table in only_these_tables:
+            fn = only_these_tables[table]
+        else:
+            continue
+        with open(fn, 'r') as fo:
+            print('Reading %r...' % (fn))
+            reader = csv.DictReader(fo, htl.fields, dialect='excel-tab')
+
+            num_read = 0
+            num_used = 0
+
+            session.begin()
+            for line in reader:
+                num_read += 1
+                if htl.want(line):
+                    session.add(model(**line))
+                    num_used += 1
+                    if num_used % 10 == 0:
+                        session.commit()
+                        session.begin()
+            session.commit()
+
+            print('...%s of %s line(s)' % (num_used, num_read))
+
+    session.close()
+
+
+if __name__ == '__main__':
+    main()

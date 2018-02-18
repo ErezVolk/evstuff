@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+import argparse
+import random
+import subprocess
+import sqlalchemy
+import sqlalchemy.orm
+import sqlalchemy.ext.declarative
+from tatoeba import JpnIndex
+from tatoeba import Sentence
+
+
+JA_VOICES = ['kyoko', 'otoya']
+EN_VOICES = ['alex', 'bruce', 'daniel', 'fred', 'kathy', 'vicki', 'victoria']
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--db', metavar='SQLITE_FILE',
+                        help='Database file',
+                        default='tatoeba.sqlite')
+    parser.add_argument('words', metavar='WORD', nargs='*',
+                        help='Japanese words')
+    args = parser.parse_args()
+
+    engine = sqlalchemy.create_engine('sqlite:///%s' % args.db)
+    session_factory = sqlalchemy.orm.session.sessionmaker(bind=engine, autocommit=True)
+    session = session_factory()
+
+    for word in get_words(args.words):
+        query = session.query(Sentence)
+        query = query.filter(Sentence.text.like('%%%s%%' % word))
+        sentences = [row for row in query]
+        if not sentences:
+            print('No sentences found which contain %r' % word)
+            continue
+        japanese = random.choice(sentences)
+        pair = session.query(JpnIndex).filter(JpnIndex.jp_id == japanese.id).one()
+        english = session.query(Sentence).filter(Sentence.id == pair.en_id).one()
+
+        print(japanese.text)
+        subprocess.run(['say', '-v', random.choice(JA_VOICES), japanese.text])
+
+        input('Press Enter to show the translation...')
+        print(english.text)
+        print('')
+
+    session.close()
+
+
+def get_words(cli_words):
+    for word in cli_words:
+        yield word
+    while True:
+        try:
+            word = input('Enter a japanese word: ')
+        except KeyboardInterrupt:
+            return
+        if not word:
+            return
+        yield word
+
+
+if __name__ == '__main__':
+    main()
