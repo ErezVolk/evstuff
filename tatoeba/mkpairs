@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+import sqlalchemy
+import sqlalchemy.orm
+
+from tatoeba import *
+
+
+def main():
+    engine = sqlalchemy.create_engine('sqlite:///tatoeba.sqlite')
+    session_factory = sqlalchemy.orm.session.sessionmaker(bind=engine, autocommit=True)
+    session = session_factory()
+
+    query = session.query(Link)
+    query = query.filter(Link.src.user_lang.lang.is_('jpn') | Link.dst.user_lang.is_('jpn'))
+    query = query.limit(10)
+    print(query.all())
+
+
+if __name__ == '__main__':
+    main()
