@@ -5,8 +5,7 @@ import subprocess
 import sqlalchemy
 import sqlalchemy.orm
 import sqlalchemy.ext.declarative
-from tatoeba import JpnIndex
-from tatoeba import Sentence
+from tatoeba import *
 
 
 JA_VOICES = ['kyoko', 'otoya']
@@ -18,6 +17,8 @@ def main():
     parser.add_argument('-d', '--db', metavar='SQLITE_FILE',
                         help='Database file',
                         default='tatoeba.sqlite')
+    parser.add_argument('-a', '--all', action='store_true',
+                        help='Play ALL sentences matching a word')
     parser.add_argument('words', metavar='WORD', nargs='*',
                         help='Japanese words')
     args = parser.parse_args()
@@ -27,22 +28,50 @@ def main():
     session = session_factory()
 
     for word in get_words(args.words):
-        query = session.query(Sentence)
+        query = session.query(Link)
+        query = query.join(Link.src, aliased=True)
+        query = query.filter(Sentence.lang == 'jpn')
         query = query.filter(Sentence.text.like('%%%s%%' % word))
-        sentences = [row for row in query]
+        query = query.join(Link.dst, aliased=True)
+        query = query.filter(Sentence.lang != 'jpn')
+        good = []
+        soso = []
+
+        for link in query:
+            if link.src.user_lang:
+                good.append((link.src, link.dst))
+            else:
+                soso.append((link.src, link.dst))
+
+        if good:
+            level = 'a'
+            sentences = good
+        elif soso:
+            level = 'b'
+            sentences = soso
+        else:
+            level = 'c'
+            query = session.query(JpnIndex)
+            query.join(JpnIndex.jpn)
+            query.filter(Sentence.text.like('%%%s%%' % word))
+            sentences = [(row.jpn, row.eng) for row in query]
+
         if not sentences:
             print('No sentences found which contain %r' % word)
-            continue
-        japanese = random.choice(sentences)
-        pair = session.query(JpnIndex).filter(JpnIndex.jp_id == japanese.id).one()
-        english = session.query(Sentence).filter(Sentence.id == pair.en_id).one()
+            print('')
+        else:
+            if args.all:
+                random.shuffle(sentences)
+                chosen = sentences
+            else:
+                chosen = [random.choice(sentences)]
+            for jpn, eng in chosen:
+                print('[%s%s] %s' % (level, len(sentences), jpn.text))
+                subprocess.run(['say', '-v', random.choice(JA_VOICES), jpn.text])
 
-        print(japanese.text)
-        subprocess.run(['say', '-v', random.choice(JA_VOICES), japanese.text])
-
-        input('Press Enter to show the translation...')
-        print(english.text)
-        print('')
+                input('Press Enter to show the translation...')
+                print(eng.text)
+                print('')
 
     session.close()
 

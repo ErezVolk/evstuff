@@ -40,9 +40,10 @@ class Sentence(Base):
     date_modified = sa.Column(sa.String(128))
 
     user_lang = sqlalchemy.orm.relationship('UserLanguage')
+    audio = sqlalchemy.orm.relationship('SentenceAudio')
 
     def __str__(self):
-        return '%s %s' % (self.sid, self.text)
+        return '%s%s\t%s' % (self.sid, '*' if self.audio else '', self.text)
 
     @staticmethod
     def want(row):
@@ -81,6 +82,9 @@ class JpnIndex(Base):
     en_sid = sa.Column(sa.Integer, sa.ForeignKey(Sentence.sid), primary_key=True)
     text = sa.Column(sa.Text)
 
+    jpn = sqlalchemy.orm.relationship('Sentence', primaryjoin='Sentence.sid==JpnIndex.jp_sid')
+    eng = sqlalchemy.orm.relationship('Sentence', primaryjoin='Sentence.sid==JpnIndex.en_sid')
+
     @staticmethod
     def want(row):
         return row['en_sid'] not in ('0', '-1')
@@ -91,6 +95,9 @@ class Link(Base):
     _FIELDS = ('src_sid', 'dst_sid')
     src_sid = sa.Column(sa.Integer, sa.ForeignKey(Sentence.sid), primary_key=True)
     dst_sid = sa.Column(sa.Integer, sa.ForeignKey(Sentence.sid), primary_key=True)
+
+    src = sqlalchemy.orm.relationship('Sentence', primaryjoin='Sentence.sid==Link.src_sid')
+    dst = sqlalchemy.orm.relationship('Sentence', primaryjoin='Sentence.sid==Link.dst_sid')
 
     def __str__(self):
         return '%s->%s' % (self.src_sid, self.dst_sid)

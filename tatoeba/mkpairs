@@ -10,10 +10,24 @@ def main():
     session_factory = sqlalchemy.orm.session.sessionmaker(bind=engine, autocommit=True)
     session = session_factory()
 
-    query = session.query(Link)
-    query = query.filter(Link.src.user_lang.lang.is_('jpn') | Link.dst.user_lang.is_('jpn'))
-    query = query.limit(10)
-    print(query.all())
+    # with open('sentences_01.txt', 'w') as out1, open('sentences_02.txt', 'w') as out2:
+    #     query = session.query(Link)
+    #     query = query.join(Link.src, aliased=True)
+    #     query = query.group_by(Sentence.sid)
+    #     query = query.filter(Sentence.lang == 'jpn')
+    #     # query = query.join(Sentence.user_lang)
+    #     query = query.join(Link.dst, aliased=True)
+
+    #     for link in query:
+    #         out = out1 if link.src.user_lang else out2
+    #         out.write('%s\t%s\n' % (link.src, link.dst))
+
+    with open('sentences_03.txt', 'w') as out:
+        query = session.query(JpnIndex)
+        query = query.join(JpnIndex.jpn, aliased=True)
+        query = query.join(JpnIndex.eng, aliased=True)
+        for je in query:
+            out.write('%s\t%s\n' % (je.jpn, je.eng))
 
 
 if __name__ == '__main__':
