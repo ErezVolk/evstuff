@@ -4,6 +4,7 @@ import re
 import subprocess
 
 import aqt
+from aqt.qt import *
 
 try:
     from PyQt5 import QtCore
@@ -18,27 +19,44 @@ CORPORA = [
 
 
 def play_random_sentence(word):
-    global count
+    dlg = PlayerDialog()
+    if not dlg.exec_():
+        return
+
+    eng = hits = None
+
     for level, corpus in zip('abcdefg', CORPORA):
         hits = run_grep(corpus, word)
         if hits:
             break
 
-    if not hits:
-        return
+    if hits:
+        jpn, eng = random.choice(hits)
+    else:
+        jpn = word
 
-    jpn, eng = random.choice(hits)
-    subprocess.call(['/usr/bin/say', '-v', random.choice(JPN_VOICES), jpn])
-    subprocess.call(['/usr/bin/say', '-v', random.choice(ENG_VOICES), eng])
+    if aqt.mw.reviewer.state != 'answer':
+        eng = None
+
+    say(jpn, random.choice(JPN_VOICES))
+    say(eng, random.choice(ENG_VOICES))
+
+
+def say(text, voice):
+    if text and voice:
+        subprocess.call(['/usr/bin/say', '-v', voice, text])
 
 
 def run_grep(corpus, word):
-    output = run('/usr/bin/grep', word, corpus)
-    return [
-        line_to_hit(line)
-        for line in output.split('\n')
-        if line
-    ]
+    try:
+        output = run('/usr/bin/grep', word, corpus)
+        return [
+            line_to_hit(line)
+            for line in output.split('\n')
+            if line
+        ]
+    except Exception:
+        return []
 
 
 def run(*cmdline):
@@ -59,13 +77,25 @@ def get_voices(lang):
     ]
 
 
+class PlayerDialog(QDialog):
+    def __init__(self, *args, **kwargs):
+        super(PlayerDialog, self).__init__(*args, **kwargs)
+        layout = QGridLayout()
+        self.setLayout(layout)
+        self.setWindowTitle('Your title here')
+        self.buttonBox = QDialogButtonBox(self)
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        layout.addWidget(self.buttonBox, 2, 0, 2, 1)
+        self.connect(self.buttonBox, SIGNAL(u"accepted()"), self.accept)
+        self.connect(self.buttonBox, SIGNAL(u"rejected()"), self.reject)
+
+
 class ListenForKey(QtCore.QObject):
     def eventFilter(self, _, event):
         if event.type() != QtCore.QEvent.KeyPress:
             return False
         if aqt.mw.state != 'review':
-            return False
-        if aqt.mw.reviewer.state != 'answer':
             return False
         if event.isAutoRepeat():
             return False
@@ -78,12 +108,15 @@ class ListenForKey(QtCore.QObject):
             note = card.note()
             expression = note['Expression']
             play_random_sentence(expression)
-        except Exception:
-            pass
+        except Exception as ex:
+            with open('/tmp/erez.log', 'w+') as f:
+                f.write(repr(ex))
         return True
 
 
 JPN_VOICES = get_voices(r'ja_')
-ENG_VOICES = get_voices('my name is') + get_voices('nice to have')
+ENG_VOICES = get_voices('my name is')
 
 aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
+
+# TODO: https://audio.tatoeba.org/sentences/jpn/4751.mp3 (cached?)
