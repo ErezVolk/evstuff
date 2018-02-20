@@ -28,8 +28,8 @@ def play_random_sentence(word):
         return
 
     jpn, eng = random.choice(hits)
-    subprocess.call(['/usr/bin/say', '-v', random.choise(JPN_VOICES), jpn])
-    subprocess.call(['/usr/bin/say', '-v', random.choise(ENG_VOICES), eng])
+    subprocess.call(['/usr/bin/say', '-v', random.choice(JPN_VOICES), jpn])
+    subprocess.call(['/usr/bin/say', '-v', random.choice(ENG_VOICES), eng])
 
 
 def run_grep(corpus, word):
@@ -59,14 +59,7 @@ def get_voices(lang):
     ]
 
 
-def evlog(*args):
-    with open('/tmp/erez.log', 'a+') as f:
-        for arg in args:
-            f.write(unicode(arg).encode('utf-8'))
-        f.write('\n')
-
-
-class EvFilter(QtCore.QObject):
+class ListenForKey(QtCore.QObject):
     def eventFilter(self, _, event):
         if event.type() != QtCore.QEvent.KeyPress:
             return False
@@ -90,7 +83,7 @@ class EvFilter(QtCore.QObject):
         return True
 
 
-JPN_VOICES = get_voices('ja_')
-ENG_VOICES = get_voices('my name is')
+JPN_VOICES = get_voices(r'ja_')
+ENG_VOICES = get_voices('my name is') + get_voices('nice to have')
 
-aqt.mw.installEventFilter(EvFilter(parent=aqt.mw))
+aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
