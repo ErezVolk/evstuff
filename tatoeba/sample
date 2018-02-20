@@ -4,13 +4,8 @@ import argparse
 import random
 import re
 import subprocess
-import sqlalchemy
-import sqlalchemy.orm
-import sqlalchemy.ext.declarative
-from tatoeba import *
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-JA_VOICES = ['kyoko', 'otoya']
 CORPORA = [
     os.path.join(HERE, 'sentences_%02d.txt' % nn)
     for nn in (1, 2, 3)
@@ -24,11 +19,10 @@ class Mentence(object):
 
 def parse_cmdline():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--db', metavar='SQLITE_FILE',
-                        help='Database file',
-                        default='tatoeba.sqlite')
     parser.add_argument('-a', '--all', action='store_true',
                         help='Play ALL sentences matching a word')
+    parser.add_argument('-v', '--voices', metavar='VOICE', nargs='*',
+                        help='Use these voices')
     parser.add_argument('words', metavar='WORD', nargs='*',
                         help='Japanese words')
     return parser.parse_args()
@@ -36,6 +30,7 @@ def parse_cmdline():
 
 def main():
     args = parse_cmdline()
+    voices = args.voices or get_voices()
 
     for word in get_words(args.words):
         for level, corpus in zip('abcdefg', CORPORA):
@@ -54,80 +49,38 @@ def main():
                 chosen = [random.choice(hits)]
             for jpn, eng in chosen:
                 print('[%s%s] %s' % (level, len(hits), jpn.text))
-                subprocess.run(['say', '-v', random.choice(JA_VOICES), jpn.text])
+                subprocess.run(['say', '-v', random.choice(voices), jpn.text])
 
                 input('Press Enter to show the translation...')
                 print(eng.text)
                 print('')
 
 
+def get_voices():
+    output = run('say', '-v', '?')
+    return [
+        line.split(' ', 1)[0]
+        for line in output.split('\n')
+        if 'ja_JP' in line
+    ]
+
+
 def run_grep(corpus, word):
-    output = subprocess.run(['grep', word, corpus], stdout=subprocess.PIPE, encoding='utf8')
+    output = run('grep', word, corpus)
     return [
         line_to_hit(line)
-        for line in output.stdout.split('\n')
+        for line in output.split('\n')
         if line
     ]
+
+
+def run(*cmdline):
+    return subprocess.run(cmdline, stdout=subprocess.PIPE, encoding='utf8').stdout
 
 
 def line_to_hit(line):
     m = re.match(r'^(\d+\*?)\t(.*)\t(\d+\*?)\t(.*)$', line)
     return (Mentence(m[2]), Mentence(m[4]))
-
-
-def main_using_sqlite__slow():
-    args = parse_cmdline()
-    engine = sqlalchemy.create_engine('sqlite:///%s' % args.db)
-    session_factory = sqlalchemy.orm.session.sessionmaker(bind=engine, autocommit=True)
-    session = session_factory()
-
-    for word in get_words(args.words):
-        query = session.query(Link)
-        query = query.join(Link.src, aliased=True)
-        query = query.filter(Sentence.lang == 'jpn')
-        query = query.filter(Sentence.text.like('%%%s%%' % word))
-        query = query.join(Link.dst, aliased=True)
-        query = query.filter(Sentence.lang != 'jpn')
-        good = []
-        soso = []
-
-        for link in query:
-            if link.src.user_lang:
-                good.append((link.src, link.dst))
-            else:
-                soso.append((link.src, link.dst))
-
-        if good:
-            level = 'a'
-            sentences = good
-        elif soso:
-            level = 'b'
-            sentences = soso
-        else:
-            level = 'c'
-            query = session.query(JpnIndex)
-            query.join(JpnIndex.jpn)
-            query.filter(Sentence.text.like('%%%s%%' % word))
-            sentences = [(row.jpn, row.eng) for row in query]
-
-        if not sentences:
-            print('No sentences found which contain %r' % word)
-            print('')
-        else:
-            if args.all:
-                random.shuffle(sentences)
-                chosen = sentences
-            else:
-                chosen = [random.choice(sentences)]
-            for jpn, eng in chosen:
-                print('[%s%s] %s' % (level, len(sentences), jpn.text))
-                subprocess.run(['say', '-v', random.choice(JA_VOICES), jpn.text])
-
-                input('Press Enter to show the translation...')
-                print(eng.text)
-                print('')
-
-    session.close()
 
 
 def get_words(cli_words):
