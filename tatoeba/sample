@@ -1,18 +1,28 @@
 #!/usr/bin/env python3
+import os
 import argparse
 import random
+import re
 import subprocess
 import sqlalchemy
 import sqlalchemy.orm
 import sqlalchemy.ext.declarative
 from tatoeba import *
 
-
+HERE = os.path.dirname(os.path.abspath(__file__))
 JA_VOICES = ['kyoko', 'otoya']
-EN_VOICES = ['alex', 'bruce', 'daniel', 'fred', 'kathy', 'vicki', 'victoria']
+CORPORA = [
+    os.path.join(HERE, 'sentences_%02d.txt' % nn)
+    for nn in (1, 2, 3)
+]
 
 
-def main():
+class Mentence(object):
+    def __init__(self, text):
+        self.text = text
+
+
+def parse_cmdline():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--db', metavar='SQLITE_FILE',
                         help='Database file',
@@ -21,8 +31,52 @@ def main():
                         help='Play ALL sentences matching a word')
     parser.add_argument('words', metavar='WORD', nargs='*',
                         help='Japanese words')
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def main():
+    args = parse_cmdline()
+
+    for word in get_words(args.words):
+        for level, corpus in zip('abcdefg', CORPORA):
+            hits = run_grep(corpus, word)
+            if hits:
+                break
+
+        if not hits:
+            print('No sentences found which contain %r' % word)
+            print('')
+        else:
+            if args.all:
+                random.shuffle(hits)
+                chosen = hits
+            else:
+                chosen = [random.choice(hits)]
+            for jpn, eng in chosen:
+                print('[%s%s] %s' % (level, len(hits), jpn.text))
+                subprocess.run(['say', '-v', random.choice(JA_VOICES), jpn.text])
+
+                input('Press Enter to show the translation...')
+                print(eng.text)
+                print('')
+
+
+def run_grep(corpus, word):
+    output = subprocess.run(['grep', word, corpus], stdout=subprocess.PIPE, encoding='utf8')
+    return [
+        line_to_hit(line)
+        for line in output.stdout.split('\n')
+        if line
+    ]
+
+
+def line_to_hit(line):
+    m = re.match(r'^(\d+\*?)\t(.*)\t(\d+\*?)\t(.*)$', line)
+    return (Mentence(m[2]), Mentence(m[4]))
+
+
+def main_using_sqlite__slow():
+    args = parse_cmdline()
     engine = sqlalchemy.create_engine('sqlite:///%s' % args.db)
     session_factory = sqlalchemy.orm.session.sessionmaker(bind=engine, autocommit=True)
     session = session_factory()
