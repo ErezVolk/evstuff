@@ -21,6 +21,7 @@ CORPORA = [
 class PlayRandomSentence(QDialog):
     def __init__(self):
         super(PlayRandomSentence, self).__init__()
+        self.both = aqt.mw.reviewer.state == 'answer'
         self.get_word()
         self.look_it_up()
         self.create_gui()
@@ -32,6 +33,8 @@ class PlayRandomSentence(QDialog):
         self.setLayout(layout)
         self.setWindowTitle(self.word)
         layout.addWidget(QLabel(self.jpn))
+        if self.both and self.eng:
+            layout.addWidget(QLabel(self.eng))
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setOrientation(Qt.Horizontal)
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
@@ -48,29 +51,28 @@ class PlayRandomSentence(QDialog):
         self.eng = self.matches = None
 
         for corpus in CORPORA:
-            if run_grep(corpus, self.word):
+            if self.try_corpus(corpus):
                 break
 
         if self.matches:
             m = random.choice(self.matches)
-            self.sid = m.group('sid')
-            self.jpn = m.group('jpn')
-            self.eng = m.group('eng')
+            self.sid = m['sid']
+            self.jpn = m['jpn']
+            self.eng = m['eng']
         else:
             self.jpn = self.word
-
-        if aqt.mw.reviewer.state != 'answer':
-            self.eng = None
 
     def play_front(self):
         say(self.jpn, random.choice(JPN_VOICES))
 
     def play_back(self):
-        say(self.eng, random.choice(ENG_VOICES))
+        if self.both:
+            say(self.eng, random.choice(ENG_VOICES))
 
     def try_corpus(self, corpus):
         try:
             output = run('/usr/bin/grep', self.word, corpus)
+            output = output.decode('utf-8')
             self.matches = [
                 re.match(
                     r'^'
@@ -80,12 +82,14 @@ class PlayRandomSentence(QDialog):
                     r'\t(?P<eng>.*)'
                     r'$',
                     line
-                )
+                ).groupdict()
                 for line in output.split('\n')
                 if line
             ]
         except Exception:
             self.matches = []
+        with open('/tmp/erez.log', 'w') as f:
+            f.write(repr(self.matches))
         return bool(self.matches)
 
 
