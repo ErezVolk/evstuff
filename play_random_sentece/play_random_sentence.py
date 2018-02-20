@@ -18,28 +18,75 @@ CORPORA = [
 ]
 
 
-def play_random_sentence(word):
-    dlg = PlayerDialog()
-    if not dlg.exec_():
-        return
+class PlayRandomSentence(QDialog):
+    def __init__(self):
+        super(PlayRandomSentence, self).__init__()
+        self.get_word()
+        self.look_it_up()
+        self.create_gui()
+        self.play_front()
+        self.play_back()
 
-    eng = hits = None
+    def create_gui(self):
+        layout = QGridLayout()
+        self.setLayout(layout)
+        self.setWindowTitle(self.word)
+        layout.addWidget(QLabel(self.jpn))
+        self.buttonBox = QDialogButtonBox(self)
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        layout.addWidget(self.buttonBox)
+        self.connect(self.buttonBox, SIGNAL(u"accepted()"), self.accept)
+        self.connect(self.buttonBox, SIGNAL(u"rejected()"), self.reject)
 
-    for level, corpus in zip('abcdefg', CORPORA):
-        hits = run_grep(corpus, word)
-        if hits:
-            break
+    def get_word(self):
+        card = aqt.mw.reviewer.card
+        note = card.note()
+        self.word = note['Expression']
 
-    if hits:
-        jpn, eng = random.choice(hits)
-    else:
-        jpn = word
+    def look_it_up(self):
+        self.eng = self.matches = None
 
-    if aqt.mw.reviewer.state != 'answer':
-        eng = None
+        for corpus in CORPORA:
+            if run_grep(corpus, self.word):
+                break
 
-    say(jpn, random.choice(JPN_VOICES))
-    say(eng, random.choice(ENG_VOICES))
+        if self.matches:
+            m = random.choice(self.matches)
+            self.sid = m.group('sid')
+            self.jpn = m.group('jpn')
+            self.eng = m.group('eng')
+        else:
+            self.jpn = self.word
+
+        if aqt.mw.reviewer.state != 'answer':
+            self.eng = None
+
+    def play_front(self):
+        say(self.jpn, random.choice(JPN_VOICES))
+
+    def play_back(self):
+        say(self.eng, random.choice(ENG_VOICES))
+
+    def try_corpus(self, corpus):
+        try:
+            output = run('/usr/bin/grep', self.word, corpus)
+            self.matches = [
+                re.match(
+                    r'^'
+                    r'(?P<sid>\d+)(?P<mp3>[*]?)\t'
+                    r'(?P<jpn>.*)\t'
+                    r'\d+[*]?'
+                    r'\t(?P<eng>.*)'
+                    r'$',
+                    line
+                )
+                for line in output.split('\n')
+                if line
+            ]
+        except Exception:
+            self.matches = []
+        return bool(self.matches)
 
 
 def say(text, voice):
@@ -104,12 +151,9 @@ class ListenForKey(QtCore.QObject):
         if event.key() != QtCore.Qt.Key_K:
             return False
         try:
-            card = aqt.mw.reviewer.card
-            note = card.note()
-            expression = note['Expression']
-            play_random_sentence(expression)
+            PlayRandomSentence().exec_()
         except Exception as ex:
-            with open('/tmp/erez.log', 'w+') as f:
+            with open('/tmp/erez.log', 'w') as f:
                 f.write(repr(ex))
         return True
 
