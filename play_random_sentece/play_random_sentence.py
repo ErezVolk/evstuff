@@ -26,15 +26,23 @@ class PlayRandomSentence(QDialog):
         self.look_it_up()
         self.create_gui()
         self.play_front()
-        self.play_back()
+        # self.play_back()
 
     def create_gui(self):
         layout = QGridLayout()
+        self.font = QFont()
+        self.font.setPointSize(24)
         self.setLayout(layout)
         self.setWindowTitle(self.word)
-        layout.addWidget(QLabel(self.jpn))
+
+        if self.human:
+            layout.addWidget(self.mklabel(u'*' + self.jpn))
+        else:
+            layout.addWidget(self.mklabel(self.jpn))
+
         if self.both and self.eng:
-            layout.addWidget(QLabel(self.eng))
+            layout.addWidget(self.mklabel(self.eng))
+
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setOrientation(Qt.Horizontal)
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
@@ -42,25 +50,29 @@ class PlayRandomSentence(QDialog):
         self.connect(self.buttonBox, SIGNAL(u"accepted()"), self.accept)
         self.connect(self.buttonBox, SIGNAL(u"rejected()"), self.reject)
 
+    def mklabel(self, text):
+        label = QLabel(text)
+        label.setFont(self.font)
+        return label
+
     def get_word(self):
         card = aqt.mw.reviewer.card
         note = card.note()
         self.word = note['Expression']
+        self.meaning = note['Meaning']
 
     def look_it_up(self):
-        self.eng = self.matches = None
+        self.human = None
+        self.jpn = self.word
+        self.eng = self.meaning
 
         for corpus in CORPORA:
             if self.try_corpus(corpus):
-                break
-
-        if self.matches:
-            m = random.choice(self.matches)
-            self.sid = m['sid']
-            self.jpn = m['jpn']
-            self.eng = m['eng']
-        else:
-            self.jpn = self.word
+                m = random.choice(self.matches)
+                self.human = m['mp3']
+                self.jpn = m['jpn']
+                self.eng = m['eng']
+                return
 
     def play_front(self):
         say(self.jpn, random.choice(JPN_VOICES))
@@ -95,7 +107,8 @@ class PlayRandomSentence(QDialog):
 
 def say(text, voice):
     if text and voice:
-        subprocess.call(['/usr/bin/say', '-v', voice, text])
+        # subprocess.call(['/usr/bin/say', '-v', voice, text])
+        subprocess.Popen(['/usr/bin/say', '-v', voice, text])
 
 
 def run_grep(corpus, word):
@@ -155,7 +168,9 @@ class ListenForKey(QtCore.QObject):
         if event.key() != QtCore.Qt.Key_K:
             return False
         try:
-            PlayRandomSentence().exec_()
+            dialog = PlayRandomSentence()
+            if dialog.exec_():
+                dialog.play_back()
         except Exception as ex:
             with open('/tmp/erez.log', 'w') as f:
                 f.write(repr(ex))
@@ -163,8 +178,10 @@ class ListenForKey(QtCore.QObject):
 
 
 JPN_VOICES = get_voices(r'ja_')
-ENG_VOICES = get_voices('my name is')
+ENG_VOICES = ['Alex', 'Daniel']
 
 aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 
-# TODO: https://audio.tatoeba.org/sentences/jpn/4751.mp3 (cached?)
+# TODO: try https://audio.tatoeba.org/sentences/jpn/4751.mp3 (cached?)
+# TODO: show/play English if asked
+# TODO: option to only show English
