@@ -48,11 +48,16 @@ class PlayRandomSentence(QDialog):
         layout.addWidget(self.button)
         self.connect(self.button, SIGNAL('clicked()'), self.clicked)
         self.connect(self, SIGNAL('finished(int)'), self.shut_up)
+        self.button.setFocus()
 
         self.actions = [self.play_front]
         if self.both:
             self.actions.append(self.play_back)
         self.curr = itertools.cycle(self.actions)
+
+    def showEvent(self, event):
+        super(PlayRandomSentence, self).showEvent(event)
+        self.play_next()
 
     def mklabel(self, text=''):
         label = QLabel(text)
@@ -85,6 +90,9 @@ class PlayRandomSentence(QDialog):
         self.eng = self.meaning
 
     def clicked(self):
+        self.play_next()
+
+    def play_next(self):
         self.shut_up()
         callback = self.curr.next()
         callback()
