@@ -21,7 +21,7 @@ CORPORA = [
 
 
 class PlayRandomSentence(QDialog):
-    def __init__(self, parent, expression, meaning):
+    def __init__(self, parent, expression=None, meaning=None):
         super(PlayRandomSentence, self).__init__(parent)
         self.saying = None
         self.get_word(expression, meaning)
@@ -160,20 +160,6 @@ def get_voices(lang):
     ]
 
 
-class PlayerDialog(QDialog):
-    def __init__(self, *args, **kwargs):
-        super(PlayerDialog, self).__init__(*args, **kwargs)
-        layout = QGridLayout()
-        self.setLayout(layout)
-        self.setWindowTitle('Your title here')
-        self.buttonBox = QDialogButtonBox(self)
-        self.buttonBox.setOrientation(Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
-        layout.addWidget(self.buttonBox, 2, 0, 2, 1)
-        self.connect(self.buttonBox, SIGNAL(u"accepted()"), self.accept)
-        self.connect(self.buttonBox, SIGNAL(u"rejected()"), self.reject)
-
-
 class ListenForKey(QtCore.QObject):
     def eventFilter(self, _, event):
         if event.type() != QtCore.QEvent.KeyPress:
@@ -217,6 +203,5 @@ ENG_VOICES = ['Alex', 'Daniel']
 aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 
 # TODO: try https://audio.tatoeba.org/sentences/jpn/4751.mp3 (cached?)
-# TODO: show/play English if asked
-# TODO: option to only show English
 # TODO: first word in expression
+# TODO: Say using awesometts
