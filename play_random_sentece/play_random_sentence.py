@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import sys
 import os
 import random
 import re
 import subprocess
 import itertools
 import urllib2
+import logging as logger
+
+logger.basicConfig(stream=sys.stdout, level=logger.DEBUG)
 
 import aqt
 from aqt.qt import *
@@ -38,18 +42,19 @@ class PlayRandomSentence(QDialog):
         self.setLayout(layout)
         self.setWindowTitle(self.word)
 
-        layout.addWidget(self.mklabel(self.jpn, self.jpn_font))
+        layout.addWidget(self.mklabel(self.jpn_text, self.jpn_font))
 
-        if self.both and self.eng:
-            self.eng_label = self.mklabel(self.eng, self.eng_font)
+        if self.both and self.eng_text:
+            self.eng_label = self.mklabel(self.eng_text, self.eng_font)
             self.hide_eng()
             layout.addWidget(self.eng_label)
 
-        self.button = QPushButton('More', self)
-        layout.addWidget(self.button)
-        self.connect(self.button, SIGNAL('clicked()'), self.clicked)
+        button = QPushButton('More', self)
+        layout.addWidget(button)
+        self.connect(button, SIGNAL('clicked()'), self.next_clicked)
+        button.setFocus()
+
         self.connect(self, SIGNAL('finished(int)'), self.shut_up)
-        self.button.setFocus()
 
         self.actions = [self.play_jpn]
         if self.both:
@@ -89,34 +94,45 @@ class PlayRandomSentence(QDialog):
         self.human = None
         self.jpn_mp3 = None
         self.sid = None
-        self.jpn = self.word
-        self.eng = self.meaning
+        self.jpn_text = self.word
+        self.eng_text = self.meaning
 
     def found_pair(self, match):
         self.sid = match['sid']
         self.human = match['mp3']
-        self.jpn = match['jpn']
-        self.eng = match['eng']
+        self.jpn_text = match['jpn']
+        self.eng_text = match['eng']
+        self.jpn_mp3 = None
+        self.tatoeba = None
         if self.human:
             self.jpn_mp3 = self.try_human()
-        else:
-            self.jpn_mp3 = None
+        if self.human and not self.jpn_mp3:
+            self.jpn_text = u'⛬' + self.jpn_text
 
     def try_human(self):
         fn = '%s.mp3' % self.sid
         path = os.path.join(HERE, fn)
+        url = 'https://audio.tatoeba.org/sentences/jpn/' + fn
 
         if os.path.isfile(path):
             return path
 
-        url = 'https://audio.tatoeba.org/sentences/jpn/' + fn
+        try:
+            subprocess.check_output(['/usr/local/bin/wget', '--timeout=2', url, '-O', path])
+            return path
+        except Exception as ex:
+            logger.exception(ex)
+
         try:
             response = urllib2.urlopen(url, timeout=1)
-        except urllib2.URLError:
+        except urllib2.URLError as ex:
+            logger.exception(ex)
             return None
         if not response:
+            logger.info('No response from %s', url)
             return None
         if response.getcode() != 200:
+            logger.info('%s => HTTP %s', url, response.getcode())
             response.close()
             return None
 
@@ -126,7 +142,7 @@ class PlayRandomSentence(QDialog):
 
         return path
 
-    def clicked(self):
+    def next_clicked(self):
         self.play_next()
 
     def play_next(self):
@@ -138,11 +154,11 @@ class PlayRandomSentence(QDialog):
         if self.human and self.jpn_mp3:
             self.play(self.jpn_mp3)
         else:
-            self.say(self.jpn, random.choice(JPN_VOICES))
+            self.say(self.jpn_text, random.choice(JPN_VOICES))
 
     def play_eng(self):
         self.show_eng()
-        self.say(self.eng, random.choice(ENG_VOICES))
+        self.say(self.eng_text, random.choice(ENG_VOICES))
 
     def hide_eng(self):
         p = self.eng_label.palette()
@@ -158,7 +174,11 @@ class PlayRandomSentence(QDialog):
 
     def try_corpus(self, corpus):
         try:
-            output = run('/usr/bin/grep', self.word, corpus)
+            output = subprocess.check_output([
+                '/usr/bin/grep',
+                self.word,
+                corpus
+            ])
             output = output.decode('utf-8')
             self.matches = [
                 re.match(
@@ -200,10 +220,6 @@ class PlayRandomSentence(QDialog):
             self.saying.waitForFinished()
 
 
-def run(*cmdline):
-    return subprocess.check_output(cmdline)
-
-
 class ListenForKey(QtCore.QObject):
     def eventFilter(self, _, event):
         if event.type() != QtCore.QEvent.KeyPress:
@@ -225,23 +241,10 @@ class ListenForKey(QtCore.QObject):
         try:
             PlayRandomSentence(aqt.mw, expression, meaning).exec_()
         except Exception as ex:
-            evlog('ERROR: ', repr(ex))
+            logger.exception(ex)
         return True
 
 
-def evlog(*parts):
-    with open('/tmp/erez.log', 'a+') as evl:
-        for part in parts:
-            evl.write(unicode(part).encode('utf-8'))
-        evl.write('\n')
-
-
-try:
-    os.unlink('/tmp/erez.log')
-except Exception:
-    pass
-
-# JPN_VOICES = get_voices(r'ja_')
 JPN_VOICES = ['Otoya', 'Kyoko']
 ENG_VOICES = ['Alex', 'Daniel']
 
@@ -251,3 +254,16 @@ aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 # TODO: first word in expression
 # TODO: Say using awesometts
 # TODO: module
+
+
+"""
+TO RELOAD:
+
+In Anki's debug console (ctrl-shift-:)
+
+import sys
+from aqt import mw
+sys.path.insert(0,mw.pm.addonFolder())
+import play_random_sentence
+reload(play_random_sentence)
+"""
