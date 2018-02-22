@@ -4,6 +4,8 @@ import random
 import re
 import subprocess
 import itertools
+import urllib2
+import shutil
 
 import aqt
 from aqt.qt import *
@@ -79,15 +81,45 @@ class PlayRandomSentence(QDialog):
     def look_it_up(self):
         for corpus in CORPORA:
             if self.try_corpus(corpus):
-                m = random.choice(self.matches)
-                self.human = m['mp3']
-                self.jpn = m['jpn']
-                self.eng = m['eng']
-                return
+                return self.found_pair(random.choice(self.matches))
 
+        return self.found_nothing()
+
+    def found_nothing(self):
         self.human = None
+        self.sid = None
         self.jpn = self.word
         self.eng = self.meaning
+
+    def found_pair(self, match):
+        self.sid = match['sid']
+        self.human = match['mp3']
+        self.jpn = match['jpn']
+        self.eng = match['eng']
+        if self.human:
+            self.front_mp3 = self.try_human()
+        else:
+            self.front_mp3 = None
+
+    def try_human(self):
+        fn = '%s.mp3' % self.sid
+        path = os.path.join(HERE, fn)
+        url = 'https://audio.tatoeba.org/sentences/jpn/' + fn
+        try:
+            response = urllib2.urlopen(url, timeout=1)
+        except urllib2.URLError:
+            return None
+        if not response:
+            return None
+        if response.getcode() != 200:
+            response.close()
+            return None
+
+        with open(path, 'wb') as f:
+            f.write(response.read())
+        response.close()
+
+        return path
 
     def clicked(self):
         self.play_next()
@@ -98,7 +130,10 @@ class PlayRandomSentence(QDialog):
         callback()
 
     def play_front(self):
-        self.say(self.jpn, random.choice(JPN_VOICES))
+        if self.front_mp3:
+            self.play(self.front_mp3)
+        else:
+            self.say(self.jpn, random.choice(JPN_VOICES))
 
     def play_back(self):
         self.back_label.setText(self.eng)
@@ -128,9 +163,15 @@ class PlayRandomSentence(QDialog):
     def say(self, text, voice):
         if not text or not voice:
             return
+        self._say('/usr/bin/say', '-v', voice, text)
+
+    def play(self, path):
+        self._say('/usr/local/bin/play', path)
+
+    def _say(self, executable, *args):
         self.saying = QProcess(self)
         self.saying.finished.connect(self.said)
-        self.saying.start('/usr/bin/say', ['-v', voice, text])
+        self.saying.start(executable, args)
         self.saying.waitForStarted()
 
     def said(self, *args):
@@ -172,14 +213,14 @@ class ListenForKey(QtCore.QObject):
             return False
 
         if aqt.mw.state == 'deckBrowser':
-            word = u'譲歩'
+            expression = u'食中毒'
             meaning = u'concession'
         elif aqt.mw.state == 'review':
-            word = meaning = None
+            expression = meaning = None
         else:
             return False
         try:
-            PlayRandomSentence(aqt.mw, word, meaning).exec_()
+            PlayRandomSentence(aqt.mw, expression, meaning).exec_()
         except Exception as ex:
             evlog('ERROR: ', repr(ex))
         return True
@@ -202,6 +243,6 @@ ENG_VOICES = ['Alex', 'Daniel']
 
 aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 
-# TODO: try https://audio.tatoeba.org/sentences/jpn/4751.mp3 (cached?)
+# TODO: Cache tatoeba
 # TODO: first word in expression
 # TODO: Say using awesometts
