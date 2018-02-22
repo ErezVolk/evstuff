@@ -42,7 +42,7 @@ class PlayRandomSentence(QDialog):
 
         if self.both and self.eng:
             self.eng_label = self.mklabel(self.eng, self.eng_font)
-            self.eng_label.setVisible(False)
+            self.hide_eng()
             layout.addWidget(self.eng_label)
 
         self.button = QPushButton('More', self)
@@ -141,8 +141,20 @@ class PlayRandomSentence(QDialog):
             self.say(self.jpn, random.choice(JPN_VOICES))
 
     def play_eng(self):
-        self.eng_label.setVisible(True)
+        self.show_eng()
         self.say(self.eng, random.choice(ENG_VOICES))
+
+    def hide_eng(self):
+        p = self.eng_label.palette()
+        self.eng_foreground = p.color(self.eng_label.foregroundRole())
+        self.eng_background = p.color(self.eng_label.backgroundRole())
+        p.setColor(self.eng_label.foregroundRole(), self.eng_background)
+        self.eng_label.setPalette(p)
+
+    def show_eng(self):
+        p = self.eng_label.palette()
+        p.setColor(self.eng_label.foregroundRole(), self.eng_foreground)
+        self.eng_label.setPalette(p)
 
     def try_corpus(self, corpus):
         try:
@@ -192,20 +204,6 @@ def run(*cmdline):
     return subprocess.check_output(cmdline)
 
 
-def line_to_hit(line):
-    m = re.match(r'^(\d+\*?)\t(.*)\t(\d+\*?)\t(.*)$', line)
-    return (m.group(2), m.group(4))
-
-
-def get_voices(lang):
-    output = run('/usr/bin/say', '-v', '?')
-    return [
-        line.split(' ', 1)[0]
-        for line in output.split('\n')
-        if lang in line
-    ]
-
-
 class ListenForKey(QtCore.QObject):
     def eventFilter(self, _, event):
         if event.type() != QtCore.QEvent.KeyPress:
@@ -243,13 +241,13 @@ try:
 except Exception:
     pass
 
-JPN_VOICES = get_voices(r'ja_')
+# JPN_VOICES = get_voices(r'ja_')
+JPN_VOICES = ['Otoya', 'Kyoko']
 ENG_VOICES = ['Alex', 'Daniel']
 
 aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 
 # TODO: tatoeba english
-# TODO: fix setVisible
-# TODO: line wrap
 # TODO: first word in expression
 # TODO: Say using awesometts
+# TODO: module
