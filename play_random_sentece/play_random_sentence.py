@@ -5,7 +5,6 @@ import re
 import subprocess
 import itertools
 import urllib2
-import shutil
 
 import aqt
 from aqt.qt import *
@@ -32,19 +31,19 @@ class PlayRandomSentence(QDialog):
 
     def create_gui(self):
         layout = QGridLayout()
-        self.font = QFont()
-        self.font.setPointSize(36)
+        self.jpn_font = QFont()
+        self.jpn_font.setPointSize(36)
+        self.eng_font = QFont()
+        self.eng_font.setPointSize(18)
         self.setLayout(layout)
         self.setWindowTitle(self.word)
 
-        if self.human:
-            layout.addWidget(self.mklabel(u'*' + self.jpn))
-        else:
-            layout.addWidget(self.mklabel(self.jpn))
+        layout.addWidget(self.mklabel(self.jpn, self.jpn_font))
 
         if self.both and self.eng:
-            self.back_label = self.mklabel()
-            layout.addWidget(self.back_label)
+            self.eng_label = self.mklabel(self.eng, self.eng_font)
+            self.eng_label.setVisible(False)
+            layout.addWidget(self.eng_label)
 
         self.button = QPushButton('More', self)
         layout.addWidget(self.button)
@@ -52,18 +51,19 @@ class PlayRandomSentence(QDialog):
         self.connect(self, SIGNAL('finished(int)'), self.shut_up)
         self.button.setFocus()
 
-        self.actions = [self.play_front]
+        self.actions = [self.play_jpn]
         if self.both:
-            self.actions.append(self.play_back)
+            self.actions.append(self.play_eng)
         self.curr = itertools.cycle(self.actions)
 
     def showEvent(self, event):
         super(PlayRandomSentence, self).showEvent(event)
         self.play_next()
 
-    def mklabel(self, text=''):
+    def mklabel(self, text, font):
         label = QLabel(text)
-        label.setFont(self.font)
+        label.setFont(font)
+        label.setWordWrap(True)
         return label
 
     def get_word(self, word, meaning):
@@ -87,6 +87,7 @@ class PlayRandomSentence(QDialog):
 
     def found_nothing(self):
         self.human = None
+        self.jpn_mp3 = None
         self.sid = None
         self.jpn = self.word
         self.eng = self.meaning
@@ -97,13 +98,17 @@ class PlayRandomSentence(QDialog):
         self.jpn = match['jpn']
         self.eng = match['eng']
         if self.human:
-            self.front_mp3 = self.try_human()
+            self.jpn_mp3 = self.try_human()
         else:
-            self.front_mp3 = None
+            self.jpn_mp3 = None
 
     def try_human(self):
         fn = '%s.mp3' % self.sid
         path = os.path.join(HERE, fn)
+
+        if os.path.isfile(path):
+            return path
+
         url = 'https://audio.tatoeba.org/sentences/jpn/' + fn
         try:
             response = urllib2.urlopen(url, timeout=1)
@@ -129,14 +134,14 @@ class PlayRandomSentence(QDialog):
         callback = self.curr.next()
         callback()
 
-    def play_front(self):
-        if self.front_mp3:
-            self.play(self.front_mp3)
+    def play_jpn(self):
+        if self.human and self.jpn_mp3:
+            self.play(self.jpn_mp3)
         else:
             self.say(self.jpn, random.choice(JPN_VOICES))
 
-    def play_back(self):
-        self.back_label.setText(self.eng)
+    def play_eng(self):
+        self.eng_label.setVisible(True)
         self.say(self.eng, random.choice(ENG_VOICES))
 
     def try_corpus(self, corpus):
@@ -243,6 +248,8 @@ ENG_VOICES = ['Alex', 'Daniel']
 
 aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 
-# TODO: Cache tatoeba
+# TODO: tatoeba english
+# TODO: fix setVisible
+# TODO: line wrap
 # TODO: first word in expression
 # TODO: Say using awesometts
