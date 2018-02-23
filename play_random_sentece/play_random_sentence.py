@@ -68,13 +68,10 @@ class PlayRandomSentence(QDialog):
         layout = QGridLayout()
         self.jpn_font = QFont()
         self.jpn_font.setPointSize(36)
-        if self.human:
-            if self.jpn_mp3:
-                self.jpn_font.setBold(True)
-            else:
-                self.jpn_font.setItalic(True)
+        self.humanize_font(self.jpn_font, self.jpn_human, self.jpn_mp3)
         self.eng_font = QFont()
         self.eng_font.setPointSize(18)
+        self.humanize_font(self.eng_font, self.eng_human, self.eng_mp3)
         self.setLayout(layout)
         self.setWindowTitle(self.word)
 
@@ -96,6 +93,14 @@ class PlayRandomSentence(QDialog):
         if self.both:
             self.actions.append(self.play_eng)
         self.curr = itertools.cycle(self.actions)
+
+    def humanize_font(self, font, human, mp3):
+        if not human:
+            return
+        if mp3:
+            font.setBold(True)
+        else:
+            font.setItalic(True)
 
     def showEvent(self, event):
         super(PlayRandomSentence, self).showEvent(event)
@@ -132,35 +137,44 @@ class PlayRandomSentence(QDialog):
             return self.found_nothing()
 
     def found_nothing(self):
-        self.human = None
-        self.jpn_mp3 = None
-        self.sid = None
         self.jpn_text = self.word
         self.eng_text = self.meaning
+        self.jpn_human = None
+        self.jpn_mp3 = None
+        self.jpn_sid = None
+        self.eng_human = None
+        self.eng_mp3 = None
+        self.eng_sid = None
 
     def found_pair(self, match):
-        self.sid = match['sid']
-        self.human = match['mp3']
+        self.jpn_sid = match['jpn_sid']
+        self.jpn_human = match['jpn_mp3']
         self.jpn_text = match['jpn']
+        self.eng_sid = match['eng_sid']
+        self.eng_human = match['eng_mp3']
         self.eng_text = match['eng']
-        self.jpn_mp3 = None
         self.tatoeba = None
-        if self.human:
-            self.jpn_mp3 = self.try_human()
+        self.jpn_mp3 = self.try_human('jpn', self.jpn_human, self.jpn_sid)
+        self.eng_mp3 = self.try_human('eng', self.eng_human, self.eng_sid)
 
-    def try_human(self):
-        fn = '%s.mp3' % self.sid
+    def try_human(self, lang, human, sid):
+        if not human:
+            return None
+
+        fn = '%s.mp3' % sid
         path = os.path.join(HERE, fn)
-        url = 'https://audio.tatoeba.org/sentences/jpn/' + fn
+        url = 'https://audio.tatoeba.org/sentences/%s/%s' % (lang, sid)
 
         if os.path.isfile(path):
             return path
 
         try:
-            self.run('/usr/local/bin/wget', '--timeout=2', url, '-O', path)
+            self.run('/usr/local/bin/wget', '--timeout=3', url, '-p', HERE)
             return path
         except Exception as ex:
             logger.exception(ex)
+            if os.path.isfile(path):
+                os.unlink(path)
 
         try:
             response = urllib2.urlopen(url, timeout=1)
@@ -178,7 +192,6 @@ class PlayRandomSentence(QDialog):
         with open(path, 'wb') as f:
             f.write(response.read())
         response.close()
-
         return path
 
     def next_clicked(self):
@@ -190,14 +203,17 @@ class PlayRandomSentence(QDialog):
         callback()
 
     def play_jpn(self):
-        if self.human and self.jpn_mp3:
+        if self.jpn_human and self.jpn_mp3:
             self.play(self.jpn_mp3)
         else:
             self.say(self.jpn_text, self.choose(self.JPN_VOICES))
 
     def play_eng(self):
         self.show_eng()
-        self.say(self.eng_text, self.choose(self.ENG_VOICES))
+        if self.eng_human and self.eng_mp3:
+            self.play(self.eng_mp3)
+        else:
+            self.say(self.eng_text, self.choose(self.ENG_VOICES))
 
     def choose(self, array):
         return random.choice(array)
@@ -227,10 +243,10 @@ class PlayRandomSentence(QDialog):
             matches = [
                 re.match(
                     r'^'
-                    r'(?P<sid>\d+)(?P<mp3>[*]?)\t'
+                    r'(?P<jpn_sid>\d+)(?P<jpn_mp3>[*]?)\t'
                     r'(?P<jpn>.*)\t'
-                    r'\d+[*]?'
-                    r'\t(?P<eng>.*)'
+                    r'(?P<eng_sid>\d+)(?P<eng_mp3>[*]?)\t'
+                    r'(?P<eng>.*)'
                     r'$',
                     line
                 ).groupdict()
@@ -300,7 +316,6 @@ class ListenForKey(QtCore.QObject):
 
 aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 
-# TODO: tatoeba english
 # TODO: first word in expression
 # TODO: Say using awesometts
 # TODO: module
