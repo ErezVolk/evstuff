@@ -30,7 +30,7 @@ class EvLogger(object):
             pass
 
     def _write(self, fmt, *args):
-        with open('/tmp/erez.log', 'w') as f:
+        with open('/tmp/erez.log', 'a+') as f:
             f.write(fmt % args)
             f.write('\n')
 
@@ -47,7 +47,7 @@ logger = EvLogger()
 class Side(object):
     def __init__(self, lang, voices):
         self.lang = lang
-        self.voices = voices
+        self.voices = list(voices)
         self.font = QFont()
         self.human = None
         self.mp3 = None
@@ -70,10 +70,10 @@ class Side(object):
 
     def next_voice(self):
         if self.index is None:
-            self.index = random.choice(xrange(len(self.voices)))
-        else:
-            self.index = (self.index + 1) % len(self.voices)
-        return self.voices[self.index]
+            random.shuffle(self.voices)
+            self.index = 0
+        self.index = self.index + 1
+        return self.voices[self.index % len(self.voices)]
 
 
 class PlayRandomSentence(QDialog):
@@ -218,13 +218,13 @@ class PlayRandomSentence(QDialog):
 
         fn = '%s.mp3' % side.sid
         path = os.path.join(HERE, fn)
-        url = 'https://audio.tatoeba.org/sentences/%s/%s' % (side.lang, side.sid)
+        url = 'https://audio.tatoeba.org/sentences/%s/%s' % (side.lang, fn)
 
         if os.path.isfile(path):
             return path
 
         try:
-            self.run('/usr/local/bin/wget', '--timeout=3', url, '-p', HERE)
+            self.run('/usr/local/bin/wget', '--timeout=3', url, '-P', HERE)
             return path
         except Exception as ex:
             logger.exception(ex)
