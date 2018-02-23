@@ -365,6 +365,7 @@ aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 # TODO: Say using awesometts
 # TODO: module
 # TODO: Look for kana?
+# TODO: play highlighted word
 
 
 """
