@@ -5,43 +5,22 @@ import re
 import subprocess
 import itertools
 import urllib2
-import traceback
 
 import aqt
-from aqt.qt import *
+from logger import logger
 
 try:
     from PyQt5 import QtCore
+    from PyQt5.Qt import *
 except ImportError:
     from PyQt4 import QtCore
+    from PyQt4.Qt import *
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CORPORA = [
     os.path.join(HERE, 'sentences_%02d.txt' % nn)
     for nn in (1, 2, 3)
 ]
-
-
-class EvLogger(object):
-    def __init__(self):
-        try:
-            os.unlink('/tmp/erez.log')
-        except Exception:
-            pass
-
-    def _write(self, fmt, *args):
-        with open('/tmp/erez.log', 'a+') as f:
-            f.write(fmt % args)
-            f.write('\n')
-
-    def exception(self, ex):
-        self._write('%s' % traceback.format_exc())
-
-    debug = _write
-    info = _write
-
-
-logger = EvLogger()
 
 
 class Side(object):
@@ -81,7 +60,7 @@ class PlayRandomSentence(QDialog):
     ENG_VOICES = []
     BLACKLIST = ['Fred', 'Kathy', 'Vicki', 'Victoria']
 
-    def __init__(self, parent, expression=None, meaning=None):
+    def __init__(self, parent, expression, meaning):
         super(PlayRandomSentence, self).__init__(parent)
         self.get_voices()
         self.saying = None
@@ -178,17 +157,10 @@ class PlayRandomSentence(QDialog):
         label.setWordWrap(True)
         return label
 
-    def get_word(self, word, meaning):
-        if word or meaning:
-            self.word = word
-            self.meaning = meaning
-            self.both = word and meaning
-        else:
-            card = aqt.mw.reviewer.card
-            note = card.note()
-            self.word = note['Expression']
-            self.meaning = note['Meaning']
-            self.both = aqt.mw.reviewer.state == 'answer'
+    def get_word(self, expression, meaning):
+        self.word = expression
+        self.meaning = meaning
+        self.both = expression and meaning
 
     def look_it_up(self):
         self.matches = []
@@ -349,7 +321,10 @@ class ListenForKey(QtCore.QObject):
             expression = u'食中毒'
             meaning = u'concession'
         elif aqt.mw.state == 'review':
-            expression = meaning = None
+            card = aqt.mw.reviewer.card
+            note = card.note()
+            expression = note['Expression']
+            meaning = note['Meaning'] if aqt.mw.reviewer.state == 'answer' else None
         else:
             return False
         try:
