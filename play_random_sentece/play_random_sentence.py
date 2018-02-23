@@ -68,6 +68,11 @@ class PlayRandomSentence(QDialog):
         layout = QGridLayout()
         self.jpn_font = QFont()
         self.jpn_font.setPointSize(36)
+        if self.human:
+            if self.jpn_mp3:
+                self.jpn_font.setBold(True)
+            else:
+                self.jpn_font.setItalic(True)
         self.eng_font = QFont()
         self.eng_font.setPointSize(18)
         self.setLayout(layout)
@@ -142,8 +147,6 @@ class PlayRandomSentence(QDialog):
         self.tatoeba = None
         if self.human:
             self.jpn_mp3 = self.try_human()
-        if self.human and not self.jpn_mp3:
-            self.jpn_text = u'⛬' + self.jpn_text
 
     def try_human(self):
         fn = '%s.mp3' % self.sid
@@ -301,6 +304,7 @@ aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 # TODO: first word in expression
 # TODO: Say using awesometts
 # TODO: module
+# TODO: Look for kana?
 
 
 """
