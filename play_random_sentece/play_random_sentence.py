@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-import sys
 import os
 import random
 import re
 import subprocess
 import itertools
 import urllib2
-import logging as logger
-
-logger.basicConfig(stream=sys.stdout, level=logger.DEBUG)
+import traceback
 
 import aqt
 from aqt.qt import *
@@ -25,6 +22,60 @@ CORPORA = [
 ]
 
 
+class EvLogger(object):
+    def __init__(self):
+        try:
+            os.unlink('/tmp/erez.log')
+        except Exception:
+            pass
+
+    def _write(self, fmt, *args):
+        with open('/tmp/erez.log', 'w') as f:
+            f.write(fmt % args)
+            f.write('\n')
+
+    def exception(self, ex):
+        self._write('%s' % traceback.format_exc())
+
+    debug = _write
+    info = _write
+
+
+logger = EvLogger()
+
+
+class Side(object):
+    def __init__(self, lang, voices):
+        self.lang = lang
+        self.voices = voices
+        self.font = QFont()
+        self.human = None
+        self.mp3 = None
+        self.text = None
+        self.sid = None
+        self.index = None
+
+    def humanize_font(self):
+        if not self.human:
+            return
+        if self.mp3:
+            self.font.setBold(True)
+        else:
+            self.font.setItalic(True)
+
+    def from_match(self, match):
+        self.text = match[self.lang]
+        self.sid = match['%s_sid' % self.lang]
+        self.human = match['%s_mp3' % self.lang]
+
+    def next_voice(self):
+        if self.index is None:
+            self.index = random.choice(xrange(len(self.voices)))
+        else:
+            self.index = (self.index + 1) % len(self.voices)
+        return self.voices[self.index]
+
+
 class PlayRandomSentence(QDialog):
     JPN_VOICES = []
     ENG_VOICES = []
@@ -34,6 +85,8 @@ class PlayRandomSentence(QDialog):
         super(PlayRandomSentence, self).__init__(parent)
         self.get_voices()
         self.saying = None
+        self.jpn = Side('jpn', self.JPN_VOICES)
+        self.eng = Side('eng', self.ENG_VOICES)
         self.get_word(expression, meaning)
         self.look_it_up()
         self.create_gui()
@@ -42,6 +95,8 @@ class PlayRandomSentence(QDialog):
     def get_voices(cls):
         cls.JPN_VOICES = cls.JPN_VOICES or cls.get_lang_voices('ja') or ['Kyoko', 'Otoyoa']
         cls.ENG_VOICES = cls.ENG_VOICES or cls.get_lang_voices('en') or ['Daniel', 'Samantha']
+        logger.info('JPN_VOICES: %s', cls.JPN_VOICES)
+        logger.info('ENG_VOICES: %s', cls.ENG_VOICES)
 
     @classmethod
     def get_lang_voices(cls, lang):
@@ -78,19 +133,18 @@ class PlayRandomSentence(QDialog):
 
     def create_gui(self):
         layout = QGridLayout()
-        self.jpn_font = QFont()
-        self.jpn_font.setPointSize(36)
-        self.humanize_font(self.jpn_font, self.jpn_human, self.jpn_mp3)
-        self.eng_font = QFont()
-        self.eng_font.setPointSize(18)
-        self.humanize_font(self.eng_font, self.eng_human, self.eng_mp3)
+        self.jpn.font.setPointSize(36)
+        self.jpn.humanize_font()
+
+        self.eng.font.setPointSize(18)
+        self.eng.humanize_font()
         self.setLayout(layout)
         self.setWindowTitle(self.word)
 
-        layout.addWidget(self.mklabel(self.jpn_text, self.jpn_font))
+        layout.addWidget(self.mklabel(self.jpn))
 
-        if self.both and self.eng_text:
-            self.eng_label = self.mklabel(self.eng_text, self.eng_font)
+        if self.both and self.eng.text:
+            self.eng_label = self.mklabel(self.eng)
             self.hide_eng()
             layout.addWidget(self.eng_label)
 
@@ -118,9 +172,9 @@ class PlayRandomSentence(QDialog):
         super(PlayRandomSentence, self).showEvent(event)
         self.play_next()
 
-    def mklabel(self, text, font):
-        label = QLabel(text)
-        label.setFont(font)
+    def mklabel(self, side):
+        label = QLabel(side.text)
+        label.setFont(side.font)
         label.setWordWrap(True)
         return label
 
@@ -149,33 +203,22 @@ class PlayRandomSentence(QDialog):
             return self.found_nothing()
 
     def found_nothing(self):
-        self.jpn_text = self.word
-        self.eng_text = self.meaning
-        self.jpn_human = None
-        self.jpn_mp3 = None
-        self.jpn_sid = None
-        self.eng_human = None
-        self.eng_mp3 = None
-        self.eng_sid = None
+        self.jpn.text = self.word
+        self.eng.text = self.meaning
 
     def found_pair(self, match):
-        self.jpn_sid = match['jpn_sid']
-        self.jpn_human = match['jpn_mp3']
-        self.jpn_text = match['jpn']
-        self.eng_sid = match['eng_sid']
-        self.eng_human = match['eng_mp3']
-        self.eng_text = match['eng']
-        self.tatoeba = None
-        self.jpn_mp3 = self.try_human('jpn', self.jpn_human, self.jpn_sid)
-        self.eng_mp3 = self.try_human('eng', self.eng_human, self.eng_sid)
+        self.jpn.from_match(match)
+        self.eng.from_match(match)
+        self.jpn.mp3 = self.try_human(self.jpn)
+        self.eng.mp3 = self.try_human(self.eng)
 
-    def try_human(self, lang, human, sid):
-        if not human:
+    def try_human(self, side):
+        if not side.human:
             return None
 
-        fn = '%s.mp3' % sid
+        fn = '%s.mp3' % side.sid
         path = os.path.join(HERE, fn)
-        url = 'https://audio.tatoeba.org/sentences/%s/%s' % (lang, sid)
+        url = 'https://audio.tatoeba.org/sentences/%s/%s' % (side.lang, side.sid)
 
         if os.path.isfile(path):
             return path
@@ -215,23 +258,15 @@ class PlayRandomSentence(QDialog):
         callback()
 
     def play_jpn(self):
-        if self.jpn_human and self.jpn_mp3:
-            self.play(self.jpn_mp3)
-        else:
-            self.say(self.jpn_text, self.choose(self.JPN_VOICES))
+        if self.jpn.human and self.jpn.mp3:
+            return self.play(self.jpn.mp3)
+        self.say(self.jpn)
 
     def play_eng(self):
         self.show_eng()
-        if self.eng_human and self.eng_mp3:
-            self.play(self.eng_mp3)
-        else:
-            self.say(self.eng_text, self.choose(self.ENG_VOICES))
-
-    def choose(self, array):
-        return random.choice(array)
-        # item = array.pop(0)
-        # array.append(item)
-        # return item
+        if self.eng.human and self.eng.mp3:
+            return self.play(self.eng.mp3)
+        self.say(self.eng)
 
     def hide_eng(self):
         p = self.eng_label.palette()
@@ -278,10 +313,8 @@ class PlayRandomSentence(QDialog):
         output = subprocess.check_output(args)
         return output.decode('utf-8')
 
-    def say(self, text, voice):
-        if not text or not voice:
-            return
-        self._say('/usr/bin/say', '-v', voice, text)
+    def say(self, side):
+        self._say('/usr/bin/say', '-v', side.next_voice(), side.text)
 
     def play(self, path):
         self._say('/usr/local/bin/play', path)
