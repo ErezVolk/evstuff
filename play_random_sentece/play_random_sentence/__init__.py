@@ -366,6 +366,7 @@ def start():
 # TODO: Say using awesometts
 # TODO: Look for kana?
 # TODO: play highlighted word
+# TODO: run CLI
 
 
 """
