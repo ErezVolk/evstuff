@@ -28,6 +28,7 @@ CORPORA = [
 class PlayRandomSentence(QDialog):
     JPN_VOICES = []
     ENG_VOICES = []
+    BLACKLIST = ['Fred', 'Kathy', 'Vicki', 'Victoria']
 
     def __init__(self, parent, expression=None, meaning=None):
         super(PlayRandomSentence, self).__init__(parent)
@@ -44,6 +45,15 @@ class PlayRandomSentence(QDialog):
 
     @classmethod
     def get_lang_voices(cls, lang):
+        all_lang_voices = cls.get_lang_voices_with_voices(lang) or cls.get_lang_voices_with_say(lang)
+        return [
+            voice
+            for voice in all_lang_voices
+            if voice not in cls.BLACKLIST
+        ]
+
+    @classmethod
+    def get_lang_voices_with_voices(cls, lang):
         try:
             output = cls.run('/usr/local/bin/voices', '-l', lang)
             return [
@@ -52,7 +62,10 @@ class PlayRandomSentence(QDialog):
                 if ' ' in line
             ]
         except Exception:
-            pass
+            return []
+
+    @classmethod
+    def get_lang_voices_with_say(cls, lang):
         try:
             output = cls.run('say', '-v', '?')
             return [
@@ -61,8 +74,7 @@ class PlayRandomSentence(QDialog):
                 if ' %s_' % lang in line
             ]
         except Exception:
-            pass
-        return []
+            return []
 
     def create_gui(self):
         layout = QGridLayout()
