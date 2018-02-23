@@ -26,12 +26,43 @@ CORPORA = [
 
 
 class PlayRandomSentence(QDialog):
+    JPN_VOICES = []
+    ENG_VOICES = []
+
     def __init__(self, parent, expression=None, meaning=None):
         super(PlayRandomSentence, self).__init__(parent)
+        self.get_voices()
         self.saying = None
         self.get_word(expression, meaning)
         self.look_it_up()
         self.create_gui()
+
+    @classmethod
+    def get_voices(cls):
+        cls.JPN_VOICES = cls.JPN_VOICES or cls.get_lang_voices('ja') or ['Kyoko', 'Otoyoa']
+        cls.ENG_VOICES = cls.ENG_VOICES or cls.get_lang_voices('en') or ['Daniel', 'Samantha']
+
+    @classmethod
+    def get_lang_voices(cls, lang):
+        try:
+            output = cls.run('/usr/local/bin/voices', '-l', lang)
+            return [
+                line.split(' ', 1)[0]
+                for line in output.split('\n')
+                if ' ' in line
+            ]
+        except Exception:
+            pass
+        try:
+            output = cls.run('say', '-v', '?')
+            return [
+                line.split(' ', 1)[0]
+                for line in output.split('\n')
+                if ' %s_' % lang in line
+            ]
+        except Exception:
+            pass
+        return []
 
     def create_gui(self):
         layout = QGridLayout()
@@ -84,11 +115,16 @@ class PlayRandomSentence(QDialog):
             self.both = aqt.mw.reviewer.state == 'answer'
 
     def look_it_up(self):
+        self.matches = []
         for corpus in CORPORA:
             if self.try_corpus(corpus):
-                return self.found_pair(random.choice(self.matches))
+                if len(self.matches) > 1:
+                    break
 
-        return self.found_nothing()
+        if self.matches:
+            return self.found_pair(random.choice(self.matches))
+        else:
+            return self.found_nothing()
 
     def found_nothing(self):
         self.human = None
@@ -118,7 +154,7 @@ class PlayRandomSentence(QDialog):
             return path
 
         try:
-            subprocess.check_output(['/usr/local/bin/wget', '--timeout=2', url, '-O', path])
+            self.run('/usr/local/bin/wget', '--timeout=2', url, '-O', path)
             return path
         except Exception as ex:
             logger.exception(ex)
@@ -154,11 +190,17 @@ class PlayRandomSentence(QDialog):
         if self.human and self.jpn_mp3:
             self.play(self.jpn_mp3)
         else:
-            self.say(self.jpn_text, random.choice(JPN_VOICES))
+            self.say(self.jpn_text, self.choose(self.JPN_VOICES))
 
     def play_eng(self):
         self.show_eng()
-        self.say(self.eng_text, random.choice(ENG_VOICES))
+        self.say(self.eng_text, self.choose(self.ENG_VOICES))
+
+    def choose(self, array):
+        return random.choice(array)
+        # item = array.pop(0)
+        # array.append(item)
+        # return item
 
     def hide_eng(self):
         p = self.eng_label.palette()
@@ -174,13 +216,12 @@ class PlayRandomSentence(QDialog):
 
     def try_corpus(self, corpus):
         try:
-            output = subprocess.check_output([
+            output = self.run(
                 '/usr/bin/grep',
                 self.word,
                 corpus
-            ])
-            output = output.decode('utf-8')
-            self.matches = [
+            )
+            matches = [
                 re.match(
                     r'^'
                     r'(?P<sid>\d+)(?P<mp3>[*]?)\t'
@@ -193,9 +234,18 @@ class PlayRandomSentence(QDialog):
                 for line in output.split('\n')
                 if line
             ]
-        except Exception:
-            self.matches = []
-        return bool(self.matches)
+            if not matches:
+                return False
+            self.matches.extend(matches)
+            return True
+        except Exception as ex:
+            logger.exception(ex)
+            return False
+
+    @staticmethod
+    def run(*args):
+        output = subprocess.check_output(args)
+        return output.decode('utf-8')
 
     def say(self, text, voice):
         if not text or not voice:
@@ -244,9 +294,6 @@ class ListenForKey(QtCore.QObject):
             logger.exception(ex)
         return True
 
-
-JPN_VOICES = ['Otoya', 'Kyoko']
-ENG_VOICES = ['Alex', 'Daniel']
 
 aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 
