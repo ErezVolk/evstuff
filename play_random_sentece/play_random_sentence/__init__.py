@@ -359,11 +359,11 @@ class ListenForKey(QtCore.QObject):
         return True
 
 
-aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
+def start():
+    aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
 
 # TODO: first word in expression
 # TODO: Say using awesometts
-# TODO: module
 # TODO: Look for kana?
 # TODO: play highlighted word
 
