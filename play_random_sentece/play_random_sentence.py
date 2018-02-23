@@ -210,7 +210,7 @@ class PlayRandomSentence(QDialog):
         self.jpn.from_match(match)
         self.eng.from_match(match)
         self.jpn.mp3 = self.try_human(self.jpn)
-        self.eng.mp3 = self.try_human(self.eng)
+        # self.eng.mp3 = self.try_human(self.eng)
 
     def try_human(self, side):
         if not side.human:
