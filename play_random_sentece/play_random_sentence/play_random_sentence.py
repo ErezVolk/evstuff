@@ -3,9 +3,18 @@ import random
 import re
 import subprocess
 import itertools
-import urllib2
 
-from logger import logger
+from .logger import logger
+
+try:
+    import urllib2
+except ImportError:
+    urllib2 = None
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 try:
     from PyQt5 import Qt
@@ -71,8 +80,6 @@ class PlayRandomSentence(Qt.QDialog):
     def get_voices(cls):
         cls.JPN_VOICES = cls.JPN_VOICES or cls.get_lang_voices('ja') or ['Kyoko', 'Otoyoa']
         cls.ENG_VOICES = cls.ENG_VOICES or cls.get_lang_voices('en') or ['Daniel', 'Samantha']
-        logger.info('JPN_VOICES: %s', cls.JPN_VOICES)
-        logger.info('ENG_VOICES: %s', cls.ENG_VOICES)
 
     @classmethod
     def get_lang_voices(cls, lang):
@@ -189,34 +196,42 @@ class PlayRandomSentence(Qt.QDialog):
         path = os.path.join(HERE, fn)
         url = 'https://audio.tatoeba.org/sentences/%s/%s' % (side.lang, fn)
 
-        if os.path.isfile(path):
+        if os.path.isfile(path) or self.try_wget(url) or self.try_urllib2(url, path):
             return path
 
+        if os.path.isfile(path):
+            os.unlink(path)
+        return None
+
+    def try_wget(self, url):
         try:
             self.run('/usr/local/bin/wget', '--timeout=3', url, '-P', HERE)
-            return path
+            return True
         except Exception as ex:
             logger.exception(ex)
-            if os.path.isfile(path):
-                os.unlink(path)
+            return False
+
+    def try_urllib2(self, url, path):
+        if not urllib2:
+            return False
 
         try:
             response = urllib2.urlopen(url, timeout=1)
         except urllib2.URLError as ex:
             logger.exception(ex)
-            return None
+            return False
         if not response:
             logger.info('No response from %s', url)
-            return None
+            return False
         if response.getcode() != 200:
             logger.info('%s => HTTP %s', url, response.getcode())
             response.close()
-            return None
+            return False
 
         with open(path, 'wb') as f:
             f.write(response.read())
         response.close()
-        return path
+        return True
 
     def next_clicked(self):
         self.play_next()
@@ -302,3 +317,7 @@ class PlayRandomSentence(Qt.QDialog):
             self.saying.kill()
             self.saying.waitForFinished()
 
+
+# TODO: cycle defs
+# TODO: run under python3
+# TODO: use requests if we have it
