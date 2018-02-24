@@ -127,10 +127,8 @@ class PlayRandomSentence(QDialog):
         button = QPushButton('More', self)
         layout.addWidget(button)
         button.clicked.connect(self.next_clicked)
-        # self.connect(button, SIGNAL('clicked()'), self.next_clicked)
         button.setFocus()
 
-        # self.connect(self, SIGNAL('finished(int)'), self.shut_up)
         self.finished.connect(self.shut_up)
 
         self.actions = [self.play_jpn]
