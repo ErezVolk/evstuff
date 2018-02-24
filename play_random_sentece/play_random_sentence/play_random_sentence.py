@@ -3,6 +3,7 @@ import random
 import re
 import subprocess
 import itertools
+from functools import partial
 
 from .logger import logger
 
@@ -196,12 +197,34 @@ class PlayRandomSentence(Qt.QDialog):
         path = os.path.join(HERE, fn)
         url = 'https://audio.tatoeba.org/sentences/%s/%s' % (side.lang, fn)
 
-        if os.path.isfile(path) or self.try_wget(url) or self.try_urllib2(url, path):
+        places = [
+            partial(os.path.isfile, path),
+            partial(self.try_requests, url, path),
+            partial(self.try_wget, url),
+            partial(self.try_urllib2, url, path),
+        ]
+
+        if any(func() for func in places):
             return path
 
         if os.path.isfile(path):
             os.unlink(path)
         return None
+
+    def try_requests(self, url, path):
+        if not requests:
+            return False
+
+        try:
+            r = requests.get(url, timeout=2)
+            r.raise_for_status()
+            with open(path, 'wb') as fd:
+                for chunk in r.iter_content(chunk_size=1024):
+                    fd.write(chunk)
+            return True
+        except Exception as ex:
+            logger.exception(ex)
+            return False
 
     def try_wget(self, url):
         try:
@@ -216,7 +239,7 @@ class PlayRandomSentence(Qt.QDialog):
             return False
 
         try:
-            response = urllib2.urlopen(url, timeout=1)
+            response = urllib2.urlopen(url, timeout=2)
         except urllib2.URLError as ex:
             logger.exception(ex)
             return False
@@ -238,7 +261,7 @@ class PlayRandomSentence(Qt.QDialog):
 
     def play_next(self):
         self.shut_up()
-        callback = self.curr.next()
+        callback = next(self.curr)
         callback()
 
     def play_jpn(self):
@@ -319,5 +342,3 @@ class PlayRandomSentence(Qt.QDialog):
 
 
 # TODO: cycle defs
-# TODO: run under python3
-# TODO: use requests if we have it
