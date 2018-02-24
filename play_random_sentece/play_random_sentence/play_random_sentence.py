@@ -8,9 +8,9 @@ import urllib2
 from logger import logger
 
 try:
-    from PyQt5.Qt import *
+    from PyQt5 import Qt
 except ImportError:
-    from PyQt4.Qt import *
+    from PyQt4 import Qt
 
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +24,7 @@ class Side(object):
     def __init__(self, lang, voices):
         self.lang = lang
         self.voices = list(voices)
-        self.font = QFont()
+        self.font = Qt.QFont()
         self.human = None
         self.mp3 = None
         self.text = None
@@ -52,7 +52,7 @@ class Side(object):
         return self.voices[self.index % len(self.voices)]
 
 
-class PlayRandomSentence(QDialog):
+class PlayRandomSentence(Qt.QDialog):
     JPN_VOICES = []
     ENG_VOICES = []
     BLACKLIST = ['Fred', 'Kathy', 'Vicki', 'Victoria']
@@ -108,7 +108,7 @@ class PlayRandomSentence(QDialog):
             return []
 
     def create_gui(self):
-        layout = QGridLayout()
+        layout = Qt.QGridLayout()
         self.jpn.font.setPointSize(36)
         self.jpn.humanize_font()
 
@@ -124,7 +124,7 @@ class PlayRandomSentence(QDialog):
             self.hide_eng()
             layout.addWidget(self.eng_label)
 
-        button = QPushButton('More', self)
+        button = Qt.QPushButton('More', self)
         layout.addWidget(button)
         button.clicked.connect(self.next_clicked)
         button.setFocus()
@@ -149,7 +149,7 @@ class PlayRandomSentence(QDialog):
         self.play_next()
 
     def mklabel(self, side):
-        label = QLabel(side.text)
+        label = Qt.QLabel(side.text)
         label.setFont(side.font)
         label.setWordWrap(True)
         return label
@@ -289,7 +289,7 @@ class PlayRandomSentence(QDialog):
         self._say('/usr/local/bin/play', path)
 
     def _say(self, executable, *args):
-        self.saying = QProcess(self)
+        self.saying = Qt.QProcess(self)
         self.saying.finished.connect(self.said)
         self.saying.start(executable, args)
         self.saying.waitForStarted()
