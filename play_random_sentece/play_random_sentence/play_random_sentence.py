@@ -57,7 +57,7 @@ class PlayRandomSentence(QDialog):
     ENG_VOICES = []
     BLACKLIST = ['Fred', 'Kathy', 'Vicki', 'Victoria']
 
-    def __init__(self, parent, expression, meaning):
+    def __init__(self, parent=None, expression=None, meaning=None):
         super(PlayRandomSentence, self).__init__(parent)
         self.get_voices()
         self.saying = None
@@ -126,10 +126,12 @@ class PlayRandomSentence(QDialog):
 
         button = QPushButton('More', self)
         layout.addWidget(button)
-        self.connect(button, SIGNAL('clicked()'), self.next_clicked)
+        button.clicked.connect(self.next_clicked)
+        # self.connect(button, SIGNAL('clicked()'), self.next_clicked)
         button.setFocus()
 
-        self.connect(self, SIGNAL('finished(int)'), self.shut_up)
+        # self.connect(self, SIGNAL('finished(int)'), self.shut_up)
+        self.finished.connect(self.shut_up)
 
         self.actions = [self.play_jpn]
         if self.both:

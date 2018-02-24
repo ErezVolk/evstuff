@@ -1,0 +1,45 @@
+import aqt
+
+from .logger import logger
+from .play_random_sentence import PlayRandomSentence
+
+try:
+    from PyQt5 import QtCore
+except ImportError:
+    from PyQt4 import QtCore
+
+
+class ListenForKey(QtCore.QObject):
+    def eventFilter(self, _, event):
+        try:
+            if event.type() != QtCore.QEvent.KeyPress:
+                return False
+            if event.isAutoRepeat():
+                return False
+            if event.spontaneous():
+                return False
+            if event.key() != QtCore.Qt.Key_K:
+                return False
+            if aqt.mw.state != 'review':
+                return False
+
+            card = aqt.mw.reviewer.card
+            note = card.note()
+            if not all(f in note for f in ('Expression', 'Meaning')):
+                return False
+
+            expression = note['Expression']
+            if aqt.mw.reviewer.state == 'answer':
+                meaning = note['Meaning']
+            else:
+                meaning = None
+
+            PlayRandomSentence(aqt.mw, expression, meaning).exec_()
+            return True
+        except Exception as ex:
+            logger.exception(ex)
+            return False
+
+
+def initialize():
+    aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
