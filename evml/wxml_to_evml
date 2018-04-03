@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from lxml import etree as ET
 
+# TODO: Proper useage (input, output, debug, etc.)
+
 W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 NS = {'w': W}
 

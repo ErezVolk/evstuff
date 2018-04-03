@@ -3,7 +3,7 @@ import argparse
 import attr
 import re
 
-# TODO: Out-of-line footnote
+# TODO: Out-of-line footnote (something like "Text.[^=1] ... [^1=...]")
 # TODO: Proper useage (input, output, debug, etc.)
 
 
