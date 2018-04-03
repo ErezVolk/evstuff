@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+from lxml import etree as ET
+
+W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+NS = {'w': W}
+
+
+def wtag(tag):
+    return '{%s}%s' % (W, tag)
+
+
+msw = ET.parse('emphasis.xml').getroot()
+
+for s in msw.xpath("//w:style[@w:type='character'][w:name[@w:val='Emphasis']]", namespaces=NS):
+    emphasis = s.get(wtag('styleId'))
+
+
+def p_to_evml(p):
+    evml = ''
+    for r in p.xpath('w:r', namespaces=NS):
+        marker = ''
+        for s in r.xpath("w:rPr/w:rStyle[@w:val='%s']" % emphasis, namespaces=NS):
+            marker = '*'
+        for t in r.xpath('w:t', namespaces=NS):
+            evml += '%s%s%s' % (marker, t.text, marker)
+        for fnr in r.xpath('w:footnoteReference', namespaces=NS):
+            fnid = fnr.get(wtag('id'))
+            evml += '[^'
+            for fn in msw.xpath("//w:footnotes/w:footnote[@w:id='%s']" % fnid, namespaces=NS):
+                evml += '\n'.join(
+                    p_to_evml(fnp)
+                    for fnp in fn.xpath('w:p', namespaces=NS)
+                )
+            evml += '^]'
+    return evml
+
+
+for p in msw.xpath('//w:body/w:p', namespaces=NS):
+    print(p_to_evml(p))

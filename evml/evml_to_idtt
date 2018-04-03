@@ -3,6 +3,9 @@ import argparse
 import attr
 import re
 
+# TODO: Out-of-line footnote
+# TODO: Proper useage (input, output, debug, etc.)
+
 
 class InDesignTaggedTextOutput(object):
     def __init__(self, filename):
