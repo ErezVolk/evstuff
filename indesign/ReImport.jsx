@@ -350,8 +350,14 @@ Reimporter.prototype.fully_justify = function(paragraph) {
     return;
   } else if (lines.count() > 1) {
     var prevLine = lines[numLines - 2];
-    var prevChar = prevLine.characters[prevLine.characters.count() - 2];
+    var prevChar = prevLine.characters[prevLine.characters.count() - 1];
+    var lastFrame = lastLine.parentTextFrames[0];
+    var prevFrame = prevLine.parentTextFrames[0];
     margin = prevChar.endHorizontalOffset;
+    if (prevFrame != lastFrame) {
+      margin -= prevFrame.parentPage.bounds[1];
+      margin += lastFrame.parentPage.bounds[1];
+    }
   } else {
     var frame = lastLine.parentTextFrames[0];
     var frameBounds = frame.geometricBounds;
@@ -359,8 +365,9 @@ Reimporter.prototype.fully_justify = function(paragraph) {
   }
 
   var gap = lastChar.endHorizontalOffset - margin;
+  var fudge = lastChar.pointSize / 2;
 
-  if (gap > 0 && gap < lastChar.pointSize / 2) {
+  if (gap < fudge && gap > -fudge) {
     paragraph.justification = Justification.FULLY_JUSTIFIED;
   }
 }
