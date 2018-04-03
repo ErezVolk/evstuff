@@ -5,7 +5,7 @@ import re
 
 # TODO: Out-of-line footnote (something like "Text.[^=1] ... [^1=...]")
 # TODO: More styles and stuff (when I need them)
-# TODO: Explicit paragraph style (":style: jkjkjk")
+# TODO: Explicit paragraph style (":style: jkjkjk" -- needed for author etc.)
 # TODO: Explicit character style (?)
 # TODO: What do I do about those marker asterisks
 # TODO: Unit tests
@@ -150,6 +150,8 @@ class EvmlToIdtt(object):
 
     def __init__(self):
         parser = argparse.ArgumentParser(description='EVML to InDesign Tagged Text')
+        parser.add_argument('evml', help='Input file')
+        parser.add_argument('idtt', help='Output file')
         self.args = parser.parse_args()
 
     def run(self):
@@ -193,11 +195,11 @@ class EvmlToIdtt(object):
                     lines.clear()
 
     def open_input(self):
-        self.input = open('input.evml', 'r')
+        self.input = open(self.args.evml, 'r')
         return self.input
 
     def open_output(self):
-        self.output = InDesignTaggedTextOutput('output.txt')
+        self.output = InDesignTaggedTextOutput(self.args.idtt)
         return self.output
 
     def handle_contextual(self, args):

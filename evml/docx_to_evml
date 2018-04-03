@@ -4,6 +4,7 @@ import zipfile
 from lxml import etree as ET
 
 # TODO: What do I do about those marker asterisks
+# TODO: Line width
 
 
 class DocxToEvml(object):
