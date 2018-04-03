@@ -1,9 +1,14 @@
 // ex: set et sw=2:
 
+// TODO: Smarter fully (if multiline, compare, otherwise flip)
+// TODO: Maybe do the start of line trick?
+// TODO: Status notification
+// TODO: Change "old load" checkbox to radio
 // TODO: Save settings in a variable
+// TODO: Offer the precooked searches!
+// TODO: Proper master page fixer
 // TODO: Index stuff
-// TODO: Offer precooked searches!
-// TODO: Clear after "EREZ EREZ"
+// TODO: Clear (or do a story break) after "EREZ EREZ"
 
 function Reimporter() {
   this.doc = app.activeDocument;
@@ -36,6 +41,7 @@ Reimporter.prototype.run = function() {
     this.post_fix_spaces();
     this.post_fix_dashes();
     this.post_remove_footnote_whitespace();
+    this.post_fully_justify();
     this.restore_reflow();
     this.post_fix_masters();
     this.post_update_toc();
@@ -136,6 +142,11 @@ Reimporter.prototype.get_options = function() {
               staticLabel: "Remove leading whitespace in footnotes",
               checkedState: true
             });
+          this.ui_post_fully_justify =
+            checkboxControls.add({
+              staticLabel: "Fix to full justification",
+              checkedState: true
+            });
           this.ui_post_fix_masters =
             checkboxControls.add({
               staticLabel: "Fix master pages",
@@ -203,7 +214,7 @@ Reimporter.prototype.filter_files = function(file) {
   if (file.constructor.name == "Folder") {
     return true;
   }
-  if (file.name.match(/\.docx?$/)) {
+  if (file.name.match(/\.(docx?|txt)$/)) {
     return true;
   }
   return false;
@@ -213,7 +224,6 @@ Reimporter.prototype.pre_remaster = function() {
   if (!this.ui_pre_remaster.checkedState)
     return;
   this.doc.pages.everyItem().appliedMaster = this.a_master;
-  this.override_all_master_page_items(this.doc.pages[0]);
 };
 
 Reimporter.prototype.pre_clear = function() {
@@ -221,16 +231,17 @@ Reimporter.prototype.pre_clear = function() {
     return;
   var page = this.doc.pages[0];
   this.main_frame(page).parentStory.contents = "";
-  this.override_all_master_page_items(page);
+  //this.override_all_master_page_items(page);
 };
 
 Reimporter.prototype.override_all_master_page_items = function(page) {
-  var allItems = page.appliedMaster.pageItems.everyItem().getElements();
-  for(var i = 0; i < allItems.length; ++ i) {
+  for (var i = 0; i < page.masterPageItems.length; ++ i) {
+    mpi = page.masterPageItems[i];
     try {
-      allItems[i].override(page);
-    }
-    catch (e) {
+      if (mpi.allowOverrides) {
+        mpi.override(page);
+      }
+    } catch (e) {
     }
   }
 };
@@ -294,6 +305,48 @@ Reimporter.prototype.post_remove_footnote_whitespace = function() {
   }
 };
 
+Reimporter.prototype.post_fully_justify = function() {
+  if (!this.ui_post_fully_justify.checkedState)
+    return;
+
+  var page = this.doc.pages[0];
+  var frame = page.textFrames[0];
+  var story = frame.parentStory;
+  var paragraphs = story.paragraphs;
+
+  var prefs = this.doc.viewPreferences;
+  var oldUnits = prefs.horizontalMeasurementUnits;
+  prefs.horizontalMeasurementUnits = MeasurementUnits.pixels;
+
+  for (var i = 0; i < paragraphs.count(); ++ i) {
+    try {
+      var paragraph = paragraphs[i];
+      var justification = paragraph.justification;
+
+      if (justification == Justification.FULLY_JUSTIFIED) {
+        paragraph.justification = Justification.RIGHT_JUSTIFIED;
+      } else if (justification != Justification.RIGHT_JUSTIFIED) {
+        continue;
+      }
+
+      var lines = paragraph.lines;
+      var lastLine = lines.lastItem();
+      var lastChar = lastLine.characters[lastLine.characters.count() - 2];
+      var frame = lastLine.parentTextFrames[0];
+      var frameBounds = frame.geometricBounds;
+      var leftMargin = frameBounds[1];
+      var gap = lastChar.endHorizontalOffset - leftMargin;
+
+      if (gap > 0 && gap < lastChar.pointSize / 2) {
+        paragraph.justification = Justification.FULLY_JUSTIFIED;
+      }
+    } catch (e) {
+    }
+  }
+
+  prefs.horizontalMeasurementUnits = oldUnits;
+};
+
 Reimporter.prototype.reset_searches = function() {
   app.findTextPreferences = NothingEnum.nothing;
   app.changeTextPreferences = NothingEnum.nothing;
@@ -317,16 +370,16 @@ Reimporter.prototype.post_fix_masters = function() {
   if (!this.ui_post_fix_masters.checkedState)
     return;
 
-  var all_pages = this.doc.pages.everyItem().getElements();
-  var num_pages = all_pages.length;
-
   // title page is B-Master
-  all_pages[0].appliedMaster = this.b_master;
+  var title_page = this.doc.pages[0];
+  title_page.appliedMaster = this.b_master;
 
-  for (i = 1; i < num_pages; i++) {
-    var page = all_pages[i];
+  for (var i = 1; i < this.doc.pages.length; ++ i) {
+    var page = this.doc.pages[i];
     if (this.page_is_empty(page) || this.page_is_chapter(page)) {
       page.appliedMaster = this.b_master;
+    } else {
+      page.appliedMaster = this.a_master;
     }
   }
 }
@@ -345,7 +398,12 @@ Reimporter.prototype.post_update_toc = function() {
 }
 
 Reimporter.prototype.page_is_empty = function(page) {
-  return (page.pageItems.length == 0 || this.main_frame(page).contents == "");
+  if (page.pageItems.length == 0) {
+    return true;
+  }
+  if (this.main_frame(page).contents == "") {
+    return true;
+  }
 }
 
 Reimporter.prototype.page_is_chapter = function(page) {
@@ -412,7 +470,13 @@ Reimporter.prototype.restore_reflow = function() {
   if (!this.reflow_changed)
     return;
 
+  var saved_preflight = this.doc.preflightOptions.preflightOff;
+
+  this.doc.preflightOptions.preflightOff = false; 
   this.doc.textPreferences.smartTextReflow = this.saved_reflow;
+  this.doc.activeProcess.waitForProcess(30);
+  this.doc.preflightOptions.preflightOff = saved_preflight;
+
   this.reflow_changed = false;
 }
 

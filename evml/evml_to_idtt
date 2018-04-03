@@ -2,13 +2,13 @@
 import argparse
 import attr
 import re
+import logging
 
 # TODO: Out-of-line footnote (something like "Text.[^=1] ... [^1=...]")
 # TODO: More styles and stuff (when I need them)
-# TODO: Explicit paragraph style (":style: jkjkjk" -- needed for author etc.)
 # TODO: Explicit character style (?)
-# TODO: What do I do about those marker asterisks
 # TODO: Unit tests
+# TODO: Make up styles as you go along
 
 
 class InDesignTaggedTextOutput(object):
@@ -116,9 +116,12 @@ class CharacterStyle(object):
 @attr.s
 class Contextual(object):
     prev = attr.ib()
-    source = attr.ib()
+    source = attr.ib(converter=lambda s: s or 'טקסט')
     target = attr.ib()
     etc = attr.ib(default=False, converter=bool)
+
+    def __str__(self):
+        return '%s BECOMES %s AFTER %s' % (self.source, self.target, self.prev)
 
 
 class EvmlToIdtt(object):
@@ -137,12 +140,14 @@ class EvmlToIdtt(object):
         '-': 'כותרת-2',
         '~': 'כותרת-3',
     }
-    RE_HEADER = re.compile(r'^([%s])\1{2,}\s*$' % ''.join(HEADER_STYLES))
+    RE_HEADER = re.compile(r'^(?P<mark>[%s])\1{2,}\s*$' % ''.join(HEADER_STYLES))
+
+    RE_EXPLICIT_PARAGRAPH_STYLE = re.compile(r'^:(?P<style>\S*?):\s*')
 
     RE_CONTEXTUAL = re.compile(
         r'^#::\s*'
-        r'אחרי\s+(?P<prev>\S+),\s+'
-        r'(?P<source>\S+)\s+נהיה\s+'
+        r'אחרי\s+(?P<prev>\S+)'
+        r'(,\s+(?P<source>\S+)\s+נהיה|\s+בא)\s+'
         r'(?P<target>\S+)'
         r'(?P<etc>(\s+עד הודעה חדשה)?)'
         r'\s*$'
@@ -152,7 +157,13 @@ class EvmlToIdtt(object):
         parser = argparse.ArgumentParser(description='EVML to InDesign Tagged Text')
         parser.add_argument('evml', help='Input file')
         parser.add_argument('idtt', help='Output file')
+        parser.add_argument('-d', '--debug', action='store_true',
+                            help='Print some debug info')
         self.args = parser.parse_args()
+        logging.basicConfig(
+            format='%(message)s',
+            level=logging.DEBUG if self.args.debug else logging.INFO
+        )
 
     def run(self):
         with self.open_input() as evml, self.open_output() as idtt:
@@ -172,12 +183,12 @@ class EvmlToIdtt(object):
 
             lines = []
             for line in map(str.strip, evml):
-                m = self.RE_CONTEXTUAL.match(line)
-                if m:
-                    self.handle_contextual(m.groupdict())
+                if self.match(self.RE_CONTEXTUAL, line):
+                    self.handle_contextual(self.matched.groupdict())
                     continue
 
                 if line.startswith('#'):  # Comment
+                    logging.debug(line)
                     continue
 
                 if line.startswith(': '):  # Poem
@@ -185,14 +196,23 @@ class EvmlToIdtt(object):
                 elif line:  # Continuation of paragraph
                     lines.append(line)
                 elif lines:  # Ship paragraph
-                    last_line = lines[-1]
-                    if self.RE_HEADER.match(last_line):
+                    style = 'טקסט'
+
+                    if self.match(self.RE_HEADER, lines[-1]):
                         lines.pop()
-                        style = self.HEADER_STYLES[last_line[0]]
-                    else:
-                        style = 'טקסט'
+                        style = self.HEADER_STYLES[self.matched.group('mark')]
+
+                    if self.match(self.RE_EXPLICIT_PARAGRAPH_STYLE, lines[0]):
+                        style = self.matched.group('style')
+                        lines[0] = lines[0][self.matched.end():]
+                        self.output.define_paragraph_style(style)
+
                     self.handle_write_paragraph(style, ' '.join(lines))
                     lines.clear()
+
+    def match(self, regex, string):
+        self.matched = regex.match(string)
+        return self.matched
 
     def open_input(self):
         self.input = open(self.args.evml, 'r')
@@ -208,12 +228,14 @@ class EvmlToIdtt(object):
         self.output.define_paragraph_style(c.source)
         self.output.define_paragraph_style(c.target, c.prev)
         self.contextuals.append(Contextual(**args))
+        logging.debug(self.contextuals[-1])
         if c.etc:
             self.contextuals.append(Contextual(
                 prev=c.target,
                 source=c.source,
                 target=c.target
             ))
+            logging.debug(self.contextuals[-1])
 
     def handle_write_footnote(self, text):
         self.output.enter_footnote()
