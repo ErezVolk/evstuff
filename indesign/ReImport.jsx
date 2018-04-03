@@ -1,6 +1,5 @@
 // ex: set et sw=2:
 
-// TODO: Smarter fully (if multiline, compare, otherwise flip)
 // TODO: Maybe do the start of line trick?
 // TODO: Status notification
 // TODO: Change "old load" checkbox to radio
@@ -320,32 +319,51 @@ Reimporter.prototype.post_fully_justify = function() {
 
   for (var i = 0; i < paragraphs.count(); ++ i) {
     try {
-      var paragraph = paragraphs[i];
-      var justification = paragraph.justification;
-
-      if (justification == Justification.FULLY_JUSTIFIED) {
-        paragraph.justification = Justification.RIGHT_JUSTIFIED;
-      } else if (justification != Justification.RIGHT_JUSTIFIED) {
-        continue;
-      }
-
-      var lines = paragraph.lines;
-      var lastLine = lines.lastItem();
-      var lastChar = lastLine.characters[lastLine.characters.count() - 2];
-      var frame = lastLine.parentTextFrames[0];
-      var frameBounds = frame.geometricBounds;
-      var leftMargin = frameBounds[1];
-      var gap = lastChar.endHorizontalOffset - leftMargin;
-
-      if (gap > 0 && gap < lastChar.pointSize / 2) {
-        paragraph.justification = Justification.FULLY_JUSTIFIED;
-      }
+      this.fully_justify(paragraphs[i]);
     } catch (e) {
+      alert(e);
     }
   }
 
   prefs.horizontalMeasurementUnits = oldUnits;
 };
+
+Reimporter.prototype.fully_justify = function(paragraph) {
+  if (paragraph.paragraphDirection != ParagraphDirectionOptions.RIGHT_TO_LEFT_DIRECTION) {
+    return;
+  }
+
+  var lines = paragraph.lines;
+  var numLines = lines.count()
+  var lastLine = lines.lastItem();
+  var lastChar = lastLine.characters.lastItem();
+  if (lastChar == '\n') {
+    lastChar = lastLine.characters[lastLine.characters.count() - 2];
+  }
+  var margin = null;
+
+  var justification = paragraph.justification;
+  if (justification == Justification.FULLY_JUSTIFIED) {
+    margin = lastChar.endHorizontalOffset;
+    paragraph.justification = Justification.RIGHT_JUSTIFIED;
+  } else if (justification != Justification.RIGHT_JUSTIFIED) {
+    return;
+  } else if (lines.count() > 1) {
+    var prevLine = lines[numLines - 2];
+    var prevChar = prevLine.characters[prevLine.characters.count() - 2];
+    margin = prevChar.endHorizontalOffset;
+  } else {
+    var frame = lastLine.parentTextFrames[0];
+    var frameBounds = frame.geometricBounds;
+    margin = frameBounds[1];
+  }
+
+  var gap = lastChar.endHorizontalOffset - margin;
+
+  if (gap > 0 && gap < lastChar.pointSize / 2) {
+    paragraph.justification = Justification.FULLY_JUSTIFIED;
+  }
+}
 
 Reimporter.prototype.reset_searches = function() {
   app.findTextPreferences = NothingEnum.nothing;
