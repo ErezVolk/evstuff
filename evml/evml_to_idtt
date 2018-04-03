@@ -1,0 +1,142 @@
+#!/usr/bin/env python3
+import attr
+import re
+
+
+@attr.s
+class CharacterStyle(object):
+    name = attr.ib()
+    pattern = attr.ib()
+
+    @property
+    def regex(self):
+        return '(?P<%s>%s)' % (self.name, self.pattern)
+
+
+class InDesignTaggedTextOutput(object):
+    def __init__(self, filename):
+        self._filename = filename
+
+    def __enter__(self):
+        self._fo = open(self._filename, 'w', encoding='UTF-16LE')
+        self._writeln('<UNICODE-MAC>')
+        self._writeln('<Version:13.1><FeatureSet:Indesign-R2L>')
+        return self
+
+    def __exit__(self, *exception):
+        self._fo.close()
+
+    def _write(self, string):
+        if string:
+            self._fo.write(string)
+
+    def _writeln(self, line=''):
+        self._write(line)
+        self._fo.write('\n')
+
+    def define_paragraph_style(self, style):
+        self._write('<DefineParaStyle:')
+        self._write(style)
+        self._writeln('>')
+
+    def define_character_style(self, style):
+        self._write('<DefineCharStyle:')
+        self._write(style)
+        self._writeln('>')
+
+    def enter_paragraph(self, style):
+        self._write('<ParaStyle:')
+        self._write(style)
+        self._write('>')
+
+    def leave_paragraph(self):
+        self._writeln('')
+
+    def set_character(self, style=''):
+        self._write('<CharStyle:')
+        self._write(style)
+        self._write('>')
+
+    def enter_footnote(self, style=None):
+        self._write('<cPosition:Superscript><FootnoteStart:>')
+        if style is not None:
+            self._write('<ParaStyle:')
+            self._write(style)
+            self._write('>')
+
+    def leave_footnote(self):
+        self._write('<FootnoteEnd:><cPosition:>')
+
+    def write_text(self, text):
+        self._write(text)
+
+
+class EvmlToIdtt(object):
+    _CHARACTER_STYLES = [
+        CharacterStyle('חזק', r'[*][*]'),
+        CharacterStyle('מודגש', r'[*]'),
+    ]
+    _REGEXES = [r'(?P<footnote>\[\^(?P<fnbody>.*?)\])'] + [s.regex for s in _CHARACTER_STYLES]
+    RE_CHARACTER_STYLES = re.compile('|'.join(_REGEXES))
+
+    def run(self):
+        with self.open_input() as evml, self.open_output() as idtt:
+            for name in ['טקסט', 'שיר']:
+                idtt.define_paragraph_style(name)
+
+            for s in self._CHARACTER_STYLES:
+                idtt.define_character_style(s.name)
+
+            lines = []
+            for line in map(str.strip, evml):
+                if line.startswith('#'):  # Comment
+                    continue
+                elif line.startswith(': '):  # Poem
+                    idtt.enter_paragraph('שיר')
+                    self.write_text(line[2:])
+                    idtt.leave_paragraph()
+                elif line:
+                    lines.append(line)
+                elif lines:
+                    idtt.enter_paragraph('טקסט')
+                    self.write_text(' '.join(lines))
+                    idtt.leave_paragraph()
+                    lines = []
+
+    def open_input(self):
+        self._input = open('input.evml', 'r')
+        return self._input
+
+    def open_output(self):
+        self._output = InDesignTaggedTextOutput('output.txt')
+        return self._output
+
+    def write_text(self, text):
+        active = []
+        offset = 0
+        for m in self.RE_CHARACTER_STYLES.finditer(text):
+            if m.start() > offset:
+                self._output.write_text(text[offset:m.start()])
+
+            groupname = m.lastgroup
+            if groupname == 'footnote':
+                self._output.enter_footnote()
+                self.write_text(m['fnbody'])
+                self._output.leave_footnote()
+            elif not active or active[-1] != groupname:
+                self._output.set_character(groupname)
+                active.append(groupname)
+            else:
+                active.pop()
+                if active:
+                    self._output.set_character(active[-1])
+                else:
+                    self._output.set_character()
+
+            offset = m.end()
+        if offset < len(text):
+            self._output.write_text(text[offset:])
+
+
+if __name__ == '__main__':
+    EvmlToIdtt().run()
