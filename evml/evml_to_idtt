@@ -1,6 +1,91 @@
 #!/usr/bin/env python3
+import argparse
 import attr
 import re
+
+
+class InDesignTaggedTextOutput(object):
+    def __init__(self, filename):
+        self._filename = filename
+        self._character_styles = set()
+        self._paragraph_styles = {}
+
+    def __enter__(self):
+        self._fo = open(self._filename, 'w', encoding='UTF-16LE')
+        self._ufo = open(self._filename + '.utf8', 'w', encoding='UTF-8')
+        return self
+
+    def __exit__(self, *exception):
+        self._fo.close()
+        self._ufo.close()
+
+    def _write(self, string):
+        if not string:
+            return
+        self._fo.write(string)
+        self._ufo.write(string)
+
+    def _writeln(self, line=''):
+        self._write(line)
+        self._write('\n')
+
+    def define_paragraph_style(self, style, parent=None):
+        self._paragraph_styles.setdefault(style, parent)
+
+    def define_character_style(self, style):
+        self._character_styles.add(style)
+
+    def _write_headers(self):
+        if not self._paragraph_styles:
+            return
+        self._writeln('<UNICODE-MAC>')
+        self._write('<Version:13.1>')
+        self._write('<FeatureSet:Indesign-R2L>')
+        self._write('<ColorTable:=<Black:COLOR:CMYK:Process:0,0,0,1>>')
+        self._writeln()
+        for style in sorted(self._character_styles):
+            self._write('<DefineCharStyle:')
+            self._write(style)
+            self._writeln('>')
+        for style, parent in sorted(self._paragraph_styles.items()):
+            self._write('<DefineParaStyle:')
+            self._write(style)
+            if parent:
+                self._write('<BasedOn:')
+                self._write(parent)
+                self._write('>')
+            self._writeln('>')
+        self._paragraph_styles.clear()
+        self._character_styles.clear()
+
+    def enter_paragraph(self, style):
+        self._write_headers()
+        self._write('<ParaStyle:')
+        self._write(style)
+        self._write('>')
+
+    def leave_paragraph(self):
+        self._writeln()
+
+    def set_character_style(self, style=''):
+        self._write('<CharStyle:')
+        self._write(style)
+        self._write('>')
+
+    def enter_footnote(self):
+        self._write('<cPosition:Superscript><FootnoteStart:>')
+
+    def leave_footnote(self):
+        self._write('<FootnoteEnd:><cPosition:>')
+
+    def write_text(self, text):
+        self._write(text)
+
+
+@attr.s
+class State(object):
+    curr = attr.ib(default=None)
+    prev = attr.ib(default=None)
 
 
 @attr.s
@@ -13,129 +98,175 @@ class CharacterStyle(object):
         return '(?P<%s>%s)' % (self.name, self.pattern)
 
 
-class InDesignTaggedTextOutput(object):
-    def __init__(self, filename):
-        self._filename = filename
-
-    def __enter__(self):
-        self._fo = open(self._filename, 'w', encoding='UTF-16LE')
-        self._writeln('<UNICODE-MAC>')
-        self._writeln('<Version:13.1><FeatureSet:Indesign-R2L>')
-        return self
-
-    def __exit__(self, *exception):
-        self._fo.close()
-
-    def _write(self, string):
-        if string:
-            self._fo.write(string)
-
-    def _writeln(self, line=''):
-        self._write(line)
-        self._fo.write('\n')
-
-    def define_paragraph_style(self, style):
-        self._write('<DefineParaStyle:')
-        self._write(style)
-        self._writeln('>')
-
-    def define_character_style(self, style):
-        self._write('<DefineCharStyle:')
-        self._write(style)
-        self._writeln('>')
-
-    def enter_paragraph(self, style):
-        self._write('<ParaStyle:')
-        self._write(style)
-        self._write('>')
-
-    def leave_paragraph(self):
-        self._writeln('')
-
-    def set_character(self, style=''):
-        self._write('<CharStyle:')
-        self._write(style)
-        self._write('>')
-
-    def enter_footnote(self, style=None):
-        self._write('<cPosition:Superscript><FootnoteStart:>')
-        if style is not None:
-            self._write('<ParaStyle:')
-            self._write(style)
-            self._write('>')
-
-    def leave_footnote(self):
-        self._write('<FootnoteEnd:><cPosition:>')
-
-    def write_text(self, text):
-        self._write(text)
+@attr.s
+class Contextual(object):
+    prev = attr.ib()
+    source = attr.ib()
+    target = attr.ib()
+    etc = attr.ib(default=False, converter=bool)
 
 
 class EvmlToIdtt(object):
-    _CHARACTER_STYLES = [
+    CHARACTER_STYLES = [
         CharacterStyle('חזק', r'[*][*]'),
         CharacterStyle('מודגש', r'[*]'),
     ]
-    _REGEXES = [r'(?P<footnote>\[\^(?P<fnbody>.*?)\])'] + [s.regex for s in _CHARACTER_STYLES]
-    RE_CHARACTER_STYLES = re.compile('|'.join(_REGEXES))
+    REGEXES = [
+        r'(?P<footnote>\[\^(?P<fnbody>.*?)\^?\])',
+        r'(?P<fnenter>\[\^(?P<fnebody>[^\]]*)$)',
+        r'(?P<fnleave>^(?P<fnlbody>[^\]]*?)\^\])',
+    ] + [s.regex for s in CHARACTER_STYLES]
+    RE_CHARACTER_STYLES = re.compile('|'.join(REGEXES))
+
+    HEADER_STYLES = {
+        '=': 'כותרת-1',
+        '-': 'כותרת-2',
+        '~': 'כותרת-3',
+    }
+    RE_HEADER = re.compile(r'^([%s])\1{2,}\s*$' % ''.join(HEADER_STYLES))
+
+    RE_CONTEXTUAL = re.compile(
+        r'^#::\s*'
+        r'אחרי\s+(?P<prev>\S+),\s+'
+        r'(?P<source>\S+)\s+נהיה\s+'
+        r'(?P<target>\S+)'
+        r'(?P<etc>(\s+עד הודעה חדשה)?)'
+        r'\s*$'
+    )
+
+    def __init__(self):
+        parser = argparse.ArgumentParser(description='EVML to InDesign Tagged Text')
+        self.args = parser.parse_args()
 
     def run(self):
         with self.open_input() as evml, self.open_output() as idtt:
-            for name in ['טקסט', 'שיר']:
+            self.state = State()
+            self.main_state = None
+            self.contextuals = []
+            self.character_style_stack = []
+
+            for name in ['שיר', 'טקסט', 'הערת-שוליים']:
                 idtt.define_paragraph_style(name)
 
-            for s in self._CHARACTER_STYLES:
+            for name in self.HEADER_STYLES.values():
+                idtt.define_paragraph_style(name)
+
+            for s in self.CHARACTER_STYLES:
                 idtt.define_character_style(s.name)
 
             lines = []
             for line in map(str.strip, evml):
+                m = self.RE_CONTEXTUAL.match(line)
+                if m:
+                    self.handle_contextual(m.groupdict())
+                    continue
+
                 if line.startswith('#'):  # Comment
                     continue
-                elif line.startswith(': '):  # Poem
-                    idtt.enter_paragraph('שיר')
-                    self.write_text(line[2:])
-                    idtt.leave_paragraph()
-                elif line:
+
+                if line.startswith(': '):  # Poem
+                    self.handle_write_paragraph('שיר', line[2:])
+                elif line:  # Continuation of paragraph
                     lines.append(line)
-                elif lines:
-                    idtt.enter_paragraph('טקסט')
-                    self.write_text(' '.join(lines))
-                    idtt.leave_paragraph()
-                    lines = []
+                elif lines:  # Ship paragraph
+                    last_line = lines[-1]
+                    if self.RE_HEADER.match(last_line):
+                        lines.pop()
+                        style = self.HEADER_STYLES[last_line[0]]
+                    else:
+                        style = 'טקסט'
+                    self.handle_write_paragraph(style, ' '.join(lines))
+                    lines.clear()
 
     def open_input(self):
-        self._input = open('input.evml', 'r')
-        return self._input
+        self.input = open('input.evml', 'r')
+        return self.input
 
     def open_output(self):
-        self._output = InDesignTaggedTextOutput('output.txt')
-        return self._output
+        self.output = InDesignTaggedTextOutput('output.txt')
+        return self.output
 
-    def write_text(self, text):
-        active = []
+    def handle_contextual(self, args):
+        c = Contextual(**args)
+        self.output.define_paragraph_style(c.prev)
+        self.output.define_paragraph_style(c.source)
+        self.output.define_paragraph_style(c.target, c.prev)
+        self.contextuals.append(Contextual(**args))
+        if c.etc:
+            self.contextuals.append(Contextual(
+                prev=c.target,
+                source=c.source,
+                target=c.target
+            ))
+
+    def handle_write_footnote(self, text):
+        self.output.enter_footnote()
+        self.main_state = self.state
+        self.state = State()
+        self.handle_write_paragraph('הערת-שוליים', text)
+        self.output.leave_footnote()
+        self.state = self.main_state
+
+    def handle_enter_footnote(self, text):
+        self.output.enter_footnote()
+        self.main_state = self.state
+        self.state = State()
+        self.handle_enter_paragraph('הערת-שוליים', text)
+
+    def handle_leave_footnote(self):
+        self.output.leave_footnote()
+        self.state = self.main_state
+        self.main_state = None
+
+    def handle_write_paragraph(self, style, text):
+        self.handle_enter_paragraph(style, text)
+        self.handle_leave_paragraph()
+
+    def handle_enter_paragraph(self, style, text):
+        try:
+            c = next(
+                c for c in self.contextuals if
+                c.prev == self.state.prev and c.source == style
+            )
+            style = c.target
+        except StopIteration:
+            pass
+
+        self.state.curr = style
+        self.output.enter_paragraph(style)
+        self.handle_write_text(text)
+
+    def handle_leave_paragraph(self):
+        self.output.leave_paragraph()
+        self.state.prev = self.state.curr
+
+    def handle_write_text(self, text):
         offset = 0
         for m in self.RE_CHARACTER_STYLES.finditer(text):
             if m.start() > offset:
-                self._output.write_text(text[offset:m.start()])
+                self.output.write_text(text[offset:m.start()])
 
             groupname = m.lastgroup
             if groupname == 'footnote':
-                self._output.enter_footnote()
-                self.write_text(m['fnbody'])
-                self._output.leave_footnote()
-            elif not active or active[-1] != groupname:
-                self._output.set_character(groupname)
-                active.append(groupname)
+                self.handle_write_footnote(m['fnbody'])
+            elif groupname == 'fnenter':
+                self.handle_enter_footnote(m['fnebody'])
+            elif groupname == 'fnleave':
+                self.handle_write_text(m['fnlbody'])
+                self.handle_leave_footnote()
+            elif not self.character_style_stack or self.character_style_stack[-1] != groupname:
+                self.output.set_character_style(groupname)
+                self.character_style_stack.append(groupname)
             else:
-                active.pop()
-                if active:
-                    self._output.set_character(active[-1])
+                self.character_style_stack.pop()
+                if self.character_style_stack:
+                    self.output.set_character_style(self.character_style_stack[-1])
                 else:
-                    self._output.set_character()
+                    self.output.set_character_style()
 
             offset = m.end()
         if offset < len(text):
-            self._output.write_text(text[offset:])
+            self.output.write_text(text[offset:])
 
 
 if __name__ == '__main__':
