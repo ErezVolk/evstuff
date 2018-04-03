@@ -3,6 +3,8 @@ import argparse
 import zipfile
 from lxml import etree as ET
 
+# TODO: What do I do about those marker asterisks
+
 
 class DocxToEvml(object):
     W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
@@ -52,7 +54,7 @@ class DocxToEvml(object):
         for r in self.xpath(p, 'w:r'):
             marker = ''
             for s in self.xpath(r, "w:rPr/w:rStyle[@w:val='%s']" % self.emphasis):
-                marker = '*'
+                marker = '_'
             if marker != self.marker:
                 yield self.marker
                 self.marker = marker

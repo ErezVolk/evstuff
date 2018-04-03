@@ -4,7 +4,11 @@ import attr
 import re
 
 # TODO: Out-of-line footnote (something like "Text.[^=1] ... [^1=...]")
-# TODO: Proper useage (input, output, debug, etc.)
+# TODO: More styles and stuff (when I need them)
+# TODO: Explicit paragraph style (":style: jkjkjk")
+# TODO: Explicit character style (?)
+# TODO: What do I do about those marker asterisks
+# TODO: Unit tests
 
 
 class InDesignTaggedTextOutput(object):
@@ -12,6 +16,7 @@ class InDesignTaggedTextOutput(object):
         self._filename = filename
         self._character_styles = set()
         self._paragraph_styles = {}
+        self._headers_written = False
 
     def __enter__(self):
         self._fo = open(self._filename, 'w', encoding='UTF-16LE')
@@ -33,13 +38,17 @@ class InDesignTaggedTextOutput(object):
         self._write('\n')
 
     def define_paragraph_style(self, style, parent=None):
-        self._paragraph_styles.setdefault(style, parent)
+        if style in self._paragraph_styles:
+            return
+        self._paragraph_styles[style] = parent
+        if self._headers_written:
+            self._write_paragraph_style(style)
 
     def define_character_style(self, style):
         self._character_styles.add(style)
 
     def _write_headers(self):
-        if not self._paragraph_styles:
+        if self._headers_written:
             return
         self._writeln('<UNICODE-MAC>')
         self._write('<Version:13.1>')
@@ -50,16 +59,19 @@ class InDesignTaggedTextOutput(object):
             self._write('<DefineCharStyle:')
             self._write(style)
             self._writeln('>')
-        for style, parent in sorted(self._paragraph_styles.items()):
-            self._write('<DefineParaStyle:')
-            self._write(style)
-            if parent:
-                self._write('<BasedOn:')
-                self._write(parent)
-                self._write('>')
-            self._writeln('>')
-        self._paragraph_styles.clear()
-        self._character_styles.clear()
+        for style in sorted(self._paragraph_styles):
+            self._write_paragraph_style(style)
+        self._headers_written = True
+
+    def _write_paragraph_style(self, style):
+        self._write('<DefineParaStyle:')
+        self._write(style)
+        parent = self._paragraph_styles[style]
+        if parent:
+            self._write('<BasedOn:')
+            self._write(parent)
+            self._write('>')
+        self._writeln('>')
 
     def enter_paragraph(self, style):
         self._write_headers()
@@ -111,8 +123,7 @@ class Contextual(object):
 
 class EvmlToIdtt(object):
     CHARACTER_STYLES = [
-        CharacterStyle('חזק', r'[*][*]'),
-        CharacterStyle('מודגש', r'[*]'),
+        CharacterStyle('מודגש', r'_'),
     ]
     REGEXES = [
         r'(?P<footnote>\[\^(?P<fnbody>.*?)\^?\])',
