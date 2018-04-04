@@ -144,10 +144,18 @@ class EvmlToIdtt(object):
 
     RE_EXPLICIT_PARAGRAPH_STYLE = re.compile(r'^:(?P<style>\S*?):\s*')
 
+    RE_HEADS_UP = re.compile(
+        r'^#::\s*'
+        r'(?P<child>\s\+)\s*'
+        r'ה]יא[א סוג של '
+        r'(?P<parent>\s\+)'
+        r'\s*$'
+    )
+
     RE_CONTEXTUAL = re.compile(
         r'^#::\s*'
         r'אחרי\s+(?P<prev>\S+)'
-        r'(,\s+(?P<source>\S+)\s+נהיה|\s+בא)\s+'
+        r'(,\s+(?P<source>\S+)\s+נהיה|\s+באה?)\s+'
         r'(?P<target>\S+)'
         r'(?P<etc>(\s+עד הודעה חדשה)?)'
         r'\s*$'
@@ -183,6 +191,10 @@ class EvmlToIdtt(object):
 
             lines = []
             for line in map(str.strip, evml):
+                if self.match(self.RE_HEADS_UP, line):
+                    self.handle_heads_up(self.matched.groupdict())
+                    continue
+
                 if self.match(self.RE_CONTEXTUAL, line):
                     self.handle_contextual(self.matched.groupdict())
                     continue
@@ -221,6 +233,10 @@ class EvmlToIdtt(object):
     def open_output(self):
         self.output = InDesignTaggedTextOutput(self.args.idtt)
         return self.output
+
+    def handle_heads_up(self, args):
+        self.output.define_paragraph_style(args['parent'])
+        self.output.define_paragraph_style(args['child'], args['parent'])
 
     def handle_contextual(self, args):
         c = Contextual(**args)

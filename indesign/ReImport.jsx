@@ -1,6 +1,7 @@
 // ex: set et sw=2:
 
 // TODO: Maybe do the start of line trick?
+// TODO: Remove unused imported styles
 // TODO: Status notification
 // TODO: Change "old load" checkbox to radio
 // TODO: Save settings in a variable
