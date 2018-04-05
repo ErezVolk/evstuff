@@ -132,12 +132,14 @@ class DocxToIdtt(object):
 
             try:
                 section = self.mapping[self.section_name(realm, internal_name)]
+                if section.get('group') or (section.get('name') != internal_name):
+                    section.setdefault('legit', 'auto')
             except KeyError:
                 section = {}
 
             style = Style(
                 realm=realm,
-                name=section.get('name', internal_name),
+                name=section.get('name') or internal_name,
                 group=section.get('group'),
                 legit=section.get('legit'),
                 internal_name=internal_name,
