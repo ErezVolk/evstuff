@@ -12,6 +12,10 @@ import sqlalchemy as sa
 
 Base = declarative_base()
 
+# TODO: Endnotes
+# TODO: Comments
+# TODO: Editing marks
+
 
 class Style(Base):
     __tablename__ = 'style'
