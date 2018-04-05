@@ -1,6 +1,5 @@
 // ex: set et sw=2:
 
-// TODO: This pseudo-object isn't nice
 // TODO: Multiple main stories are a no-no
 // TODO: Split (and unsplit!) frames on specific styles
 // TODO: Maybe do the start of line trick?
@@ -13,94 +12,102 @@
 // TODO: Index stuff
 // TODO: Clear (or do a story break) after "EREZ EREZ"
 
-function Reimporter() {
-  this.doc = app.activeDocument;
-  this.reflow_changed = false;
+function ri_main() {
+  ri = {
+    doc: app.activeDocument,
+    reflow_changed: false,
+    messages: []
+  };
+  ri_run(ri);
 }
 
-Reimporter.prototype.run = function() {
-  this.analyze();
+function ri_run(ri) {
+  ri_analyze(ri);
 
-  if (!this.get_options())
+  if (!ri_get_options(ri))
     return;
 
-  if (this.uig_import.checkedState)
-    if (!this.get_importee())
+  if (ri.uig_import.checkedState)
+    if (!ri_get_importee(ri))
       return;
 
-  this.start_counter();
-  this.disable_grep();
-  this.disable_reflow();
-  if (this.uig_pre.checkedState) {
-    this.pre_remaster();
-    this.pre_clear();
+  ri_start_counter(ri);
+  ri_disable_grep(ri);
+  ri_disable_reflow(ri);
+  if (ri.uig_pre.checkedState) {
+    ri_pre_remaster(ri);
+    ri_pre_clear(ri);
   }
-  if (this.uig_import.checkedState) {
-    this.do_import();
+  if (ri.uig_import.checkedState) {
+    ri_do_import(ri);
   }
-  if (this.uig_post.checkedState) {
-    this.post_clear_overrides();
-    this.reset_searches();
-    this.post_fix_spaces();
-    this.post_fix_dashes();
-    this.post_remove_footnote_whitespace();
-    this.post_fully_justify();
-    this.restore_reflow();
-    this.post_fix_masters();
-    this.post_update_toc();
+  if (ri.uig_post.checkedState) {
+    ri_post_clear_overrides(ri);
+    ri_reset_searches(ri);
+    ri_post_fix_spaces(ri);
+    ri_post_fix_dashes(ri);
+    ri_post_remove_footnote_whitespace(ri);
   }
-  this.enable_grep();
-  this.restore_reflow();
-  this.stop_counter();
+  if (ri.uig_groom.checkedState) {
+    ri_groom_fully_justify(ri);
+    ri_restore_reflow(ri);
+    ri_groom_fix_masters(ri);
+    ri_groom_update_toc(ri);
+  }
+  ri_enable_grep(ri);
+  ri_restore_reflow(ri);
+  ri_stop_counter(ri);
 };
 
-Reimporter.prototype.start_counter = function() {
-  this.start_ms = new Date().valueOf();
+function ri_start_counter(ri) {
+  ri.start_ms = new Date().valueOf();
 }
 
-Reimporter.prototype.stop_counter = function() {
+function ri_stop_counter(ri) {
   end_ms = new Date().valueOf();
-  elapsed = (end_ms - this.start_ms) / 1000.0;
-  alert("The whole thing took " + String(elapsed) + " Sec.");
+  elapsed = (end_ms - ri.start_ms) / 1000.0;
+
+  ri.messages.unshift("Done in " + String(elapsed) + " Sec.");
+  alert(ri.messages.join('\n'));
 }
 
-Reimporter.prototype.analyze = function() {
-  var vars = this.doc.textVariables;
-  this.var_saved = null;
-  this.str_saved = null;
+function ri_analyze(ri) {
+  var vars = ri.doc.textVariables;
+  ri.var_saved = null;
+  ri.str_saved = null;
 
   for (var i = 0; i < vars.length; ++ i) {
     var cur = vars[i]
     if (cur.variableType == VariableTypes.CUSTOM_TEXT_TYPE && cur.name == "Imported From") {
-      this.var_saved = cur;
-      this.str_saved = cur.variableOptions.contents;
+      ri.var_saved = cur;
+      ri.str_saved = cur.variableOptions.contents;
       break;
     }
   }
 
-  var stories = this.doc.stories;
-  this.have_toc = false;
-  if (this.doc.tocStyles.length > 1) {
-    this.toc_styles = this.doc.tocStyles.everyItem().name;
-    this.toc_styles.shift();
-    for (var i = 0; i < stories.length && !this.have_toc; ++ i) {
-      this.have_toc = (stories[i].storyType == StoryTypes.TOC_STORY);
+  var stories = ri.doc.stories;
+  ri.have_toc = false;
+  if (ri.doc.tocStyles.length > 1) {
+    ri.toc_styles = ri.doc.tocStyles.everyItem().name;
+    ri.toc_styles.shift();
+    for (var i = 0; i < stories.length && !ri.have_toc; ++ i) {
+      ri.have_toc = (stories[i].storyType == StoryTypes.TOC_STORY);
     }
   }
 }
 
-Reimporter.prototype.get_options = function() {
+function ri_get_options(ri) {
   var dlg = app.dialogs.add({name: "ReImport Options"});
   with (dlg) {
     with (dialogColumns.add()) {
-      with (this.uig_pre = enablingGroups.add({staticLabel: "Pre-Import", checkedState: true})) {
+      with (ri.uig_pre = enablingGroups.add({staticLabel: "Pre-Import", checkedState: true})) {
         with (dialogColumns.add() ) {
-          this.ui_pre_remaster =
+          ri.ui_pre_remaster =
             checkboxControls.add({
               staticLabel: "Reset all master pages",
               checkedState: true
             });
-          this.ui_pre_clear =
+          ri.ui_pre_clear =
             checkboxControls.add({
               staticLabel: "Remove all text",
               checkedState: true
@@ -108,61 +115,66 @@ Reimporter.prototype.get_options = function() {
         }
       }
 
-      with (this.uig_import = enablingGroups.add({staticLabel: "Import", checkedState: true})) {
+      with (ri.uig_import = enablingGroups.add({staticLabel: "Import", checkedState: true})) {
         with (dialogColumns.add() ) {
-          if (this.str_saved) {
-            this.ui_same_importee = checkboxControls.add({
-              staticLabel: "Reload " + String(this.str_saved),
+          if (ri.str_saved) {
+            ri.ui_same_importee = checkboxControls.add({
+              staticLabel: "Reload " + String(ri.str_saved),
               checkedState: true
             });
           }
-          this.ui_import_options = checkboxControls.add({
+          ri.ui_import_options = checkboxControls.add({
             staticLabel: "Show import options",
             checkedState: true
           });
         }
       }
 
-      with (this.uig_post = enablingGroups.add({staticLabel: "Post-Import", checkedState: true})) {
+      with (ri.uig_post = enablingGroups.add({staticLabel: "Post-Import", checkedState: true})) {
         with (dialogColumns.add() ) {
-          this.ui_post_clear_overrides =
+          ri.ui_post_clear_overrides =
             checkboxControls.add({
               staticLabel: "Clear all imported style overrides",
               checkedState: true
             });
-          this.ui_post_fix_spaces =
+          ri.ui_post_fix_spaces =
             checkboxControls.add({
               staticLabel: "Eliminate multiple spaces",
               checkedState: true
             });
-          this.ui_post_fix_dashes =
+          ri.ui_post_fix_dashes =
             checkboxControls.add({
               staticLabel: "Fix spacing around dashes",
               checkedState: true
             });
-          this.ui_post_remove_footnote_whitespace =
+          ri.ui_post_remove_footnote_whitespace =
             checkboxControls.add({
               staticLabel: "Remove leading whitespace in footnotes",
               checkedState: true
             });
-          this.ui_post_fully_justify =
+        }
+      }
+
+      with (ri.uig_groom = enablingGroups.add({staticLabel: "Grooming", checkedState: true})) {
+        with (dialogColumns.add() ) {
+          ri.ui_groom_fully_justify =
             checkboxControls.add({
               staticLabel: "Fix to full justification",
               checkedState: true
             });
-          this.ui_post_fix_masters =
+          ri.ui_groom_fix_masters =
             checkboxControls.add({
               staticLabel: "Fix master pages",
               checkedState: true
             });
-          if (this.have_toc) {
-            this.ui_post_update_toc =
+          if (ri.have_toc) {
+            ri.ui_groom_update_toc =
               checkboxControls.add({
                 staticLabel: "Update TOC",
                 checkedState: true
               });
-            this.ui_post_toc_style = dropdowns.add({
-              stringList: this.toc_styles,
+            ri.ui_groom_toc_style = dropdowns.add({
+              stringList: ri.toc_styles,
               selectedIndex: 0
             });
           }
@@ -175,19 +187,19 @@ Reimporter.prototype.get_options = function() {
           staticTexts.add({staticLabel: "Headless Master:"});
         }
         with (dialogColumns.add()) {
-          var masters = this.doc.masterSpreads.everyItem().name;
-          this.ui_a_master = dropdowns.add({stringList: masters, selectedIndex: 0});
-          this.ui_b_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
+          var masters = ri.doc.masterSpreads.everyItem().name;
+          ri.ui_a_master = dropdowns.add({stringList: masters, selectedIndex: 0});
+          ri.ui_b_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
         }
       }
 
       with (checkboxControls) {
         with (dialogColumns.add()) {
-          this.ui_disable_grep = add({
+          ri.ui_disable_grep = add({
             staticLabel: "Disable GREP styles while working",
             checkedState: true
           });
-          this.ui_disable_reflow = add({
+          ri.ui_disable_reflow = add({
             staticLabel: "Disable smart reflow when applicable",
             checkedState: true
           });
@@ -200,20 +212,20 @@ Reimporter.prototype.get_options = function() {
     return false;
   }
 
-  this.a_master = this.doc.masterSpreads.itemByName(masters[this.ui_a_master.selectedIndex]);
-  this.b_master = this.doc.masterSpreads.itemByName(masters[this.ui_b_master.selectedIndex]);
+  ri.a_master = ri.doc.masterSpreads.itemByName(masters[ri.ui_a_master.selectedIndex]);
+  ri.b_master = ri.doc.masterSpreads.itemByName(masters[ri.ui_b_master.selectedIndex]);
   return true;
 }
 
-Reimporter.prototype.get_importee = function() {
-  if (this.str_saved && this.ui_same_importee.checkedState)
-    this.importee = this.str_saved;
+function ri_get_importee(ri) {
+  if (ri.str_saved && ri.ui_same_importee.checkedState)
+    ri.importee = ri.str_saved;
   else
-    this.importee = File.openDialog("Choose your importee", this.filter_files)
-  return this.importee;
+    ri.importee = File.openDialog("Choose your importee", ri.filter_files)
+  return ri.importee;
 };
 
-Reimporter.prototype.filter_files = function(file) {
+function ri_filter_files(ri, file) {
   if (file.constructor.name == "Folder") {
     return true;
   }
@@ -223,21 +235,21 @@ Reimporter.prototype.filter_files = function(file) {
   return false;
 };
 
-Reimporter.prototype.pre_remaster = function() {
-  if (!this.ui_pre_remaster.checkedState)
+function ri_pre_remaster(ri) {
+  if (!ri.ui_pre_remaster.checkedState)
     return;
-  this.doc.pages.everyItem().appliedMaster = this.a_master;
+  ri.doc.pages.everyItem().appliedMaster = ri.a_master;
 };
 
-Reimporter.prototype.pre_clear = function() {
-  if (!this.ui_pre_clear.checkedState)
+function ri_pre_clear(ri) {
+  if (!ri.ui_pre_clear.checkedState)
     return;
-  var page = this.doc.pages[0];
-  this.main_frame(page).parentStory.contents = "";
-  //this.override_all_master_page_items(page);
+  var page = ri.doc.pages[0];
+  ri_main_frame(ri, page).parentStory.contents = "";
+  //ri_override_all_master_page_items(ri, page);
 };
 
-Reimporter.prototype.override_all_master_page_items = function(page) {
+function ri_override_all_master_page_items(ri, page) {
   for (var i = 0; i < page.masterPageItems.length; ++ i) {
     mpi = page.masterPageItems[i];
     try {
@@ -249,106 +261,117 @@ Reimporter.prototype.override_all_master_page_items = function(page) {
   }
 };
 
-Reimporter.prototype.do_import = function() {
-  var page = this.doc.pages[0];
-  var frame = this.main_frame(page);
+function ri_do_import(ri) {
+  var page = ri.doc.pages[0];
+  var frame = ri_main_frame(ri, page);
   try {
-    frame.place(this.importee, this.ui_import_options.checkedState);
+    frame.place(ri.importee, ri.ui_import_options.checkedState);
   } catch (e) {
     alert("Note: Import failed(?)\n" + e);
   }
-  if (!this.var_saved)
-    this.var_saved = this.doc.textVariables.add({
+  if (!ri.var_saved)
+    ri.var_saved = ri.doc.textVariables.add({
       name: "Imported From",
       variableType: VariableTypes.CUSTOM_TEXT_TYPE
     });
-  this.var_saved.variableOptions.contents = this.importee;
+  ri.var_saved.variableOptions.contents = ri.importee;
 };
 
-Reimporter.prototype.post_clear_overrides = function() {
-  if (!this.ui_post_clear_overrides.checkedState)
+function ri_post_clear_overrides(ri) {
+  if (!ri.ui_post_clear_overrides.checkedState)
     return;
-  this.doc.stories.everyItem().clearOverrides();
+  ri.doc.stories.everyItem().clearOverrides();
   try {
-    this.doc.stories.everyItem().footnotes.everyItem().texts.everyItem().clearOverrides();
+    ri.doc.stories.everyItem().footnotes.everyItem().texts.everyItem().clearOverrides();
   }
   catch (e) {
   }
 };
 
-Reimporter.prototype.post_fix_spaces = function() {
-  if (!this.ui_post_fix_spaces.checkedState)
+function ri_post_fix_spaces(ri) {
+  if (!ri.ui_post_fix_spaces.checkedState)
     return;
 
   // Multiple Space to Single Space
-  this.change_grep("[~m~>~f~|~S~s~<~/~.~3~4~% ]{2,}", "\\s");
+  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ]{2,}", "\\s");
 
   // No whitespace at the end of paragraphs (doesn't work!?)
-  this.change_grep("\\s+$", "");
+  ri_change_grep(ri, "\\s+$", "");
 };
 
-Reimporter.prototype.post_fix_dashes = function() {
-  if (!this.ui_post_fix_dashes.checkedState)
+function ri_post_fix_dashes(ri) {
+  if (!ri.ui_post_fix_dashes.checkedState)
     return;
 
-  this.change_grep("[ ~<]+~=[ ~k~<]+", "~<~=~k~<");
+  ri_change_grep(ri, "[ ~<]+~=[ ~k~<]+", "~<~=~k~<");
 };
 
-Reimporter.prototype.post_remove_footnote_whitespace = function() {
-  if (!this.ui_post_remove_footnote_whitespace.checkedState)
+function ri_post_remove_footnote_whitespace(ri) {
+  if (!ri.ui_post_remove_footnote_whitespace.checkedState)
     return;
 
   app.findGrepPreferences.findWhat = "(?<=^~F\\t) +";
   app.changeGrepPreferences.changeTo = "";
   try {
-    this.doc.stories.everyItem().footnotes.everyItem().texts.everyItem()
+    ri.doc.stories.everyItem().footnotes.everyItem().texts.everyItem()
       .changeGrep();
   }
   catch (e) {
   }
 };
 
-Reimporter.prototype.post_fully_justify = function() {
-  if (!this.ui_post_fully_justify.checkedState)
+function ri_groom_fully_justify(ri) {
+  if (!ri.ui_groom_fully_justify.checkedState)
     return;
 
-  var page = this.doc.pages[0];
+  var page = ri.doc.pages[0];
   var frame = page.textFrames[0];
   var story = frame.parentStory;
   var paragraphs = story.paragraphs;
 
-  var prefs = this.doc.viewPreferences;
+  var prefs = ri.doc.viewPreferences;
   var oldUnits = prefs.horizontalMeasurementUnits;
   prefs.horizontalMeasurementUnits = MeasurementUnits.pixels;
 
-  for (var i = 0; i < paragraphs.count(); ++ i) {
-    this.fully_justify(paragraphs[i]);
-  }
+  var changed = 0;
+  for (var i = 0; i < paragraphs.count(); ++ i)
+    if (ri_fully_justify(ri, paragraphs[i], paragraphs[i - 1]))
+      ++ changed;
 
   prefs.horizontalMeasurementUnits = oldUnits;
+
+  if (changed) {
+    ri.messages.push(
+      'Justification changed for ' +
+      String(changed) +
+      ' of ' +
+      String(paragraphs.count()) +
+      ' paragraph(s)'
+    );
+  }
 };
 
-Reimporter.prototype.fully_justify = function(paragraph) {
+function ri_fully_justify(ri, paragraph, antegraph) {
   if (paragraph.paragraphDirection != ParagraphDirectionOptions.RIGHT_TO_LEFT_DIRECTION) {
-    return;
+    return false;
   }
 
   var justification = paragraph.justification;
   if (justification != Justification.FULLY_JUSTIFIED && justification != Justification.RIGHT_JUSTIFIED) {
-    return;
+    return false;
   }
 
   var lines = paragraph.lines;
   var numLines = lines.count()
-  var lastLine = lines.lastItem();
+  var lastLine = lines[-1];
   var lastLineFrame = lastLine.parentTextFrames[0];
   if (lastLineFrame == undefined) {
-    return;
+    return false;
   }
 
-  var lastChar = lastLine.characters.lastItem();
+  var lastChar = lastLine.characters[-1];
   if (lastChar == '\n') {
-    lastChar = lastLine.characters[lastLine.characters.count() - 2];
+    lastChar = lastLine.characters[-2];
   }
 
   var fully = null;
@@ -359,19 +382,42 @@ Reimporter.prototype.fully_justify = function(paragraph) {
     fully = lastChar.endHorizontalOffset;
     paragraph.justification = Justification.RIGHT_JUSTIFIED;
     right = lastChar.endHorizontalOffset;
-  } else if (lines.count() > 1) {
-    // Just compare with ante line
-    right = lastChar.endHorizontalOffset;
-    var anteLine = lines[numLines - 2];
-    fully = anteLine.characters.lastItem().endHorizontalOffset;
-
-    var anteLineFrame = anteLine.parentTextFrames[0];
-
-    if (anteLineFrame != lastLineFrame) {
-      fully -= anteLineFrame.parentPage.bounds[1];
-      fully += lastLineFrame.parentPage.bounds[1];
-    }
   } else {
+    // Try and locate antepenultimate line
+    right = lastChar.endHorizontalOffset;
+    var anteLine = null;
+    var anteChar = null;
+
+    if (lines.count() > 1) {
+      // Paragraph is long enough
+      anteLine = lines[-2];
+      anteChar = anteLine.characters[-1];
+    } else if (antegraph) {
+      // Try the previous paragraph
+      var anteLines = antegraph.lines;
+
+      if (antegraph.justification == Justification.FULLY_JUSTIFIED) {
+        anteLine = anteLines[-1];
+        anteChar = anteLine.characters[-2];
+      } else if (antegraph.justification == Justification.RIGHT_JUSTIFIED && anteLines.count() > 1) {
+        anteLine = anteLines[-2];
+        anteChar = anteLine.characters[-1];
+      }
+    }
+
+    if (anteChar && anteLine) {
+      fully = anteChar.endHorizontalOffset;
+
+      var anteLineFrame = anteLine.parentTextFrames[0];
+
+      if (anteLineFrame != lastLineFrame) {
+        fully -= anteLineFrame.parentPage.bounds[1];
+        fully += lastLineFrame.parentPage.bounds[1];
+      }
+    }
+  }
+
+  if (!fully) {
     // Align to check
     right = lastChar.endHorizontalOffset;
     paragraph.justification = Justification.FULLY_JUSTIFIED;
@@ -386,69 +432,71 @@ Reimporter.prototype.fully_justify = function(paragraph) {
   } else {
     paragraph.justification = Justification.RIGHT_JUSTIFIED;
   }
+
+  return (paragraph.justification != justification);
 }
 
-Reimporter.prototype.reset_searches = function() {
+function ri_reset_searches(ri) {
   app.findTextPreferences = NothingEnum.nothing;
   app.changeTextPreferences = NothingEnum.nothing;
   app.findGrepPreferences = NothingEnum.nothing;
   app.changeGrepPreferences = NothingEnum.nothing;
 }
 
-Reimporter.prototype.change_text = function(findWhat, changeTo) {
+function ri_change_text(ri, findWhat, changeTo) {
   app.findTextPreferences.findWhat = findWhat;
   app.changeTextPreferences.changeTo = changeTo;
-  this.doc.changeText();
+  ri.doc.changeText();
 }
 
-Reimporter.prototype.change_grep = function(findWhat, changeTo) {
+function ri_change_grep(ri, findWhat, changeTo) {
   app.findGrepPreferences.findWhat = findWhat;
   app.changeGrepPreferences.changeTo = changeTo;
-  this.doc.changeGrep();
+  ri.doc.changeGrep();
 }
 
-Reimporter.prototype.post_fix_masters = function() {
-  if (!this.ui_post_fix_masters.checkedState)
+function ri_groom_fix_masters(ri) {
+  if (!ri.ui_groom_fix_masters.checkedState)
     return;
 
   // title page is B-Master
-  var title_page = this.doc.pages[0];
-  title_page.appliedMaster = this.b_master;
+  var title_page = ri.doc.pages[0];
+  title_page.appliedMaster = ri.b_master;
 
-  for (var i = 1; i < this.doc.pages.length; ++ i) {
-    var page = this.doc.pages[i];
-    if (this.page_is_empty(page) || this.page_is_chapter(page)) {
-      page.appliedMaster = this.b_master;
+  for (var i = 1; i < ri.doc.pages.length; ++ i) {
+    var page = ri.doc.pages[i];
+    if (ri_page_is_empty(ri, page) || ri_page_is_chapter(ri, page)) {
+      page.appliedMaster = ri.b_master;
     } else {
-      page.appliedMaster = this.a_master;
+      page.appliedMaster = ri.a_master;
     }
   }
 }
 
-Reimporter.prototype.post_update_toc = function() {
-  if (!this.have_toc)
+function ri_groom_update_toc(ri) {
+  if (!ri.have_toc)
     return;
 
-  if (!this.ui_post_update_toc.checkedState)
+  if (!ri.ui_groom_update_toc.checkedState)
     return;
 
-  var style_index = this.ui_post_toc_style.selectedIndex;
-  var style_name = this.toc_styles[style_index];
-  var style = this.doc.tocStyles.itemByName(style_name);
-  this.doc.createTOC(style, true);
+  var style_index = ri.ui_groom_toc_style.selectedIndex;
+  var style_name = ri.toc_styles[style_index];
+  var style = ri.doc.tocStyles.itemByName(style_name);
+  ri.doc.createTOC(style, true);
 }
 
-Reimporter.prototype.page_is_empty = function(page) {
+function ri_page_is_empty(ri, page) {
   if (page.pageItems.length == 0) {
     return true;
   }
-  if (this.main_frame(page).contents == "") {
+  if (ri_main_frame(ri, page).contents == "") {
     return true;
   }
 }
 
-Reimporter.prototype.page_is_chapter = function(page) {
-  var frame = this.main_frame(page);
+function ri_page_is_chapter(ri, page) {
+  var frame = ri_main_frame(ri, page);
   var paragraph = frame.paragraphs[0];
   if (paragraph.startParagraph == StartParagraph.NEXT_PAGE ||
     paragraph.startParagraph == StartParagraph.NEXT_ODD_PAGE) {
@@ -460,11 +508,11 @@ Reimporter.prototype.page_is_chapter = function(page) {
   return false;
 }
 
-Reimporter.prototype.disable_grep = function() {
-  if (!this.ui_disable_grep.checkedState)
+function ri_disable_grep(ri) {
+  if (!ri.ui_disable_grep.checkedState)
     return;
 
-  pstyles = this.doc.allParagraphStyles;
+  pstyles = ri.doc.allParagraphStyles;
   for (var i = 0; i < pstyles.length; ++ i) {
     pstyle = pstyles[i];
     gstyles = pstyle.nestedGrepStyles;
@@ -476,11 +524,11 @@ Reimporter.prototype.disable_grep = function() {
   }
 }
 
-Reimporter.prototype.enable_grep = function() {
-  if (!this.ui_disable_grep.checkedState)
+function ri_enable_grep(ri) {
+  if (!ri.ui_disable_grep.checkedState)
     return;
 
-  pstyles = this.doc.allParagraphStyles;
+  pstyles = ri.doc.allParagraphStyles;
   for (var i = 0; i < pstyles.length; ++ i) {
     pstyle = pstyles[i];
     gstyles = pstyle.nestedGrepStyles;
@@ -492,36 +540,36 @@ Reimporter.prototype.enable_grep = function() {
   }
 }
 
-Reimporter.prototype.disable_reflow = function() {
-  if (!this.ui_disable_reflow.checkedState)
+function ri_disable_reflow(ri) {
+  if (!ri.ui_disable_reflow.checkedState)
     return;
 
-  if (this.reflow_changed)
+  if (ri.reflow_changed)
     return;
 
-  this.saved_reflow = this.doc.textPreferences.smartTextReflow;
-  this.doc.textPreferences.smartTextReflow = false;
-  this.reflow_changed = true;
+  ri.saved_reflow = ri.doc.textPreferences.smartTextReflow;
+  ri.doc.textPreferences.smartTextReflow = false;
+  ri.reflow_changed = true;
 }
 
-Reimporter.prototype.restore_reflow = function() {
-  if (!this.ui_disable_reflow.checkedState)
+function ri_restore_reflow(ri) {
+  if (!ri.ui_disable_reflow.checkedState)
     return;
 
-  if (!this.reflow_changed)
+  if (!ri.reflow_changed)
     return;
 
-  var saved_preflight = this.doc.preflightOptions.preflightOff;
+  var saved_preflight = ri.doc.preflightOptions.preflightOff;
 
-  this.doc.preflightOptions.preflightOff = false; 
-  this.doc.textPreferences.smartTextReflow = this.saved_reflow;
-  this.doc.activeProcess.waitForProcess(30);
-  this.doc.preflightOptions.preflightOff = saved_preflight;
+  ri.doc.preflightOptions.preflightOff = false; 
+  ri.doc.textPreferences.smartTextReflow = ri.saved_reflow;
+  ri.doc.activeProcess.waitForProcess(30);
+  ri.doc.preflightOptions.preflightOff = saved_preflight;
 
-  this.reflow_changed = false;
+  ri.reflow_changed = false;
 }
 
-Reimporter.prototype.main_frame = function(page) {
+function ri_main_frame(ri, page) {
   var frames = page.textFrames;
   for (var i = 0; i < frames.length; ++ i) {
     try {
@@ -536,5 +584,4 @@ Reimporter.prototype.main_frame = function(page) {
   return frames[0];
 }
 
-var reimporter = new Reimporter();
-reimporter.run();
+ri_main();
