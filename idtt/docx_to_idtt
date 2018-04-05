@@ -10,8 +10,6 @@ import lxml.etree
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy as sa
 
-# TODO: Find the good style names
-
 Base = declarative_base()
 
 
@@ -38,6 +36,7 @@ class Style(Base):
     msw_name = sa.Column('msw_name', sa.String, primary_key=True)
     name = sa.Column('name', sa.String)
     group = sa.Column('group', sa.String)
+    legit = sa.Column('legit', sa.String)
     internal_name = sa.Column('internal_name', sa.String, nullable=False)
     parent_msw_name = sa.Column('parent', sa.String, sa.ForeignKey('style.msw_name'), nullable=True)
     followed_by_msw_name = sa.Column('followed_by', sa.String, sa.ForeignKey('style.msw_name'), nullable=True)
@@ -96,6 +95,7 @@ class DocxToIdtt(object):
         self.mapping[self.section_name(style.realm, style.internal_name)] = {
             'name': style.name,
             'group': style.group or '',
+            'legit': style.legit or '',
             'msw_name (readonly)': style.msw_name,
             'parent_msw_name (readonly)': style.parent_msw_name or '',
             'next_msw_name (readonly)': style.followed_by_msw_name or '',
@@ -138,7 +138,8 @@ class DocxToIdtt(object):
             style = Style(
                 realm=realm,
                 name=section.get('name', internal_name),
-                group=section.get('group', None),
+                group=section.get('group'),
+                legit=section.get('legit'),
                 internal_name=internal_name,
                 msw_name=s.get(self.wtag('styleId')),
                 parent_msw_name=self.wval(s, 'w:basedOn'),
@@ -198,8 +199,13 @@ class DocxToIdtt(object):
         self.idtt.leave_footnote()
 
     def convert_footnote(self, fn):
+        body_character_style = self.current_character_style
+        self.current_character_style = None
+
         for p in self.xpath(fn, 'w:p'):
             self.convert_paragraph(p)
+
+        self.current_character_style = body_character_style
 
     def wvstyle(self, node, expr, realm, on_found=None):
         msw_name = self.wval(node, expr)
@@ -257,8 +263,8 @@ class InDesignTaggedTextOutput(object):
         self._write(r'<FeatureSet:Indesign-R2L>')
         self._write(r'<ColorTable:=')
         self._write(r'<Black:COLOR:CMYK:Process:0,0,0,1>')
-        self._write(r'<C\=0 M\=0 Y\=100 K\=0:COLOR:CMYK:Process:0,0,1,0>')
-        self._write(r'<C\=0 M\=100 Y\=0 K\=0:COLOR:CMYK:Process:0,1,0,0>')
+        self._write(r'<Yellow:COLOR:CMYK:Process:0,0,1,0>')
+        self._write(r'<Magenta:COLOR:CMYK:Process:0,1,0,0>')
         self._write(r'>')
         self._writeln()
         for style in self._styles:
@@ -271,19 +277,20 @@ class InDesignTaggedTextOutput(object):
 
         if style.realm == 'paragraph':
             id_realm = 'Para'
-            color = r'<pShadingColor:C\=0 M\=0 Y\=100 K\=0><pShadingOn:1>'
+            color = r'<pShadingColor:Yellow><pShadingOn:1>'
             shade = r'<pShadingTint:%s>' % int(100 - fullness)
         elif style.realm == 'character':
             id_realm = 'Char'
-            color = r'<cColor:C\=0 M\=100 Y\=0 K\=0>'
+            color = r'<cColor:Magenta>'
             shade = r'<cColorTint:%s>' % int(fullness)
 
         self._write('<Define')
         self._write(id_realm)
         self._write('Style:')
         self._write(style.absname)
-        self._write(color)
-        self._write(shade)
+        if not style.legit:
+            self._write(color)
+            self._write(shade)
 
         if style.parent:
             self._write('<BasedOn:')
