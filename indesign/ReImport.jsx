@@ -2,6 +2,7 @@
 
 // TODO: Multiple main stories are a no-no
 // TODO: Split (and unsplit!) frames on specific styles
+// TODO: Configurable (and savable) Title matcher (r'Title|Frame Top')
 // TODO: Maybe do the start of line trick?
 // TODO: Remove unused imported styles
 // TODO: Status notification
