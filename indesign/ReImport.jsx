@@ -335,7 +335,7 @@ function ri_groom_fully_justify(ri) {
 
   var changed = 0;
   for (var i = 0; i < paragraphs.count(); ++ i)
-    if (ri_fully_justify(ri, paragraphs[i], paragraphs[i - 1]))
+    if (ri_fully_justify(ri, paragraphs[i]))
       ++ changed;
 
   prefs.horizontalMeasurementUnits = oldUnits;
@@ -351,15 +351,25 @@ function ri_groom_fully_justify(ri) {
   }
 };
 
-function ri_fully_justify(ri, paragraph, antegraph) {
+function ri_fully_justify(ri, paragraph) {
   if (paragraph.paragraphDirection != ParagraphDirectionOptions.RIGHT_TO_LEFT_DIRECTION) {
+    // We only know about RTL
     return false;
   }
 
   var justification = paragraph.justification;
-  if (justification != Justification.FULLY_JUSTIFIED && justification != Justification.RIGHT_JUSTIFIED) {
+  if (justification == Justification.FULLY_JUSTIFIED) {
+    // Currently fully justified, may be intentional
+    var style = paragraph.appliedParagraphStyle;
+    if (style && style.justification == Justification.FULLY_JUSTIFIED) {
+      // If that's what the user likes...
+      return false;
+    }
+  } else if (justification != Justification.RIGHT_JUSTIFIED) {
+    // Some kind of fancy centered paragraph.
     return false;
   }
+
 
   var lines = paragraph.lines;
   var numLines = lines.count()
@@ -377,48 +387,30 @@ function ri_fully_justify(ri, paragraph, antegraph) {
   var fully = null;
   var right = null;
 
+  if (lines.count() > 1) {
+    ri.last_good_line = lines[-2];
+    ri.last_good_line = ri.last_good_line.characters[-1];
+  }
+
   if (justification == Justification.FULLY_JUSTIFIED) {
-    // Was fully justified, we know the margin
+    // Currently fully justified, we know the margin
     fully = lastChar.endHorizontalOffset;
     paragraph.justification = Justification.RIGHT_JUSTIFIED;
     right = lastChar.endHorizontalOffset;
-  } else {
-    // Try and locate antepenultimate line
+  } else if (ri.last_good_line != undefined) {
+    // We have something to compare with!
     right = lastChar.endHorizontalOffset;
-    var anteLine = null;
-    var anteChar = null;
+    fully = ri.last_good_char.endHorizontalOffset;
 
-    if (lines.count() > 1) {
-      // Paragraph is long enough
-      anteLine = lines[-2];
-      anteChar = anteLine.characters[-1];
-    } else if (antegraph) {
-      // Try the previous paragraph
-      var anteLines = antegraph.lines;
+    var last_good_frame = ri.last_good_line.parentTextFrames[0];
 
-      if (antegraph.justification == Justification.FULLY_JUSTIFIED) {
-        anteLine = anteLines[-1];
-        anteChar = anteLine.characters[-2];
-      } else if (antegraph.justification == Justification.RIGHT_JUSTIFIED && anteLines.count() > 1) {
-        anteLine = anteLines[-2];
-        anteChar = anteLine.characters[-1];
-      }
+    if (last_good_frame != lastLineFrame) {
+      fully -= last_good_frame.parentPage.bounds[1];
+      fully += lastLineFrame.parentPage.bounds[1];
     }
-
-    if (anteChar && anteLine) {
-      fully = anteChar.endHorizontalOffset;
-
-      var anteLineFrame = anteLine.parentTextFrames[0];
-
-      if (anteLineFrame != lastLineFrame) {
-        fully -= anteLineFrame.parentPage.bounds[1];
-        fully += lastLineFrame.parentPage.bounds[1];
-      }
-    }
-  }
-
-  if (!fully) {
-    // Align to check
+  } else {
+    // Change and compare
+    right = lastChar.endHorizontalOffset;
     right = lastChar.endHorizontalOffset;
     paragraph.justification = Justification.FULLY_JUSTIFIED;
     fully = lastChar.endHorizontalOffset;
@@ -427,8 +419,10 @@ function ri_fully_justify(ri, paragraph, antegraph) {
   var gap = right - fully;
   var fudge = lastChar.pointSize / 2;
 
-  if (gap < fudge && gap > -fudge) {
+  if (gap != 0 && gap < fudge && gap > -fudge) {
     paragraph.justification = Justification.FULLY_JUSTIFIED;
+    ri.last_good_line = lastLine;
+    ri.last_good_char = lastChar;
   } else {
     paragraph.justification = Justification.RIGHT_JUSTIFIED;
   }
