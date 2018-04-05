@@ -194,6 +194,8 @@ class DocxToIdtt(object):
         if style != self.current_character_style:
             self.idtt.set_character_style(style)
             self.current_character_style = style
+        for t in self.xpath(r, 'w:tab'):
+            self.idtt.write_text('\t')
         for t in self.xpath(r, 'w:t'):
             self.idtt.write_text(t.text)
         for fnr in self.xpath(r, 'w:footnoteReference'):
