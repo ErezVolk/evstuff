@@ -1,6 +1,5 @@
 // ex: set et sw=2:
 
-// TODO: Find the rerunner script!
 // TODO: Multiple main stories are a no-no
 // TODO: Split (and unsplit!) frames on specific styles
 // TODO: Configurable (and savable) Title matcher (r'Title|Frame Top')
@@ -125,6 +124,10 @@ function ri_get_options(ri) {
               checkedState: true
             });
           }
+          ri.ui_import_rerun = checkboxControls.add({
+            staticLabel: "Regenerate if applicable",
+            checkedState: true
+          });
           ri.ui_import_options = checkboxControls.add({
             staticLabel: "Show import options",
             checkedState: true
@@ -266,6 +269,21 @@ function ri_override_all_master_page_items(ri, page) {
 function ri_do_import(ri) {
   var page = ri.doc.pages[0];
   var frame = ri_main_frame(ri, page);
+
+  if (ri.ui_import_rerun) {
+    try {
+      rerunner = ri.importee + '.rerun';
+      mtime = File(rerunner).modified;
+      if (mtime) {
+        File(rerunner).execute();
+        for (var n = 0; n < 50 && File(rerunner).modified.getTime() == mtime.getTime(); ++ n)
+          $.sleep(100);
+      }
+    } catch (e) {
+      // No harm done.
+    }
+  }
+
   try {
     frame.place(ri.importee, ri.ui_import_options.checkedState);
   } catch (e) {
