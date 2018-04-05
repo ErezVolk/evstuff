@@ -1,17 +1,15 @@
 // ex: set et sw=2:
 
+// TODO: Save some settings in a variable
 // TODO: Multiple main stories are a no-no
 // TODO: Split (and unsplit!) frames on specific styles
 // TODO: Configurable (and savable) Title matcher (r'Title|Frame Top')
-// TODO: Maybe do the start of line trick?
+// TODO: Maybe do the start-of-line negative kerning trick?
 // TODO: Remove unused imported styles
 // TODO: Status notification
 // TODO: Change "old load" checkbox to radio
-// TODO: Save settings in a variable
 // TODO: Offer the precooked searches!
-// TODO: Proper master page fixer
-// TODO: Index stuff
-// TODO: Clear (or do a story break) after "EREZ EREZ"
+// TODO: Indexing stuff
 
 function ri_main() {
   ri = {
