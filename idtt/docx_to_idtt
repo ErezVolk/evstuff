@@ -10,7 +10,6 @@ import lxml.etree
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy as sa
 
-# TODO: Footnotes
 # TODO: Find the good style names
 
 Base = declarative_base()
@@ -188,6 +187,19 @@ class DocxToIdtt(object):
             self.current_character_style = style
         for t in self.xpath(r, 'w:t'):
             self.idtt.write_text(t.text)
+        for fnr in self.xpath(r, 'w:footnoteReference'):
+            self.convert_footnote_reference(fnr)
+
+    def convert_footnote_reference(self, fnr):
+        fnid = fnr.get(self.wtag('id'))
+        self.idtt.enter_footnote()
+        for fn in self.xpath(self.footnotes, 'w:footnote[@w:id="%s"]' % fnid):
+            self.convert_footnote(fn)
+        self.idtt.leave_footnote()
+
+    def convert_footnote(self, fn):
+        for p in self.xpath(fn, 'w:p'):
+            self.convert_paragraph(p)
 
     def wvstyle(self, node, expr, realm, on_found=None):
         msw_name = self.wval(node, expr)
@@ -255,7 +267,7 @@ class InDesignTaggedTextOutput(object):
         self._headers_written = True
 
     def _write_style_definition(self, style):
-        fullness = 50 + 50.0 / (1.1 ** next(self._shades[style.realm]))
+        fullness = 50.0 + 50.0 / (1.05 ** next(self._shades[style.realm]))
 
         if style.realm == 'paragraph':
             id_realm = 'Para'
