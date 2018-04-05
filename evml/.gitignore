@@ -1,4 +1,5 @@
 *.docx
+*.evml
 *.idtt
 *.indd
 *.oxml
@@ -6,5 +7,5 @@
 *.rtf
 *.txt
 *.utf8
+*.wxml
 *.xml
-~*.idlk
