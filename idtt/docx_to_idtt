@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+import argparse
+import zipfile
+import os
+import collections
+import itertools
+import lxml.etree
+
+from sqlalchemy.ext.declarative import declarative_base
+import sqlalchemy as sa
+
+# TODO: Footnotes
+# TODO: Mapping defs
+# TODO: Update mapping defs
+# TODO: Map to nested!!!
+# TODO: Find the good style names
+
+Base = declarative_base()
+
+
+class Style(Base):
+    __tablename__ = 'style'
+
+    def __str__(self):
+        desc = [self.realm, self.name]
+        if self.internal_name and self.internal_name != self.name:
+            desc.append('[%s]' % self.internal_name)
+        if self.parent:
+            desc.append('inherits %s' % self.parent.name)
+        if self.followed_by:
+            desc.append('followed by %s' % self.followed_by.name)
+        return '<%s>' % ' '.join(desc)
+
+    realm = sa.Column('realm', sa.String, primary_key=True)
+    msw_name = sa.Column('msw_name', sa.String, primary_key=True)
+    name = sa.Column('name', sa.String)
+    internal_name = sa.Column('internal_name', sa.String, nullable=False)
+    parent_msw_name = sa.Column('parent', sa.String, sa.ForeignKey('style.msw_name'), nullable=True)
+    followed_by_msw_name = sa.Column('followed_by', sa.String, sa.ForeignKey('style.msw_name'), nullable=True)
+
+    parent = sa.orm.relationship(
+        'Style',
+        primaryjoin=(
+            sa.orm.remote(msw_name) == sa.orm.foreign(parent_msw_name) and
+            sa.orm.remote(realm) == sa.orm.foreign(realm)
+        )
+    )
+
+    followed_by = sa.orm.relationship(
+        'Style',
+        primaryjoin=(
+            sa.orm.remote(msw_name) == sa.orm.foreign(followed_by_msw_name) and
+            sa.orm.remote(realm) == sa.orm.foreign(realm)
+        )
+    )
+
+
+class DocxToIdtt(object):
+    W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+    NS = {'w': W}
+
+    def run(self):
+        self.parse_command_line()
+        self.create_db()
+        self.load_docx()
+        self.write_idtt()
+
+    def parse_command_line(self):
+        parser = argparse.ArgumentParser(description='DOCX to EVML')
+        parser.add_argument('input', help='Input .docx file')
+        parser.add_argument('--output', '-o', required=False,
+                            help='InDesign Tagged Text file')
+        self.args = parser.parse_args()
+
+    def create_db(self):
+        engine = sa.create_engine('sqlite:///:memory:')
+        self.session = sa.orm.scoped_session(sa.orm.sessionmaker())
+        self.session.configure(bind=engine)
+        Base.metadata.create_all(engine)
+
+    def load_docx(self):
+        print('READING %r' % self.args.input)
+        with zipfile.ZipFile(self.args.input) as self.docx:
+            self.scan_styles(self.load_xml('word/styles.xml'))
+            self.document = self.load_xml('word/document.xml')
+            self.footnotes = self.load_xml('word/footnotes.xml')
+            del self.docx
+
+    def load_xml(self, path):
+        with self.docx.open(path) as fo:
+            return lxml.etree.parse(fo).getroot()
+
+    def scan_styles(self, styles):
+        self.styles = {}
+        for s in self.xpath(styles, "//w:style[@w:type][w:name[@w:val]]"):
+            msw_name = s.get(self.wtag('styleId'))
+            internal_name = self.wval(s, 'w:name')
+            name = internal_name  # TODO: Mapping
+
+            style = Style(
+                realm=s.get(self.wtag('type')),
+                name=name,
+                msw_name=msw_name,
+                internal_name=internal_name,
+                parent_msw_name=self.wval(s, 'w:basedOn'),
+                followed_by_msw_name=self.wval(s, 'w:next'),
+            )
+            self.styles[(style.realm, style.msw_name)] = style
+            self.session.add(style)
+
+    def xpath(self, node, expr):
+        return node.xpath(expr, namespaces=self.NS)
+
+    def wval(self, node, prop, on_found=None):
+        for pn in self.xpath(node, prop):
+            found = pn.get(self.wtag('val'))
+            if on_found:
+                on_found(found)
+            return found
+        return None
+
+    def wtag(self, tag):
+        return '{%s}%s' % (self.W, tag)
+
+    def write_idtt(self):
+        self.current_character_style = None
+        if self.args.output:
+            fn = self.args.output
+        else:
+            basename, dummy_ext = os.path.splitext(self.args.input)
+            fn = basename + '.idtt.txt'
+
+        print('WRITING %r' % fn)
+        with InDesignTaggedTextOutput(fn) as self.idtt:
+            self.convert_document()
+
+    def convert_document(self):
+        for p in self.xpath(self.document, '//w:body/w:p'):
+            self.convert_paragraph(p)
+
+    def convert_paragraph(self, p):
+        self.idtt.enter_paragraph(self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph'))
+        for r in self.xpath(p, 'w:r'):
+            self.convert_range(r)
+        self.idtt.leave_paragraph()
+
+    def convert_range(self, r):
+        style = self.wvstyle(r, 'w:rPr/w:rStyle', 'character')
+        if style != self.current_character_style:
+            self.idtt.set_character_style(style)
+            self.current_character_style = style
+        for t in self.xpath(r, 'w:t'):
+            self.idtt.write_text(t.text)
+
+    def wvstyle(self, node, expr, realm, on_found=None):
+        msw_name = self.wval(node, expr)
+        if not msw_name:
+            return None
+        style = self.styles[(realm, msw_name)]
+        if on_found:
+            on_found(style)
+        return style
+
+
+class InDesignTaggedTextOutput(object):
+    def __init__(self, filename):
+        self._filename = filename
+        self._styles = []
+        self._headers_written = False
+        self._shades = collections.defaultdict(itertools.count)
+
+    def __enter__(self):
+        self._fo = open(self._filename, 'w', encoding='UTF-16LE')
+        self._ufo = open(self._filename + '.utf8', 'w', encoding='UTF-8')
+        return self
+
+    def __exit__(self, *exception):
+        self._fo.close()
+        self._ufo.close()
+
+    def _write(self, string):
+        if not string:
+            return
+        self._fo.write(string)
+        self._ufo.write(string)
+
+    def _writeln(self, line=''):
+        self._write(line)
+        self._write('\n')
+
+    def define_style(self, style):
+        if style in self._styles:
+            return
+        if style.parent:
+            self.define_style(style.parent)
+        if style.followed_by:
+            self.define_style(style.followed_by)
+        self._styles.append(style)
+        if self._headers_written:
+            self._write_style_definition(style)
+
+    def _write_headers(self):
+        if self._headers_written:
+            return
+        self._writeln('<UNICODE-MAC>')
+        self._write(r'<Version:13.1>')
+        self._write(r'<FeatureSet:Indesign-R2L>')
+        self._write(r'<ColorTable:=')
+        self._write(r'<Black:COLOR:CMYK:Process:0,0,0,1>')
+        self._write(r'<C\=0 M\=0 Y\=100 K\=0:COLOR:CMYK:Process:0,0,1,0>')
+        self._write(r'<C\=0 M\=100 Y\=0 K\=0:COLOR:CMYK:Process:0,1,0,0>')
+        self._write(r'>')
+        self._writeln()
+        for style in self._styles:
+            self._write_style_definition(style)
+            self._writeln()
+        self._headers_written = True
+
+    def _write_style_definition(self, style):
+        fullness = 50 + 50.0 / (1.1 ** next(self._shades[style.realm]))
+
+        if style.realm == 'paragraph':
+            id_realm = 'Para'
+            color = r'<pShadingColor:C\=0 M\=0 Y\=100 K\=0><pShadingOn:1>'
+            shade = r'<pShadingTint:%s>' % int(100 - fullness)
+        elif style.realm == 'character':
+            id_realm = 'Char'
+            color = r'<cColor:C\=0 M\=100 Y\=0 K\=0>'
+            shade = r'<cColorTint:%s>' % int(fullness)
+
+        self._write('<Define')
+        self._write(id_realm)
+        self._write('Style:')
+        self._write(style.name)
+        self._write(color)
+        self._write(shade)
+
+        if style.parent:
+            self._write('<BasedOn:')
+            self._write(style.parent.name)
+            self._write('>')
+        if style.followed_by:
+            self._write('<Nextstyle:')
+            self._write(style.followed_by.name)
+            self._write('>')
+        self._write('>')
+
+    def enter_paragraph(self, style=None):
+        self._write_headers()
+        self._set_style('Para', style)
+
+    def _set_style(self, realm, style):
+        if style:
+            self.define_style(style)
+        self._write('<')
+        self._write(realm)
+        self._write('Style:')
+        if style:
+            self._write(style.name)
+        self._write('>')
+
+    def leave_paragraph(self):
+        self._writeln()
+
+    def set_character_style(self, style=None):
+        self._set_style('Char', style)
+
+    def enter_footnote(self):
+        self._write('<cPosition:Superscript><FootnoteStart:>')
+
+    def leave_footnote(self):
+        self._write('<FootnoteEnd:><cPosition:>')
+
+    def write_text(self, text):
+        self._write(text)
+
+
+if __name__ == '__main__':
+    DocxToIdtt().run()
