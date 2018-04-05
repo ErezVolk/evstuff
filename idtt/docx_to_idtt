@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import configparser
 import zipfile
 import os
 import collections
@@ -10,9 +11,6 @@ from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy as sa
 
 # TODO: Footnotes
-# TODO: Mapping defs
-# TODO: Update mapping defs
-# TODO: Map to nested!!!
 # TODO: Find the good style names
 
 Base = declarative_base()
@@ -31,9 +29,16 @@ class Style(Base):
             desc.append('followed by %s' % self.followed_by.name)
         return '<%s>' % ' '.join(desc)
 
+    @property
+    def absname(self):
+        if self.group:
+            return r'%s\:%s' % (self.group, self.name)
+        return self.name
+
     realm = sa.Column('realm', sa.String, primary_key=True)
     msw_name = sa.Column('msw_name', sa.String, primary_key=True)
     name = sa.Column('name', sa.String)
+    group = sa.Column('group', sa.String)
     internal_name = sa.Column('internal_name', sa.String, nullable=False)
     parent_msw_name = sa.Column('parent', sa.String, sa.ForeignKey('style.msw_name'), nullable=True)
     followed_by_msw_name = sa.Column('followed_by', sa.String, sa.ForeignKey('style.msw_name'), nullable=True)
@@ -61,16 +66,46 @@ class DocxToIdtt(object):
 
     def run(self):
         self.parse_command_line()
+        self.read_mapping()
         self.create_db()
         self.load_docx()
         self.write_idtt()
+        self.write_mapping()
 
     def parse_command_line(self):
         parser = argparse.ArgumentParser(description='DOCX to EVML')
         parser.add_argument('input', help='Input .docx file')
         parser.add_argument('--output', '-o', required=False,
                             help='InDesign Tagged Text file')
+        parser.add_argument('-m', '--mapping', required=False,
+                            help='Style mapping file')
         self.args = parser.parse_args()
+
+        if not self.args.output:
+            basename, dummy_ext = os.path.splitext(self.args.input)
+            self.args.output = basename + '.idtt.txt'
+        if not self.args.mapping:
+            self.args.mapping = self.args.output + '.ini'
+
+    def read_mapping(self):
+        self.mapping = configparser.ConfigParser()
+        if os.path.isfile(self.args.mapping):
+            print('Reading %r' % self.args.mapping)
+            self.mapping.read(self.args.mapping)
+
+    def update_mapping(self, style):
+        self.mapping[self.section_name(style.realm, style.internal_name)] = {
+            'name': style.name,
+            'group': style.group or '',
+            'msw_name (readonly)': style.msw_name,
+            'parent_msw_name (readonly)': style.parent_msw_name or '',
+            'next_msw_name (readonly)': style.followed_by_msw_name or '',
+        }
+
+    def write_mapping(self):
+        print('Writing %r' % self.args.mapping)
+        with open(self.args.mapping, 'w') as fo:
+            self.mapping.write(fo)
 
     def create_db(self):
         engine = sa.create_engine('sqlite:///:memory:')
@@ -79,7 +114,7 @@ class DocxToIdtt(object):
         Base.metadata.create_all(engine)
 
     def load_docx(self):
-        print('READING %r' % self.args.input)
+        print('Reading %r' % self.args.input)
         with zipfile.ZipFile(self.args.input) as self.docx:
             self.scan_styles(self.load_xml('word/styles.xml'))
             self.document = self.load_xml('word/document.xml')
@@ -93,20 +128,28 @@ class DocxToIdtt(object):
     def scan_styles(self, styles):
         self.styles = {}
         for s in self.xpath(styles, "//w:style[@w:type][w:name[@w:val]]"):
-            msw_name = s.get(self.wtag('styleId'))
+            realm = s.get(self.wtag('type'))
             internal_name = self.wval(s, 'w:name')
-            name = internal_name  # TODO: Mapping
+
+            try:
+                section = self.mapping[self.section_name(realm, internal_name)]
+            except KeyError:
+                section = {}
 
             style = Style(
-                realm=s.get(self.wtag('type')),
-                name=name,
-                msw_name=msw_name,
+                realm=realm,
+                name=section.get('name', internal_name),
+                group=section.get('group', None),
                 internal_name=internal_name,
+                msw_name=s.get(self.wtag('styleId')),
                 parent_msw_name=self.wval(s, 'w:basedOn'),
                 followed_by_msw_name=self.wval(s, 'w:next'),
             )
             self.styles[(style.realm, style.msw_name)] = style
             self.session.add(style)
+
+    def section_name(self, realm, internal_name):
+        return '%s:%s' % (realm.capitalize(), internal_name)
 
     def xpath(self, node, expr):
         return node.xpath(expr, namespaces=self.NS)
@@ -123,15 +166,9 @@ class DocxToIdtt(object):
         return '{%s}%s' % (self.W, tag)
 
     def write_idtt(self):
+        print('Writing %r' % self.args.output)
         self.current_character_style = None
-        if self.args.output:
-            fn = self.args.output
-        else:
-            basename, dummy_ext = os.path.splitext(self.args.input)
-            fn = basename + '.idtt.txt'
-
-        print('WRITING %r' % fn)
-        with InDesignTaggedTextOutput(fn) as self.idtt:
+        with InDesignTaggedTextOutput(self.args.output) as self.idtt:
             self.convert_document()
 
     def convert_document(self):
@@ -157,6 +194,7 @@ class DocxToIdtt(object):
         if not msw_name:
             return None
         style = self.styles[(realm, msw_name)]
+        self.update_mapping(style)
         if on_found:
             on_found(style)
         return style
@@ -231,17 +269,17 @@ class InDesignTaggedTextOutput(object):
         self._write('<Define')
         self._write(id_realm)
         self._write('Style:')
-        self._write(style.name)
+        self._write(style.absname)
         self._write(color)
         self._write(shade)
 
         if style.parent:
             self._write('<BasedOn:')
-            self._write(style.parent.name)
+            self._write(style.parent.absname)
             self._write('>')
         if style.followed_by:
             self._write('<Nextstyle:')
-            self._write(style.followed_by.name)
+            self._write(style.followed_by.absname)
             self._write('>')
         self._write('>')
 
@@ -256,7 +294,7 @@ class InDesignTaggedTextOutput(object):
         self._write(realm)
         self._write('Style:')
         if style:
-            self._write(style.name)
+            self._write(style.absname)
         self._write('>')
 
     def leave_paragraph(self):
