@@ -118,11 +118,13 @@ class DocxToIdtt(object):
             self.scan_styles(self.load_xml('word/styles.xml'))
             self.document = self.load_xml('word/document.xml')
             self.footnotes = self.load_xml('word/footnotes.xml')
-            del self.docx
 
     def load_xml(self, path):
-        with self.docx.open(path) as fo:
-            return lxml.etree.parse(fo).getroot()
+        try:
+            with self.docx.open(path) as fo:
+                return lxml.etree.parse(fo).getroot()
+        except KeyError:
+            return None
 
     def scan_styles(self, styles):
         self.styles = {}
