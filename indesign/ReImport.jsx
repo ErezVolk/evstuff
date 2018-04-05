@@ -1,5 +1,8 @@
 // ex: set et sw=2:
 
+// TODO: This pseudo-object isn't nice
+// TODO: Multiple main stories are a no-no
+// TODO: Split (and unsplit!) frames on specific styles
 // TODO: Maybe do the start of line trick?
 // TODO: Remove unused imported styles
 // TODO: Status notification
@@ -214,7 +217,7 @@ Reimporter.prototype.filter_files = function(file) {
   if (file.constructor.name == "Folder") {
     return true;
   }
-  if (file.name.match(/\.(docx?|txt)$/)) {
+  if (file.name.match(/\.(docx?|txt|idtt)$/)) {
     return true;
   }
   return false;
@@ -319,11 +322,7 @@ Reimporter.prototype.post_fully_justify = function() {
   prefs.horizontalMeasurementUnits = MeasurementUnits.pixels;
 
   for (var i = 0; i < paragraphs.count(); ++ i) {
-    try {
-      this.fully_justify(paragraphs[i]);
-    } catch (e) {
-      alert(e);
-    }
+    this.fully_justify(paragraphs[i]);
   }
 
   prefs.horizontalMeasurementUnits = oldUnits;
@@ -334,42 +333,58 @@ Reimporter.prototype.fully_justify = function(paragraph) {
     return;
   }
 
+  var justification = paragraph.justification;
+  if (justification != Justification.FULLY_JUSTIFIED && justification != Justification.RIGHT_JUSTIFIED) {
+    return;
+  }
+
   var lines = paragraph.lines;
   var numLines = lines.count()
   var lastLine = lines.lastItem();
+  var lastLineFrame = lastLine.parentTextFrames[0];
+  if (lastLineFrame == undefined) {
+    return;
+  }
+
   var lastChar = lastLine.characters.lastItem();
   if (lastChar == '\n') {
     lastChar = lastLine.characters[lastLine.characters.count() - 2];
   }
-  var margin = null;
 
-  var justification = paragraph.justification;
+  var fully = null;
+  var right = null;
+
   if (justification == Justification.FULLY_JUSTIFIED) {
-    margin = lastChar.endHorizontalOffset;
+    // Was fully justified, we know the margin
+    fully = lastChar.endHorizontalOffset;
     paragraph.justification = Justification.RIGHT_JUSTIFIED;
-  } else if (justification != Justification.RIGHT_JUSTIFIED) {
-    return;
+    right = lastChar.endHorizontalOffset;
   } else if (lines.count() > 1) {
-    var prevLine = lines[numLines - 2];
-    var prevChar = prevLine.characters[prevLine.characters.count() - 1];
-    var lastFrame = lastLine.parentTextFrames[0];
-    var prevFrame = prevLine.parentTextFrames[0];
-    margin = prevChar.endHorizontalOffset;
-    if (prevFrame != lastFrame) {
-      margin -= prevFrame.parentPage.bounds[1];
-      margin += lastFrame.parentPage.bounds[1];
+    // Just compare with ante line
+    right = lastChar.endHorizontalOffset;
+    var anteLine = lines[numLines - 2];
+    fully = anteLine.characters.lastItem().endHorizontalOffset;
+
+    var anteLineFrame = anteLine.parentTextFrames[0];
+
+    if (anteLineFrame != lastLineFrame) {
+      fully -= anteLineFrame.parentPage.bounds[1];
+      fully += lastLineFrame.parentPage.bounds[1];
     }
   } else {
-    var frame = lastLine.parentTextFrames[0];
-    var frameBounds = frame.geometricBounds;
-    margin = frameBounds[1];
+    // Align to check
+    right = lastChar.endHorizontalOffset;
+    paragraph.justification = Justification.FULLY_JUSTIFIED;
+    fully = lastChar.endHorizontalOffset;
   }
 
-  var gap = lastChar.endHorizontalOffset - margin;
+  var gap = right - fully;
   var fudge = lastChar.pointSize / 2;
 
   if (gap < fudge && gap > -fudge) {
     paragraph.justification = Justification.FULLY_JUSTIFIED;
+  } else {
+    paragraph.justification = Justification.RIGHT_JUSTIFIED;
   }
 }
 
