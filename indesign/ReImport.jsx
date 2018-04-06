@@ -247,7 +247,7 @@ function ri_get_options(ri) {
 
 function ri_get_importee(ri) {
   if (ri.last_importee && ri.ui_same_importee && ri.ui_same_importee.checkedState)
-    ri.importee = ri.last_importee;
+    ri.importee = File(ri.last_importee);
   else
     ri.importee = File.openDialog("Choose your importee", ri.filter_files)
   return ri.importee;
