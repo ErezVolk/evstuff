@@ -142,9 +142,9 @@ class DocxToIdtt(object):
                 repr(os.path.abspath(self.args.input)),
             ]
             if self.args.output:
-                cli.extens(['--output', repr(os.path.abspath(self.output_fn))])
+                cli.extend(['--output', repr(os.path.abspath(self.output_fn))])
             if self.args.mapping:
-                cli.extens(['--mapping', repr(os.path.abspath(self.mapping_fn))])
+                cli.extend(['--mapping', repr(os.path.abspath(self.mapping_fn))])
             if self.args.stop_at:
                 cli.extend(['--stop-at', repr(self.args.stop_at)])
             fo.write(' '.join(cli))
