@@ -1,9 +1,10 @@
 // ex: set et sw=2:
 
-// TODO: Save some settings in a variable
+// TODO: Some kind of "only this" button
+// TODO: Configurable (and savable) Title matcher (r'Title|Frame Top')
+// TODO: Save some settings (master pages, title matcher) in a variable
 // TODO: Multiple main stories are a no-no
 // TODO: Split (and unsplit!) frames on specific styles
-// TODO: Configurable (and savable) Title matcher (r'Title|Frame Top')
 // TODO: Maybe do the start-of-line negative kerning trick?
 // TODO: Remove unused imported styles
 // TODO: Status notification
@@ -331,7 +332,9 @@ function ri_post_remove_footnote_whitespace(ri) {
   app.findGrepPreferences.findWhat = "(?<=^~F\\t) +";
   app.changeGrepPreferences.changeTo = "";
   try {
-    ri.doc.stories.everyItem().footnotes.everyItem().texts.everyItem()
+    ri.doc.stories.everyItem()
+      .footnotes.everyItem()
+      .texts.everyItem()
       .changeGrep();
   }
   catch (e) {
@@ -351,28 +354,36 @@ function ri_groom_fully_justify(ri) {
   var oldUnits = prefs.horizontalMeasurementUnits;
   prefs.horizontalMeasurementUnits = MeasurementUnits.pixels;
 
-  var changed = 0;
+  ri.num_adjustified = 0;
+  ri.num_considered = 0;
   for (var i = 0; i < paragraphs.count(); ++ i)
-    if (ri_fully_justify(ri, paragraphs[i]))
-      ++ changed;
+    ri_fully_justify(ri, paragraphs, i);
 
   prefs.horizontalMeasurementUnits = oldUnits;
 
-  if (changed) {
+  if (ri.num_considered) {
     ri.messages.push(
-      'Justification changed for ' +
-      String(changed) +
-      ' of ' +
-      String(paragraphs.count()) +
-      ' paragraph(s)'
+      String(ri.num_considered) + ' of ' +
+      String(paragraphs.count()) + ' paragraph(s) ' +
+      ' considered for justification adjustment.'
     );
+  }
+  if (ri.num_adjustified) {
+    ri.messages.push(String(ri.num_adjustified) + ' changed.');
   }
 };
 
-function ri_fully_justify(ri, paragraph) {
+function ri_fully_justify(ri, paragraphs, index) {
+  if (index + 1 == paragraphs.count()) {
+    // The last paragraph in the text can stay as-is
+    return;
+  }
+
+  var paragraph = paragraphs[index];
+
   if (paragraph.paragraphDirection != ParagraphDirectionOptions.RIGHT_TO_LEFT_DIRECTION) {
     // We only know about RTL
-    return false;
+    return;
   }
 
   var justification = paragraph.justification;
@@ -381,20 +392,32 @@ function ri_fully_justify(ri, paragraph) {
     var style = paragraph.appliedParagraphStyle;
     if (style && style.justification == Justification.FULLY_JUSTIFIED) {
       // If that's what the user likes...
-      return false;
+      return;
     }
   } else if (justification != Justification.RIGHT_JUSTIFIED) {
     // Some kind of fancy centered paragraph.
-    return false;
+    return;
   }
-
 
   var lines = paragraph.lines;
   var numLines = lines.count()
   var lastLine = lines[-1];
   var lastLineFrame = lastLine.parentTextFrames[0];
   if (lastLineFrame == undefined) {
-    return false;
+    // Still in overset limbo.
+    return;
+  }
+
+  ++ ri.num_considered;
+
+  var followingFrame = paragraphs[index + 1].lines[0].parentTextFrames[0];
+  if ((followingFrame != undefined) && (lastLineFrame != followingFrame)) {
+    // Last in its frame, no questions asked
+    if (justification != Justification.RIGHT_JUSTIFIED) {
+      paragraph.justification = Justification.RIGHT_JUSTIFIED;
+      ++ ri.num_adjustified;
+    }
+    return;
   }
 
   var lastChar = lastLine.characters[-1];
@@ -407,7 +430,7 @@ function ri_fully_justify(ri, paragraph) {
 
   if (lines.count() > 1) {
     ri.last_good_line = lines[-2];
-    ri.last_good_line = ri.last_good_line.characters[-1];
+    ri.last_good_char = ri.last_good_line.characters[-1];
   }
 
   if (justification == Justification.FULLY_JUSTIFIED) {
@@ -445,7 +468,9 @@ function ri_fully_justify(ri, paragraph) {
     paragraph.justification = Justification.RIGHT_JUSTIFIED;
   }
 
-  return (paragraph.justification != justification);
+  if (paragraph.justification != justification) {
+    ++ ri.num_adjustified;
+  }
 }
 
 function ri_reset_searches(ri) {
