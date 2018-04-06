@@ -94,6 +94,8 @@ class DocxToIdtt(object):
         self.parser.add_argument('-s', '--stop-at', metavar='TEXT',
                                  required=False,
                                  help='Stop importing when TEXT is found')
+        self.parser.add_argument('-l', '--legitimist', action='store_true',
+                                 help='No highlighting for legit styles.')
         self.args = self.parser.parse_args()
 
         if self.args.output:
@@ -138,7 +140,7 @@ class DocxToIdtt(object):
             cli = [
                 'exec',
                 repr(sys.executable),
-                repr(sys.argv[0]),
+                repr(os.path.abspath(sys.argv[0])),
                 repr(os.path.abspath(self.args.input)),
             ]
             if self.args.output:
@@ -147,6 +149,8 @@ class DocxToIdtt(object):
                 cli.extend(['--mapping', repr(os.path.abspath(self.mapping_fn))])
             if self.args.stop_at:
                 cli.extend(['--stop-at', repr(self.args.stop_at)])
+            if self.args.legitimist:
+                cli.append('--legitimist')
             fo.write(' '.join(cli))
             fo.write('\n')
         os.chmod(self.rerunner_fn, 0o755)
@@ -217,7 +221,7 @@ class DocxToIdtt(object):
     def write_idtt(self):
         print('Writing %r' % self.output_fn)
         self.current_character_style = None
-        with InDesignTaggedTextOutput(self.output_fn) as self.idtt:
+        with InDesignTaggedTextOutput(self.output_fn, self.args.legitimist) as self.idtt:
             self.convert_document()
 
     def convert_document(self):
@@ -291,11 +295,12 @@ class DocxToIdtt(object):
 
 
 class InDesignTaggedTextOutput(object):
-    def __init__(self, filename):
+    def __init__(self, filename, legitimist=False):
         self._filename = filename
         self._styles = []
         self._headers_written = False
         self._shades = collections.defaultdict(itertools.count)
+        self._legitimist = legitimist
 
     def __enter__(self):
         self._fo = open(self._filename, 'w', encoding='UTF-16LE')
@@ -360,7 +365,7 @@ class InDesignTaggedTextOutput(object):
         self._write(id_realm)
         self._write('Style:')
         self._write(style.absname)
-        if not style.legit:
+        if not (self._legitimist and style.legit):
             self._write(color)
             self._write(shade)
 

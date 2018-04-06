@@ -140,7 +140,7 @@ function ri_get_options(ri) {
             });
           }
           ri.ui_import_rerun = checkboxControls.add({
-            staticLabel: "Regenerate if applicable",
+            staticLabel: "Regenerate tagged text if applicable",
             checkedState: true
           });
           ri.ui_import_options = checkboxControls.add({
@@ -223,11 +223,11 @@ function ri_get_options(ri) {
         with (dialogColumns.add()) {
           ri.ui_disable_grep = add({
             staticLabel: "Disable GREP styles while working",
-            checkedState: true
+            checkedState: !ri.saved_settings.keep_grep,
           });
           ri.ui_disable_reflow = add({
             staticLabel: "Disable smart reflow when applicable",
-            checkedState: true
+            checkedState: !ri.saved_settings.keep_reflow,
           });
         }
       }
@@ -322,7 +322,9 @@ function ri_do_import(ri) {
   ri.var_settings.variableOptions.contents = uneval({
     importee: ri.importee.fsName,
     a_master: ri.a_master_name,
-    b_master: ri.b_master_name
+    b_master: ri.b_master_name,
+    keep_grep: !ri.ui_disable_grep.checkedState,
+    keep_reflow: !ri.ui_disable_reflow.checkedState,
   })
 };
 
