@@ -1,6 +1,5 @@
 // ex: set et sw=2:
 
-// TODO: Save some settings (master pages) in a variable
 // TODO: Some kind of "only this" button
 // TODO: Configurable (and savable) Title matcher (r'Title|Frame Top')
 // TODO: Multiple main stories are a no-no
@@ -211,6 +210,12 @@ function ri_get_options(ri) {
           var masters = ri.doc.masterSpreads.everyItem().name;
           ri.ui_a_master = dropdowns.add({stringList: masters, selectedIndex: 0});
           ri.ui_b_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
+          if (ri.saved_settings.a_master)
+            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.a_master)).isValid)
+              ri.ui_a_master.selectedIndex = m.index;
+          if (ri.saved_settings.b_master)
+            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.b_master)).isValid)
+              ri.ui_b_master.selectedIndex = m.index;
         }
       }
 
@@ -233,8 +238,10 @@ function ri_get_options(ri) {
     return false;
   }
 
-  ri.a_master = ri.doc.masterSpreads.itemByName(masters[ri.ui_a_master.selectedIndex]);
-  ri.b_master = ri.doc.masterSpreads.itemByName(masters[ri.ui_b_master.selectedIndex]);
+  ri.a_master_name = masters[ri.ui_a_master.selectedIndex];
+  ri.b_master_name = masters[ri.ui_b_master.selectedIndex];
+  ri.a_master = ri.doc.masterSpreads.itemByName(ri.a_master_name);
+  ri.b_master = ri.doc.masterSpreads.itemByName(ri.b_master_name);
   return true;
 }
 
@@ -313,7 +320,9 @@ function ri_do_import(ri) {
     });
 
   ri.var_settings.variableOptions.contents = uneval({
-    importee: ri.importee.fsName
+    importee: ri.importee.fsName,
+    a_master: ri.a_master_name,
+    b_master: ri.b_master_name
   })
 };
 
