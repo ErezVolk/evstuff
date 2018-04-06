@@ -1,8 +1,8 @@
 // ex: set et sw=2:
 
+// TODO: Save some settings (master pages) in a variable
 // TODO: Some kind of "only this" button
 // TODO: Configurable (and savable) Title matcher (r'Title|Frame Top')
-// TODO: Save some settings (master pages, title matcher) in a variable
 // TODO: Multiple main stories are a no-no
 // TODO: Split (and unsplit!) frames on specific styles
 // TODO: Maybe do the start-of-line negative kerning trick?
@@ -73,17 +73,30 @@ function ri_stop_counter(ri) {
 
 function ri_analyze(ri) {
   var vars = ri.doc.textVariables;
-  ri.var_saved = null;
-  ri.str_saved = null;
+  ri.var_settings = null;
+  ri.saved_settings = {}
 
   for (var i = 0; i < vars.length; ++ i) {
     var cur = vars[i]
-    if (cur.variableType == VariableTypes.CUSTOM_TEXT_TYPE && cur.name == "Imported From") {
-      ri.var_saved = cur;
-      ri.str_saved = cur.variableOptions.contents;
-      break;
+    if (cur.variableType != VariableTypes.CUSTOM_TEXT_TYPE)
+      continue;
+
+    var name = cur.name;
+    var value = cur.variableOptions.contents;
+    if (name == "Imported From") {
+      cur.name = "ReImport Settings";
+      ri.var_settings = cur;
+      ri.saved_settings = {importee: value};
+    } else if (name == "ReImport Settings") {
+      ri.var_settings = cur;
+      try {
+        ri.saved_settings = eval(value);
+      } catch (e) {
+      }
     }
   }
+
+  ri.last_importee = ri.saved_settings.importee;
 
   var stories = ri.doc.stories;
   ri.have_toc = false;
@@ -117,10 +130,14 @@ function ri_get_options(ri) {
 
       with (ri.uig_import = enablingGroups.add({staticLabel: "Import", checkedState: true})) {
         with (dialogColumns.add() ) {
-          if (ri.str_saved) {
+          if (!ri.last_importee) {
+            // staticTexts.add({staticLabel: "No previous import."});
+          } else if (!File(ri.last_importee).exists) {
+            staticTexts.add({staticLabel: "Cannot reload " + ri.last_importee});
+          } else {
             ri.ui_same_importee = checkboxControls.add({
-              staticLabel: "Reload " + String(ri.str_saved),
-              checkedState: true
+              staticLabel: "Reload " + String(ri.last_importee),
+              checkedState: true,
             });
           }
           ri.ui_import_rerun = checkboxControls.add({
@@ -222,8 +239,8 @@ function ri_get_options(ri) {
 }
 
 function ri_get_importee(ri) {
-  if (ri.str_saved && ri.ui_same_importee.checkedState)
-    ri.importee = ri.str_saved;
+  if (ri.last_importee && ri.ui_same_importee && ri.ui_same_importee.checkedState)
+    ri.importee = ri.last_importee;
   else
     ri.importee = File.openDialog("Choose your importee", ri.filter_files)
   return ri.importee;
@@ -288,12 +305,16 @@ function ri_do_import(ri) {
   } catch (e) {
     alert("Note: Import failed(?)\n" + e);
   }
-  if (!ri.var_saved)
-    ri.var_saved = ri.doc.textVariables.add({
-      name: "Imported From",
+
+  if (!ri.var_settings)
+    ri.var_settings = ri.doc.textVariables.add({
+      name: "ReImport Settings",
       variableType: VariableTypes.CUSTOM_TEXT_TYPE
     });
-  ri.var_saved.variableOptions.contents = ri.importee;
+
+  ri.var_settings.variableOptions.contents = uneval({
+    importee: ri.importee.fsName
+  })
 };
 
 function ri_post_clear_overrides(ri) {
