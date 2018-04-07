@@ -34,11 +34,11 @@ class Style(Base):
     def __str__(self):
         desc = [self.realm, repr(self.name)]
         if self.internal_name and self.internal_name != self.name:
-            desc.append('[%s]' % self.internal_name)
+            desc.extend(['[', self.internal_name, ']'])
         if self.parent:
-            desc.append('inherits %r' % self.parent.name)
+            desc.extend(['inherits ', repr(self.parent.name)])
         if self.followed_by:
-            desc.append('followed by %r' % self.followed_by.name)
+            desc.extend(['followed by ', repr(self.followed_by.name)])
         return '<%s>' % ' '.join(desc)
 
     realm = sa.Column('realm', sa.String, primary_key=True)
@@ -233,6 +233,10 @@ class DocxToIdtt(object):
         self.styles = {self.style_key(s): s for s in self.session.query(Style)}
 
     def found_style(self, realm, internal_name, msw_name, parent_msw_name=None, followed_by_msw_name=None):
+        if realm not in self.bases:
+            logger.debug('What about %s style %s [%r]?', realm, msw_name, internal_name)
+            return
+
         try:
             section = self.mapping[self.section_name(realm, internal_name)]
             if section.get('name') != internal_name:
