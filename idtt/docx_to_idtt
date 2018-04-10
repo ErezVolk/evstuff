@@ -64,8 +64,8 @@ class Style(Base):
         'Style',
         primaryjoin=(
             'and_('
-            'foreign(Style.realm)==Style.realm, '
-            'foreign(Style.msw_name)==Style.parent_msw_name'
+            '  remote(Style.realm)==foreign(Style.realm), '
+            '  remote(Style.msw_name)==foreign(Style.parent_msw_name)'
             ')'
         ),
         uselist=False
@@ -75,8 +75,8 @@ class Style(Base):
         'Style',
         primaryjoin=(
             'and_('
-            'foreign(Style.realm)==Style.realm, '
-            'foreign(Style.msw_name)==Style.followed_by_msw_name'
+            '  remote(Style.realm)==foreign(Style.realm), '
+            '  remote(Style.msw_name)==foreign(Style.followed_by_msw_name)'
             ')'
         ),
         uselist=False
@@ -236,7 +236,6 @@ class DocxToIdtt(object):
         self.reload_all_styles()
 
     def reload_all_styles(self):
-        # TODO: Alechemy can probably take care of this
         self.styles = {self.style_key(s): s for s in self.session.query(Style)}
 
     def add_special_styles(self):
@@ -367,6 +366,7 @@ class DocxToIdtt(object):
             if offset < 0:
                 return
             text = text[:offset]
+            logger.info('Stop marker found')
             raise StopMarkerFound()
         finally:
             self.idtt.write_text(text)
@@ -482,13 +482,14 @@ class InDesignTaggedTextOutput(object):
     def define_style(self, style):
         if style in self._styles:
             return
+
         if style.parent:
             self.define_style(style.parent)
 
         self._styles.append(style)
 
-        if style.followed_by:
-            self.define_style(style.followed_by)
+        # if style.followed_by:
+        #     self.define_style(style.followed_by)
         if self._headers_written:
             self._write_style_definition(style)
 
@@ -511,7 +512,7 @@ class InDesignTaggedTextOutput(object):
         self._headers_written = True
 
     def _write_style_definition(self, style):
-        logger.debug('InDesign: %s', style)
+        logger.debug('InDesign: %s', style.name)
         if style.tint is None:
             fullness = 50.0 + 50.0 / (1.05 ** next(self._shades[style.realm]))
 
@@ -536,10 +537,10 @@ class InDesignTaggedTextOutput(object):
             self._write('<BasedOn:')
             self._write(self.idname(style.parent))
             self._write('>')
-        if style.followed_by:
-            self._write('<Nextstyle:')
-            self._write(self.idname(style.followed_by))
-            self._write('>')
+        # if style.followed_by:
+        #     self._write('<Nextstyle:')
+        #     self._write(self.idname(style.followed_by))
+        #     self._write('>')
         self._write('>')
 
     def enter_paragraph(self, style=None):
