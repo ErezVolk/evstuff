@@ -10,10 +10,8 @@ import collections
 import itertools
 import lxml.etree
 import logging
+import attr
 logger = logging
-
-from sqlalchemy.ext.declarative import declarative_base
-import sqlalchemy as sa
 
 # TODO: Autocreate character styles from manual combos
 #       bold: w:b (w:bCs?); italic: w:i (w:iCs?); undeline w:u
@@ -30,14 +28,22 @@ import sqlalchemy as sa
 # TODO MAYBE: Latent styles?
 # TODO: Less files -- what can I put in the ini file/variables?
 
-DEBUG_SQL = False
 
-Base = declarative_base()
+@attr.s
+class Style(object):
+    realm = attr.ib()
+    msw_name = attr.ib()
+    name = attr.ib(default=None)
+    legit = attr.ib(default=None)
+    internal_name = attr.ib(default=None)
+    parent_msw_name = attr.ib(default=None)
+    followed_by_msw_name = attr.ib(default=None)
+    used = attr.ib(default=None)
+    color = attr.ib(default=None)
+    tint = attr.ib(default=None)
 
-
-class Style(Base):
-    """A named style."""
-    __tablename__ = 'style'
+    parent = attr.ib(default=None)
+    followed_by = attr.ib(default=None)
 
     def __str__(self):
         desc = [self.realm, repr(self.name)]
@@ -48,39 +54,6 @@ class Style(Base):
         if self.followed_by:
             desc.extend(['followed by ', repr(self.followed_by.name)])
         return '<%s>' % ' '.join(desc)
-
-    realm = sa.Column(sa.String, primary_key=True)
-    msw_name = sa.Column(sa.String, primary_key=True)
-    name = sa.Column(sa.String)
-    legit = sa.Column(sa.String)
-    internal_name = sa.Column(sa.String)
-    parent_msw_name = sa.Column(sa.String)
-    followed_by_msw_name = sa.Column(sa.String)
-    used = sa.Column(sa.Boolean)
-    color = sa.Column(sa.String)
-    tint = sa.Column(sa.Integer)
-
-    parent = sa.orm.relationship(
-        'Style',
-        primaryjoin=(
-            'and_('
-            '  remote(Style.realm)==foreign(Style.realm), '
-            '  remote(Style.msw_name)==foreign(Style.parent_msw_name)'
-            ')'
-        ),
-        uselist=False
-    )
-
-    followed_by = sa.orm.relationship(
-        'Style',
-        primaryjoin=(
-            'and_('
-            '  remote(Style.realm)==foreign(Style.realm), '
-            '  remote(Style.msw_name)==foreign(Style.followed_by_msw_name)'
-            ')'
-        ),
-        uselist=False
-    )
 
 
 class StopMarkerFound(Exception):
@@ -106,7 +79,6 @@ class DocxToIdtt(object):
         self.parse_command_line()
         self.configure_logging()
         self.read_mapping()
-        self.create_db()
         self.load_docx()
         self.write_idtt()
         self.report_style_counts()
@@ -201,12 +173,6 @@ class DocxToIdtt(object):
             fo.write('\n')
         os.chmod(self.rerunner_fn, 0o755)
 
-    def create_db(self):
-        engine = sa.create_engine('sqlite:///:memory:', echo=DEBUG_SQL)
-        self.session = sa.orm.scoped_session(sa.orm.sessionmaker(autocommit=True, autoflush=True))
-        self.session.configure(bind=engine)
-        Base.metadata.create_all(engine)
-
     def load_docx(self):
         logger.info('Reading %r', self.args.input)
         with zipfile.ZipFile(self.args.input) as self.docx:
@@ -233,10 +199,16 @@ class DocxToIdtt(object):
                 parent_msw_name=self.wval(s, 'w:basedOn'),
                 followed_by_msw_name=self.wval(s, 'w:next'),
             )
-        self.reload_all_styles()
 
-    def reload_all_styles(self):
-        self.styles = {self.style_key(s): s for s in self.session.query(Style)}
+        for style in self.styles.values():
+            if style.parent_msw_name:
+                style.parent = self.styles[self.style_key(
+                    realm=style.realm, msw_name=style.parent_msw_name
+                )]
+            if style.followed_by_msw_name:
+                style.followed_by = self.styles[self.style_key(
+                    realm=style.realm, msw_name=style.followed_by_msw_name
+                )]
 
     def add_special_styles(self):
         self.base_names = {
@@ -286,7 +258,6 @@ class DocxToIdtt(object):
     def add_style(self, **kwargs):
         style = Style(**kwargs)
         self.styles[self.style_key(style)] = style
-        self.session.add(style)
         return style
 
     def style_key(self, style=None, realm=None, msw_name=None):
@@ -414,10 +385,11 @@ class DocxToIdtt(object):
             self.parent.current_character_style = self.parent_character_style
 
     def report_style_counts(self):
-        query = self.session.query(Style.realm, sa.func.count(Style.realm).label('count'))
-        query = query.group_by(Style.realm)
-        for realm, count in query:
-            logger.info('Number of %s styles used: %u', realm.capitalize(), count)
+        realms = {s.realm for s in self.styles.values()}
+        for realm in realms:
+            logger.info('Number of %s styles used: %u',
+                        realm.capitalize(),
+                        len(list(s for s in self.styles.values() if s.realm == realm)))
 
     def wvstyle(self, node, expr, realm):
         msw_name = self.wval(node, expr)
@@ -488,8 +460,8 @@ class InDesignTaggedTextOutput(object):
 
         self._styles.append(style)
 
-        # if style.followed_by:
-        #     self.define_style(style.followed_by)
+        if style.followed_by:
+            self.define_style(style.followed_by)
         if self._headers_written:
             self._write_style_definition(style)
 
@@ -537,10 +509,10 @@ class InDesignTaggedTextOutput(object):
             self._write('<BasedOn:')
             self._write(self.idname(style.parent))
             self._write('>')
-        # if style.followed_by:
-        #     self._write('<Nextstyle:')
-        #     self._write(self.idname(style.followed_by))
-        #     self._write('>')
+        if style.followed_by:
+            self._write('<Nextstyle:')
+            self._write(self.idname(style.followed_by))
+            self._write('>')
         self._write('>')
 
     def enter_paragraph(self, style=None):
