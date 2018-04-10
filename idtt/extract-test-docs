@@ -6,7 +6,7 @@ for f in t*.tagged.txt; do
 	iconv -f UTF-16LE $f > ${u}
 done
 
-for f in t*docx; do
+for f in t*docx t*.idml; do
 	d=${f}.unzipped
 	unzip -o $f -d $d
 	for x in `find $d -name \*.xml`; do
@@ -18,3 +18,12 @@ done
 # TODO: idml
 # TODO: fodt?
 
+
+# STUFF TO PUT IN A TEST FILE:
+# - Paragraph styles
+# - Character styles (incl. nested usage)
+# - Style inheritance
+# - Next style
+# - Manual overrides (bold, italic, diff. font, underline)
+# - Manual *un*bold etc.
+# - Notes?
