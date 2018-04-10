@@ -57,7 +57,8 @@ class Style(Base):
     parent_msw_name = sa.Column(sa.String)
     followed_by_msw_name = sa.Column(sa.String)
     used = sa.Column(sa.Boolean)
-    fullness = sa.Column(sa.Integer)
+    color = sa.Column(sa.String)
+    tint = sa.Column(sa.Integer)
 
     parent = sa.orm.relationship(
         'Style',
@@ -239,27 +240,28 @@ class DocxToIdtt(object):
         self.styles = {self.style_key(s): s for s in self.session.query(Style)}
 
     def add_special_styles(self):
-        self.bases = {
+        self.base_names = {
             'character': self.args.base_character_style,
             'paragraph': self.args.base_paragraph_style,
         }
-        for realm, name in self.bases.items():
-            self.found_style(
+        self.base_styles = {
+            realm: self.found_style(
                 realm=realm,
                 internal_name=name,
                 msw_name=name,
             )
+            for realm, name in self.base_names.items()
+        }
         self.comment_mark_style = self.found_style(
             realm='character',
             internal_name=self.COMMENT_MARK_STYLE,
             msw_name=self.COMMENT_MARK_STYLE,
+            color='Cyan',
+            tint=100,
         )
 
-    def found_style(self, realm, internal_name, msw_name,
-                    parent_msw_name=None,
-                    followed_by_msw_name=None,
-                    fullness=None):
-        if realm not in self.bases:
+    def found_style(self, realm, internal_name, msw_name, **kwargs):
+        if realm not in self.base_names:
             logger.debug('What about %s:%r [%r]?', realm, msw_name, internal_name)
             return
 
@@ -270,9 +272,8 @@ class DocxToIdtt(object):
         except KeyError:
             section = {}
 
-        if not parent_msw_name:
-            if msw_name != self.bases.get(realm):
-                parent_msw_name = self.bases.get(realm)
+        if msw_name != self.base_names.get(realm):
+            kwargs.setdefault('parent_msw_name', self.base_names.get(realm))
 
         return self.add_style(
             realm=realm,
@@ -280,9 +281,7 @@ class DocxToIdtt(object):
             legit=section.get('legit'),
             internal_name=internal_name,
             msw_name=msw_name,
-            parent_msw_name=parent_msw_name,
-            followed_by_msw_name=followed_by_msw_name,
-            fullness=fullness,
+            **kwargs
         )
 
     def add_style(self, **kwargs):
@@ -331,26 +330,33 @@ class DocxToIdtt(object):
             for node in p.iterchildren():
                 if node.tag == self.wtag('r'):
                     self.convert_range(node)
-                elif node.tag == self.wtag('commentRangeStart'):
-                    self.add_comment_marker(self.COMMENT_RANGE_START)
-                elif node.tag == self.wtag('commentRangeEnd'):
-                    self.add_comment_marker(self.COMMENT_RANGE_END)
+                # elif node.tag == self.wtag('commentRangeStart'):
+                #     self.add_comment_marker(self.COMMENT_RANGE_START)
+                # elif node.tag == self.wtag('commentRangeEnd'):
+                #     self.add_comment_marker(self.COMMENT_RANGE_END)
         finally:
             self.idtt.leave_paragraph()
 
     def convert_range(self, r):
-        style = self.wvstyle(r, 'w:rPr/w:rStyle', 'character')
-        if style != self.current_character_style:
-            self.idtt.set_character_style(style)
-            self.current_character_style = style
-        for t in self.xpath(r, 'w:tab'):
-            self.idtt.write_text('\t')
-        for t in self.xpath(r, 'w:t'):
-            self.write_text(t)
+        self.switch_character_style(self.wvstyle(r, 'w:rPr/w:rStyle', 'character'))
+        self.convert_range_text(r)
         for fnr in self.xpath(r, 'w:footnoteReference'):
             self.convert_footnote_reference(fnr)
         for fnr in self.xpath(r, 'w:commentReference'):
             self.convert_comment_reference(fnr)
+
+    def convert_range_text(self, r):
+        for t in self.xpath(r, 'w:tab'):
+            self.idtt.write_text('\t')
+        for t in self.xpath(r, 'w:t'):
+            self.write_text(t)
+
+    def switch_character_style(self, style):
+        prev = self.current_character_style
+        if style is not prev:
+            self.idtt.set_character_style(style)
+            self.current_character_style = style
+        return prev
 
     def write_text(self, node):
         try:
@@ -385,17 +391,15 @@ class DocxToIdtt(object):
             self.convert_comment(cm)
 
     def convert_comment(self, cm):
-        with self.NestedStyle(self):
-            self.add_comment_marker(self.COMMENT_START)
-            for p in self.xpath(cm, 'w:p'):
-                self.convert_paragraph(p)
-            self.add_comment_marker(self.COMMENT_END)
+        outer = self.switch_character_style(self.comment_mark_style)
+        for r in self.xpath(cm, 'w:p/w:r'):
+            self.convert_range_text(r)
+        self.switch_character_style(outer)
 
     def add_comment_marker(self, marker):
-        cstyle = self.current_character_style
-        self.idtt.set_character_style(self.comment_mark_style)
+        cstyle = self.switch_character_style(self.comment_mark_style)
         self.idtt.write_text(marker)
-        self.idtt.set_character_style(cstyle)
+        self.switch_character_style(cstyle)
 
     class NestedStyle(object):
         def __init__(self, parent):
@@ -496,8 +500,9 @@ class InDesignTaggedTextOutput(object):
         self._write(r'<FeatureSet:Indesign-R2L>')
         self._write(r'<ColorTable:=')
         self._write(r'<Black:COLOR:CMYK:Process:0,0,0,1>')
-        self._write(r'<Yellow:COLOR:CMYK:Process:0,0,1,0>')
+        self._write(r'<Cyan:COLOR:CMYK:Process:1,0,0,0>')
         self._write(r'<Magenta:COLOR:CMYK:Process:0,1,0,0>')
+        self._write(r'<Yellow:COLOR:CMYK:Process:0,0,1,0>')
         self._write(r'>')
         self._writeln()
         for style in self._styles:
@@ -507,19 +512,17 @@ class InDesignTaggedTextOutput(object):
 
     def _write_style_definition(self, style):
         logger.debug('InDesign: %s', style)
-        if style.fullness is not None:
-            fullness = style.fullness
-        else:
+        if style.tint is None:
             fullness = 50.0 + 50.0 / (1.05 ** next(self._shades[style.realm]))
 
         if style.realm == 'paragraph':
             id_realm = 'Para'
-            color = r'<pShadingColor:Yellow><pShadingOn:1>'
-            shade = r'<pShadingTint:%s>' % int(100 - fullness)
+            color = r'<pShadingColor:%s><pShadingOn:1>' % (style.color or 'Yellow')
+            shade = r'<pShadingTint:%s>' % (style.tint or int(100 - fullness))
         elif style.realm == 'character':
             id_realm = 'Char'
-            color = r'<cColor:Magenta>'
-            shade = r'<cColorTint:%s>' % int(fullness)
+            color = r'<cColor:%s>' % (style.color or 'Magenta')
+            shade = r'<cColorTint:%s>' % (style.tint or int(fullness))
 
         self._write('<Define')
         self._write(id_realm)
