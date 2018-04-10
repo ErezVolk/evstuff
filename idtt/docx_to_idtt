@@ -389,7 +389,7 @@ class DocxToIdtt(object):
         for realm in realms:
             logger.info('Number of %s styles used: %u',
                         realm.capitalize(),
-                        len(list(s for s in self.styles.values() if s.realm == realm)))
+                        sum(1 for s in self.styles.values() if s.realm == realm))
 
     def wvstyle(self, node, expr, realm):
         msw_name = self.wval(node, expr)
