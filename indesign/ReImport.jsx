@@ -1,9 +1,9 @@
 // ex: set et sw=2:
 
-// TODO: Figure out why I sometimes get the double frame thing
+// TODO: Check for the double frame thing at beginning/end.
+// TODO: Border tricks at end/beginning of frames
 // TODO: Some kind of "only this" button
 // TODO: Configurable (and savable) Title matcher (r'Title|Frame Top')
-// TODO: Multiple main stories are a no-no
 // TODO: Split (and unsplit!) frames on specific styles
 // TODO: Maybe do the start-of-line negative kerning trick?
 // TODO: Status indication

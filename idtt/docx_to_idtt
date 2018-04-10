@@ -15,14 +15,20 @@ logger = logging
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy as sa
 
+# TODO: Comments (for Noga, Amaral)
+# TODO: Autocreate character styles from manual combos
+#       bold: w:b (w:bCs?); italic: w:i (w:iCs?); undeline w:u
+#       font: <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New">
+#       override style: <w:i w:val="0">
 # TODO: (f)odt import
 # TODO: Automatic header group
-# TODO ONE DAY: Comments
+# TODO: Real BiDi?
 # TODO ONE DAY: Endnotes
 # TODO ONE DAY: Editing marks
 # TODO MAYBE: Linked styles?
 # TODO MAYBE: Derivation rules?
 # TODO MAYBE: Latent styles?
+# TODO MAYBE: Args in the ini file instead of rerunner
 
 DEBUG_SQL = False
 
@@ -43,14 +49,14 @@ class Style(Base):
             desc.extend(['followed by ', repr(self.followed_by.name)])
         return '<%s>' % ' '.join(desc)
 
-    realm = sa.Column('realm', sa.String, primary_key=True)
-    msw_name = sa.Column('msw_name', sa.String, primary_key=True)
-    name = sa.Column('name', sa.String)
-    legit = sa.Column('legit', sa.String)
-    internal_name = sa.Column('internal_name', sa.String)
-    parent_msw_name = sa.Column('parent', sa.String)
-    followed_by_msw_name = sa.Column('followed_by', sa.String)
-    used = sa.Column('used', sa.Boolean)
+    realm = sa.Column(sa.String, primary_key=True)
+    msw_name = sa.Column(sa.String, primary_key=True)
+    name = sa.Column(sa.String)
+    legit = sa.Column(sa.String)
+    internal_name = sa.Column(sa.String)
+    parent_msw_name = sa.Column(sa.String)
+    followed_by_msw_name = sa.Column(sa.String)
+    used = sa.Column(sa.Boolean)
 
     parent = sa.orm.relationship(
         'Style',

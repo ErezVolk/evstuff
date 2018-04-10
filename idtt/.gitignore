@@ -9,3 +9,4 @@
 *.utf8
 *.xml
 ~*.idlk
+test.*
