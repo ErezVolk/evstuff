@@ -378,16 +378,20 @@ class DocxToIdtt(object):
             self.stop_marker_found = True
 
     def convert_paragraph(self, p):
-        self.idtt.enter_paragraph(self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph'))
-        try:
-            for node in p.iterchildren():
-                if node.tag == self.wtag('r'):
-                    self.convert_range(node)
-                # elif node.tag == self.wtag('commentRangeStart'):
-                #     self.add_comment_marker(self.COMMENT_RANGE_START)
-                # elif node.tag == self.wtag('commentRangeEnd'):
-                #     self.add_comment_marker(self.COMMENT_RANGE_END)
-        finally:
+        with self.Paragraph(self, self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph')):
+            for r in self.xpath(p, 'w:r'):
+                self.convert_range(r)
+
+    class Paragraph(object):
+        def __init__(self, parent, style):
+            self.idtt = parent.idtt
+            self.style = style
+
+        def __enter__(self):
+            self.idtt.enter_paragraph(self.style)
+            return self
+
+        def __exit__(self, *exception):
             self.idtt.leave_paragraph()
 
     def convert_range(self, r):
