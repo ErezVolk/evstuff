@@ -374,13 +374,26 @@ class DocxToIdtt(object):
             self.stop_marker_found = False
             for p in self.xpath(self.document, '//w:body/w:p'):
                 self.convert_paragraph(p)
-        except StopMarkerFound:
-            self.stop_marker_found = True
+        except StopMarkerFound as marker:
+            logger.info(marker)
+        else:
+            logger.info('Note: Stop marker was never found')
+            logger.debug('In other words, no %r', self.args.stop_at)
 
     def convert_paragraph(self, p):
+        self.check_for_stopper(p)
         with self.Paragraph(self, self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph')):
             for r in self.xpath(p, 'w:r'):
                 self.convert_range(r)
+
+    def check_for_stopper(self, p):
+        text = ''
+        for node in self.xpath(p, 'w:r/w:t'):
+            text += node.text
+            if text.startswith(self.args.stop_at):
+                raise StopMarkerFound('Stop paragraph found')
+            if len(text) >= len(self.args.stop_at):
+                return
 
     class Paragraph(object):
         def __init__(self, parent, style):
@@ -424,8 +437,7 @@ class DocxToIdtt(object):
             if offset < 0:
                 return
             text = text[:offset]
-            logger.info('Stop marker found')
-            raise StopMarkerFound()
+            raise StopMarkerFound('Stop marker found')
         finally:
             self.idtt.write_text(text)
 
