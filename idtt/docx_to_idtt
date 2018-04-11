@@ -13,7 +13,8 @@ import logging
 import attr
 logger = logging
 
-# TODO: Something usable for those balloons
+# TODO: Style for the footnote refs
+# TODO: Something usable for those balloons (footnote+hl? endnote? convert to note in jsx?)
 # TODO: Autocreate character styles from manual combos
 #       bold: w:b (w:bCs?); italic: w:i (w:iCs?); undeline w:u
 #       font: <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New">
@@ -21,7 +22,7 @@ logger = logging
 # TODO: (f)odt import
 # TODO: idml import
 # TODO: Automatic header group
-# TODO: Real BiDi?
+# TODO: BiDi
 # TODO ONE DAY: Endnotes
 # TODO ONE DAY: Editing marks
 # TODO MAYBE: Linked styles?
@@ -60,6 +61,69 @@ class Style(object):
 class StopMarkerFound(Exception):
     """We raise this to stop the presses."""
     pass
+
+
+class IOutput(object):
+    """Interface for things that write InDesign Tagged Text."""
+
+    def define_style(self, style):
+        raise NotImplementedError()
+
+    def enter_paragraph(self, style=None):
+        raise NotImplementedError()
+
+    def leave_paragraph(self):
+        raise NotImplementedError()
+
+    def set_character_style(self, style=None):
+        raise NotImplementedError()
+
+    def enter_footnote(self):
+        raise NotImplementedError()
+
+    def leave_footnote(self):
+        raise NotImplementedError()
+
+    def write_text(self, text):
+        raise NotImplementedError()
+
+
+class WhitespaceStripper(IOutput):
+    def __init__(self, writer):
+        self.writer = writer
+        self.begun = False
+        self.pending = ''
+
+    def define_style(self, style):
+        return self.writer.define_style(style)
+
+    def enter_paragraph(self, style=None):
+        return self.writer.enter_paragraph(style)
+
+    def leave_paragraph(self):
+        return self.writer.leave_paragraph()
+
+    def set_character_style(self, style=None):
+        return self.writer.set_character_style(style)
+
+    def enter_footnote(self):
+        return self.writer.enter_footnote()
+
+    def leave_footnote(self):
+        return self.writer.leave_footnote()
+
+    def write_text(self, text):
+        if not self.begun:
+            # Trim initial whitespace
+            text = re.sub(r'^\s+', r'', text)
+            self.begun = bool(text)
+
+        if self.begun:
+            # Defer any possibly final whitespace
+            text, *more = re.split(r'(\s+$)', self.pending + text)
+            self.pending = more[0] if more else ''
+
+        return self.writer.write_text(text)
 
 
 class DocxToIdtt(object):
@@ -360,12 +424,23 @@ class DocxToIdtt(object):
 
     def convert_footnote_reference(self, fnr):
         fnid = fnr.get(self.wtag('id'))
-        self.idtt.enter_footnote()
-        try:
+        with self.Footnote(self):
             for fn in self.xpath(self.footnotes, 'w:footnote[@w:id="%s"]' % fnid):
                 self.convert_footnote(fn)
-        finally:
+
+    class Footnote(object):
+        def __init__(self, parent):
+            self.parent = parent
+            self.idtt = parent.idtt
+
+        def __enter__(self):
+            self.idtt.enter_footnote()
+            self.parent.idtt = WhitespaceStripper(self.idtt)
+            return self
+
+        def __exit__(self, *exception):
             self.idtt.leave_footnote()
+            self.parent.idtt = self.idtt
 
     def convert_footnote(self, fn):
         with self.NestedStyle(self):
@@ -439,7 +514,7 @@ class DocxToIdtt(object):
             logger.warn('[%s] leads to missing %r', section_name, style.followed_by_msw_name)
 
 
-class InDesignTaggedTextOutput(object):
+class InDesignTaggedTextOutput(IOutput):
     def __init__(self, filename, legitimist=False, debug=False):
         self._filename = filename
         self._styles = []
@@ -522,18 +597,18 @@ class InDesignTaggedTextOutput(object):
         self._write('<Define')
         self._write(id_realm)
         self._write('Style:')
-        self._write(self.idname(style))
+        self._write(self._idname(style))
         if not (self._legitimist and style.legit):
             self._write(color)
             self._write(shade)
 
         if style.parent and style.parent.used:
             self._write('<BasedOn:')
-            self._write(self.idname(style.parent))
+            self._write(self._idname(style.parent))
             self._write('>')
         if style.followed_by and style.followed_by.used:
             self._write('<Nextstyle:')
-            self._write(self.idname(style.followed_by))
+            self._write(self._idname(style.followed_by))
             self._write('>')
         self._write('>')
 
@@ -548,10 +623,10 @@ class InDesignTaggedTextOutput(object):
         self._write(realm)
         self._write('Style:')
         if style:
-            self._write(self.idname(style))
+            self._write(self._idname(style))
         self._write('>')
 
-    def idname(self, style):
+    def _idname(self, style):
         return re.sub(r'\s*/\s*', r'\:', style.name)
 
     def leave_paragraph(self):

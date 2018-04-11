@@ -273,7 +273,12 @@ function ri_pre_clear(ri) {
   if (!ri.ui_pre_clear.checkedState)
     return;
   var page = ri.doc.pages[0];
-  ri_main_frame(ri, page).parentStory.contents = "";
+  try {
+    var frame = ri_main_frame(ri, page)
+    var story = frame.parentStory;
+    story.contents = "";
+  } catch (e) {
+  }
   //ri_override_all_master_page_items(ri, page);
 };
 
