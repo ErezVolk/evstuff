@@ -216,7 +216,7 @@ class DocxToIdtt(object):
 
     def scan_for_styles(self, node):
         """Mark which styles are actually used."""
-        if node:
+        if node is not None:
             self.activate_real_styles(node, 'w:pStyle', 'paragraph')
             self.activate_real_styles(node, 'w:rStyle', 'character')
         return node
@@ -450,8 +450,11 @@ class InDesignTaggedTextOutput(object):
 
     def __enter__(self):
         self._fo = open(self._filename, 'w', encoding='UTF-16LE')
+        ufo_fn = self._filename + '.utf8'
         if self._debug:
-            self._ufo = open(self._filename + '.utf8', 'w', encoding='UTF-8')
+            self._ufo = open(ufo_fn, 'w', encoding='UTF-8')
+        elif os.path.isfile(ufo_fn):
+            os.unlink(ufo_fn)
         return self
 
     def __exit__(self, *exception):
