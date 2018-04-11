@@ -13,6 +13,7 @@ import logging
 import attr
 logger = logging
 
+# TODO: Something usable for those balloons
 # TODO: Autocreate character styles from manual combos
 #       bold: w:b (w:bCs?); italic: w:i (w:iCs?); undeline w:u
 #       font: <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New">
@@ -105,6 +106,8 @@ class DocxToIdtt(object):
         self.parser.add_argument('-p', '--base-paragraph-style', metavar='NAME',
                                  default=self.DEFAULT_BASE,
                                  help='Base all paragraph styles on this.')
+        self.parser.add_argument('-f', '--fresh-start', action='store_true',
+                                 help='Do not read any existing settings.')
         self.parser.add_argument('-d', '--debug', action='store_true',
                                  help='Print interesting debug information.')
         self.args = self.parser.parse_args()
@@ -131,7 +134,7 @@ class DocxToIdtt(object):
     def read_mapping(self):
         """Read any user overrides to the basic Word->InDesign mapping."""
         self.mapping = configparser.ConfigParser()
-        if os.path.isfile(self.mapping_fn):
+        if os.path.isfile(self.mapping_fn) and not self.args.fresh_start:
             logger.info('Reading %r', self.mapping_fn)
             self.mapping.read(self.mapping_fn)
 
@@ -177,9 +180,9 @@ class DocxToIdtt(object):
         logger.info('Reading %r', self.args.input)
         with zipfile.ZipFile(self.args.input) as self.docx:
             self.scan_styles(self.load_xml('word/styles.xml'))
-            self.document = self.load_xml('word/document.xml')
-            self.footnotes = self.load_xml('word/footnotes.xml')
-            self.comments = self.load_xml('word/comments.xml')
+            self.document = self.scan_for_styles(self.load_xml('word/document.xml'))
+            self.footnotes = self.scan_for_styles(self.load_xml('word/footnotes.xml'))
+            self.comments = self.scan_for_styles(self.load_xml('word/comments.xml'))
 
     def load_xml(self, path):
         try:
@@ -189,6 +192,7 @@ class DocxToIdtt(object):
             return None
 
     def scan_styles(self, styles):
+        """Create a Style object for everything in the document."""
         self.styles = {}
         self.add_special_styles()
         for s in self.xpath(styles, "//w:style[@w:type][w:name[@w:val]]"):
@@ -209,6 +213,18 @@ class DocxToIdtt(object):
                 style.followed_by = self.styles[self.style_key(
                     realm=style.realm, msw_name=style.followed_by_msw_name
                 )]
+
+    def scan_for_styles(self, node):
+        """Mark which styles are actually used."""
+        if node:
+            self.activate_real_styles(node, 'w:pStyle', 'paragraph')
+            self.activate_real_styles(node, 'w:rStyle', 'character')
+        return node
+
+    def activate_real_styles(self, node, tag, realm):
+        for sn in self.xpath(node, '//%s' % tag):
+            msw_name = sn.get(self.wtag('val'))
+            self.styles[self.style_key(realm=realm, msw_name=msw_name)].used = True
 
     def add_special_styles(self):
         self.base_names = {
@@ -283,7 +299,7 @@ class DocxToIdtt(object):
     def write_idtt(self):
         logger.info('Writing %r', self.output_fn)
         self.current_character_style = None
-        with InDesignTaggedTextOutput(self.output_fn, self.args.legitimist) as self.idtt:
+        with InDesignTaggedTextOutput(self.output_fn, self.args.legitimist, self.args.debug) as self.idtt:
             self.convert_document()
 
     def convert_document(self):
@@ -389,7 +405,7 @@ class DocxToIdtt(object):
         for realm in realms:
             logger.info('Number of %s styles used: %u',
                         realm.capitalize(),
-                        sum(1 for s in self.styles.values() if s.realm == realm))
+                        sum(1 for s in self.styles.values() if s.realm == realm and s.used))
 
     def wvstyle(self, node, expr, realm):
         msw_name = self.wval(node, expr)
@@ -397,7 +413,6 @@ class DocxToIdtt(object):
             return None
 
         style = self.styles[self.style_key(realm=realm, msw_name=msw_name)]
-        style.used = True
         self.update_mapping(style)
         return style
 
@@ -406,7 +421,7 @@ class DocxToIdtt(object):
         if section_name in self.mapping:
             return
 
-        if style.parent:
+        if style.parent and style.parent.used:
             self.update_mapping(style.parent)
         elif style.parent_msw_name:
             logger.warn('[%s] inherits missing %r', section_name, style.parent_msw_name)
@@ -418,34 +433,38 @@ class DocxToIdtt(object):
             'parent_msw_name (readonly)': style.parent_msw_name or '',
             'next_msw_name (readonly)': style.followed_by_msw_name or '',
         }
-        if style.followed_by:
+        if style.followed_by and style.followed_by.used:
             self.update_mapping(style.followed_by)
         elif style.followed_by_msw_name:
             logger.warn('[%s] leads to missing %r', section_name, style.followed_by_msw_name)
 
 
 class InDesignTaggedTextOutput(object):
-    def __init__(self, filename, legitimist=False):
+    def __init__(self, filename, legitimist=False, debug=False):
         self._filename = filename
         self._styles = []
         self._headers_written = False
         self._shades = collections.defaultdict(itertools.count)
         self._legitimist = legitimist
+        self._debug = debug
 
     def __enter__(self):
         self._fo = open(self._filename, 'w', encoding='UTF-16LE')
-        self._ufo = open(self._filename + '.utf8', 'w', encoding='UTF-8')
+        if self._debug:
+            self._ufo = open(self._filename + '.utf8', 'w', encoding='UTF-8')
         return self
 
     def __exit__(self, *exception):
         self._fo.close()
-        self._ufo.close()
+        if self._debug:
+            self._ufo.close()
 
     def _write(self, string):
         if not string:
             return
         self._fo.write(string)
-        self._ufo.write(string)
+        if self._debug:
+            self._ufo.write(string)
 
     def _writeln(self, line=''):
         self._write(line)
@@ -455,12 +474,12 @@ class InDesignTaggedTextOutput(object):
         if style in self._styles:
             return
 
-        if style.parent:
+        if style.parent and style.parent.used:
             self.define_style(style.parent)
 
         self._styles.append(style)
 
-        if style.followed_by:
+        if style.followed_by and style.followed_by.used:
             self.define_style(style.followed_by)
         if self._headers_written:
             self._write_style_definition(style)
@@ -505,11 +524,11 @@ class InDesignTaggedTextOutput(object):
             self._write(color)
             self._write(shade)
 
-        if style.parent:
+        if style.parent and style.parent.used:
             self._write('<BasedOn:')
             self._write(self.idname(style.parent))
             self._write('>')
-        if style.followed_by:
+        if style.followed_by and style.followed_by.used:
             self._write('<Nextstyle:')
             self._write(self.idname(style.followed_by))
             self._write('>')
