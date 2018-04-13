@@ -410,7 +410,8 @@ class DocxToIdtt(object):
             logging.debug('In other words, no %r', self.args.stop_at)
 
     def convert_paragraph(self, p):
-        self.check_for_stopper(p)
+        if self.args.stop_at:
+            self.check_for_stopper(p)
         with self.Paragraph(self, self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph')):
             for r in self.xpath(p, 'w:r'):
                 self.convert_range(r)
