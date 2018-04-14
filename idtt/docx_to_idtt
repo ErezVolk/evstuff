@@ -13,10 +13,12 @@ import lxml.etree
 import attr
 
 # TODO:
-# - rc file with basic things (--stop-at, maybe some defaults)
-# - Set InDesign variables! (author, title, whatnot)
-# - Maybe add front matter (maybe best done in Id)
-# - some contextlib magic
+# - Manual format: autogenerate styles
+# - Manual format: collapse with existing styles
+
+# - A mode to only create/update the ini file
+# - Maybe add front matter (best done in Id?)
+# - some contextlib magic instead of all those finally clauses
 # - Something usable for those balloons (footnote+hl? endnote? convert to note in jsx?)
 # - Autocreate character styles from manual combos
 #   bold: w:b (w:bCs?); italic: w:i (w:iCs?); undeline w:u
@@ -33,6 +35,17 @@ import attr
 # - Latent styles?
 
 
+class StopMarkerFound(Exception):
+    """We raise this to stop the presses."""
+    pass
+
+
+class ParseDict(argparse.Action):
+    """Helper class to convert KEY=VALUE pairs to a dict."""
+    def __call__(self, parser, namespace, values, option_string):
+        setattr(namespace, self.dest, dict(val.split('=', 1) for val in values))
+
+
 @attr.s
 class Style(object):
     """A character/paragraph style, normally found in the input file."""
@@ -46,109 +59,13 @@ class Style(object):
     color = attr.ib(default=None)
     tint = attr.ib(default=None)
     superscript = attr.ib(default=None)
+    variable = attr.ib(default=None)
 
     parent = attr.ib(default=None)
     followed_by = attr.ib(default=None)
 
     def __str__(self):
         return '<%s %r>' % (self.realm, self.name)
-
-    def __repr__(self):
-        desc = [self.realm, repr(self.name)]
-        if self.internal_name and self.internal_name != self.name:
-            desc.extend(['[', self.internal_name, ']'])
-        if self.parent:
-            desc.extend(['inherits ', repr(self.parent.name)])
-        if self.followed_by:
-            desc.extend(['followed by ', repr(self.followed_by.name)])
-        return '<%s>' % ' '.join(desc)
-
-
-class StopMarkerFound(Exception):
-    """We raise this to stop the presses."""
-    pass
-
-
-class IOutput(object):
-    """Interface for things that write InDesign Tagged Text."""
-
-    def define_style(self, style):
-        """Add a style definition."""
-        raise NotImplementedError()
-
-    def enter_paragraph(self, style=None):
-        """Start a paragraph with a specified style."""
-        raise NotImplementedError()
-
-    def leave_paragraph(self):
-        """Finalize paragraph."""
-        raise NotImplementedError()
-
-    def set_character_style(self, style=None):
-        """Start a span using a specific character style."""
-        raise NotImplementedError()
-
-    def enter_footnote(self):
-        """Add a footnote reference and enter the footnote."""
-        raise NotImplementedError()
-
-    def leave_footnote(self):
-        """Close footnote, go ack to main text."""
-        raise NotImplementedError()
-
-    def write_text(self, text):
-        """Add some plain text."""
-        raise NotImplementedError()
-
-
-class WhitespaceStripper(IOutput):
-    """A proxy IOutput which strips all initial and final whitespace.
-
-    Good foor footnotes.
-    """
-    def __init__(self, writer):
-        self.writer = writer
-        self.begun = False
-        self.pending = ''
-
-    def define_style(self, style):
-        """Add a style definition."""
-        return self.writer.define_style(style)
-
-    def enter_paragraph(self, style=None):
-        """Start a paragraph with a specified style."""
-        return self.writer.enter_paragraph(style)
-
-    def leave_paragraph(self):
-        """Finalize paragraph."""
-        return self.writer.leave_paragraph()
-
-    def set_character_style(self, style=None):
-        """Start a span using a specific character style."""
-        return self.writer.set_character_style(style)
-
-    def enter_footnote(self):
-        """Add a footnote reference and enter the footnote."""
-        return self.writer.enter_footnote()
-
-    def leave_footnote(self):
-        """Close footnote, go ack to main text."""
-        return self.writer.leave_footnote()
-
-    def write_text(self, text):
-        """Add some plain text."""
-        if not self.begun:
-            # Trim initial whitespace
-            text = re.sub(r'^\s+', r'', text)
-            self.begun = bool(text)
-
-        if self.begun:
-            # Defer any possibly final whitespace
-            parts = re.split(r'(\s+$)', self.pending + text)
-            text = parts[0]
-            self.pending = parts[1] if len(parts) > 1 else ''
-
-        return self.writer.write_text(text)
 
 
 class DocxToIdtt(object):
@@ -191,6 +108,9 @@ class DocxToIdtt(object):
         self.parser.add_argument('-p', '--base-paragraph-style', metavar='NAME',
                                  default=self.DEFAULT_BASE,
                                  help='Base all paragraph styles on this.')
+        self.parser.add_argument('-v', '--style-to-variable', metavar='STYLE=VARIABLE', nargs='+',
+                                 action=ParseDict,
+                                 help='Map paragraph styles to document variables.')
         self.parser.add_argument('-f', '--fresh-start', action='store_true',
                                  help='Do not read any existing settings.')
         self.parser.add_argument('-d', '--debug', action='store_true',
@@ -222,6 +142,7 @@ class DocxToIdtt(object):
     def read_mapping(self):
         """Read any user overrides to the basic Word->InDesign mapping."""
         self.mapping = configparser.ConfigParser()
+        self.mapped = set()
         if os.path.isfile(self.mapping_fn) and not self.args.fresh_start:
             logging.info('Reading %r', self.mapping_fn)
             self.mapping.read(self.mapping_fn, encoding=self.MAPPING_ENCODING)
@@ -259,6 +180,12 @@ class DocxToIdtt(object):
                 cli.extend(['--base-character-style', repr(self.args.base_character_style)])
             if self.args.base_paragraph_style != self.DEFAULT_BASE:
                 cli.extend(['--base-paragraph-style', repr(self.args.base_paragraph_style)])
+            if self.args.style_to_variable:
+                cli.append('--variable')
+                cli.extend(
+                    repr('%s=%s' % (k, v))
+                    for k, v in self.args.style_to_variable.items()
+                )
             if self.args.debug:
                 cli.append('--debug')
             cli.append('--no-rerunner')
@@ -354,7 +281,7 @@ class DocxToIdtt(object):
             return
 
         try:
-            section = self.mapping[self.section_name(realm, internal_name)]
+            section = self.mapping[self.section_name(realm=realm, internal_name=internal_name)]
         except KeyError:
             section = {}
 
@@ -370,6 +297,9 @@ class DocxToIdtt(object):
         )
 
     def add_style(self, **kwargs):
+        if self.args.style_to_variable and kwargs['realm'] == 'paragraph':
+            kwargs.setdefault('variable', self.args.style_to_variable.get(kwargs['internal_name']))
+
         style = Style(**kwargs)
         self.styles[self.style_key(style)] = style
         return style
@@ -380,7 +310,10 @@ class DocxToIdtt(object):
             msw_name = style.msw_name
         return '%s:%s' % (realm.capitalize(), msw_name)
 
-    def section_name(self, realm, internal_name):
+    def section_name(self, realm=None, internal_name=None, style=None):
+        if style:
+            realm = style.realm
+            internal_name = style.internal_name
         return '%s:%s' % (realm.capitalize(), internal_name)
 
     def xpath(self, node, expr):
@@ -415,9 +348,12 @@ class DocxToIdtt(object):
     def convert_paragraph(self, p):
         if self.args.stop_at:
             self.check_for_stopper(p)
-        with self.Paragraph(self, self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph')):
+        style = self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph')
+        with self.Paragraph(self, style):
             for r in self.xpath(p, 'w:r'):
                 self.convert_range(r)
+            if style.variable:
+                self.define_variable_from_node(style.variable, p)
 
     def check_for_stopper(self, p):
         text = ''
@@ -427,6 +363,10 @@ class DocxToIdtt(object):
                 raise StopMarkerFound('Stop paragraph found')
             if len(text) >= len(self.args.stop_at):
                 return
+
+    def define_variable_from_node(self, variable, node):
+        text = ''.join(t.text for t in self.xpath(node, 'w:r/w:t'))
+        self.idtt.define_text_variable(variable, text)
 
     class Paragraph(object):
         def __init__(self, parent, style):
@@ -554,7 +494,7 @@ class DocxToIdtt(object):
 
     def update_mapping(self, style):
         section_name = self.section_name(style.realm, style.internal_name)
-        if section_name in self.mapping:
+        if section_name in self.mapped:
             return
 
         if style.parent and style.parent.used:
@@ -562,16 +502,109 @@ class DocxToIdtt(object):
         elif style.parent_msw_name:
             logging.warn('%r inherits missing %r', section_name, style.parent_msw_name)
 
-        self.mapping[section_name] = {
+        self.mapping.setdefault(section_name, {}).update({
             'name': style.name,
+            'variable': style.variable or '',
             'msw_name (readonly)': style.msw_name,
             'parent_msw_name (readonly)': style.parent_msw_name or '',
             'next_msw_name (readonly)': style.followed_by_msw_name or '',
-        }
+        })
+        self.mapped.add(section_name)
+
         if style.followed_by and style.followed_by.used:
             self.update_mapping(style.followed_by)
         elif style.followed_by_msw_name:
             logging.warn('[%s] leads to missing %r', section_name, style.followed_by_msw_name)
+
+
+class IOutput(object):
+    """Interface for things that write InDesign Tagged Text."""
+
+    def define_style(self, style):
+        """Add a style definition."""
+        raise NotImplementedError()
+
+    def define_text_variable(self, name, value):
+        """Add a text variable."""
+        raise NotImplementedError()
+
+    def enter_paragraph(self, style=None):
+        """Start a paragraph with a specified style."""
+        raise NotImplementedError()
+
+    def leave_paragraph(self):
+        """Finalize paragraph."""
+        raise NotImplementedError()
+
+    def set_character_style(self, style=None):
+        """Start a span using a specific character style."""
+        raise NotImplementedError()
+
+    def enter_footnote(self):
+        """Add a footnote reference and enter the footnote."""
+        raise NotImplementedError()
+
+    def leave_footnote(self):
+        """Close footnote, go ack to main text."""
+        raise NotImplementedError()
+
+    def write_text(self, text):
+        """Add some plain text."""
+        raise NotImplementedError()
+
+
+class WhitespaceStripper(IOutput):
+    """A proxy IOutput which strips all initial and final whitespace.
+
+    Good foor footnotes.
+    """
+    def __init__(self, writer):
+        self.writer = writer
+        self.begun = False
+        self.pending = ''
+
+    def define_style(self, style):
+        """Add a style definition."""
+        return self.writer.define_style(style)
+
+    def define_text_variable(self, name, value):
+        """Add a text variable."""
+        return self.writer.define_text_variable(name, value)
+
+    def enter_paragraph(self, style=None):
+        """Start a paragraph with a specified style."""
+        return self.writer.enter_paragraph(style)
+
+    def leave_paragraph(self):
+        """Finalize paragraph."""
+        return self.writer.leave_paragraph()
+
+    def set_character_style(self, style=None):
+        """Start a span using a specific character style."""
+        return self.writer.set_character_style(style)
+
+    def enter_footnote(self):
+        """Add a footnote reference and enter the footnote."""
+        return self.writer.enter_footnote()
+
+    def leave_footnote(self):
+        """Close footnote, go ack to main text."""
+        return self.writer.leave_footnote()
+
+    def write_text(self, text):
+        """Add some plain text."""
+        if not self.begun:
+            # Trim initial whitespace
+            text = re.sub(r'^\s+', r'', text)
+            self.begun = bool(text)
+
+        if self.begun:
+            # Defer any possibly final whitespace
+            parts = re.split(r'(\s+$)', self.pending + text)
+            text = parts[0]
+            self.pending = parts[1] if len(parts) > 1 else ''
+
+        return self.writer.write_text(text)
 
 
 class InDesignTaggedTextOutput(IOutput):
@@ -595,13 +628,6 @@ class InDesignTaggedTextOutput(IOutput):
         self._fo.close()
         if self._debug:
             self._ufo.close()
-
-    def _write(self, string):
-        if not string:
-            return
-        self._fo.write(string)
-        if self._debug:
-            self._ufo.write(string)
 
     def _writeln(self, line=''):
         self._write(line)
@@ -674,6 +700,15 @@ class InDesignTaggedTextOutput(IOutput):
             self._write('>')
         self._write('>')
 
+    def define_text_variable(self, name, value):
+        self._write('<DefineTextVariable:')
+        self._write_escaped(name)
+        self._write('=<TextVarType:CustomText>')
+        self._write('<tvString:')
+        self._write_escaped(value)
+        self._write('>')
+        self._write('>')
+
     def enter_paragraph(self, style=None):
         """Start a paragraph with a specified style."""
         self._write_headers()
@@ -710,7 +745,20 @@ class InDesignTaggedTextOutput(IOutput):
 
     def write_text(self, text):
         """Add some plain text."""
-        self._write(text)
+        self._write_escaped(text)
+
+    def _write_escaped(self, text):
+        return self._write(self._escape(text))
+
+    def _escape(self, text):
+        return re.sub(r'([<>])', r'\\\1', text)
+
+    def _write(self, string):
+        if not string:
+            return
+        self._fo.write(string)
+        if self._debug:
+            self._ufo.write(string)
 
 
 if __name__ == '__main__':
