@@ -15,14 +15,14 @@ import lxml.etree
 import attr
 
 # TODO:
-# - For BVM: Something usable with notes
-# - For typesetters: some kind of "template" file (alignment, offsets, emphasis, no biggie)
-# - For post edit/proof: Manual formatting things, TBD
+# - For BVM: Something usable with notes/comments
+# - For typesetters: some kind of "template" (alignment, offsets, emphasis, no biggie)
+# - For post edit/proof: Manual formatting consolidation, TBD
 
 # - Manual format: autogenerate styles
 # - Manual format: collapse with existing styles
 # - A flag to only create/update the ini file
-# - Maybe add front matter (best done in Id?)
+# - Maybe add front matter (best done in Id? either that or the template thingy (ooh, jinja2!))
 # - some contextlib magic instead of all those finally clauses
 # - Something usable for those balloons (footnote+hl? endnote? convert to note in jsx?)
 # - Autocreate character styles from manual combos
@@ -55,9 +55,9 @@ class ParseDict(argparse.Action):
 class Style(object):
     """A character/paragraph style, normally found in the input file."""
     realm = attr.ib()
-    msw_name = attr.ib()
-    name = attr.ib(default=None)
-    internal_name = attr.ib(default=None)
+    msw_name = attr.ib()  # What the docx file uses for referencing
+    indd_name = attr.ib(default=None)  # What the user (and InDesign) see
+    internal_name = attr.ib(default=None)  # A sort of unlocalized msw_name
     parent_msw_name = attr.ib(default=None)
     followed_by_msw_name = attr.ib(default=None)
     used = attr.ib(default=None)
@@ -70,7 +70,7 @@ class Style(object):
     followed_by = attr.ib(default=None)
 
     def __str__(self):
-        return '<%s %r>' % (self.realm, self.name)
+        return '<%s %r>' % (self.realm, self.indd_name)
 
 
 class DocxToIdtt(object):
@@ -155,10 +155,11 @@ class DocxToIdtt(object):
             logging.info('Reading %r', self.mapping_fn)
             self.mapping.read(self.mapping_fn, encoding=self.MAPPING_ENCODING)
 
+        self.config = self.mapping_section(self.MAPPING_CONFIG_SECTION)
         if self.stop_marker:
-            self.update_mapping_section(self.MAPPING_CONFIG_SECTION, {'stop_marker': self.stop_marker})
+            self.config['stop_marker'] = self.stop_marker
         else:
-            self.stop_marker = self.mapping_section(self.MAPPING_CONFIG_SECTION).get('stop_marker')
+            self.stop_marker = self.config.get('stop_marker')
 
     def write_mapping(self):
         """When done, write the mapping file for the next time."""
@@ -204,7 +205,6 @@ class DocxToIdtt(object):
                 )
             if self.args.debug:
                 cli.append('--debug')
-            cli.append('--no-rerunner')
             cli.extend(['2>&1', '|tee', os.path.abspath(self.rerunner_fn + '.output')])
             fo.write(' '.join(cli))
             fo.write('\n')
@@ -296,37 +296,47 @@ class DocxToIdtt(object):
             logging.debug('What about %s:%r [%r]?', realm, msw_name, internal_name)
             return
 
-        try:
-            section = self.mapping[self.section_name(realm=realm, internal_name=internal_name)]
-        except KeyError:
-            section = {}
-
         if msw_name != self.base_names.get(realm):
             kwargs.setdefault('parent_msw_name', self.base_names.get(realm))
 
+        section = self.mapping_section(realm=realm, internal_name=internal_name, add_now=False)
+
         return self.add_style(
             realm=realm,
-            name=section.get('name') or internal_name,
+            indd_name=section.get('name') or internal_name,
             internal_name=internal_name,
             msw_name=msw_name,
             **kwargs
         )
 
     def add_style(self, **kwargs):
-        if self.args.style_to_variable and kwargs['realm'] == 'paragraph':
-            kwargs.setdefault('variable', self.args.style_to_variable.get(kwargs['internal_name']))
+        """Create a new Style object and add to our map."""
+        if self.args.style_to_variable:
+            if kwargs['realm'] == 'paragraph':
+                kwargs.setdefault('variable', self.args.style_to_variable.get(kwargs['internal_name']))
 
         style = Style(**kwargs)
-        self.styles[self.style_key(style)] = style
+        self.styles[self.style_key(style=style)] = style
         return style
 
     def style_key(self, style=None, realm=None, msw_name=None):
+        """The string which we use for `self.styles`.
+
+        Note that this is based on the msw_name, because
+        that's the key docx files use for cross-reference.
+        """
         if style:
             realm = style.realm
             msw_name = style.msw_name
         return '%s:%s' % (realm.capitalize(), msw_name)
 
     def section_name(self, realm=None, internal_name=None, style=None):
+        """The name of the ini section for a given style.
+
+        This uses `internal_name`, rather than `msw_name` or `indd_name`,
+        because `msw_name` can get ugly ("a2") and `indd_name` should be
+        modifyable.
+        """
         if style:
             realm = style.realm
             internal_name = style.internal_name
@@ -518,7 +528,7 @@ class DocxToIdtt(object):
             logging.warn('%r inherits missing %r', section_name, style.parent_msw_name)
 
         self.update_mapping_section(section_name, {
-            'name': style.name,
+            'name': style.indd_name,
             'variable': style.variable or '',
             'msw_name (readonly)': style.msw_name,
             'parent_msw_name (readonly)': style.parent_msw_name or '',
@@ -531,8 +541,16 @@ class DocxToIdtt(object):
         elif style.followed_by_msw_name:
             logging.warn('[%s] leads to missing %r', section_name, style.followed_by_msw_name)
 
-    def mapping_section(self, section_name):
-        return self.mapping.setdefault(section_name, {})
+    def mapping_section(self, section_name=None, add_now=True, **kwargs):
+        if not section_name:
+            section_name = self.section_name(**kwargs)
+        if section_name in self.mapping:
+            return self.mapping[section_name]
+
+        section = {}
+        if add_now:
+            self.mapping[section_name] = section
+        return section
 
     def update_mapping_section(self, section_name, kvs):
         section = self.mapping_section(section_name)
@@ -750,7 +768,7 @@ class InDesignTaggedTextOutput(IOutput):
         self._write('>')
 
     def _idname(self, style):
-        return re.sub(r'\s*/\s*', r'\:', style.name)
+        return re.sub(r'\s*/\s*', r'\:', style.indd_name)
 
     def leave_paragraph(self):
         """Finalize paragraph."""
