@@ -14,9 +14,9 @@ import attr
 
 # TODO:
 # - rc file with basic things (--stop-at, maybe some defaults)
-# - Set variables!
-# - Add front matter! (though maybe best done in Id)
-# - contextlib magic
+# - Set InDesign variables! (author, title, whatnot)
+# - Maybe add front matter (maybe best done in Id)
+# - some contextlib magic
 # - Something usable for those balloons (footnote+hl? endnote? convert to note in jsx?)
 # - Autocreate character styles from manual combos
 #   bold: w:b (w:bCs?); italic: w:i (w:iCs?); undeline w:u
@@ -25,13 +25,12 @@ import attr
 # - (f)odt import
 # - idml import
 # - Automatic header group
-# - BiDi
+# - More complex BiDi
 # - Endnotes
 # - Editing marks
 # - Linked styles?
 # - Derivation rules?
 # - Latent styles?
-# - Less files -- what can I put in the ini file/variables?
 
 
 @attr.s
@@ -52,6 +51,9 @@ class Style(object):
     followed_by = attr.ib(default=None)
 
     def __str__(self):
+        return '<%s %r>' % (self.realm, self.name)
+
+    def __repr__(self):
         desc = [self.realm, repr(self.name)]
         if self.internal_name and self.internal_name != self.name:
             desc.extend(['[', self.internal_name, ']'])
@@ -406,8 +408,9 @@ class DocxToIdtt(object):
         except StopMarkerFound as marker:
             logging.info(marker)
         else:
-            logging.info('Note: Stop marker was never found')
-            logging.debug('In other words, no %r', self.args.stop_at)
+            if self.args.stop_at:
+                logging.info('Note: Stop marker was never found')
+                logging.debug('In other words, no %r', self.args.stop_at)
 
     def convert_paragraph(self, p):
         if self.args.stop_at:
@@ -427,7 +430,8 @@ class DocxToIdtt(object):
 
     class Paragraph(object):
         def __init__(self, parent, style):
-            self.idtt = parent.idtt
+            self.parent = parent
+            self.idtt = self.parent.idtt
             self.style = style
 
         def __enter__(self):
@@ -436,6 +440,7 @@ class DocxToIdtt(object):
 
         def __exit__(self, *exception):
             self.idtt.leave_paragraph()
+            self.parent.current_character_style = None
 
     def convert_range(self, r):
         self.switch_character_style(self.wvstyle(r, 'w:rPr/w:rStyle', 'character'))
@@ -636,7 +641,7 @@ class InDesignTaggedTextOutput(IOutput):
         self._headers_written = True
 
     def _write_style_definition(self, style):
-        logging.debug('InDesign: %s', style.name)
+        logging.debug('InDesign: %s', style)
         if style.tint is None:
             fullness = 50.0 + 50.0 / (1.05 ** next(self._shades[style.realm]))
 
