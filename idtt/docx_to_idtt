@@ -7,8 +7,10 @@ import itertools
 import logging
 import os
 import re
+import shutil
 import sys
 import zipfile
+
 import lxml.etree
 import attr
 
@@ -17,7 +19,6 @@ import attr
 # - For typesetters: some kind of "template" file (alignment, offsets, emphasis, no biggie)
 # - For post edit/proof: Manual formatting things, TBD
 
-# - Backup ini file
 # - Manual format: autogenerate styles
 # - Manual format: collapse with existing styles
 # - A flag to only create/update the ini file
@@ -148,21 +149,23 @@ class DocxToIdtt(object):
     def read_mapping(self):
         """Read any user overrides to the basic Word->InDesign mapping."""
         self.mapping = configparser.ConfigParser()
+        self.mapping_dirty = False
         self.mapped = set()
         if os.path.isfile(self.mapping_fn) and not self.args.fresh_start:
             logging.info('Reading %r', self.mapping_fn)
             self.mapping.read(self.mapping_fn, encoding=self.MAPPING_ENCODING)
 
-        self.mapping_config = self.mapping_section(self.MAPPING_CONFIG_SECTION)
         if self.stop_marker:
-            self.mapping_config['stop_marker'] = self.stop_marker
+            self.update_mapping_section(self.MAPPING_CONFIG_SECTION, {'stop_marker': self.stop_marker})
         else:
-            self.stop_marker = self.mapping_config.get('stop_marker')
+            self.stop_marker = self.mapping_section(self.MAPPING_CONFIG_SECTION).get('stop_marker')
 
     def write_mapping(self):
         """When done, write the mapping file for the next time."""
+        if self.mapping_dirty and os.path.isfile(self.mapping_fn):
+            logging.debug('Backing up %r', self.mapping_fn)
+            shutil.copy(self.mapping_fn, self.mapping_fn + '.bak')
         logging.info('Writing %r', self.mapping_fn)
-        self.mapping_config['stop_marker'] = self.stop_marker
         with open(self.mapping_fn, 'w', encoding=self.MAPPING_ENCODING) as fo:
             self.mapping.write(fo)
 
@@ -514,7 +517,7 @@ class DocxToIdtt(object):
         elif style.parent_msw_name:
             logging.warn('%r inherits missing %r', section_name, style.parent_msw_name)
 
-        self.mapping_section(section_name).update({
+        self.update_mapping_section(section_name, {
             'name': style.name,
             'variable': style.variable or '',
             'msw_name (readonly)': style.msw_name,
@@ -530,6 +533,13 @@ class DocxToIdtt(object):
 
     def mapping_section(self, section_name):
         return self.mapping.setdefault(section_name, {})
+
+    def update_mapping_section(self, section_name, kvs):
+        section = self.mapping_section(section_name)
+        for key, value in kvs.items():
+            if section.get(key) != value:
+                section[key] = value
+                self.mapping_dirty = True
 
 
 class IOutput(object):
