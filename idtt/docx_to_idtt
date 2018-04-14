@@ -181,7 +181,7 @@ class DocxToIdtt(object):
             if self.args.base_paragraph_style != self.DEFAULT_BASE:
                 cli.extend(['--base-paragraph-style', repr(self.args.base_paragraph_style)])
             if self.args.style_to_variable:
-                cli.append('--variable')
+                cli.append('--style-to-variable')
                 cli.extend(
                     repr('%s=%s' % (k, v))
                     for k, v in self.args.style_to_variable.items()
@@ -189,7 +189,7 @@ class DocxToIdtt(object):
             if self.args.debug:
                 cli.append('--debug')
             cli.append('--no-rerunner')
-            cli.extend(['>', os.path.abspath(self.rerunner_fn + '.output'), '2>&1'])
+            cli.extend(['2>&1', '|tee', os.path.abspath(self.rerunner_fn + '.output')])
             fo.write(' '.join(cli))
             fo.write('\n')
         os.chmod(self.rerunner_fn, 0o755)
@@ -754,11 +754,10 @@ class InDesignTaggedTextOutput(IOutput):
         return re.sub(r'([<>])', r'\\\1', text)
 
     def _write(self, string):
-        if not string:
-            return
-        self._fo.write(string)
-        if self._debug:
-            self._ufo.write(string)
+        if string:
+            self._fo.write(string)
+            if self._debug:
+                self._ufo.write(string)
 
 
 if __name__ == '__main__':
