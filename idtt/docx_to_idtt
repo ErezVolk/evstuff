@@ -88,9 +88,13 @@ class DocxToIdtt(object):
     IGNORED_STYLES = {
         'character': ['annotation reference'],
     }
-    SPECIAL_INT_TO_INDD = {
+    SPECIAL_STYLE = {
         'paragraph': {
-            'annotation text': SPECIAL_GROUP + '/(Comment Text)',
+            'annotation text': {
+                'indd_name': SPECIAL_GROUP + '/(Comment Text)',
+                'color': 'Cyan',
+                'tint': 100,
+            }
         },
     }
 
@@ -303,18 +307,21 @@ class DocxToIdtt(object):
         if msw_name != self.base_names.get(realm):
             kwargs.setdefault('parent_msw_name', self.base_names.get(realm))
 
+        # Allow any special overrides (color, name, etc.)
+        kwargs.update(self.SPECIAL_STYLE.get(realm, {}).get(internal_name, {}))
+
         section = self.get_setting_section(realm=realm, internal_name=internal_name)
-        indd_name = section.get('name')
-        if not indd_name:
-            indd_name = self.SPECIAL_INT_TO_INDD.get(realm, {}).get(internal_name)
-        if not indd_name:
-            indd_name = internal_name
+        if section.get('name'):
+            # A user-defined name trumps everything
+            kwargs['indd_name'] = section.get('name')
+        if not kwargs['indd_name']:
+            # The last fallback
+            kwargs['indd_name'] = internal_name
 
         return self.add_style(
             realm=realm,
-            indd_name=indd_name,
-            internal_name=internal_name,
             msw_name=msw_name,
+            internal_name=internal_name,
             **kwargs
         )
 
