@@ -1,4 +1,4 @@
-= ReImport: A small toolbox for InDesign imports
+# ReImport: A small toolbox for InDesign imports
 
 This InDesign script (work in progress) aims to make things a little bit easier
 on people importing files into InDesign, especially if the InDesign project is
