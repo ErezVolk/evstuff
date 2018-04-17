@@ -11,12 +11,12 @@ installer.
 
 Main features:
 
-- You can control a mapping from Word (character/paragraph) styles to InDesign
-  styles, including consistently creating style groups in InDesign.
+- You can specify an arbitrary mapping from Word (character/paragraph) styles
+  to InDesign styles, including consistently creating style groups in InDesign.
 
 - Importing a tagged text file is _much_ faster in InDesign.
 
-- The siling InDesign script to this will rerun the conversion, so you'll need
+- The sibling InDesign script to this will rerun the conversion, so you'll need
   to do the manual conversion only once.
 
 
