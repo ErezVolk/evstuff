@@ -1,3 +1,5 @@
+= ReImport: A small toolbox for InDesign imports
+
 This InDesign script (work in progress) aims to make things a little bit easier
 on people importing files into InDesign, especially if the InDesign project is
 a book with little or no non-text material.
@@ -25,3 +27,5 @@ functionality provided.
 - "Grooming" group: things you'll want to redo when you edit your InDesign document and text moves around.
   - "Fix to full justification": If you have justified paragraphs and the final line is almost at the edge, change to fully justified. Currently right-to-left paragraphs only. Probably not a good choice for Arabic.
   - "Fix master pages": Tries to guess which pages need the "Headless Master".
+
+(C) 2018 by Erez Volk
