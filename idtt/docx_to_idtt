@@ -89,6 +89,12 @@ class DocxToIdtt(object):
         'character': ['annotation reference'],
     }
     SPECIAL_STYLE = {
+        'character': {
+            COMMENT_REF_STYLE: {
+                'color': 'Cyan',
+                'tint': 100,
+            }
+        },
         'paragraph': {
             'annotation text': {
                 'indd_name': SPECIAL_GROUP + '/(Comment Text)',
@@ -314,7 +320,7 @@ class DocxToIdtt(object):
         if section.get('name'):
             # A user-defined name trumps everything
             kwargs['indd_name'] = section.get('name')
-        if not kwargs['indd_name']:
+        if not kwargs.get('indd_name'):
             # The last fallback
             kwargs['indd_name'] = internal_name
 
