@@ -11,7 +11,7 @@ functionality provided.
 
 **BACKUP YOUR DATA. THINGS MAY BREAK.**
 
-![ReImport Options](ReImport.png?raw=true).
+![ReImport Options](ReImport.png?raw=true)
 
 - "Pre-Import" group: Cleaning up before the import
   - "Reset all master pages": Before importing, set all master pages to the Default Master.
