@@ -64,6 +64,7 @@ class Style(object):
     used = attr.ib(default=None)
     color = attr.ib(default=None)
     tint = attr.ib(default=None)
+    size = attr.ib(default=None)
     superscript = attr.ib(default=None)
     variable = attr.ib(default=None)
 
@@ -100,6 +101,7 @@ class DocxToIdtt(object):
                 'indd_name': SPECIAL_GROUP + '/(Comment Text)',
                 'color': 'Cyan',
                 'tint': 100,
+                'size': 6,
             }
         },
     }
@@ -775,6 +777,8 @@ class InDesignTaggedTextOutput(IOutput):
         self._write(color)
         self._write(shade)
 
+        if style.size:
+            self._write('<cSize:%s>' % style.size)
         if style.superscript:
             self._write('<cPosition:Superscript>')
 
