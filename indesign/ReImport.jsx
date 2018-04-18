@@ -54,11 +54,13 @@ function ri_run(ri) {
   if (ri.uig_groom.checkedState) {
     ri_groom_fully_justify(ri);
     ri_restore_reflow(ri);
-    ri_groom_fix_masters(ri);
-    ri_groom_update_toc(ri);
   }
   ri_enable_grep(ri);
   ri_restore_reflow(ri);
+  if (ri.uig_groom.checkedState) {
+    ri_groom_fix_masters(ri);
+    ri_groom_update_toc(ri);
+  }
   ri_stop_counter(ri);
 }
 
