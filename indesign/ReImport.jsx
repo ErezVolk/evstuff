@@ -414,9 +414,9 @@ function ri_post_convert_post_its(ri) {
       var ugly_paragraph = ugly_paragraphs[j];
       var nice_paragraph = ugly_paragraph.duplicate(LocationOptions.AT_END, nice_frame);
 
-      if (nice_paragraph.characters[0].contents == SpecialCharacters.FOOTNOTE_SYMBOL) {
-        nice_paragraph.characters[0].remove();
-        // TODO: Remove the tab too!
+      nice_characters = nice_paragraph.characters;
+      if (nice_characters[0].contents == SpecialCharacters.FOOTNOTE_SYMBOL) {
+        nice_characters.itemByRange(0, 1).remove();
       }
     }
 
@@ -435,7 +435,6 @@ function ri_post_convert_post_its(ri) {
 
 function ri_fix_post_it(ri, frame) {
   frame.applyObjectStyle(ri_post_it_object_style(ri));
-  frame.clearObjectStyleOverrides();
 
   var prefs = frame.textFramePreferences;
   prefs.insetSpacing = 2;
@@ -458,9 +457,17 @@ function ri_fix_post_it(ri, frame) {
   anchoring.verticalReferencePoint = VerticallyRelativeTo.TOP_OF_LEADING;
   anchoring.anchorYoffset = "0pt";
 
-  // TODO: Proper alignment!
-  // TODO: 72x72!
-  // TODO: Drop Shadow
+  var drop = frame.transparencySettings.dropShadowSettings;
+  drop.mode = ShadowMode.DROP;
+  drop.opacity = 50;
+  drop.distance = "6pt";
+
+  frame.resize(
+    BoundingBoxLimits.GEOMETRIC_PATH_BOUNDS,
+    AnchorPoint.CENTER_ANCHOR,
+    ResizeMethods.REPLACING_CURRENT_DIMENSIONS_WITH,
+    [72, 72]
+  );
 }
 
 function ri_post_it_object_style(ri) {
