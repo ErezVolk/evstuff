@@ -18,8 +18,8 @@ import attr
 # TODO:
 # - For typesetters: some kind of "template" (alignment, offsets, emphasis, can use IDTT)
 # - For post edit/proof: Manual formatting consolidation, TBD
-
 # - Contextual rules (context: post-(non-), pre-(non-), shorthand first, last)
+
 # - Really need a test suite of some sort.
 # - Manual format: autogenerate styles
 # - Manual format: collapse with existing styles
@@ -73,7 +73,6 @@ class Style(object):
     variable = attr.ib(default=None)
 
     used = attr.ib(default=None, metadata=ATTR_NO_INI)
-    if_first = attr.ib(default=None)
 
     parent_style = attr.ib(default=None, metadata=ATTR_NO_INI)
     next_style = attr.ib(default=None, metadata=ATTR_NO_INI)
@@ -91,12 +90,39 @@ class IniField(object):
         if self.readonly:
             self.ini_name += ' (readonly)'
 
+    def __repr__(self):
+        return '<IniField %s>' % self.ini_name
 
-INI_FIELDS = (
+    def __str__(self):
+        return self.ini_name
+
+
+INI_FIELDS = [
     IniField(field)
     for field in attr.fields(Style)
     if field.metadata.get(ATTR_KEY) != 'internal'
-)
+]
+
+
+@attr.s
+class State(object):
+    curr_char_style = attr.ib(default=None)
+    prev_para_style = attr.ib(default=None)
+    curr_para_text = attr.ib(default='')
+    prev_para_text = attr.ib(default=None)
+
+
+class EntererLeaver(contextlib.ExitStack):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.enter(*args, **kwargs)
+        self.callback(self.leave)
+
+    def enter(self, *args, **kwargs):
+        pass
+
+    def leave(self):
+        pass
 
 
 class DocxToIdtt(object):
@@ -404,7 +430,7 @@ class DocxToIdtt(object):
 
     def write_idtt(self):
         logging.info('Writing %r', self.output_fn)
-        self.current_character_style = None
+        self.set_state(State())
         with InDesignTaggedTextOutput(self.output_fn, self.args.debug) as self.writer:
             self.convert_document()
 
@@ -442,19 +468,24 @@ class DocxToIdtt(object):
         text = ''.join(t.text for t in self.xpath(node, 'w:r/w:t'))
         self.writer.define_text_variable(variable, text)
 
-    class Paragraph(contextlib.ExitStack):
-        def __init__(self, outer, style):
-            super().__init__()
+    def set_state(self, state):
+        prev = getattr(self, 'state', None)
+        self.state = state
+        return prev
 
+    class Paragraph(EntererLeaver):
+        def enter(self, outer, style):
             self.outer = outer
             self.writer = self.outer.writer
             self.style = style
             self.writer.enter_paragraph(self.style)
-            self.callback(self.cleanup)
 
-        def cleanup(self):
+        def leave(self):
             self.writer.leave_paragraph()
-            self.outer.current_character_style = None
+            self.outer.set_state(State(
+                prev_para_style=self.style,
+                prev_para_text=self.outer.state.curr_para_text,
+            ))
 
     def convert_range(self, r):
         self.switch_character_style(self.wvstyle(r, 'w:rPr/w:rStyle', 'character'))
@@ -471,16 +502,16 @@ class DocxToIdtt(object):
             self.write_text(t)
 
     def switch_character_style(self, style):
-        prev = self.current_character_style
+        prev = self.state.curr_char_style
         if style is not prev:
             self.writer.set_character_style(style)
-            self.current_character_style = style
+            self.state.curr_char_style = style
         return prev
 
     def write_text(self, node):
         """Add some plain text."""
         with contextlib.ExitStack() as stack:
-            stack.callback(lambda: self.writer.write_text(text))
+            stack.callback(lambda: self.do_write_text(text))
             text = node.text
             if not self.stop_marker:
                 return
@@ -489,6 +520,10 @@ class DocxToIdtt(object):
                 return
             text = text[:offset]
             raise StopMarkerFound('Stop marker found')
+
+    def do_write_text(self, text):
+        self.writer.write_text(text)
+        self.state.curr_para_text += text
 
     def convert_footnote_reference(self, fnr):
         fnid = fnr.get(self.wtag('id'))
@@ -508,12 +543,11 @@ class DocxToIdtt(object):
             for p in self.xpath(fn, 'w:p'):
                 self.convert_paragraph(p)
 
-    class Footnote(contextlib.ExitStack):
-        def __init__(self, outer, ref_style=None):
-            super().__init__()
+    class Footnote(EntererLeaver):
+        def enter(self, outer, ref_style=None):
             self.outer = outer
             self.writer = outer.writer
-            self.outer_character_style = outer.current_character_style
+            self.outer_character_style = outer.state.curr_char_style
             ref_style = ref_style or outer.footnote_ref_style
 
             self.outer.style_encountered(ref_style)
@@ -521,22 +555,18 @@ class DocxToIdtt(object):
             self.writer.enter_footnote()
             self.outer.writer = WhitespaceStripper(self.writer)
 
-        def cleanup(self):
+        def leave(self):
             self.writer.leave_footnote()
             self.writer.set_character_style(self.outer_character_style)
             self.outer.writer = self.writer
 
-    class NestedStyle(contextlib.ExitStack):
-        def __init__(self, outer):
-            super().__init__()
+    class NestedStyle(EntererLeaver):
+        def enter(self, outer):
             self.outer = outer
+            self.outer_state = self.outer.set_state(State())
 
-            self.outer_character_style = self.outer.current_character_style
-            self.outer.current_character_style = None
-            self.callback(self.cleanup)
-
-        def cleanup(self):
-            self.outer.current_character_style = self.outer_character_style
+        def leave(self):
+            self.outer.set_state(self.outer_state)
 
     def report_style_counts(self):
         realms = {s.realm for s in self.styles.values()}
@@ -609,7 +639,7 @@ class DocxToIdtt(object):
             if value:
                 section[field.ini_name] = str(value or '')
             else:
-                section.pop(field.ini, None)
+                section.pop(field.ini_name, None)
 
 
 class IOutput(object):
@@ -702,9 +732,8 @@ class WhitespaceStripper(IOutput):
         return self.writer.write_text(text)
 
 
-class InDesignTaggedTextOutput(contextlib.ExitStack, IOutput):
-    def __init__(self, filename, debug=False):
-        super().__init__()
+class InDesignTaggedTextOutput(EntererLeaver, IOutput):
+    def enter(self, filename, debug=False):
         self._filename = filename
         self._styles = []
         self._headers_written = False
