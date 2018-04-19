@@ -16,10 +16,9 @@ import lxml.etree
 import attr
 
 # TODO:
-# - For typesetters: some kind of "template" (alignment, offsets, emphasis, can use IDTT)
 # - For post edit/proof: Manual formatting consolidation, TBD
 
-# - Derivation rules: after same, after different
+# - Derivation rules: after same, after different, first since...
 # - Really need a test suite of some sort.
 # - Manual format: autogenerate styles
 # - Manual format: collapse with existing styles
@@ -73,10 +72,7 @@ class Style(object):
     name = attr.ib(default=None)  # What the user (and InDesign) see
     parent_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
     next_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
-    color = attr.ib(default=None)
-    tint = attr.ib(default=None)
-    size = attr.ib(default=None)
-    superscript = attr.ib(default=None)
+    idtt = attr.ib(default='')
     variable = attr.ib(default=None)
 
     used = attr.ib(default=None, metadata=ATTR_NO_INI)
@@ -136,16 +132,13 @@ class DocxToIdtt(object):
     SPECIAL_STYLE = {
         'character': {
             COMMENT_REF_STYLE: {
-                'color': 'Cyan',
-                'tint': 100,
+                'idtt': '<pShadingColor:Cyain><pShadingOn:1><pShadingTint:100>',
             }
         },
         'paragraph': {
             'annotation text': {
                 'name': SPECIAL_GROUP + '/(Comment Text)',
-                'color': 'Cyan',
-                'tint': 100,
-                'size': 6,
+                'idtt': '<cSize:6><cColor:Cyan><cColorTint:100>',
             }
         },
     }
@@ -415,15 +408,14 @@ class DocxToIdtt(object):
             realm='character',
             internal_name=self.FOOTNOTE_REF_STYLE,
             msw_name=self.FOOTNOTE_REF_STYLE,
-            superscript=True,
+            idtt='<cColor:Magenta><cColorTint:100><cPosition:Superscript>'
         )
         self.comment_ref_style = self.found_style_definition(
             realm='character',
             internal_name=self.COMMENT_REF_STYLE,
             msw_name=self.COMMENT_REF_STYLE,
             parent_msw_name=self.FOOTNOTE_REF_STYLE,
-            color='Cyan',
-            tint=100,
+            idtt='<cColor:Cyan><cColorTint:100>'
         )
 
     def found_style_definition(self, realm, internal_name, msw_name, **kwargs):
@@ -885,29 +877,30 @@ class InDesignTaggedTextOutput(contextlib.ExitStack, IOutput):
 
     def _write_style_definition(self, style):
         logging.debug('InDesign: %s', style)
-        if style.tint is None:
+        id_realm = style.realm[:4].capitalize()
+        if style.idtt:
+            idtt = [style.idtt]
+        else:
             fullness = 50.0 + 50.0 / (1.05 ** next(self._shades[style.realm]))
 
-        if style.realm == 'paragraph':
-            id_realm = 'Para'
-            color = r'<pShadingColor:%s><pShadingOn:1>' % (style.color or 'Yellow')
-            shade = r'<pShadingTint:%s>' % (style.tint or int(100 - fullness))
-        elif style.realm == 'character':
-            id_realm = 'Char'
-            color = r'<cColor:%s>' % (style.color or 'Magenta')
-            shade = r'<cColorTint:%s>' % (style.tint or int(fullness))
+            if style.realm == 'paragraph':
+                idtt = [
+                    '<pShadingColor:Yellow>',
+                    '<pShadingOn:1>',
+                    '<pShadingTint:', str(int(100 - fullness)), '>'
+                ]
+            elif style.realm == 'character':
+                idtt = [
+                    '<cColor:Magenta>',
+                    '<cColorTint:', str(int(fullness)), '>'
+                ]
 
         self._write('<Define')
         self._write(id_realm)
         self._write('Style:')
         self._write(self._idname(style))
-        self._write(color)
-        self._write(shade)
-
-        if style.size:
-            self._write('<cSize:%s>' % style.size)
-        if style.superscript:
-            self._write('<cPosition:Superscript>')
+        for elem in idtt:
+            self._write(elem)
 
         if style.parent_style and style.parent_style.used:
             self._write('<BasedOn:')
