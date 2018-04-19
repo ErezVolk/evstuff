@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+import argparse
+import lxml.etree
+import zipfile
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Dump text from .docx')
+    parser.add_argument('docx', nargs='+')
+    args = parser.parse_args()
+
+    for fn in args.docx:
+        with zipfile.ZipFile(fn) as docx:
+            with docx.open('word/document.xml') as fo:
+                dump(lxml.etree.parse(fo).getroot())
+
+
+def dump(root):
+    for p in wxpath(root, '//w:body/w:p'):
+        print(''.join(t.text for t in wxpath(p, 'w:r/w:t')))
+
+
+def wxpath(node, expr):
+    return node.xpath(expr, namespaces={
+        'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+    })
+
+
+if __name__ == '__main__':
+    main()
+
+

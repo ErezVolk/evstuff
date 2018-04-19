@@ -328,7 +328,7 @@ class DocxToIdtt(object):
                 rule.into_this_style = self.find_ini_ref(
                     rule.into_this,
                     required=True,
-                    add_if_missing=True
+                    inherit_from=rule.turn_this_style,
                 )
                 rule.when_following_styles = [
                     self.find_ini_ref(ini_ref)
@@ -344,7 +344,7 @@ class DocxToIdtt(object):
             return None
         return self.styles[self.style_key(realm=realm, msw_name=msw_name)]
 
-    def find_ini_ref(self, ini_ref, required=False, add_if_missing=False):
+    def find_ini_ref(self, ini_ref, required=False, inherit_from=None):
         if not ini_ref:
             if required:
                 logging.debug('MISSING REQUIRED SOMETHING')
@@ -366,13 +366,15 @@ class DocxToIdtt(object):
                 if style.realm.lower() == realm and style.internal_name == internal_name
             )
         except StopIteration:
-            if not add_if_missing:
+            if not inherit_from:
                 logging.debug('ERROR: Unknown %r', ini_ref)
                 raise BadReferenceInRule()
         return self.add_style(
             realm=realm,
             msw_name=ini_ref,
             internal_name=internal_name,
+            parent_msw_name=inherit_from.msw_name,
+            parent_style=inherit_from,
         )
 
     def scan_for_styles(self, node):
