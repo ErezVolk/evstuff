@@ -18,7 +18,6 @@ import attr
 # - For typesetters: some kind of "template" (alignment, offsets, emphasis, no biggie)
 # - For post edit/proof: Manual formatting consolidation, TBD
 
-# - Read/write everything from the thing
 # - Contextual rules (context: post-(non-), pre-(non-), shorthand first, last)
 # - Really need a test suite of some sort.
 # - Manual format: autogenerate styles
@@ -53,30 +52,49 @@ class ParseDict(argparse.Action):
         setattr(namespace, self.dest, dict(val.split('=', 1) for val in values))
 
 
-ATTR_READONLY = {'readonly': True}
+ATTR_KEY = 'special'
+ATTR_READONLY = {ATTR_KEY: 'readonly'}
+ATTR_NO_INI = {ATTR_KEY: 'internal'}
 
 
-@attr.s
+@attr.s(slots=True)
 class Style(object):
     """A character/paragraph style, normally found in the input file."""
-    realm = attr.ib()
-    msw_name = attr.ib(metadata=ATTR_READONLY)  # What the docx file uses for referencing
-    indd_name = attr.ib(default=None)  # What the user (and InDesign) see
-    internal_name = attr.ib(default=None)  # A sort of unlocalized msw_name
+    realm = attr.ib(metadata=ATTR_NO_INI)
+    msw_name = attr.ib(metadata=ATTR_READONLY)  # Used for xrefs in docx; localized
+    internal_name = attr.ib(default=None, metadata=ATTR_NO_INI)  # An unlocalized msw_name
+    name = attr.ib(default=None)  # What the user (and InDesign) see
     parent_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
     next_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
-    used = attr.ib(default=None)
     color = attr.ib(default=None)
     tint = attr.ib(default=None)
     size = attr.ib(default=None)
     superscript = attr.ib(default=None)
     variable = attr.ib(default=None)
 
-    parent_style = attr.ib(default=None)
-    next_style = attr.ib(default=None)
+    used = attr.ib(default=None, metadata=ATTR_NO_INI)
+    parent_style = attr.ib(default=None, metadata=ATTR_NO_INI)
+    next_style = attr.ib(default=None, metadata=ATTR_NO_INI)
 
     def __str__(self):
-        return '<%s %r>' % (self.realm, self.indd_name)
+        return '<%s %r>' % (self.realm, self.name)
+
+
+class IniField(object):
+    __slots__ = ('name', 'ini_name', 'readonly')
+
+    def __init__(self, field):
+        self.ini_name = self.name = field.name
+        self.readonly = field.metadata.get(ATTR_KEY) == 'readonly'
+        if self.readonly:
+            self.ini_name += ' (readonly)'
+
+
+INI_FIELDS = (
+    IniField(field)
+    for field in attr.fields(Style)
+    if field.metadata.get(ATTR_KEY) != 'internal'
+)
 
 
 class DocxToIdtt(object):
@@ -102,7 +120,7 @@ class DocxToIdtt(object):
         },
         'paragraph': {
             'annotation text': {
-                'indd_name': SPECIAL_GROUP + '/(Comment Text)',
+                'name': SPECIAL_GROUP + '/(Comment Text)',
                 'color': 'Cyan',
                 'tint': 100,
                 'size': 6,
@@ -323,12 +341,13 @@ class DocxToIdtt(object):
         kwargs.update(self.SPECIAL_STYLE.get(realm, {}).get(internal_name, {}))
 
         section = self.get_setting_section(realm=realm, internal_name=internal_name)
-        if section.get('name'):
-            # A user-defined name trumps everything
-            kwargs['indd_name'] = section.get('name')
-        if not kwargs.get('indd_name'):
-            # The last fallback
-            kwargs['indd_name'] = internal_name
+        if not kwargs.get('name'):
+            kwargs['name'] = internal_name
+        kwargs.update({
+            field.name: section[field.ini_name]
+            for field in INI_FIELDS
+            if field.ini_name in section and not field.readonly
+        })
 
         return self.add_style(
             realm=realm,
@@ -361,8 +380,8 @@ class DocxToIdtt(object):
     def section_name(self, realm=None, internal_name=None, style=None):
         """The name of the ini section for a given style.
 
-        This uses `internal_name`, rather than `msw_name` or `indd_name`,
-        because `msw_name` can get ugly ("a2") and `indd_name` should be
+        This uses `internal_name`, rather than `msw_name` or `name`,
+        because `msw_name` can get ugly ("a2") and `name` should be
         modifyable.
         """
         if style:
@@ -550,13 +569,7 @@ class DocxToIdtt(object):
         elif style.parent_msw_name:
             logging.warn('%r inherits missing %r', section_name, style.parent_msw_name)
 
-        self.update_setting_section(section_name, {
-            'name': style.indd_name,
-            'variable': style.variable or '',
-            'msw_name (readonly)': style.msw_name,
-            'parent_msw_name (readonly)': style.parent_msw_name or '',
-            'next_msw_name (readonly)': style.next_msw_name or '',
-        })
+        self.update_setting_section(section_name, style)
         self.style_sections_used.add(section_name)
 
         if style.next_style and style.next_style.used:
@@ -585,30 +598,16 @@ class DocxToIdtt(object):
             self.settings[section_name] = {}
         return self.settings[section_name]
 
-    def setting_section(self, section_name=None, add_now=True, **kwargs):
-        """Return a dict for the ini section.
-
-        If `add_now` is False and the section is missing, create the dict, but
-        don't add it just yet. Maybe it's not in use.
-        """
-        if not section_name:
-            section_name = self.section_name(**kwargs)
-        if section_name in self.settings:
-            return self.settings[section_name]
-
-        section = {}
-        if add_now:
-            self.settings[section_name] = section
-        return section
-
-    def update_setting_section(self, section_name, kvs):
+    def update_setting_section(self, section_name, style):
         """Update key:value pairs in an ini section.
 
         Sets `self.settings_touched` if anything was changed.
         """
         section = self.ensure_setting_section(section_name)
-        self.settings_touched |= any(v != section.get(k) for k, v in kvs.items())
-        section.update(kvs)
+        for field in INI_FIELDS:
+            value = getattr(style, field.name) or ''
+            self.settings_touched |= section.get(field.ini_name) != value
+            section[field.ini_name] = str(value)
 
 
 class IOutput(object):
@@ -821,7 +820,7 @@ class InDesignTaggedTextOutput(IOutput):
         self._write('>')
 
     def _idname(self, style):
-        return re.sub(r'\s*/\s*', r'\:', style.indd_name)
+        return re.sub(r'\s*/\s*', r'\:', style.name)
 
     def leave_paragraph(self):
         """Finalize paragraph."""
