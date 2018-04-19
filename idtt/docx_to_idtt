@@ -3,6 +3,7 @@
 import argparse
 import collections
 import configparser
+import contextlib
 import itertools
 import logging
 import os
@@ -15,7 +16,7 @@ import lxml.etree
 import attr
 
 # TODO:
-# - For typesetters: some kind of "template" (alignment, offsets, emphasis, no biggie)
+# - For typesetters: some kind of "template" (alignment, offsets, emphasis, can use IDTT)
 # - For post edit/proof: Manual formatting consolidation, TBD
 
 # - Contextual rules (context: post-(non-), pre-(non-), shorthand first, last)
@@ -24,7 +25,6 @@ import attr
 # - Manual format: collapse with existing styles
 # - A flag to only create/update the ini file
 # - Maybe add front matter (best done in Id? either that or the template thingy (ooh, jinja2!))
-# - some contextlib magic instead of all those finally clauses
 # - Something usable for those balloons (footnote+hl? endnote? convert to note in jsx?)
 # - Autocreate character styles from manual combos
 #   bold: w:b (w:bCs?); italic: w:i (w:iCs?); undeline w:u
@@ -73,6 +73,8 @@ class Style(object):
     variable = attr.ib(default=None)
 
     used = attr.ib(default=None, metadata=ATTR_NO_INI)
+    if_first = attr.ib(default=None)
+
     parent_style = attr.ib(default=None, metadata=ATTR_NO_INI)
     next_style = attr.ib(default=None, metadata=ATTR_NO_INI)
 
@@ -403,7 +405,7 @@ class DocxToIdtt(object):
     def write_idtt(self):
         logging.info('Writing %r', self.output_fn)
         self.current_character_style = None
-        with InDesignTaggedTextOutput(self.output_fn, self.args.debug) as self.idtt:
+        with InDesignTaggedTextOutput(self.output_fn, self.args.debug) as self.writer:
             self.convert_document()
 
     def convert_document(self):
@@ -438,21 +440,21 @@ class DocxToIdtt(object):
 
     def define_variable_from_node(self, variable, node):
         text = ''.join(t.text for t in self.xpath(node, 'w:r/w:t'))
-        self.idtt.define_text_variable(variable, text)
+        self.writer.define_text_variable(variable, text)
 
-    class Paragraph(object):
-        def __init__(self, parent_style, style):
-            self.parent_style = parent_style
-            self.idtt = self.parent_style.idtt
+    class Paragraph(contextlib.ExitStack):
+        def __init__(self, outer, style):
+            super().__init__()
+
+            self.outer = outer
+            self.writer = self.outer.writer
             self.style = style
+            self.writer.enter_paragraph(self.style)
+            self.callback(self.cleanup)
 
-        def __enter__(self):
-            self.idtt.enter_paragraph(self.style)
-            return self
-
-        def __exit__(self, *exception):
-            self.idtt.leave_paragraph()
-            self.parent_style.current_character_style = None
+        def cleanup(self):
+            self.writer.leave_paragraph()
+            self.outer.current_character_style = None
 
     def convert_range(self, r):
         self.switch_character_style(self.wvstyle(r, 'w:rPr/w:rStyle', 'character'))
@@ -464,20 +466,21 @@ class DocxToIdtt(object):
 
     def convert_range_text(self, r):
         for t in self.xpath(r, 'w:tab'):
-            self.idtt.write_text('\t')
+            self.writer.write_text('\t')
         for t in self.xpath(r, 'w:t'):
             self.write_text(t)
 
     def switch_character_style(self, style):
         prev = self.current_character_style
         if style is not prev:
-            self.idtt.set_character_style(style)
+            self.writer.set_character_style(style)
             self.current_character_style = style
         return prev
 
     def write_text(self, node):
         """Add some plain text."""
-        try:
+        with contextlib.ExitStack() as stack:
+            stack.callback(lambda: self.writer.write_text(text))
             text = node.text
             if not self.stop_marker:
                 return
@@ -486,8 +489,6 @@ class DocxToIdtt(object):
                 return
             text = text[:offset]
             raise StopMarkerFound('Stop marker found')
-        finally:
-            self.idtt.write_text(text)
 
     def convert_footnote_reference(self, fnr):
         fnid = fnr.get(self.wtag('id'))
@@ -507,37 +508,35 @@ class DocxToIdtt(object):
             for p in self.xpath(fn, 'w:p'):
                 self.convert_paragraph(p)
 
-    class Footnote(object):
-        def __init__(self, parent_style, ref_style=None):
-            self.parent_style = parent_style
-            self.idtt = parent_style.idtt
-            self.cstyle = parent_style.current_character_style
-            self.rstyle = ref_style or parent_style.footnote_ref_style
+    class Footnote(contextlib.ExitStack):
+        def __init__(self, outer, ref_style=None):
+            super().__init__()
+            self.outer = outer
+            self.writer = outer.writer
+            self.outer_character_style = outer.current_character_style
+            ref_style = ref_style or outer.footnote_ref_style
 
-        def __enter__(self):
-            self.parent_style.style_encountered(self.rstyle)
-            self.idtt.set_character_style(self.rstyle)
-            self.idtt.enter_footnote()
+            self.outer.style_encountered(ref_style)
+            self.writer.set_character_style(ref_style)
+            self.writer.enter_footnote()
+            self.outer.writer = WhitespaceStripper(self.writer)
 
-            self.parent_style.idtt = WhitespaceStripper(self.idtt)
-            return self
+        def cleanup(self):
+            self.writer.leave_footnote()
+            self.writer.set_character_style(self.outer_character_style)
+            self.outer.writer = self.writer
 
-        def __exit__(self, *exception):
-            self.idtt.leave_footnote()
-            self.idtt.set_character_style(self.cstyle)
-            self.parent_style.idtt = self.idtt
+    class NestedStyle(contextlib.ExitStack):
+        def __init__(self, outer):
+            super().__init__()
+            self.outer = outer
 
-    class NestedStyle(object):
-        def __init__(self, parent_style):
-            self.parent_style = parent_style
+            self.outer_character_style = self.outer.current_character_style
+            self.outer.current_character_style = None
+            self.callback(self.cleanup)
 
-        def __enter__(self):
-            self.parent_character_style = self.parent_style.current_character_style
-            self.parent_style.current_character_style = None
-            return self
-
-        def __exit__(self, *exception):
-            self.parent_style.current_character_style = self.parent_character_style
+        def cleanup(self):
+            self.outer.current_character_style = self.outer_character_style
 
     def report_style_counts(self):
         realms = {s.realm for s in self.styles.values()}
@@ -605,9 +604,12 @@ class DocxToIdtt(object):
         """
         section = self.ensure_setting_section(section_name)
         for field in INI_FIELDS:
-            value = getattr(style, field.name) or ''
+            value = getattr(style, field.name)
             self.settings_touched |= section.get(field.ini_name) != value
-            section[field.ini_name] = str(value)
+            if value:
+                section[field.ini_name] = str(value or '')
+            else:
+                section.pop(field.ini, None)
 
 
 class IOutput(object):
@@ -700,27 +702,21 @@ class WhitespaceStripper(IOutput):
         return self.writer.write_text(text)
 
 
-class InDesignTaggedTextOutput(IOutput):
+class InDesignTaggedTextOutput(contextlib.ExitStack, IOutput):
     def __init__(self, filename, debug=False):
+        super().__init__()
         self._filename = filename
         self._styles = []
         self._headers_written = False
         self._shades = collections.defaultdict(itertools.count)
         self._debug = debug
 
-    def __enter__(self):
-        self._fo = open(self._filename, 'w', encoding='UTF-16LE')
+        self._fo = self.enter_context(open(self._filename, 'w', encoding='UTF-16LE'))
         ufo_fn = self._filename + '.utf8'
         if self._debug:
-            self._ufo = open(ufo_fn, 'w', encoding='UTF-8')
+            self._ufo = self.enter_context(open(ufo_fn, 'w', encoding='UTF-8'))
         elif os.path.isfile(ufo_fn):
             os.unlink(ufo_fn)
-        return self
-
-    def __exit__(self, *exception):
-        self._fo.close()
-        if self._debug:
-            self._ufo.close()
 
     def _writeln(self, line=''):
         self._write(line)
