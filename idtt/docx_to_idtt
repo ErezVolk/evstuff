@@ -99,7 +99,7 @@ class Rule(object):
 
     turn_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
     into_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
-    when_following_style = attr.ib(default=None, metadata=ATTR_NO_INI)
+    when_following_styles = attr.ib(default=None, metadata=ATTR_NO_INI)
 
     valid = attr.ib(default=True, metadata=ATTR_NO_INI)
     applied = attr.ib(default=0, metadata=ATTR_NO_INI)
@@ -337,9 +337,11 @@ class DocxToIdtt(object):
                     required=True,
                     add_if_missing=True
                 )
-                rule.when_following_style = self.find_ini_ref(
-                    rule.when_following
-                )
+                rule.when_following_styles = [
+                    self.find_ini_ref(ini_ref)
+                    for ini_ref in
+                    re.findall(r'\[.*?\]', rule.when_following)
+                ]
             except BadReferenceInRule:
                 logging.warn('Ignoring rule with bad references: %s', rule)
                 rule.valid = False
@@ -527,7 +529,7 @@ class DocxToIdtt(object):
             if not rule.valid:
                 continue
             if rule.turn_this_style == style:
-                if rule.when_following_style == self.state.prev_para_style:
+                if self.state.prev_para_style in rule.when_following_styles:
                     rule.applied += 1
                     return rule.into_this_style
         return style
