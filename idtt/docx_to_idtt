@@ -52,6 +52,8 @@ class ParseDict(argparse.Action):
         setattr(namespace, self.dest, dict(val.split('=', 1) for val in values))
 
 
+# We use attr Metadata to mark some fields as "internal" (not written to the
+# ini file) or "readonly" (not read from the ini file)
 ATTR_KEY = 'special'
 ATTR_READONLY = {ATTR_KEY: 'readonly'}
 ATTR_NO_INI = {ATTR_KEY: 'internal'}
@@ -79,29 +81,6 @@ class Style(object):
 
     def __str__(self):
         return '<%s %r>' % (self.realm, self.name)
-
-
-class IniField(object):
-    __slots__ = ('name', 'ini_name', 'readonly')
-
-    def __init__(self, field):
-        self.ini_name = self.name = field.name
-        self.readonly = field.metadata.get(ATTR_KEY) == 'readonly'
-        if self.readonly:
-            self.ini_name += ' (readonly)'
-
-    def __repr__(self):
-        return '<IniField %s>' % self.ini_name
-
-    def __str__(self):
-        return self.ini_name
-
-
-INI_FIELDS = [
-    IniField(field)
-    for field in attr.fields(Style)
-    if field.metadata.get(ATTR_KEY) != 'internal'
-]
 
 
 @attr.s
@@ -372,9 +351,9 @@ class DocxToIdtt(object):
         if not kwargs.get('name'):
             kwargs['name'] = internal_name
         kwargs.update({
-            field.name: section[field.ini_name]
-            for field in INI_FIELDS
-            if field.ini_name in section and not field.readonly
+            name: section[ini_name]
+            for name, ini_name in self.ini_fields(writeable=True)
+            if ini_name in section
         })
 
         return self.add_style(
@@ -633,13 +612,26 @@ class DocxToIdtt(object):
         Sets `self.settings_touched` if anything was changed.
         """
         section = self.ensure_setting_section(section_name)
-        for field in INI_FIELDS:
-            value = getattr(style, field.name)
-            self.settings_touched |= section.get(field.ini_name) != value
+        for name, ini_name in self.ini_fields():
+            value = getattr(style, name)
+            self.settings_touched |= section.get(ini_name) != value
             if value:
-                section[field.ini_name] = str(value or '')
+                section[ini_name] = str(value or '')
             else:
-                section.pop(field.ini_name, None)
+                section.pop(ini_name, None)
+
+    def ini_fields(self, klass=Style, writeable=False):
+        """Yields a pair (name, ini_name) for all attributes."""
+        for field in attr.fields(klass):
+            special = field.metadata.get(ATTR_KEY)
+            if special == 'internal':
+                continue
+            ini_name = name = field.name
+            if special == 'readonly':
+                if writeable:
+                    continue
+                ini_name += ' (readonly)'
+            yield (name, ini_name)
 
 
 class IOutput(object):
