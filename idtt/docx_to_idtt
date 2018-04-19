@@ -18,8 +18,8 @@ import attr
 # TODO:
 # - For typesetters: some kind of "template" (alignment, offsets, emphasis, can use IDTT)
 # - For post edit/proof: Manual formatting consolidation, TBD
-# - Contextual rules (context: post-(non-), pre-(non-), shorthand first, last)
 
+# - Derivation rules: after same, after different
 # - Really need a test suite of some sort.
 # - Manual format: autogenerate styles
 # - Manual format: collapse with existing styles
@@ -46,6 +46,11 @@ class StopMarkerFound(Exception):
     pass
 
 
+class BadReferenceInRule(Exception):
+    """We raise this for bad ruels."""
+    pass
+
+
 class ParseDict(argparse.Action):
     """Helper class to convert KEY=VALUE pairs to a dict."""
     def __call__(self, parser, namespace, values, option_string):
@@ -64,7 +69,7 @@ class Style(object):
     """A character/paragraph style, normally found in the input file."""
     realm = attr.ib(metadata=ATTR_NO_INI)
     msw_name = attr.ib(metadata=ATTR_READONLY)  # Used for xrefs in docx; localized
-    internal_name = attr.ib(default=None, metadata=ATTR_NO_INI)  # An unlocalized msw_name
+    internal_name = attr.ib(default=None, metadata=ATTR_NO_INI)  # Used in the section names
     name = attr.ib(default=None)  # What the user (and InDesign) see
     parent_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
     next_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
@@ -81,6 +86,29 @@ class Style(object):
 
     def __str__(self):
         return '<%s %r>' % (self.realm, self.name)
+
+
+@attr.s(slots=True)
+class Rule(object):
+    """A derivation rule for Styles."""
+    mnemonic = attr.ib(metadata=ATTR_NO_INI)
+    description = attr.ib(metadata=ATTR_NO_INI)
+    turn_this = attr.ib(default=None)
+    into_this = attr.ib(default=None)
+    when_following = attr.ib(default=None)
+
+    turn_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
+    into_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
+    when_following_style = attr.ib(default=None, metadata=ATTR_NO_INI)
+
+    valid = attr.ib(default=True, metadata=ATTR_NO_INI)
+    applied = attr.ib(default=0, metadata=ATTR_NO_INI)
+
+    def __str__(self):
+        s = '%s %r %s -> %s' % (self.mnemonic, self.description, self.turn_this, self.into_this)
+        if self.when_following:
+            s += ' / %s _' % self.when_following
+        return s
 
 
 @attr.s
@@ -129,7 +157,7 @@ class DocxToIdtt(object):
         self.read_settings()
         self.load_docx()
         self.write_idtt()
-        self.report_style_counts()
+        self.report_statistics()
         self.write_settings()
         self.write_rerunner()
 
@@ -185,11 +213,30 @@ class DocxToIdtt(object):
             logging.info('Reading %r', self.settings_fn)
             self.settings.read(self.settings_fn, encoding=self.SETTING_FILE_ENCODING)
 
+        self.load_rules()
         self.config = self.ensure_setting_section(self.CONFIG_SECTION_NAME)
         if self.stop_marker:
             self.config['stop_marker'] = self.stop_marker
         else:
             self.stop_marker = self.config.get('stop_marker')
+
+    def load_rules(self):
+        """Convert Rule sections into Rule objects."""
+        self.rules = []
+        for section_name in self.settings.sections():
+            if not section_name.lower().startswith('rule:'):
+                continue
+            section = self.settings[section_name]
+            self.rules.append(Rule(
+                mnemonic='R%s' % (len(self.rules) + 1),
+                description=section_name[5:],
+                **{
+                    name: section[ini_name]
+                    for name, ini_name in self.ini_fields(Rule)
+                    if ini_name in section
+                }
+            ))
+            logging.debug(self.rules[-1])
 
     def write_settings(self):
         """When done, write the settings file for the next time."""
@@ -268,16 +315,70 @@ class DocxToIdtt(object):
                 parent_msw_name=self.wval(s, 'w:basedOn'),
                 next_msw_name=self.wval(s, 'w:next'),
             )
+        self.link_styles()
+        self.link_rules()
 
+    def link_styles(self):
+        """A sort of alchemy-relationship thing."""
         for style in self.styles.values():
-            if style.parent_msw_name:
-                style.parent_style = self.styles[self.style_key(
-                    realm=style.realm, msw_name=style.parent_msw_name
-                )]
-            if style.next_msw_name:
-                style.next_style = self.styles[self.style_key(
-                    realm=style.realm, msw_name=style.next_msw_name
-                )]
+            self.parent_style = self.style_or_none(style.realm, style.parent_msw_name)
+            self.next_style = self.style_or_none(style.realm, style.next_msw_name)
+
+    def link_rules(self):
+        """A sort of alchemy-relationship thing."""
+        for rule in self.rules:
+            try:
+                rule.turn_this_style = self.find_ini_ref(
+                    rule.turn_this,
+                    required=True
+                )
+                rule.into_this_style = self.find_ini_ref(
+                    rule.into_this,
+                    required=True,
+                    add_if_missing=True
+                )
+                rule.when_following_style = self.find_ini_ref(
+                    rule.when_following
+                )
+            except BadReferenceInRule:
+                logging.warn('Ignoring rule with bad references: %s', rule)
+                rule.valid = False
+
+    def style_or_none(self, realm, msw_name):
+        if not msw_name:
+            return None
+        return self.styles[self.style_key(realm=realm, msw_name=msw_name)]
+
+    def find_ini_ref(self, ini_ref, required=False, add_if_missing=False):
+        if not ini_ref:
+            if required:
+                logging.debug('MISSING REQUIRED SOMETHING')
+                raise BadReferenceInRule()
+            return None
+        m = re.match(
+            r'^\[(?P<realm>\w+):(?P<internal_name>.+)\]$',
+            ini_ref,
+            re.IGNORECASE
+        )
+        if not m:
+            logging.debug('Malformed %r', ini_ref)
+            raise BadReferenceInRule()
+        try:
+            realm = m.group('realm').lower()
+            internal_name = m.group('internal_name')
+            return next(
+                style for style in self.styles.values()
+                if style.realm.lower() == realm and style.internal_name == internal_name
+            )
+        except StopIteration:
+            if not add_if_missing:
+                logging.debug('ERROR: Unknown %r', ini_ref)
+                raise BadReferenceInRule()
+        return self.add_style(
+            realm=realm,
+            msw_name=ini_ref,
+            internal_name=internal_name,
+        )
 
     def scan_for_styles(self, node):
         """Mark which styles are actually used."""
@@ -414,12 +515,22 @@ class DocxToIdtt(object):
     def convert_paragraph(self, p):
         if self.stop_marker:
             self.check_for_stop_paragraph(p)
-        style = self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph')
+        style = self.apply_rules_to(self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph'))
         with self.Paragraph(self, style):
             for r in self.xpath(p, 'w:r'):
                 self.convert_range(r)
             if style.variable:
                 self.define_variable_from_node(style.variable, p)
+
+    def apply_rules_to(self, style):
+        for rule in self.rules:
+            if not rule.valid:
+                continue
+            if rule.turn_this_style == style:
+                if rule.when_following_style == self.state.prev_para_style:
+                    rule.applied += 1
+                    return rule.into_this_style
+        return style
 
     def check_for_stop_paragraph(self, p):
         text = ''
@@ -537,12 +648,15 @@ class DocxToIdtt(object):
         def __exit__(self, *args):
             self.outer.set_state(self.outer_state)
 
-    def report_style_counts(self):
+    def report_statistics(self):
         realms = {s.realm for s in self.styles.values()}
         for realm in realms:
             logging.info('Number of %s styles used: %u',
                          realm.capitalize(),
                          sum(1 for s in self.styles.values() if s.realm == realm and s.used))
+        for rule in self.rules:
+            if rule.applied:
+                logging.info('%s application(s) of %s', rule.applied, rule)
 
     def wvstyle(self, node, expr, realm):
         msw_name = self.wval(node, expr)
