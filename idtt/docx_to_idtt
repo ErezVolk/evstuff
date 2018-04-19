@@ -18,6 +18,7 @@ import attr
 # - For typesetters: some kind of "template" (alignment, offsets, emphasis, no biggie)
 # - For post edit/proof: Manual formatting consolidation, TBD
 
+# - Read/write everything from the thing
 # - Contextual rules (context: post-(non-), pre-(non-), shorthand first, last)
 # - Really need a test suite of some sort.
 # - Manual format: autogenerate styles
@@ -52,15 +53,18 @@ class ParseDict(argparse.Action):
         setattr(namespace, self.dest, dict(val.split('=', 1) for val in values))
 
 
+ATTR_READONLY = {'readonly': True}
+
+
 @attr.s
 class Style(object):
     """A character/paragraph style, normally found in the input file."""
     realm = attr.ib()
-    msw_name = attr.ib()  # What the docx file uses for referencing
+    msw_name = attr.ib(metadata=ATTR_READONLY)  # What the docx file uses for referencing
     indd_name = attr.ib(default=None)  # What the user (and InDesign) see
     internal_name = attr.ib(default=None)  # A sort of unlocalized msw_name
-    parent_msw_name = attr.ib(default=None)
-    followed_by_msw_name = attr.ib(default=None)
+    parent_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
+    next_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
     used = attr.ib(default=None)
     color = attr.ib(default=None)
     tint = attr.ib(default=None)
@@ -68,8 +72,8 @@ class Style(object):
     superscript = attr.ib(default=None)
     variable = attr.ib(default=None)
 
-    parent = attr.ib(default=None)
-    followed_by = attr.ib(default=None)
+    parent_style = attr.ib(default=None)
+    next_style = attr.ib(default=None)
 
     def __str__(self):
         return '<%s %r>' % (self.realm, self.indd_name)
@@ -250,17 +254,17 @@ class DocxToIdtt(object):
                 internal_name=self.wval(s, 'w:name'),
                 msw_name=s.get(self.wtag('styleId')),
                 parent_msw_name=self.wval(s, 'w:basedOn'),
-                followed_by_msw_name=self.wval(s, 'w:next'),
+                next_msw_name=self.wval(s, 'w:next'),
             )
 
         for style in self.styles.values():
             if style.parent_msw_name:
-                style.parent = self.styles[self.style_key(
+                style.parent_style = self.styles[self.style_key(
                     realm=style.realm, msw_name=style.parent_msw_name
                 )]
-            if style.followed_by_msw_name:
-                style.followed_by = self.styles[self.style_key(
-                    realm=style.realm, msw_name=style.followed_by_msw_name
+            if style.next_msw_name:
+                style.next_style = self.styles[self.style_key(
+                    realm=style.realm, msw_name=style.next_msw_name
                 )]
 
     def scan_for_styles(self, node):
@@ -418,9 +422,9 @@ class DocxToIdtt(object):
         self.idtt.define_text_variable(variable, text)
 
     class Paragraph(object):
-        def __init__(self, parent, style):
-            self.parent = parent
-            self.idtt = self.parent.idtt
+        def __init__(self, parent_style, style):
+            self.parent_style = parent_style
+            self.idtt = self.parent_style.idtt
             self.style = style
 
         def __enter__(self):
@@ -429,7 +433,7 @@ class DocxToIdtt(object):
 
         def __exit__(self, *exception):
             self.idtt.leave_paragraph()
-            self.parent.current_character_style = None
+            self.parent_style.current_character_style = None
 
     def convert_range(self, r):
         self.switch_character_style(self.wvstyle(r, 'w:rPr/w:rStyle', 'character'))
@@ -485,36 +489,36 @@ class DocxToIdtt(object):
                 self.convert_paragraph(p)
 
     class Footnote(object):
-        def __init__(self, parent, ref_style=None):
-            self.parent = parent
-            self.idtt = parent.idtt
-            self.cstyle = parent.current_character_style
-            self.rstyle = ref_style or parent.footnote_ref_style
+        def __init__(self, parent_style, ref_style=None):
+            self.parent_style = parent_style
+            self.idtt = parent_style.idtt
+            self.cstyle = parent_style.current_character_style
+            self.rstyle = ref_style or parent_style.footnote_ref_style
 
         def __enter__(self):
-            self.parent.style_encountered(self.rstyle)
+            self.parent_style.style_encountered(self.rstyle)
             self.idtt.set_character_style(self.rstyle)
             self.idtt.enter_footnote()
 
-            self.parent.idtt = WhitespaceStripper(self.idtt)
+            self.parent_style.idtt = WhitespaceStripper(self.idtt)
             return self
 
         def __exit__(self, *exception):
             self.idtt.leave_footnote()
             self.idtt.set_character_style(self.cstyle)
-            self.parent.idtt = self.idtt
+            self.parent_style.idtt = self.idtt
 
     class NestedStyle(object):
-        def __init__(self, parent):
-            self.parent = parent
+        def __init__(self, parent_style):
+            self.parent_style = parent_style
 
         def __enter__(self):
-            self.parent_character_style = self.parent.current_character_style
-            self.parent.current_character_style = None
+            self.parent_character_style = self.parent_style.current_character_style
+            self.parent_style.current_character_style = None
             return self
 
         def __exit__(self, *exception):
-            self.parent.current_character_style = self.parent_character_style
+            self.parent_style.current_character_style = self.parent_character_style
 
     def report_style_counts(self):
         realms = {s.realm for s in self.styles.values()}
@@ -541,8 +545,8 @@ class DocxToIdtt(object):
         if section_name in self.style_sections_used:
             return
 
-        if style.parent and style.parent.used:
-            self.style_encountered(style.parent)
+        if style.parent_style and style.parent_style.used:
+            self.style_encountered(style.parent_style)
         elif style.parent_msw_name:
             logging.warn('%r inherits missing %r', section_name, style.parent_msw_name)
 
@@ -551,32 +555,32 @@ class DocxToIdtt(object):
             'variable': style.variable or '',
             'msw_name (readonly)': style.msw_name,
             'parent_msw_name (readonly)': style.parent_msw_name or '',
-            'next_msw_name (readonly)': style.followed_by_msw_name or '',
+            'next_msw_name (readonly)': style.next_msw_name or '',
         })
         self.style_sections_used.add(section_name)
 
-        if style.followed_by and style.followed_by.used:
-            self.style_encountered(style.followed_by)
-        elif style.followed_by_msw_name:
-            logging.warn('[%s] leads to missing %r', section_name, style.followed_by_msw_name)
+        if style.next_style and style.next_style.used:
+            self.style_encountered(style.next_style)
+        elif style.next_msw_name:
+            logging.warn('[%s] leads to missing %r', section_name, style.next_msw_name)
 
-    def get_setting_section(self, section_name=None, **kwargs):
+    def get_setting_section(self, section_name=None, realm=None, internal_name=None, style=None):
         """Return a section from the ini file.
 
         If no such section exists, return a new dict, but don't add it
         to the configuration.
         """
         if not section_name:
-            section_name = self.section_name(**kwargs)
+            section_name = self.section_name(realm=realm, internal_name=internal_name, style=style)
 
         if self.settings.has_section(section_name):
             return self.settings[section_name]
         return {}
 
-    def ensure_setting_section(self, section_name=None, **kwargs):
+    def ensure_setting_section(self, section_name=None, realm=None, internal_name=None, style=None):
         """Return a section from the ini file, adding one if needed."""
         if not section_name:
-            section_name = self.section_name(**kwargs)
+            section_name = self.section_name(realm=realm, internal_name=internal_name, style=style)
         if not self.settings.has_section(section_name):
             self.settings[section_name] = {}
         return self.settings[section_name]
@@ -728,13 +732,13 @@ class InDesignTaggedTextOutput(IOutput):
         if style in self._styles:
             return
 
-        if style.parent and style.parent.used:
-            self.define_style(style.parent)
+        if style.parent_style and style.parent_style.used:
+            self.define_style(style.parent_style)
 
         self._styles.append(style)
 
-        if style.followed_by and style.followed_by.used:
-            self.define_style(style.followed_by)
+        if style.next_style and style.next_style.used:
+            self.define_style(style.next_style)
         if self._headers_written:
             self._write_style_definition(style)
 
@@ -782,13 +786,13 @@ class InDesignTaggedTextOutput(IOutput):
         if style.superscript:
             self._write('<cPosition:Superscript>')
 
-        if style.parent and style.parent.used:
+        if style.parent_style and style.parent_style.used:
             self._write('<BasedOn:')
-            self._write(self._idname(style.parent))
+            self._write(self._idname(style.parent_style))
             self._write('>')
-        if style.followed_by and style.followed_by.used:
+        if style.next_style and style.next_style.used:
             self._write('<Nextstyle:')
-            self._write(self._idname(style.followed_by))
+            self._write(self._idname(style.next_style))
             self._write('>')
         self._write('>')
 
