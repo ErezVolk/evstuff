@@ -1,5 +1,6 @@
 // ex: set et sw=2:
 
+// TODO: Pairwise kerning
 // TODO: Check for the double frame thing at beginning/end.
 // TODO: Border tricks at end/beginning of frames
 // TODO: Some kind of "only this" button

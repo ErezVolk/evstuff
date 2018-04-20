@@ -18,7 +18,9 @@ import attr
 # TODO:
 # - For post edit/proof: Manual formatting consolidation, TBD
 
+# - Para: global base -> body base, heading base
 # - Derivation rules: after same, after different, first since...
+# - Digraph kerning (probably better in InDesign?)
 # - Really need a test suite of some sort.
 # - Manual format: autogenerate styles
 # - Manual format: collapse with existing styles
@@ -101,10 +103,7 @@ class Rule(object):
     applied = attr.ib(default=0, metadata=ATTR_NO_INI)
 
     def __str__(self):
-        s = '%s %r %s -> %s' % (self.mnemonic, self.description, self.turn_this, self.into_this)
-        if self.when_following:
-            s += ' / %s _' % self.when_following
-        return s
+        return '%s %r' % (self.mnemonic, self.description)
 
 
 @attr.s
@@ -283,10 +282,12 @@ class DocxToIdtt(object):
         """Unzip and parse a .docx file."""
         logging.info('Reading %r', self.args.input)
         with zipfile.ZipFile(self.args.input) as self.docx:
-            self.scan_styles(self.load_xml('word/styles.xml'))
-            self.document = self.scan_for_styles(self.load_xml('word/document.xml'))
-            self.footnotes = self.scan_for_styles(self.load_xml('word/footnotes.xml'))
-            self.comments = self.scan_for_styles(self.load_xml('word/comments.xml'))
+            self.scan_style_definitions(self.load_xml('word/styles.xml'))
+            self.document = self.scan_style_mentions(self.load_xml('word/document.xml'))
+            self.footnotes = self.scan_style_mentions(self.load_xml('word/footnotes.xml'))
+            self.comments = self.scan_style_mentions(self.load_xml('word/comments.xml'))
+        self.link_styles()
+        self.link_rules()
 
     def load_xml(self, path):
         """Parse an XML file inside the zipped doc, return root node."""
@@ -296,10 +297,10 @@ class DocxToIdtt(object):
         except KeyError:
             return None
 
-    def scan_styles(self, styles):
+    def scan_style_definitions(self, styles):
         """Create a Style object for everything in the document."""
         self.styles = {}
-        self.add_special_styles()
+        self.create_special_styles()
         for s in self.xpath(styles, "//w:style[@w:type][w:name[@w:val]]"):
             self.found_style_definition(
                 realm=s.get(self.wtag('type')),
@@ -308,14 +309,65 @@ class DocxToIdtt(object):
                 parent_msw_name=self.wval(s, 'w:basedOn'),
                 next_msw_name=self.wval(s, 'w:next'),
             )
-        self.link_styles()
-        self.link_rules()
+
+    def create_special_styles(self):
+        """Add any internal styles (i.e., not imported from the doc)."""
+        self.base_names = {
+            'character': self.args.base_character_style,
+            'paragraph': self.args.base_paragraph_style,
+        }
+        self.base_styles = {
+            realm: self.found_style_definition(
+                realm=realm,
+                internal_name=name,
+                msw_name=name,
+                used=True,
+            )
+            for realm, name in self.base_names.items()
+        }
+        self.footnote_ref_style = self.found_style_definition(
+            realm='character',
+            internal_name=self.FOOTNOTE_REF_STYLE,
+            msw_name=self.FOOTNOTE_REF_STYLE,
+            idtt='<cColor:Magenta><cColorTint:100><cPosition:Superscript>'
+        )
+        self.comment_ref_style = self.found_style_definition(
+            realm='character',
+            internal_name=self.COMMENT_REF_STYLE,
+            msw_name=self.COMMENT_REF_STYLE,
+            parent_msw_name=self.FOOTNOTE_REF_STYLE,
+            idtt='<cColor:Cyan><cColorTint:100>'
+        )
+
+    def scan_style_mentions(self, node):
+        """Mark which styles are actually used."""
+        if node is None:
+            return None
+        self.scan_realm_style_mentions(node, 'paragraph', 'w:pStyle')
+        self.scan_realm_style_mentions(node, 'character', 'w:rStyle')
+        return node
+
+    def scan_realm_style_mentions(self, node, realm, tag):
+        """Find all styles of a specific realm and mark them as being used."""
+        for sn in self.xpath(node, '//%s' % tag):
+            msw_name = sn.get(self.wtag('val'))
+            style_key = self.style_key(realm=realm, msw_name=msw_name)
+            if style_key not in self.styles:
+                logging.debug('Used but not defined? %r', style_key)
+            elif not self.styles[style_key].used:
+                logging.debug('Style used: %r', style_key)
+                self.styles[style_key].used = True
 
     def link_styles(self):
         """A sort of alchemy-relationship thing."""
         for style in self.styles.values():
-            self.parent_style = self.style_or_none(style.realm, style.parent_msw_name)
-            self.next_style = self.style_or_none(style.realm, style.next_msw_name)
+            style.parent_style = self.style_or_none(style.realm, style.parent_msw_name)
+            style.next_style = self.style_or_none(style.realm, style.next_msw_name)
+
+    def style_or_none(self, realm, msw_name):
+        if not msw_name:
+            return None
+        return self.styles[self.style_key(realm=realm, msw_name=msw_name)]
 
     def link_rules(self):
         """A sort of alchemy-relationship thing."""
@@ -338,11 +390,6 @@ class DocxToIdtt(object):
             except BadReferenceInRule:
                 logging.warn('Ignoring rule with bad references: %s', rule)
                 rule.valid = False
-
-    def style_or_none(self, realm, msw_name):
-        if not msw_name:
-            return None
-        return self.styles[self.style_key(realm=realm, msw_name=msw_name)]
 
     def find_ini_ref(self, ini_ref, required=False, inherit_from=None):
         if not ini_ref:
@@ -375,49 +422,6 @@ class DocxToIdtt(object):
             internal_name=internal_name,
             parent_msw_name=inherit_from.msw_name,
             parent_style=inherit_from,
-        )
-
-    def scan_for_styles(self, node):
-        """Mark which styles are actually used."""
-        if node is not None:
-            self.scan_for_realm_styles(node, 'w:pStyle', 'paragraph')
-            self.scan_for_realm_styles(node, 'w:rStyle', 'character')
-        return node
-
-    def scan_for_realm_styles(self, node, tag, realm):
-        """Find all styles of a specific type and mark them as being used."""
-        for sn in self.xpath(node, '//%s' % tag):
-            msw_name = sn.get(self.wtag('val'))
-            style_key = self.style_key(realm=realm, msw_name=msw_name)
-            if style_key in self.styles:
-                self.styles[style_key].used = True
-
-    def add_special_styles(self):
-        """Add any internal styles (i.e., not imported from the doc)."""
-        self.base_names = {
-            'character': self.args.base_character_style,
-            'paragraph': self.args.base_paragraph_style,
-        }
-        self.base_styles = {
-            realm: self.found_style_definition(
-                realm=realm,
-                internal_name=name,
-                msw_name=name,
-            )
-            for realm, name in self.base_names.items()
-        }
-        self.footnote_ref_style = self.found_style_definition(
-            realm='character',
-            internal_name=self.FOOTNOTE_REF_STYLE,
-            msw_name=self.FOOTNOTE_REF_STYLE,
-            idtt='<cColor:Magenta><cColorTint:100><cPosition:Superscript>'
-        )
-        self.comment_ref_style = self.found_style_definition(
-            realm='character',
-            internal_name=self.COMMENT_REF_STYLE,
-            msw_name=self.COMMENT_REF_STYLE,
-            parent_msw_name=self.FOOTNOTE_REF_STYLE,
-            idtt='<cColor:Cyan><cColorTint:100>'
         )
 
     def found_style_definition(self, realm, internal_name, msw_name, **kwargs):
@@ -672,10 +676,12 @@ class DocxToIdtt(object):
         if section_name in self.style_sections_used:
             return
 
-        if style.parent_style and style.parent_style.used:
+        if style.parent_style:
+            if not style.parent_style.used:
+                logging.debug('[%s] leads to missing %r', section_name, style.parent_msw_name)
+                style.parent_style = self.base_styles[style.realm]
+                style.parent_msw_name = style.parent_style.msw_name
             self.style_encountered(style.parent_style)
-        elif style.parent_msw_name:
-            logging.warn('%r inherits missing %r', section_name, style.parent_msw_name)
 
         self.update_setting_section(section_name, style)
         self.style_sections_used.add(section_name)
@@ -683,7 +689,7 @@ class DocxToIdtt(object):
         if style.next_style and style.next_style.used:
             self.style_encountered(style.next_style)
         elif style.next_msw_name:
-            logging.warn('[%s] leads to missing %r', section_name, style.next_msw_name)
+            logging.debug('[%s] leads to missing %r', section_name, style.next_msw_name)
 
     def get_setting_section(self, section_name=None, realm=None, internal_name=None, style=None):
         """Return a section from the ini file.
