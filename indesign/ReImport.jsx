@@ -402,6 +402,9 @@ function ri_post_convert_post_its(ri) {
     return;
   }
 
+  if (!ugly_ref_style.isValid)
+    return;
+
   app.findGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = "~F";
   app.findGrepPreferences.appliedCharacterStyle = ugly_ref_style;

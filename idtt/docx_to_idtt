@@ -70,8 +70,8 @@ class Style(object):
     """A character/paragraph style, normally found in the input file."""
     realm = attr.ib(metadata=ATTR_NO_INI)
     msw_name = attr.ib(metadata=ATTR_READONLY)  # Used for xrefs in docx; localized
-    internal_name = attr.ib(default=None, metadata=ATTR_NO_INI)  # Used in the section names
-    name = attr.ib(default=None)  # What the user (and InDesign) see
+    internal_name = attr.ib(metadata=ATTR_NO_INI)  # Used in the section names
+    name = attr.ib()  # What the user (and InDesign) see
     parent_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
     next_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
     idtt = attr.ib(default='')
@@ -373,17 +373,17 @@ class DocxToIdtt(object):
         """A sort of alchemy-relationship thing."""
         for rule in self.rules:
             try:
-                rule.turn_this_style = self.find_ini_ref(
+                rule.turn_this_style = self.find_style_by_ini_ref(
                     rule.turn_this,
                     required=True
                 )
-                rule.into_this_style = self.find_ini_ref(
+                rule.into_this_style = self.find_style_by_ini_ref(
                     rule.into_this,
                     required=True,
                     inherit_from=rule.turn_this_style,
                 )
                 rule.when_following_styles = [
-                    self.find_ini_ref(ini_ref)
+                    self.find_style_by_ini_ref(ini_ref)
                     for ini_ref in
                     re.findall(r'\[.*?\]', rule.when_following)
                 ]
@@ -391,7 +391,8 @@ class DocxToIdtt(object):
                 logging.warn('Ignoring rule with bad references: %s', rule)
                 rule.valid = False
 
-    def find_ini_ref(self, ini_ref, required=False, inherit_from=None):
+    def find_style_by_ini_ref(self, ini_ref, required=False, inherit_from=None):
+        """Returns a style, given type of string we use for ini file section names."""
         if not ini_ref:
             if required:
                 logging.debug('MISSING REQUIRED SOMETHING')
@@ -456,6 +457,8 @@ class DocxToIdtt(object):
         if self.args.style_to_variable:
             if kwargs['realm'] == 'paragraph':
                 kwargs.setdefault('variable', self.args.style_to_variable.get(kwargs['internal_name']))
+
+        kwargs.setdefault('name', kwargs['internal_name'])
 
         style = Style(**kwargs)
         self.styles[self.style_key(style=style)] = style
