@@ -1,5 +1,6 @@
 #!/bin/bash
 
+./generate-hebrew-kerning-pairs.py > hebrew-kerning-pairs.txt
 ./docx-cat 01-inputs/*.docx > 02-plain.txt
 ./strip.py 02-plain.txt > 03-stripped.txt
 cat 03-stripped.txt |sed -e 's/ /\n/g' |grep -v '^ *$' > 04-words.txt
