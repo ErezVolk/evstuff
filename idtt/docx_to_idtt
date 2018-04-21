@@ -16,11 +16,11 @@ import lxml.etree
 import attr
 
 # TODO:
+# - Ignore editing marks
+# - Convert editing marks
 # - For post edit/proof: Manual formatting consolidation, TBD
-
 # - Para: global base -> body base, heading base
-# - Derivation rules: after same, after different, first since...
-# - Digraph kerning (probably better in InDesign?)
+# - More rule context: after same, after different, first since...
 # - Really need a test suite of some sort.
 # - Manual format: autogenerate styles
 # - Manual format: collapse with existing styles
@@ -36,10 +36,10 @@ import attr
 # - Automatic header group
 # - More complex BiDi
 # - Endnotes
-# - Editing marks
 # - Linked styles?
 # - Derivation rules?
 # - Latent styles?
+# - Digraph kerning (probably better in InDesign?)
 
 
 class StopMarkerFound(Exception):

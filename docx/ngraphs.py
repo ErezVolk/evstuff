@@ -17,7 +17,8 @@ with open(words_fn, 'r', encoding='utf-8') as words:
         for idx in range(len(word)):
             maxlen = min(nlens, len(word) - idx)
             for n in range(1, maxlen + 1):
-                ngraphs[n][word[idx:idx + n]] += 1
+                text = word[idx:idx + n]
+                ngraphs[n][text] += 1
 
 for n, fn in enumerate(output_fns, 1):
     with open(fn, 'w', encoding='utf-8') as of:
