@@ -16,8 +16,6 @@ import lxml.etree
 import attr
 
 # TODO:
-# - Ignore editing marks
-# - Convert editing marks
 # - For post edit/proof: Manual formatting consolidation, TBD
 # - Para: global base -> body base, heading base
 # - More rule context: after same, after different, first since...
@@ -32,6 +30,7 @@ import attr
 #   font: <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New">
 #   override style: <w:i w:val="0">
 # - (f)odt import
+# - Convert editing marks
 # - idml import
 # - Automatic header group
 # - More complex BiDi
@@ -118,6 +117,9 @@ class DocxToIdtt(object):
     """Read a docx file. Write an InDesign Tagged Text file. What's not to like?"""
     W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
     NS = {'w': W}
+
+    XPATH_RANGE_IN_PARA = 'w:r | w:ins/w:r'
+    XPATH_TEXT_IN_PARA = 'w:r/w:t | w:ins/w:r/w:t'
 
     SETTING_FILE_ENCODING = 'UTF-8'
     CONFIG_SECTION_NAME = 'General'
@@ -520,7 +522,7 @@ class DocxToIdtt(object):
             self.check_for_stop_paragraph(p)
         style = self.apply_rules_to(self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph'))
         with self.Paragraph(self, style):
-            for r in self.xpath(p, 'w:r'):
+            for r in self.xpath(p, self.XPATH_RANGE_IN_PARA):
                 self.convert_range(r)
             if style and style.variable:
                 self.define_variable_from_node(style.variable, p)
@@ -537,7 +539,7 @@ class DocxToIdtt(object):
 
     def check_for_stop_paragraph(self, p):
         text = ''
-        for node in self.xpath(p, 'w:r/w:t'):
+        for node in self.xpath(p, self.XPATH_TEXT_IN_PARA):
             text += node.text
             if text.startswith(self.stop_marker):
                 raise StopMarkerFound('Stop marker found at the beginning of a paragraph')
@@ -545,7 +547,7 @@ class DocxToIdtt(object):
                 return
 
     def define_variable_from_node(self, variable, node):
-        text = ''.join(t.text for t in self.xpath(node, 'w:r/w:t'))
+        text = ''.join(t.text for t in self.xpath(node, self.XPATH_TEXT_IN_PARA))
         self.writer.define_text_variable(variable, text)
 
     def set_state(self, state):
