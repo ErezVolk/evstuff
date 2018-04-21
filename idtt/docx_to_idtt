@@ -522,7 +522,7 @@ class DocxToIdtt(object):
         with self.Paragraph(self, style):
             for r in self.xpath(p, 'w:r'):
                 self.convert_range(r)
-            if style.variable:
+            if style and style.variable:
                 self.define_variable_from_node(style.variable, p)
 
     def apply_rules_to(self, style):
