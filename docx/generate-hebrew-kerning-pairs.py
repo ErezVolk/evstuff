@@ -33,4 +33,11 @@ while remaining:
         line += '\n'
         line += pair
 
-print(line.strip())
+with open('hebrew-kerning-pairs.idtt.txt', 'w', encoding='UTF-16LE') as fo:
+    fo.write('<UNICODE-MAC>\n')
+    fo.write('<Version:13.1><FeatureSet:Indesign-R2L>')
+    fo.write('<ColorTable:=<Black:COLOR:CMYK:Process:0,0,0,1>>\n')
+    for l in line.strip().split('\n'):
+        fo.write('<ParaStyle:>')
+        fo.write(l)
+        fo.write('\n')
