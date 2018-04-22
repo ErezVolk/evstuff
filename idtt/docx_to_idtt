@@ -928,7 +928,7 @@ class OdtParagraph(OdtNode):
                 yield OdtTabSpan(self.doc, r)
             else:
                 yield OdtSpan(self.doc, r)
-            yield OdtRangeTail(self.doc, r)
+            yield OdtSpanTail(self.doc, r)
 
 
 class OdtFirstSpan(OdtNode):
@@ -947,7 +947,8 @@ class OdtFirstSpan(OdtNode):
             yield
 
     def text(self):
-        yield self.node.text
+        if self.node.text:
+            yield self.node.text
 
 
 class OdtTabSpan(OdtNode):
@@ -986,10 +987,11 @@ class OdtSpan(OdtNode):
             yield
 
     def text(self):
-        yield self.node.text
+        if self.node.text:
+            yield self.node.text
 
 
-class OdtRangeTail(OdtNode):
+class OdtSpanTail(OdtNode):
     def __init__(self, doc, node):
         super().__init__(doc, node)
 
@@ -1005,7 +1007,8 @@ class OdtRangeTail(OdtNode):
             yield
 
     def text(self):
-        yield self.node.tail
+        if self.node.tail:
+            yield self.node.tail
 
 
 class OdtFootnote(OdtNode):
