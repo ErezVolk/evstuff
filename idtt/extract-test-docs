@@ -6,7 +6,7 @@ for f in t*.tagged.txt; do
 	iconv -f UTF-16LE $f > ${u}
 done
 
-for f in t*docx t*.idml; do
+for f in t*docx t*.idml t*.odt; do
 	d=${f}.unzipped
 	unzip -o $f -d $d
 	for x in `find $d -name \*.xml`; do

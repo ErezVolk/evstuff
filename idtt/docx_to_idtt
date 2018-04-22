@@ -15,108 +15,11 @@ import zipfile
 import lxml.etree
 import attr
 
-# TODO:
-# - For post edit/proof: Manual formatting consolidation, TBD
-# - Para: global base -> body base, heading base
-# - More rule context: after same, after different, first since...
-# - Really need a test suite of some sort.
-# - Manual format: autogenerate styles
-# - Manual format: collapse with existing styles
-# - A flag to only create/update the ini file
-# - Maybe add front matter (best done in Id? either that or the template thingy (ooh, jinja2!))
-# - Something usable for those balloons (footnote+hl? endnote? convert to note in jsx?)
-# - Autocreate character styles from manual combos
-#   bold: w:b (w:bCs?); italic: w:i (w:iCs?); undeline w:u
-#   font: <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New">
-#   override style: <w:i w:val="0">
-# - (f)odt import
-# - Convert editing marks
-# - idml import
-# - Automatic header group
-# - More complex BiDi
-# - Endnotes
-# - Linked styles?
-# - Derivation rules?
-# - Latent styles?
-# - Digraph kerning (probably better in InDesign?)
-
-
-class StopMarkerFound(Exception):
-    """We raise this to stop the presses."""
-    pass
-
-
-class BadReferenceInRule(Exception):
-    """We raise this for bad ruels."""
-    pass
-
-
-class ParseDict(argparse.Action):
-    """Helper class to convert KEY=VALUE pairs to a dict."""
-    def __call__(self, parser, namespace, values, option_string):
-        setattr(namespace, self.dest, dict(val.split('=', 1) for val in values))
-
-
-# We use attr Metadata to mark some fields as "internal" (not written to the
-# ini file) or "readonly" (not read from the ini file)
-ATTR_KEY = 'special'
-ATTR_READONLY = {ATTR_KEY: 'readonly'}
-ATTR_NO_INI = {ATTR_KEY: 'internal'}
-
-
-@attr.s(slots=True)
-class Style(object):
-    """A character/paragraph style, normally found in the input file."""
-    realm = attr.ib(metadata=ATTR_NO_INI)
-    msw_name = attr.ib(metadata=ATTR_READONLY)  # Used for xrefs in docx; localized
-    internal_name = attr.ib(metadata=ATTR_NO_INI)  # Used in the section names
-    name = attr.ib()  # What the user (and InDesign) see
-    parent_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
-    next_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
-    idtt = attr.ib(default='')
-    variable = attr.ib(default=None)
-
-    used = attr.ib(default=None, metadata=ATTR_NO_INI)
-
-    parent_style = attr.ib(default=None, metadata=ATTR_NO_INI)
-    next_style = attr.ib(default=None, metadata=ATTR_NO_INI)
-
-    def __str__(self):
-        return '<%s %r>' % (self.realm, self.name)
-
-
-@attr.s(slots=True)
-class Rule(object):
-    """A derivation rule for Styles."""
-    mnemonic = attr.ib(metadata=ATTR_NO_INI)
-    description = attr.ib(metadata=ATTR_NO_INI)
-    turn_this = attr.ib(default=None)
-    into_this = attr.ib(default=None)
-    when_following = attr.ib(default=None)
-
-    turn_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
-    into_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
-    when_following_styles = attr.ib(default=None, metadata=ATTR_NO_INI)
-
-    valid = attr.ib(default=True, metadata=ATTR_NO_INI)
-    applied = attr.ib(default=0, metadata=ATTR_NO_INI)
-
-    def __str__(self):
-        return '%s %r' % (self.mnemonic, self.description)
-
-
-@attr.s
-class State(object):
-    curr_char_style = attr.ib(default=None)
-    prev_para_style = attr.ib(default=None)
-    curr_para_text = attr.ib(default='')
-    prev_para_text = attr.ib(default=None)
-
 
 class DocxToIdtt(object):
     """Read a docx file. Write an InDesign Tagged Text file. What's not to like?"""
-    W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
-    NS = {'w': W}
+    _W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+    _NS = {'w': _W}
 
     XPATH_RANGE_IN_PARA = 'w:r | w:ins/w:r'
     XPATH_TEXT_IN_PARA = 'w:r/w:t | w:ins/w:r/w:t'
@@ -283,34 +186,21 @@ class DocxToIdtt(object):
     def load_docx(self):
         """Unzip and parse a .docx file."""
         logging.info('Reading %r', self.args.input)
-        with zipfile.ZipFile(self.args.input) as self.docx:
-            self.scan_style_definitions(self.load_xml('word/styles.xml'))
-            self.document = self.scan_style_mentions(self.load_xml('word/document.xml'))
-            self.footnotes = self.scan_style_mentions(self.load_xml('word/footnotes.xml'))
-            self.comments = self.scan_style_mentions(self.load_xml('word/comments.xml'))
+        with DocxInput(self.args.input) as self.doc:
+            self.scan_style_definitions()
+            self.scan_style_mentions()
+            self.document = self.doc._load_xml('word/document.xml')
+            self.footnotes = self.doc._load_xml('word/footnotes.xml')
+            self.comments = self.doc._load_xml('word/comments.xml')
         self.link_styles()
         self.link_rules()
 
-    def load_xml(self, path):
-        """Parse an XML file inside the zipped doc, return root node."""
-        try:
-            with self.docx.open(path) as fo:
-                return lxml.etree.parse(fo).getroot()
-        except KeyError:
-            return None
-
-    def scan_style_definitions(self, styles):
+    def scan_style_definitions(self):
         """Create a Style object for everything in the document."""
         self.styles = {}
         self.create_special_styles()
-        for s in self.xpath(styles, "//w:style[@w:type][w:name[@w:val]]"):
-            self.found_style_definition(
-                realm=s.get(self.wtag('type')),
-                internal_name=self.wval(s, 'w:name'),
-                msw_name=s.get(self.wtag('styleId')),
-                parent_msw_name=self.wval(s, 'w:basedOn'),
-                next_msw_name=self.wval(s, 'w:next'),
-            )
+        for style_kwargs in self.doc.styles_defined():
+            self.found_style_definition(**style_kwargs)
 
     def create_special_styles(self):
         """Add any internal styles (i.e., not imported from the doc)."""
@@ -341,18 +231,9 @@ class DocxToIdtt(object):
             idtt='<cColor:Cyan><cColorTint:100>'
         )
 
-    def scan_style_mentions(self, node):
+    def scan_style_mentions(self):
         """Mark which styles are actually used."""
-        if node is None:
-            return None
-        self.scan_realm_style_mentions(node, 'paragraph', 'w:pStyle')
-        self.scan_realm_style_mentions(node, 'character', 'w:rStyle')
-        return node
-
-    def scan_realm_style_mentions(self, node, realm, tag):
-        """Find all styles of a specific realm and mark them as being used."""
-        for sn in self.xpath(node, '//%s' % tag):
-            msw_name = sn.get(self.wtag('val'))
+        for realm, msw_name in self.doc.styles_in_use():
             style_key = self.style_key(realm=realm, msw_name=msw_name)
             if style_key not in self.styles:
                 logging.debug('Used but not defined? %r', style_key)
@@ -489,16 +370,16 @@ class DocxToIdtt(object):
             internal_name = style.internal_name
         return '%s:%s' % (realm.capitalize(), internal_name)
 
-    def xpath(self, node, expr):
-        return node.xpath(expr, namespaces=self.NS)
+    def _xpath(self, node, expr):
+        return node.xpath(expr, namespaces=self._NS)
 
-    def wval(self, node, prop):
-        for pn in self.xpath(node, prop):
-            return pn.get(self.wtag('val'))
+    def _wtag(self, tag):
+        return '{%s}%s' % (self._W, tag)
+
+    def _wval(self, node, prop):
+        for pn in self._xpath(node, prop):
+            return pn.get(self._wtag('val'))
         return None
-
-    def wtag(self, tag):
-        return '{%s}%s' % (self.W, tag)
 
     def write_idtt(self):
         logging.info('Writing %r', self.output_fn)
@@ -509,7 +390,7 @@ class DocxToIdtt(object):
     def convert_document(self):
         try:
             self.stop_marker_found = False
-            for p in self.xpath(self.document, '//w:body/w:p'):
+            for p in self._xpath(self.document, '//w:body/w:p'):
                 self.convert_paragraph(p)
             if self.stop_marker:
                 logging.info('Note: Stop marker was never found')
@@ -522,7 +403,7 @@ class DocxToIdtt(object):
             self.check_for_stop_paragraph(p)
         style = self.apply_rules_to(self.wvstyle(p, 'w:pPr/w:pStyle', 'paragraph'))
         with self.Paragraph(self, style):
-            for r in self.xpath(p, self.XPATH_RANGE_IN_PARA):
+            for r in self._xpath(p, self.XPATH_RANGE_IN_PARA):
                 self.convert_range(r)
             if style and style.variable:
                 self.define_variable_from_node(style.variable, p)
@@ -539,7 +420,7 @@ class DocxToIdtt(object):
 
     def check_for_stop_paragraph(self, p):
         text = ''
-        for node in self.xpath(p, self.XPATH_TEXT_IN_PARA):
+        for node in self._xpath(p, self.XPATH_TEXT_IN_PARA):
             text += node.text
             if text.startswith(self.stop_marker):
                 raise StopMarkerFound('Stop marker found at the beginning of a paragraph')
@@ -547,7 +428,7 @@ class DocxToIdtt(object):
                 return
 
     def define_variable_from_node(self, variable, node):
-        text = ''.join(t.text for t in self.xpath(node, self.XPATH_TEXT_IN_PARA))
+        text = ''.join(t.text for t in self._xpath(node, self.XPATH_TEXT_IN_PARA))
         self.writer.define_text_variable(variable, text)
 
     def set_state(self, state):
@@ -573,15 +454,15 @@ class DocxToIdtt(object):
     def convert_range(self, r):
         self.switch_character_style(self.wvstyle(r, 'w:rPr/w:rStyle', 'character'))
         self.convert_range_text(r)
-        for fnr in self.xpath(r, 'w:footnoteReference'):
+        for fnr in self._xpath(r, 'w:footnoteReference'):
             self.convert_footnote_reference(fnr)
-        for fnr in self.xpath(r, 'w:commentReference'):
+        for fnr in self._xpath(r, 'w:commentReference'):
             self.convert_comment_reference(fnr)
 
     def convert_range_text(self, r):
-        for t in self.xpath(r, 'w:tab'):
+        for t in self._xpath(r, 'w:tab'):
             self.writer.write_text('\t')
-        for t in self.xpath(r, 'w:t'):
+        for t in self._xpath(r, 'w:t'):
             self.write_text(t)
 
     def switch_character_style(self, style):
@@ -609,21 +490,21 @@ class DocxToIdtt(object):
         self.state.curr_para_text += text
 
     def convert_footnote_reference(self, fnr):
-        fnid = fnr.get(self.wtag('id'))
+        fnid = fnr.get(self._wtag('id'))
         with self.Footnote(self):
-            for fn in self.xpath(self.footnotes, 'w:footnote[@w:id="%s"]' % fnid):
+            for fn in self._xpath(self.footnotes, 'w:footnote[@w:id="%s"]' % fnid):
                 self.convert_footnote(fn)
 
     def convert_comment_reference(self, cmr):
         """Tagged Text doesn't support notes, so we convert them to footnotes."""
-        cmid = cmr.get(self.wtag('id'))
+        cmid = cmr.get(self._wtag('id'))
         with self.Footnote(self, ref_style=self.comment_ref_style):
-            for cm in self.xpath(self.comments, 'w:comment[@w:id="%s"]' % cmid):
+            for cm in self._xpath(self.comments, 'w:comment[@w:id="%s"]' % cmid):
                 self.convert_footnote(cm)
 
     def convert_footnote(self, fn):
         with self.NestedStyle(self):
-            for p in self.xpath(fn, 'w:p'):
+            for p in self._xpath(fn, 'w:p'):
                 self.convert_paragraph(p)
 
     class Footnote(contextlib.AbstractContextManager):
@@ -664,7 +545,7 @@ class DocxToIdtt(object):
                 logging.info('%s application(s) of %s', rule.applied, rule)
 
     def wvstyle(self, node, expr, realm):
-        msw_name = self.wval(node, expr)
+        msw_name = self._wval(node, expr)
         if not msw_name:
             return None
 
@@ -731,9 +612,9 @@ class DocxToIdtt(object):
             else:
                 section.pop(ini_name, None)
 
-    def ini_fields(self, klass=Style, writeable=False):
+    def ini_fields(self, klass=None, writeable=False):
         """Yields a pair (name, ini_name) for all attributes."""
-        for field in attr.fields(klass):
+        for field in attr.fields(klass or Style):
             special = field.metadata.get(ATTR_KEY)
             if special == 'internal':
                 continue
@@ -743,6 +624,136 @@ class DocxToIdtt(object):
                     continue
                 ini_name += ' (readonly)'
             yield (name, ini_name)
+
+
+class StopMarkerFound(Exception):
+    """We raise this to stop the presses."""
+    pass
+
+
+class BadReferenceInRule(Exception):
+    """We raise this for bad ruels."""
+    pass
+
+
+class ParseDict(argparse.Action):
+    """Helper class to convert KEY=VALUE pairs to a dict."""
+    def __call__(self, parser, namespace, values, option_string):
+        setattr(namespace, self.dest, dict(val.split('=', 1) for val in values))
+
+
+# We use attr Metadata to mark some fields as "internal" (not written to the
+# ini file) or "readonly" (not read from the ini file)
+ATTR_KEY = 'special'
+ATTR_READONLY = {ATTR_KEY: 'readonly'}
+ATTR_NO_INI = {ATTR_KEY: 'internal'}
+
+
+@attr.s(slots=True)
+class Style(object):
+    """A character/paragraph style, normally found in the input file."""
+    realm = attr.ib(metadata=ATTR_NO_INI)
+    msw_name = attr.ib(metadata=ATTR_READONLY)  # Used for xrefs in docx; localized
+    internal_name = attr.ib(metadata=ATTR_NO_INI)  # Used in the section names
+    name = attr.ib()  # What the user (and InDesign) see
+    parent_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
+    next_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
+    idtt = attr.ib(default='')
+    variable = attr.ib(default=None)
+
+    used = attr.ib(default=None, metadata=ATTR_NO_INI)
+
+    parent_style = attr.ib(default=None, metadata=ATTR_NO_INI)
+    next_style = attr.ib(default=None, metadata=ATTR_NO_INI)
+
+    def __str__(self):
+        return '<%s %r>' % (self.realm, self.name)
+
+
+@attr.s(slots=True)
+class Rule(object):
+    """A derivation rule for Styles."""
+    mnemonic = attr.ib(metadata=ATTR_NO_INI)
+    description = attr.ib(metadata=ATTR_NO_INI)
+    turn_this = attr.ib(default=None)
+    into_this = attr.ib(default=None)
+    when_following = attr.ib(default=None)
+
+    turn_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
+    into_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
+    when_following_styles = attr.ib(default=None, metadata=ATTR_NO_INI)
+
+    valid = attr.ib(default=True, metadata=ATTR_NO_INI)
+    applied = attr.ib(default=0, metadata=ATTR_NO_INI)
+
+    def __str__(self):
+        return '%s %r' % (self.mnemonic, self.description)
+
+
+@attr.s
+class State(object):
+    curr_char_style = attr.ib(default=None)
+    prev_para_style = attr.ib(default=None)
+    curr_para_text = attr.ib(default='')
+    prev_para_text = attr.ib(default=None)
+
+
+class DocxInput(contextlib.ExitStack):
+    """A .docx reader."""
+    _W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+    _NS = {'w': _W}
+
+    def __init__(self, path):
+        super().__init__()
+        self._zip = self.enter_context(zipfile.ZipFile(path))
+        self._document = self._load_xml('word/document.xml')
+        self._footnotes = self._load_xml('word/footnotes.xml')
+        self._comments = self._load_xml('word/comments.xml')
+
+    def styles_defined(self):
+        """Yield a Style object kwargs for every style defined in the document."""
+        styles = self._load_xml('word/styles.xml')
+        for s in self._xpath(styles, "//w:style[@w:type][w:name[@w:val]]"):
+            yield {
+                'realm': s.get(self._wtag('type')),
+                'internal_name': self._wval(s, 'w:name'),
+                'msw_name': s.get(self._wtag('styleId')),
+                'parent_msw_name': self._wval(s, 'w:basedOn'),
+                'next_msw_name': self._wval(s, 'w:next'),
+            }
+
+    def styles_in_use(self):
+        """Yield a pair (realm, msw_name) for every style used in the document."""
+        for node in (self._document, self._footnotes, self._comments):
+            if node is None:
+                continue
+            for realm, tag in (('paragraph', 'w:pStyle'), ('character', 'w:rStyle')):
+                for sn in self._xpath(node, '//%s' % tag):
+                    msw_name = sn.get(self._wtag('val'))
+                    yield (realm, msw_name)
+
+    def paragraphs(self):
+        for p in self._xpath(self._document, '//w:body/w:p'):
+            yield self.Paragraph(p)
+
+    def _xpath(self, node, expr):
+        return node.xpath(expr, namespaces=self._NS)
+
+    def _wtag(self, tag):
+        return '{%s}%s' % (self._W, tag)
+
+    def _wval(self, node, prop):
+        for pn in self._xpath(node, prop):
+            return pn.get(self._wtag('val'))
+        return None
+
+    def _load_xml(self, path_in_zip):
+        """Parse an XML file inside the zipped doc, return root node."""
+        try:
+            with self._zip.open(path_in_zip) as fo:
+                return lxml.etree.parse(fo).getroot()
+        except KeyError:
+            return None
 
 
 class IOutput(object):
@@ -987,3 +998,34 @@ class InDesignTaggedTextOutput(contextlib.ExitStack, IOutput):
 
 if __name__ == '__main__':
     DocxToIdtt().run()
+
+
+# TODO:
+# - For public: Support non-ME docs
+# - For public: Support .odt
+# - Paragraph direction (w:r/w:rPr/w:rtl -> <pParaDir:1>; but what about the basic dir?)
+# - For post edit/proof: Manual formatting consolidation, TBD
+# - Para: global base -> body base, heading base
+# - More rule context: after same, after different, first since...
+# - Really need a test suite of some sort.
+# - Manual format: autogenerate styles
+# - Manual format: collapse with existing styles
+# - A flag to only create/update the ini file
+# - Maybe add front matter (best done in Id? either that or the template thingy (ooh, jinja2!))
+# - Something usable for those balloons (footnote+hl? endnote? convert to note in jsx?)
+# - Autocreate character styles from manual combos
+#   bold: w:b (w:bCs?); italic: w:i (w:iCs?); undeline w:u
+#   font: <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New">
+#   override style: <w:i w:val="0">
+# - (f)odt import
+# - Convert editing marks
+# - idml import
+# - Automatic header group
+# - More complex BiDi
+# - Endnotes
+# - Linked styles?
+# - Derivation rules?
+# - Latent styles?
+# - Digraph kerning (probably better in InDesign?)
+
+
