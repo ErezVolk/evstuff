@@ -393,7 +393,7 @@ class DocxToIdtt(object):
             self.check_for_stop_paragraph(p)
         style = self.apply_rules_to(self.style('paragraph', p.style_wpid()))
         with self.Paragraph(self, style):
-            for r in p.ranges():
+            for r in p.spans():
                 self.convert_range(r)
             if style and style.variable:
                 self.define_variable_from_paragraph(style.variable, p)
@@ -772,14 +772,14 @@ class DocxParagraph(DocxNode):
         for node in self._node_xpath('w:r/w:t | w:ins/w:r/w:t'):
             yield node.text
 
-    def ranges(self):
-        """Yield DocxRange per text range."""
+    def spans(self):
+        """Yield DocxSpan per text span."""
         for r in self._node_xpath('w:r | w:ins/w:r'):
-            yield DocxRange(self.doc, r)
+            yield DocxSpan(self.doc, r)
 
 
-class DocxRange(DocxNode):
-    """A range of characters inside a .docx."""
+class DocxSpan(DocxNode):
+    """A span of characters inside a .docx."""
     def __init__(self, doc, node):
         super().__init__(doc, node)
 
@@ -916,17 +916,61 @@ class OdtParagraph(OdtNode):
 
     def text(self):
         """Yields strings of plain text."""
-        for r in self.ranges():
-            yield r.text
+        for r in self.spans():
+            for t in r.text():
+                yield t
 
-    def ranges(self):
-        """Yield OdtRange per text range."""
-        for r in self._node_xpath('text:span'):
-            yield OdtRange(self.doc, r)
+    def spans(self):
+        """Yield OdtSpan per text span."""
+        yield OdtFirstSpan(self.doc, self.node)
+        for r in self._node_xpath('text:span | text:tab'):
+            if r.tag == '{%s}tab' % self._NS['text']:
+                yield OdtTabSpan(self.doc, r)
+            else:
+                yield OdtSpan(self.doc, r)
+            yield OdtRangeTail(self.doc, r)
 
 
-class OdtRange(OdtNode):
-    """A range of characters inside a .docx."""
+class OdtFirstSpan(OdtNode):
+    def __init__(self, doc, node):
+        super().__init__(doc, node)
+
+    def style_wpid(self):
+        return None
+
+    def footnotes(self):
+        if False:
+            yield
+
+    def comments(self):
+        if False:
+            yield
+
+    def text(self):
+        yield self.node.text
+
+
+class OdtTabSpan(OdtNode):
+    def __init__(self, doc, node):
+        super().__init__(doc, node)
+
+    def style_wpid(self):
+        return None
+
+    def footnotes(self):
+        if False:
+            yield
+
+    def comments(self):
+        if False:
+            yield
+
+    def text(self):
+        yield '\t'
+
+
+class OdtSpan(OdtNode):
+    """A span of characters inside a .docx."""
     def __init__(self, doc, node):
         super().__init__(doc, node)
 
@@ -938,11 +982,30 @@ class OdtRange(OdtNode):
             yield OdtFootnote(self.doc, fnr)
 
     def comments(self):
-        for cmr in self._node_xpath('text:fixme-fixme'):
-            yield OdtComment(self.doc, cmr)
+        if False:
+            yield
 
     def text(self):
         yield self.node.text
+
+
+class OdtRangeTail(OdtNode):
+    def __init__(self, doc, node):
+        super().__init__(doc, node)
+
+    def style_wpid(self):
+        return None
+
+    def footnotes(self):
+        if False:
+            yield
+
+    def comments(self):
+        if False:
+            yield
+
+    def text(self):
+        yield self.node.tail
 
 
 class OdtFootnote(OdtNode):
@@ -951,16 +1014,6 @@ class OdtFootnote(OdtNode):
 
     def paragraphs(self):
         for p in self._node_xpath('text:note-body/text-p'):
-            yield OdtParagraph(self.doc, p)
-
-
-class OdtComment(OdtNode):
-    def __init__(self, doc, node):
-        super().__init__(doc, node)
-
-    def paragraphs(self):
-        cmid = self._node_wtag('id')
-        for p in self._xpath(self.doc._comments, 'w:comment[@w:id="%s"]/w:p' % cmid):
             yield OdtParagraph(self.doc, p)
 
 
@@ -1214,8 +1267,10 @@ if __name__ == '__main__':
 
 
 # TODO:
+# - ODT: footnotes
+# - ODT: comments
+# - ODT: nested character styles?
 # - For public: Support non-ME docs
-# - For public: Support .odt
 # - Paragraph direction (w:r/w:rPr/w:rtl -> <pParaDir:1>; but what about the basic dir?)
 # - For post edit/proof: Manual formatting consolidation, TBD
 # - Para: global base -> body base, heading base
