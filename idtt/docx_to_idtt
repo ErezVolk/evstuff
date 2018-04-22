@@ -180,11 +180,21 @@ class DocxToIdtt(object):
     def load_docx(self):
         """Unzip and parse a .docx file."""
         logging.info('Reading %r', self.args.input)
-        with DocxInput(self.args.input) as self.doc:
+        with self.create_reader() as self.doc:
             self.scan_style_definitions()
             self.scan_style_mentions()
         self.link_styles()
         self.link_rules()
+
+    def create_reader(self):
+        path = self.args.input
+        _, ext = os.path.splitext(path)
+        ext = ext.lower()
+        if ext == '.docx':
+            return DocxInput(path)
+        if ext == '.odt':
+            return OdtInput(path)
+        raise RuntimeError('Unknown file extension for %r', path)
 
     def scan_style_definitions(self):
         """Create a Style object for everything in the document."""
@@ -810,6 +820,148 @@ class DocxComment(DocxNode):
         cmid = self._node_wtag('id')
         for p in self._xpath(self.doc._comments, 'w:comment[@w:id="%s"]/w:p' % cmid):
             yield DocxParagraph(self.doc, p)
+
+
+#######################
+# OPENOFFICE ODT      #
+#######################
+
+
+class OoXml(object):
+    """Basic helper class for the OpenOffice XML format."""
+    _NS = {
+        'office': 'urn:oasis:names:tc:opendocument:xmlns:office:1.0',
+        'style': 'urn:oasis:names:tc:opendocument:xmlns:style:1.0',
+        'text': 'urn:oasis:names:tc:opendocument:xmlns:text:1.0',
+    }
+
+    _FAMILY_TO_REALM = {
+        'paragraph': 'paragraph',
+        'text': 'character',
+    }
+
+    def _xpath(self, node, expr):
+        return node.xpath(expr, namespaces=self._NS)
+
+    def _ootag(self, node, tag):
+        ns, tag = tag.split(':', 1)
+        return node.get('{%s}%s' % (self._NS[ns], tag))
+
+
+class OdtInput(contextlib.ExitStack, OoXml):
+    """A .docx reader."""
+    def __init__(self, path):
+        super().__init__()
+        self._zip = self.enter_context(zipfile.ZipFile(path))
+        self._content = self._load_xml('content.xml')
+
+    def styles_defined(self):
+        """Yield a Style object kwargs for every style defined in the document."""
+        for s in self._xpath(self._load_xml('styles.xml'), '//office:styles/style:style'):
+            yield self._style_kwargs(s)
+        for s in self._xpath(self._content, '//office:automatic-styles/style:style'):
+            yield self._style_kwargs(s)
+
+    def _style_kwargs(self, node):
+        name = self._ootag(node, 'style:name')
+        return {
+            'realm': self._FAMILY_TO_REALM[self._ootag(node, 'style:family')],
+            'internal_name': self._ootag(node, 'style:display-name') or name,
+            'wpid': name,
+            'parent_wpid': self._ootag(node, 'style:parent-style-name'),
+            'next_wpid': self._ootag(node, 'style:next-style-name'),
+        }
+
+    def styles_in_use(self):
+        """Yield a pair (realm, wpid) for every style used in the document."""
+        for realm, tag in (('paragraph', 'text:p'), ('character', 'text:span')):
+            for sn in self._xpath(self._content, '//%s' % tag):
+                wpid = self._ootag(sn, 'text:style-name')
+                yield (realm, wpid)
+
+    def paragraphs(self):
+        """Yields a OdtParagraph object for each body paragraph."""
+        for p in self._xpath(self._content, '//office:body/office:text/text:p'):
+            yield OdtParagraph(self, p)
+
+    def _load_xml(self, path_in_zip):
+        """Parse an XML file inside the zipped doc, return root node."""
+        try:
+            with self._zip.open(path_in_zip) as fo:
+                return lxml.etree.parse(fo).getroot()
+        except KeyError:
+            return None
+
+
+class OdtNode(OoXml):
+    """Base helper class for object which represent a node in a docx."""
+    def __init__(self, doc, node):
+        self.doc = doc
+        self.node = node
+
+    def _node_ootag(self, tag):
+        return self._ootag(self.node, tag)
+
+    def _node_xpath(self, expr):
+        return self.node.xpath(expr, namespaces=self._NS)
+
+
+class OdtParagraph(OdtNode):
+    """A Paragraph inside a .docx."""
+    def __init__(self, doc, node):
+        super().__init__(doc, node)
+
+    def style_wpid(self):
+        return self._node_ootag('text:style-name')
+
+    def text(self):
+        """Yields strings of plain text."""
+        for r in self.ranges():
+            yield r.text
+
+    def ranges(self):
+        """Yield OdtRange per text range."""
+        for r in self._node_xpath('text:span'):
+            yield OdtRange(self.doc, r)
+
+
+class OdtRange(OdtNode):
+    """A range of characters inside a .docx."""
+    def __init__(self, doc, node):
+        super().__init__(doc, node)
+
+    def style_wpid(self):
+        return self._node_ootag('text:style-name')
+
+    def footnotes(self):
+        for fnr in self._node_xpath('text:note[@text:node-class="footnote"]'):
+            yield OdtFootnote(self.doc, fnr)
+
+    def comments(self):
+        for cmr in self._node_xpath('text:fixme-fixme'):
+            yield OdtComment(self.doc, cmr)
+
+    def text(self):
+        yield self.node.text
+
+
+class OdtFootnote(OdtNode):
+    def __init__(self, doc, node):
+        super().__init__(doc, node)
+
+    def paragraphs(self):
+        for p in self._node_xpath('text:note-body/text-p'):
+            yield OdtParagraph(self.doc, p)
+
+
+class OdtComment(OdtNode):
+    def __init__(self, doc, node):
+        super().__init__(doc, node)
+
+    def paragraphs(self):
+        cmid = self._node_wtag('id')
+        for p in self._xpath(self.doc._comments, 'w:comment[@w:id="%s"]/w:p' % cmid):
+            yield OdtParagraph(self.doc, p)
 
 
 ##################
