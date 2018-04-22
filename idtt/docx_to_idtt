@@ -183,8 +183,6 @@ class DocxToIdtt(object):
         with DocxInput(self.args.input) as self.doc:
             self.scan_style_definitions()
             self.scan_style_mentions()
-            self.footnotes = self.doc._load_xml('word/footnotes.xml')
-            self.comments = self.doc._load_xml('word/comments.xml')
         self.link_styles()
         self.link_rules()
 
@@ -205,7 +203,7 @@ class DocxToIdtt(object):
             realm: self.found_style_definition(
                 realm=realm,
                 internal_name=name,
-                msw_name=name,
+                wpid=name,
                 used=True,
             )
             for realm, name in self.base_names.items()
@@ -213,21 +211,21 @@ class DocxToIdtt(object):
         self.footnote_ref_style = self.found_style_definition(
             realm='character',
             internal_name=self.FOOTNOTE_REF_STYLE,
-            msw_name=self.FOOTNOTE_REF_STYLE,
+            wpid=self.FOOTNOTE_REF_STYLE,
             idtt='<cColor:Magenta><cColorTint:100><cPosition:Superscript>'
         )
         self.comment_ref_style = self.found_style_definition(
             realm='character',
             internal_name=self.COMMENT_REF_STYLE,
-            msw_name=self.COMMENT_REF_STYLE,
-            parent_msw_name=self.FOOTNOTE_REF_STYLE,
+            wpid=self.COMMENT_REF_STYLE,
+            parent_wpid=self.FOOTNOTE_REF_STYLE,
             idtt='<cColor:Cyan><cColorTint:100>'
         )
 
     def scan_style_mentions(self):
         """Mark which styles are actually used."""
-        for realm, msw_name in self.doc.styles_in_use():
-            style_key = self.style_key(realm=realm, msw_name=msw_name)
+        for realm, wpid in self.doc.styles_in_use():
+            style_key = self.style_key(realm=realm, wpid=wpid)
             if style_key not in self.styles:
                 logging.debug('Used but not defined? %r', style_key)
             elif not self.styles[style_key].used:
@@ -237,13 +235,13 @@ class DocxToIdtt(object):
     def link_styles(self):
         """A sort of alchemy-relationship thing."""
         for style in self.styles.values():
-            style.parent_style = self.style_or_none(style.realm, style.parent_msw_name)
-            style.next_style = self.style_or_none(style.realm, style.next_msw_name)
+            style.parent_style = self.style_or_none(style.realm, style.parent_wpid)
+            style.next_style = self.style_or_none(style.realm, style.next_wpid)
 
-    def style_or_none(self, realm, msw_name):
-        if not msw_name:
+    def style_or_none(self, realm, wpid):
+        if not wpid:
             return None
-        return self.styles[self.style_key(realm=realm, msw_name=msw_name)]
+        return self.styles[self.style_key(realm=realm, wpid=wpid)]
 
     def link_rules(self):
         """A sort of alchemy-relationship thing."""
@@ -295,19 +293,19 @@ class DocxToIdtt(object):
                 raise BadReferenceInRule()
         return self.add_style(
             realm=realm,
-            msw_name=ini_ref,
+            wpid=ini_ref,
             internal_name=internal_name,
-            parent_msw_name=inherit_from.msw_name,
+            parent_wpid=inherit_from.wpid,
             parent_style=inherit_from,
         )
 
-    def found_style_definition(self, realm, internal_name, msw_name, **kwargs):
+    def found_style_definition(self, realm, internal_name, wpid, **kwargs):
         if realm not in self.base_names:
-            logging.debug('What about %s:%r [%r]?', realm, msw_name, internal_name)
+            logging.debug('What about %s:%r [%r]?', realm, wpid, internal_name)
             return
 
-        if msw_name != self.base_names.get(realm):
-            kwargs.setdefault('parent_msw_name', self.base_names.get(realm))
+        if wpid != self.base_names.get(realm):
+            kwargs.setdefault('parent_wpid', self.base_names.get(realm))
 
         # Allow any special overrides (color, name, etc.)
         kwargs.update(self.SPECIAL_STYLE.get(realm, {}).get(internal_name, {}))
@@ -323,7 +321,7 @@ class DocxToIdtt(object):
 
         return self.add_style(
             realm=realm,
-            msw_name=msw_name,
+            wpid=wpid,
             internal_name=internal_name,
             **kwargs
         )
@@ -340,22 +338,22 @@ class DocxToIdtt(object):
         self.styles[self.style_key(style=style)] = style
         return style
 
-    def style_key(self, style=None, realm=None, msw_name=None):
+    def style_key(self, style=None, realm=None, wpid=None):
         """The string which we use for `self.styles`.
 
-        Note that this is based on the msw_name, because
+        Note that this is based on the wpid, because
         that's the key docx files use for cross-reference.
         """
         if style:
             realm = style.realm
-            msw_name = style.msw_name
-        return '%s:%s' % (realm, msw_name)
+            wpid = style.wpid
+        return '%s:%s' % (realm, wpid)
 
     def section_name(self, realm=None, internal_name=None, style=None):
         """The name of the ini section for a given style.
 
-        This uses `internal_name`, rather than `msw_name` or `name`,
-        because `msw_name` can get ugly ("a2") and `name` should be
+        This uses `internal_name`, rather than `wpid` or `name`,
+        because `wpid` can get ugly ("a2") and `name` should be
         modifyable.
         """
         if style:
@@ -383,7 +381,7 @@ class DocxToIdtt(object):
     def convert_paragraph(self, p):
         if self.stop_marker:
             self.check_for_stop_paragraph(p)
-        style = self.apply_rules_to(self.style('paragraph', p.msw_name()))
+        style = self.apply_rules_to(self.style('paragraph', p.style_wpid()))
         with self.Paragraph(self, style):
             for r in p.ranges():
                 self.convert_range(r)
@@ -433,7 +431,7 @@ class DocxToIdtt(object):
             ))
 
     def convert_range(self, r):
-        self.switch_character_style(self.style('character', r.msw_name()))
+        self.switch_character_style(self.style('character', r.style_wpid()))
         self.convert_range_text(r)
         for fn in r.footnotes():
             self.convert_footnote(fn)
@@ -514,11 +512,11 @@ class DocxToIdtt(object):
             if rule.applied:
                 logging.info('%s application(s) of %s', rule.applied, rule)
 
-    def style(self, realm, msw_name):
-        if not msw_name:
+    def style(self, realm, wpid):
+        if not wpid:
             return None
 
-        style = self.styles[self.style_key(realm=realm, msw_name=msw_name)]
+        style = self.styles[self.style_key(realm=realm, wpid=wpid)]
         if realm in self.IGNORED_STYLES:
             if style.internal_name in self.IGNORED_STYLES[realm]:
                 return None
@@ -533,9 +531,9 @@ class DocxToIdtt(object):
 
         if style.parent_style:
             if not style.parent_style.used:
-                logging.debug('[%s] leads to missing %r', section_name, style.parent_msw_name)
+                logging.debug('[%s] leads to missing %r', section_name, style.parent_wpid)
                 style.parent_style = self.base_styles[style.realm]
-                style.parent_msw_name = style.parent_style.msw_name
+                style.parent_wpid = style.parent_style.wpid
             self.style_encountered(style.parent_style)
 
         self.update_setting_section(section_name, style)
@@ -543,8 +541,8 @@ class DocxToIdtt(object):
 
         if style.next_style and style.next_style.used:
             self.style_encountered(style.next_style)
-        elif style.next_msw_name:
-            logging.debug('[%s] leads to missing %r', section_name, style.next_msw_name)
+        elif style.next_wpid:
+            logging.debug('[%s] leads to missing %r', section_name, style.next_wpid)
 
     def get_setting_section(self, section_name=None, realm=None, internal_name=None, style=None):
         """Return a section from the ini file.
@@ -622,11 +620,11 @@ ATTR_NO_INI = {ATTR_KEY: 'internal'}
 class Style(object):
     """A character/paragraph style, normally found in the input file."""
     realm = attr.ib(metadata=ATTR_NO_INI)
-    msw_name = attr.ib(metadata=ATTR_READONLY)  # Used for xrefs in docx; localized
+    wpid = attr.ib(metadata=ATTR_READONLY)  # Used for xrefs in docx; localized
     internal_name = attr.ib(metadata=ATTR_NO_INI)  # Used in the section names
     name = attr.ib()  # What the user (and InDesign) see
-    parent_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
-    next_msw_name = attr.ib(default=None, metadata=ATTR_READONLY)
+    parent_wpid = attr.ib(default=None, metadata=ATTR_READONLY)
+    next_wpid = attr.ib(default=None, metadata=ATTR_READONLY)
     idtt = attr.ib(default='')
     variable = attr.ib(default=None)
 
@@ -704,22 +702,23 @@ class DocxInput(contextlib.ExitStack, WordXml):
             yield {
                 'realm': s.get(self._wtag('type')),
                 'internal_name': self._wval(s, 'w:name'),
-                'msw_name': s.get(self._wtag('styleId')),
-                'parent_msw_name': self._wval(s, 'w:basedOn'),
-                'next_msw_name': self._wval(s, 'w:next'),
+                'wpid': s.get(self._wtag('styleId')),
+                'parent_wpid': self._wval(s, 'w:basedOn'),
+                'next_wpid': self._wval(s, 'w:next'),
             }
 
     def styles_in_use(self):
-        """Yield a pair (realm, msw_name) for every style used in the document."""
+        """Yield a pair (realm, wpid) for every style used in the document."""
         for node in (self._document, self._footnotes, self._comments):
             if node is None:
                 continue
             for realm, tag in (('paragraph', 'w:pStyle'), ('character', 'w:rStyle')):
                 for sn in self._xpath(node, '//%s' % tag):
-                    msw_name = sn.get(self._wtag('val'))
-                    yield (realm, msw_name)
+                    wpid = sn.get(self._wtag('val'))
+                    yield (realm, wpid)
 
     def paragraphs(self):
+        """Yields a DocxParagraph object for each body paragraph."""
         for p in self._xpath(self._document, '//w:body/w:p'):
             yield DocxParagraph(self, p)
 
@@ -733,6 +732,7 @@ class DocxInput(contextlib.ExitStack, WordXml):
 
 
 class DocxNode(WordXml):
+    """Base helper class for object which represent a node in a docx."""
     def __init__(self, doc, node):
         self.doc = doc
         self.node = node
@@ -750,10 +750,11 @@ class DocxNode(WordXml):
 
 
 class DocxParagraph(DocxNode):
+    """A Paragraph inside a .docx."""
     def __init__(self, doc, node):
         super().__init__(doc, node)
 
-    def msw_name(self):
+    def style_wpid(self):
         return self._node_wval('w:pPr/w:pStyle')
 
     def text(self):
@@ -762,15 +763,17 @@ class DocxParagraph(DocxNode):
             yield node.text
 
     def ranges(self):
+        """Yield DocxRange per text range."""
         for r in self._node_xpath('w:r | w:ins/w:r'):
             yield DocxRange(self.doc, r)
 
 
 class DocxRange(DocxNode):
+    """A range of characters inside a .docx."""
     def __init__(self, doc, node):
         super().__init__(doc, node)
 
-    def msw_name(self):
+    def style_wpid(self):
         return self._node_wval('w:rPr/w:rStyle')
 
     def footnotes(self):
