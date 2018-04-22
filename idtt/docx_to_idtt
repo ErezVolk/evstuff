@@ -672,10 +672,9 @@ class State(object):
 
 
 class WordXml(object):
+    """Basic helper class for the Word XML format."""
     _W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
     _NS = {'w': _W}
-    _XPATH_TEXT_IN_PARA = 'w:r/w:t | w:ins/w:r/w:t'
-    _XPATH_RANGE_IN_PARA = 'w:r | w:ins/w:r'
 
     def _xpath(self, node, expr):
         return node.xpath(expr, namespaces=self._NS)
@@ -691,10 +690,6 @@ class WordXml(object):
 
 class DocxInput(contextlib.ExitStack, WordXml):
     """A .docx reader."""
-    _W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
-    _NS = {'w': _W}
-    _XPATH_TEXT_IN_PARA = 'w:r/w:t | w:ins/w:r/w:t'
-
     def __init__(self, path):
         super().__init__()
         self._zip = self.enter_context(zipfile.ZipFile(path))
@@ -763,11 +758,11 @@ class DocxParagraph(DocxNode):
 
     def text(self):
         """Yields strings of plain text."""
-        for node in self._node_xpath(self._XPATH_TEXT_IN_PARA):
+        for node in self._node_xpath('w:r/w:t | w:ins/w:r/w:t'):
             yield node.text
 
     def ranges(self):
-        for r in self._node_xpath(self._XPATH_RANGE_IN_PARA):
+        for r in self._node_xpath('w:r | w:ins/w:r'):
             yield DocxRange(self.doc, r)
 
 
