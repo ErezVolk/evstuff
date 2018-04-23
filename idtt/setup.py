@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 from setuptools import setup
-from wp_to_idtt.version import WP_TO_IDTT_VERSION
+from wp2tt.version import WP2TT_VERSION
 
 setup(
-    name='wp_to_idtt',
-    version=WP_TO_IDTT_VERSION,
+    name='wp2tt',
+    version=WP2TT_VERSION,
 
     author='Erez Volk',
     author_email='erez.volk@gmail.com',
 
-    packages=['wp_to_idtt'],
-    scripts=['bin/wp_to_idtt'],
+    packages=['wp2tt'],
+    scripts=['bin/wp2tt'],
 
     install_requires=[
         'attrs',

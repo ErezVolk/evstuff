@@ -15,7 +15,7 @@ import zipfile
 import lxml.etree
 import attr
 
-from wp_to_idtt.version import WP_TO_IDTT_VERSION
+from wp2tt.version import WP2TT_VERSION
 
 
 # We use attr Metadata to mark some fields as "internal" (not written to the
@@ -85,7 +85,9 @@ class WordProcessorToInDesignTaggedText(object):
 
     def parse_command_line(self):
         """Find out what we're supposed to do."""
-        self.parser = argparse.ArgumentParser(description='Word to Indesign Tagged Text')
+        self.parser = argparse.ArgumentParser(
+            description='Word Processor to InDesign Tagged Text Converter, v' + WP2TT_VERSION
+        )
         self.parser.add_argument('input', help='Input .docx file')
         self.parser.add_argument('output', nargs='?',
                                  help='InDesign Tagged Text file')
@@ -107,13 +109,7 @@ class WordProcessorToInDesignTaggedText(object):
                                  help='Print interesting debug information.')
         self.parser.add_argument('--no-rerunner', action='store_true',
                                  help='Do not (over)write the rerruner script.')
-        self.parser.add_argument('-V', '--version', action='store_true',
-                                 help='Print version and exit.')
         self.args = self.parser.parse_args()
-
-        if self.args.version:
-            print('wp_to_idtt version %s' % WP_TO_IDTT_VERSION)
-            sys.exit(0)
 
         if self.args.output:
             self.output_fn = self.args.output

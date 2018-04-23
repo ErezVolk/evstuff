@@ -1,1 +1,0 @@
-WP_TO_IDTT_VERSION = '1.0.0'

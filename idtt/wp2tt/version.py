@@ -1,0 +1,1 @@
+WP2TT_VERSION = '1.0.0'
