@@ -916,21 +916,24 @@ class OdtParagraph(OdtNode):
 
     def text(self):
         """Yields strings of plain text."""
-        for r in self.spans():
-            for t in r.text():
-                yield t
+        for t in self.itertext():
+            yield t
 
     def spans(self):
         """Yield OdtSpan per text span."""
-        for n in self.node.iter():
-            yield OdtHeadSpan(self.doc, n)
-            if n.tag == self._ootag('text:tab'):
-                yield OdtTabSpan(self.doc, n)
-            elif n.tag == self._ootag('text:span'):
-                yield OdtSpanSpan(self.doc, n)
+        for event, n in lxml.etree.iterwalk(self.node, events=('start', 'end')):
+            if event == 'start':
+                if n.tag == self._ootag('text:tab'):
+                    yield OdtTabSpan(self.doc, n)
+                elif n.tag == self._ootag('text:span'):
+                    yield OdtSpanSpan(self.doc, n)
+                elif n.tag == self._ootag('text:p'):
+                    yield OdtHeadSpan(self.doc, n)
+                else:
+                    logging.debug('Not sure what to do with a <%s> %r', n.tag, n.text[:8])
+                    yield OdtHeadSpan(self.doc, n)
             else:
-                continue
-            yield OdtTailSpan(self.doc, n)
+                yield OdtTailSpan(self.doc, n)
 
 
 class OdtSpanBase(OdtNode):
@@ -1245,7 +1248,6 @@ if __name__ == '__main__':
 # TODO:
 # - ODT: footnotes
 # - ODT: comments
-# - ODT: nested character styles? is that a thing? (do a DFS)
 # - GIT: Support non-ME docs
 # - Import MarkDown
 # - Paragraph direction (w:r/w:rPr/w:rtl -> <pParaDir:1>; but what about the basic dir?)
