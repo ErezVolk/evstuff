@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
+import os
 from setuptools import setup
-from wp2tt.version import WP2TT_VERSION
+
+
+def load_version():
+    HERE = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(HERE, 'wp2tt', 'version.py')) as vf:
+        exec(vf.read())
+    return locals()
+
 
 setup(
     name='wp2tt',
-    version=WP2TT_VERSION,
+    version=load_version()['WP2TT_VERSION'],
 
     author='Erez Volk',
     author_email='erez.volk@gmail.com',

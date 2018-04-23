@@ -9,7 +9,6 @@ import logging
 import os
 import re
 import shutil
-import sys
 import zipfile
 
 import lxml.etree
@@ -159,8 +158,7 @@ class WordProcessorToInDesignTaggedText(object):
                 '\n'
             )
             cli = [
-                repr(sys.executable),
-                repr(os.path.abspath(sys.argv[0])),
+                repr(os.path.abspath(self.args.prog)),
                 repr(os.path.abspath(self.args.input)),
             ]
             if self.args.output:

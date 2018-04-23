@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 import attr
-from wptt.ini import ATTR_KEY
-from wptt.ini import ATTR_VALUE_READONLY
-from wptt.ini import ATTR_VALUE_HIDDEN
+from wp2tt.ini import ATTR_KEY
+from wp2tt.ini import ATTR_VALUE_READONLY
+from wp2tt.ini import ATTR_VALUE_HIDDEN
 
 ATTR_READONLY = {ATTR_KEY: ATTR_VALUE_READONLY}
 ATTR_NO_INI = {ATTR_KEY: ATTR_VALUE_HIDDEN}
