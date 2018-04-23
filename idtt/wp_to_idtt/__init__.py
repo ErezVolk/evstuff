@@ -1257,9 +1257,11 @@ if __name__ == '__main__':
 
 
 # TODO:
+# - PUB: setup.py, split into files, wheel
 # - ODT: footnotes
 # - ODT: comments
-# - GIT: Support non-ME docs
+# - PUB: Support non-ME docs
+# - PUB: Manual
 # - many-to-one wp_name -> name
 # - Import MarkDown
 # - Paragraph direction (w:r/w:rPr/w:rtl -> <pParaDir:1>; but what about the basic dir?)

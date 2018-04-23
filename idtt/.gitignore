@@ -10,3 +10,6 @@
 *.xml
 ~*.idlk
 test.*
+build
+dist
+*.egg-info
