@@ -16,35 +16,9 @@ import lxml.etree
 import attr
 
 from wp2tt.version import WP2TT_VERSION
-
-
-# We use attr Metadata to mark some fields as "internal" (not written to the
-# ini file) or "readonly" (not read from the ini file)
-ATTR_KEY = 'special'
-ATTR_READONLY = {ATTR_KEY: 'readonly'}
-ATTR_NO_INI = {ATTR_KEY: 'internal'}
-
-
-@attr.s(slots=True)
-class Style(object):
-    """A character/paragraph style, normally found in the input file."""
-    realm = attr.ib(metadata=ATTR_NO_INI)
-    wpid = attr.ib(metadata=ATTR_READONLY)  # Used for xrefs in docx; localized
-    internal_name = attr.ib(metadata=ATTR_NO_INI)  # Used in the section names
-    name = attr.ib()  # What the user (and InDesign) see
-    parent_wpid = attr.ib(default=None, metadata=ATTR_READONLY)
-    next_wpid = attr.ib(default=None, metadata=ATTR_READONLY)
-    automatic = attr.ib(default=None, metadata=ATTR_READONLY)
-    idtt = attr.ib(default='')
-    variable = attr.ib(default=None)
-
-    used = attr.ib(default=None, metadata=ATTR_NO_INI)
-
-    parent_style = attr.ib(default=None, metadata=ATTR_NO_INI)
-    next_style = attr.ib(default=None, metadata=ATTR_NO_INI)
-
-    def __str__(self):
-        return '<%s %r>' % (self.realm, self.name)
+from wp2tt.ini import ini_fields
+from wp2tt.styles import Style
+from wp2tt.styles import Rule
 
 
 class WordProcessorToInDesignTaggedText(object):
@@ -156,7 +130,7 @@ class WordProcessorToInDesignTaggedText(object):
                 description=section_name[5:],
                 **{
                     name: section[ini_name]
-                    for name, ini_name in self.ini_fields(Rule)
+                    for name, ini_name in ini_fields(Rule)
                     if ini_name in section
                 }
             ))
@@ -366,7 +340,7 @@ class WordProcessorToInDesignTaggedText(object):
             kwargs['name'] = internal_name
         kwargs.update({
             name: section[ini_name]
-            for name, ini_name in self.ini_fields(writeable=True)
+            for name, ini_name in ini_fields(Style, writeable=True)
             if ini_name in section
         })
 
@@ -622,26 +596,13 @@ class WordProcessorToInDesignTaggedText(object):
         Sets `self.settings_touched` if anything was changed.
         """
         section = self.ensure_setting_section(section_name)
-        for name, ini_name in self.ini_fields():
+        for name, ini_name in ini_fields(Style):
             value = getattr(style, name)
             self.settings_touched |= section.get(ini_name) != value
             if value:
                 section[ini_name] = str(value or '')
             else:
                 section.pop(ini_name, None)
-
-    def ini_fields(self, klass=None, writeable=False):
-        """Yields a pair (name, ini_name) for all attributes."""
-        for field in attr.fields(klass or Style):
-            special = field.metadata.get(ATTR_KEY)
-            if special == 'internal':
-                continue
-            ini_name = name = field.name
-            if special == 'readonly':
-                if writeable:
-                    continue
-                ini_name += ' (readonly)'
-            yield (name, ini_name)
 
 
 class StopMarkerFound(Exception):
@@ -658,26 +619,6 @@ class ParseDict(argparse.Action):
     """Helper class to convert KEY=VALUE pairs to a dict."""
     def __call__(self, parser, namespace, values, option_string):
         setattr(namespace, self.dest, dict(val.split('=', 1) for val in values))
-
-
-@attr.s(slots=True)
-class Rule(object):
-    """A derivation rule for Styles."""
-    mnemonic = attr.ib(metadata=ATTR_NO_INI)
-    description = attr.ib(metadata=ATTR_NO_INI)
-    turn_this = attr.ib(default=None)
-    into_this = attr.ib(default=None)
-    when_following = attr.ib(default=None)
-
-    turn_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
-    into_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
-    when_following_styles = attr.ib(default=None, metadata=ATTR_NO_INI)
-
-    valid = attr.ib(default=True, metadata=ATTR_NO_INI)
-    applied = attr.ib(default=0, metadata=ATTR_NO_INI)
-
-    def __str__(self):
-        return '%s %r' % (self.mnemonic, self.description)
 
 
 @attr.s
