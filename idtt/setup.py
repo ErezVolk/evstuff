@@ -10,6 +10,7 @@ setup(
     author_email='erez.volk@gmail.com',
 
     packages=['wp_to_idtt'],
+    scripts=['bin/wp_to_idtt'],
 
     install_requires=[
         'attrs',

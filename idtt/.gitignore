@@ -1,4 +1,5 @@
 *.docx
+*.egg-info
 *.idtt*
 *.indd
 *.ini
@@ -8,8 +9,7 @@
 *.txt
 *.utf8
 *.xml
-~*.idlk
-test.*
 build
 dist
-*.egg-info
+test.*
+~*.idlk

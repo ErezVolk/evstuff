@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A utility to convert .docx to InDesign's Tagged Text."""
+"""A utility to convert word processor files (.docx, .odt) to InDesign's Tagged Text."""
 import argparse
 import collections
 import configparser
@@ -14,6 +14,8 @@ import zipfile
 
 import lxml.etree
 import attr
+
+from wp_to_idtt.version import WP_TO_IDTT_VERSION
 
 
 # We use attr Metadata to mark some fields as "internal" (not written to the
@@ -45,7 +47,7 @@ class Style(object):
         return '<%s %r>' % (self.realm, self.name)
 
 
-class DocxToIdtt(object):
+class WordProcessorToInDesignTaggedText(object):
     """Read a word processor file. Write an InDesign Tagged Text file. What's not to like?"""
     SETTING_FILE_ENCODING = 'UTF-8'
     CONFIG_SECTION_NAME = 'General'
@@ -105,7 +107,13 @@ class DocxToIdtt(object):
                                  help='Print interesting debug information.')
         self.parser.add_argument('--no-rerunner', action='store_true',
                                  help='Do not (over)write the rerruner script.')
+        self.parser.add_argument('-V', '--version', action='store_true',
+                                 help='Print version and exit.')
         self.args = self.parser.parse_args()
+
+        if self.args.version:
+            print('wp_to_idtt version %s' % WP_TO_IDTT_VERSION)
+            sys.exit(0)
 
         if self.args.output:
             self.output_fn = self.args.output
@@ -1250,10 +1258,6 @@ class InDesignTaggedTextOutput(contextlib.ExitStack, IOutput):
             self._fo.write(string)
             if self._debug:
                 self._ufo.write(string)
-
-
-if __name__ == '__main__':
-    DocxToIdtt().run()
 
 
 # TODO:
