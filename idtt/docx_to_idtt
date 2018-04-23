@@ -843,9 +843,12 @@ class OoXml(object):
     def _xpath(self, node, expr):
         return node.xpath(expr, namespaces=self._NS)
 
-    def _ootag(self, node, tag):
+    def _ootag(self, tag):
         ns, tag = tag.split(':', 1)
-        return node.get('{%s}%s' % (self._NS[ns], tag))
+        return '{%s}%s' % (self._NS[ns], tag)
+
+    def _ooget(self, node, tag):
+        return node.get(self._ootag(tag))
 
 
 class OdtInput(contextlib.ExitStack, OoXml):
@@ -863,20 +866,20 @@ class OdtInput(contextlib.ExitStack, OoXml):
             yield self._style_kwargs(s)
 
     def _style_kwargs(self, node):
-        name = self._ootag(node, 'style:name')
+        name = self._ooget(node, 'style:name')
         return {
-            'realm': self._FAMILY_TO_REALM[self._ootag(node, 'style:family')],
-            'internal_name': self._ootag(node, 'style:display-name') or name,
+            'realm': self._FAMILY_TO_REALM[self._ooget(node, 'style:family')],
+            'internal_name': self._ooget(node, 'style:display-name') or name,
             'wpid': name,
-            'parent_wpid': self._ootag(node, 'style:parent-style-name'),
-            'next_wpid': self._ootag(node, 'style:next-style-name'),
+            'parent_wpid': self._ooget(node, 'style:parent-style-name'),
+            'next_wpid': self._ooget(node, 'style:next-style-name'),
         }
 
     def styles_in_use(self):
         """Yield a pair (realm, wpid) for every style used in the document."""
         for realm, tag in (('paragraph', 'text:p'), ('character', 'text:span')):
             for sn in self._xpath(self._content, '//%s' % tag):
-                wpid = self._ootag(sn, 'text:style-name')
+                wpid = self._ooget(sn, 'text:style-name')
                 yield (realm, wpid)
 
     def paragraphs(self):
@@ -899,8 +902,8 @@ class OdtNode(OoXml):
         self.doc = doc
         self.node = node
 
-    def _node_ootag(self, tag):
-        return self._ootag(self.node, tag)
+    def _node_ooget(self, tag):
+        return self._ooget(self.node, tag)
 
     def _node_xpath(self, expr):
         return self.node.xpath(expr, namespaces=self._NS)
@@ -908,11 +911,8 @@ class OdtNode(OoXml):
 
 class OdtParagraph(OdtNode):
     """A Paragraph inside a .docx."""
-    def __init__(self, doc, node):
-        super().__init__(doc, node)
-
     def style_wpid(self):
-        return self._node_ootag('text:style-name')
+        return self._node_ooget('text:style-name')
 
     def text(self):
         """Yields strings of plain text."""
@@ -922,19 +922,18 @@ class OdtParagraph(OdtNode):
 
     def spans(self):
         """Yield OdtSpan per text span."""
-        yield OdtFirstSpan(self.doc, self.node)
-        for r in self._node_xpath('text:span | text:tab'):
-            if r.tag == '{%s}tab' % self._NS['text']:
-                yield OdtTabSpan(self.doc, r)
+        for n in self.node.iter():
+            yield OdtHeadSpan(self.doc, n)
+            if n.tag == self._ootag('text:tab'):
+                yield OdtTabSpan(self.doc, n)
+            elif n.tag == self._ootag('text:span'):
+                yield OdtSpanSpan(self.doc, n)
             else:
-                yield OdtSpan(self.doc, r)
-            yield OdtSpanTail(self.doc, r)
+                continue
+            yield OdtTailSpan(self.doc, n)
 
 
-class OdtFirstSpan(OdtNode):
-    def __init__(self, doc, node):
-        super().__init__(doc, node)
-
+class OdtSpanBase(OdtNode):
     def style_wpid(self):
         return None
 
@@ -946,37 +945,25 @@ class OdtFirstSpan(OdtNode):
         if False:
             yield
 
+    def text(self):
+        if False:
+            yield
+
+
+class OdtHeadSpan(OdtSpanBase):
     def text(self):
         if self.node.text:
             yield self.node.text
 
 
-class OdtTabSpan(OdtNode):
-    def __init__(self, doc, node):
-        super().__init__(doc, node)
-
-    def style_wpid(self):
-        return None
-
-    def footnotes(self):
-        if False:
-            yield
-
-    def comments(self):
-        if False:
-            yield
-
+class OdtTabSpan(OdtSpanBase):
     def text(self):
         yield '\t'
 
 
-class OdtSpan(OdtNode):
-    """A span of characters inside a .docx."""
-    def __init__(self, doc, node):
-        super().__init__(doc, node)
-
+class OdtSpanSpan(OdtSpanBase):
     def style_wpid(self):
-        return self._node_ootag('text:style-name')
+        return self._node_ooget('text:style-name')
 
     def footnotes(self):
         for fnr in self._node_xpath('text:note[@text:node-class="footnote"]'):
@@ -991,21 +978,7 @@ class OdtSpan(OdtNode):
             yield self.node.text
 
 
-class OdtSpanTail(OdtNode):
-    def __init__(self, doc, node):
-        super().__init__(doc, node)
-
-    def style_wpid(self):
-        return None
-
-    def footnotes(self):
-        if False:
-            yield
-
-    def comments(self):
-        if False:
-            yield
-
+class OdtTailSpan(OdtSpanBase):
     def text(self):
         if self.node.tail:
             yield self.node.tail
@@ -1272,8 +1245,9 @@ if __name__ == '__main__':
 # TODO:
 # - ODT: footnotes
 # - ODT: comments
-# - ODT: nested character styles?
-# - For public: Support non-ME docs
+# - ODT: nested character styles? is that a thing? (do a DFS)
+# - GIT: Support non-ME docs
+# - Import MarkDown
 # - Paragraph direction (w:r/w:rPr/w:rtl -> <pParaDir:1>; but what about the basic dir?)
 # - For post edit/proof: Manual formatting consolidation, TBD
 # - Para: global base -> body base, heading base
