@@ -20,8 +20,8 @@ from wp2tt.styles import Style
 from wp2tt.styles import Rule
 from wp2tt.docx import DocxInput
 from wp2tt.odt import OdtInput
+from wp2tt.output import WhitespaceStripper
 from wp2tt.tagged_text import InDesignTaggedTextOutput
-from wp2tt.tagged_text import WhitespaceStripper
 
 
 def main():
