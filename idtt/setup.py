@@ -18,7 +18,9 @@ setup(
     author_email='erez.volk@gmail.com',
 
     packages=['wp2tt'],
-    scripts=['bin/wp2tt'],
+    entry_points={
+        'console_scripts': ['wp2tt=wp2tt:main']
+    },
 
     install_requires=[
         'attrs',

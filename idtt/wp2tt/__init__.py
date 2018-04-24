@@ -22,6 +22,10 @@ from wp2tt.output import InDesignTaggedTextOutput
 from wp2tt.output import WhitespaceStripper
 
 
+def main():
+    WordProcessorToInDesignTaggedText().run()
+
+
 class WordProcessorToInDesignTaggedText(object):
     """Read a word processor file. Write an InDesign Tagged Text file. What's not to like?"""
     SETTING_FILE_ENCODING = 'UTF-8'

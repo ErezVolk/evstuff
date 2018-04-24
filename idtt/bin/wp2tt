@@ -1,6 +1,0 @@
-#!/usr/bin/env python3
-"""A utility to convert word processor files (.docx, .odt) to InDesign's Tagged Text."""
-from wp2tt import WordProcessorToInDesignTaggedText
-
-if __name__ == '__main__':
-    WordProcessorToInDesignTaggedText().run()
