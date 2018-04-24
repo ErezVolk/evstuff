@@ -3,6 +3,8 @@ import contextlib
 import zipfile
 import lxml.etree
 
+from wp2tt.styles import DocumentProperties
+
 
 class WordXml(object):
     """Basic helper class for the Word XML format."""
@@ -25,10 +27,30 @@ class DocxInput(contextlib.ExitStack, WordXml):
     """A .docx reader."""
     def __init__(self, path):
         super().__init__()
+        self.read_docx(path)
+        self._initialize_properties()
+
+    def read_docx(self, path):
         self._zip = self.enter_context(zipfile.ZipFile(path))
         self._document = self._load_xml('word/document.xml')
         self._footnotes = self._load_xml('word/footnotes.xml')
         self._comments = self._load_xml('word/comments.xml')
+
+    def _initialize_properties(self):
+        self._properties = DocumentProperties(
+            has_rtl=self._has_node('w:rtl')
+        )
+
+    def _has_node(self, wtag):
+        for root in (self._document, self._footnotes, self._comments):
+            if root is not None:
+                for node in self._xpath(root, wtag):
+                    return True
+        return False
+
+    @property
+    def properties(self):
+        return self._properties
 
     def styles_defined(self):
         """Yield a Style object kwargs for every style defined in the document."""

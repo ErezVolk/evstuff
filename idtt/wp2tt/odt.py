@@ -5,6 +5,8 @@ import zipfile
 
 import lxml.etree
 
+from wp2tt.styles import DocumentProperties
+
 
 class OoXml(object):
     """Basic helper class for the OpenOffice XML format."""
@@ -36,6 +38,21 @@ class OdtInput(contextlib.ExitStack, OoXml):
         super().__init__()
         self._zip = self.enter_context(zipfile.ZipFile(path))
         self._content = self._load_xml('content.xml')
+        self._initialize_properties()
+
+    def _initialize_properties(self):
+        self._properties = DocumentProperties(
+            has_rtl=self._has_node('//style:paragraph-properties[@style:writing-mode="rl-tb"]')
+        )
+
+    def _has_node(self, ootag):
+        for node in self._xpath(self._content, ootag):
+            return True
+        return False
+
+    @property
+    def properties(self):
+        return self._properties
 
     def styles_defined(self):
         """Yield a Style object kwargs for every style defined in the document."""

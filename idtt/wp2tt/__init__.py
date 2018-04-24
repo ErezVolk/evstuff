@@ -20,8 +20,8 @@ from wp2tt.styles import Style
 from wp2tt.styles import Rule
 from wp2tt.docx import DocxInput
 from wp2tt.odt import OdtInput
-from wp2tt.output import InDesignTaggedTextOutput
-from wp2tt.output import WhitespaceStripper
+from wp2tt.tagged_text import InDesignTaggedTextOutput
+from wp2tt.tagged_text import WhitespaceStripper
 
 
 def main():
@@ -420,7 +420,7 @@ class WordProcessorToInDesignTaggedText(object):
     def write_idtt(self):
         logging.info('Writing %r', self.output_fn)
         self.set_state(State())
-        with InDesignTaggedTextOutput(self.output_fn, self.args.debug) as self.writer:
+        with InDesignTaggedTextOutput(self.output_fn, self.args.debug, self.doc.properties) as self.writer:
             self.convert_document()
 
     def convert_document(self):
@@ -634,6 +634,7 @@ class WordProcessorToInDesignTaggedText(object):
 # - PUB: Support non-ME docs
 # - PUB: Manual
 # - many-to-one wp_name -> name
+# - Non-unicode when not required?
 # - Import MarkDown
 # - Paragraph direction (w:r/w:rPr/w:rtl -> <pParaDir:1>; but what about the basic dir?)
 # - For post edit/proof: Manual formatting consolidation, TBD

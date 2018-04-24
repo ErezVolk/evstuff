@@ -6,6 +6,7 @@
 *.oxml
 *.pdf
 *.rtf
+*.tagged.txt*
 *.txt
 *.utf8
 *.xml

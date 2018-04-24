@@ -50,3 +50,7 @@ class Rule(object):
         return '%s %r' % (self.mnemonic, self.description)
 
 
+@attr.s(slots=True)
+class DocumentProperties(object):
+    """Things we can tell about a document."""
+    has_rtl = attr.ib(default=True)

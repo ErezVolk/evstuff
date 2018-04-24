@@ -98,13 +98,14 @@ class WhitespaceStripper(IOutput):
 
 
 class InDesignTaggedTextOutput(contextlib.ExitStack, IOutput):
-    def __init__(self, filename, debug=False):
+    def __init__(self, filename, debug=False, properties=None):
         super().__init__()
         self._filename = filename
         self._styles = []
         self._headers_written = False
         self._shades = collections.defaultdict(itertools.count)
         self._debug = debug
+        self._properties = properties
 
         self._fo = self.enter_context(open(self._filename, 'w', encoding='UTF-16LE'))
         ufo_fn = self._filename + '.utf8'
@@ -137,7 +138,8 @@ class InDesignTaggedTextOutput(contextlib.ExitStack, IOutput):
             return
         self._writeln('<UNICODE-MAC>')
         self._write(r'<Version:13.1>')
-        self._write(r'<FeatureSet:Indesign-R2L>')
+        if self._properties.has_rtl:
+            self._write(r'<FeatureSet:Indesign-R2L>')
         self._write(r'<ColorTable:=')
         self._write(r'<Black:COLOR:CMYK:Process:0,0,0,1>')
         self._write(r'<Cyan:COLOR:CMYK:Process:1,0,0,0>')
