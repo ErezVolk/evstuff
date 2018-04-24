@@ -54,3 +54,4 @@ class Rule(object):
 class DocumentProperties(object):
     """Things we can tell about a document."""
     has_rtl = attr.ib(default=True)
+    pure_ascii = attr.ib(default=False)

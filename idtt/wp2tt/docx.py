@@ -38,7 +38,7 @@ class DocxInput(contextlib.ExitStack, WordXml):
 
     def _initialize_properties(self):
         self._properties = DocumentProperties(
-            has_rtl=self._has_node('w:rtl')
+            has_rtl=self._has_node('w:rtl'),
         )
 
     def _has_node(self, wtag):

@@ -522,7 +522,7 @@ class WordProcessorToInDesignTaggedText(object):
         self.state.curr_para_text += text
 
     def convert_footnote(self, fn, ref_style=None):
-        with self.FootnoteContext(self):
+        with self.FootnoteContext(self, ref_style):
             for p in fn.paragraphs():
                 self.convert_paragraph(p)
 
