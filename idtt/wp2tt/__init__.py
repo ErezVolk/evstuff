@@ -8,7 +8,9 @@ import itertools
 import logging
 import os
 import re
+import shlex
 import shutil
+import sys
 
 import attr
 
@@ -24,6 +26,30 @@ from wp2tt.output import WhitespaceStripper
 
 def main():
     WordProcessorToInDesignTaggedText().run()
+
+
+class StopMarkerFound(Exception):
+    """We raise this to stop the presses."""
+    pass
+
+
+class BadReferenceInRule(Exception):
+    """We raise this for bad ruels."""
+    pass
+
+
+class ParseDict(argparse.Action):
+    """Helper class to convert KEY=VALUE pairs to a dict."""
+    def __call__(self, parser, namespace, values, option_string):
+        setattr(namespace, self.dest, dict(val.split('=', 1) for val in values))
+
+
+@attr.s
+class State(object):
+    curr_char_style = attr.ib(default=None)
+    prev_para_style = attr.ib(default=None)
+    curr_para_text = attr.ib(default='')
+    prev_para_text = attr.ib(default=None)
 
 
 class WordProcessorToInDesignTaggedText(object):
@@ -164,21 +190,22 @@ class WordProcessorToInDesignTaggedText(object):
                 '\n'
             )
             cli = [
-                repr(os.path.abspath(self.args.prog)),
-                repr(os.path.abspath(self.args.input)),
+                shlex.quote(os.path.abspath(sys.argv[0])),
+                shlex.quote(os.path.abspath(self.args.input)),
             ]
             if self.args.output:
-                cli.append(repr(os.path.abspath(self.output_fn)))
+                cli.append(shlex.quote(os.path.abspath(self.output_fn)))
+            cli.append('"$@"')  # Has to come before the dashes
             if self.stop_marker:
-                cli.extend(['--stop-at', repr(self.stop_marker)])
+                cli.extend(['--stop-at', shlex.quote(self.stop_marker)])
             if self.args.base_character_style != self.DEFAULT_BASE:
-                cli.extend(['--base-character-style', repr(self.args.base_character_style)])
+                cli.extend(['--base-character-style', shlex.quote(self.args.base_character_style)])
             if self.args.base_paragraph_style != self.DEFAULT_BASE:
-                cli.extend(['--base-paragraph-style', repr(self.args.base_paragraph_style)])
+                cli.extend(['--base-paragraph-style', shlex.quote(self.args.base_paragraph_style)])
             if self.args.style_to_variable:
                 cli.append('--style-to-variable')
                 cli.extend(
-                    repr('%s=%s' % (k, v))
+                    shlex.quote('%s=%s' % (k, v))
                     for k, v in self.args.style_to_variable.items()
                 )
             if self.args.debug:
@@ -411,7 +438,7 @@ class WordProcessorToInDesignTaggedText(object):
         if self.stop_marker:
             self.check_for_stop_paragraph(p)
         style = self.apply_rules_to(self.style('paragraph', p.style_wpid()))
-        with self.Paragraph(self, style):
+        with self.ParagraphContext(self, style):
             for r in p.spans():
                 self.convert_range(r)
             if style and style.variable:
@@ -444,7 +471,7 @@ class WordProcessorToInDesignTaggedText(object):
         self.state = state
         return prev
 
-    class Paragraph(contextlib.AbstractContextManager):
+    class ParagraphContext(contextlib.AbstractContextManager):
         def __init__(self, outer, style):
             super().__init__()
             self.outer = outer
@@ -495,16 +522,15 @@ class WordProcessorToInDesignTaggedText(object):
         self.state.curr_para_text += text
 
     def convert_footnote(self, fn, ref_style=None):
-        with self.Footnote(self):
-            with self.NestedStyle(self):
-                for p in fn.paragraphs():
-                    self.convert_paragraph(p)
+        with self.FootnoteContext(self):
+            for p in fn.paragraphs():
+                self.convert_paragraph(p)
 
     def convert_comment(self, cmt):
         """Tagged Text doesn't support notes, so we convert them to footnotes."""
         return self.convert_footnote(cmt, ref_style=self.comment_ref_style)
 
-    class Footnote(contextlib.AbstractContextManager):
+    class FootnoteContext(contextlib.AbstractContextManager):
         def __init__(self, outer, ref_style=None):
             super().__init__()
             self.outer = outer
@@ -516,20 +542,13 @@ class WordProcessorToInDesignTaggedText(object):
             self.writer.set_character_style(ref_style)
             self.writer.enter_footnote()
             self.outer.writer = WhitespaceStripper(self.writer)
-
-        def __exit__(self, *args):
-            self.writer.leave_footnote()
-            self.writer.set_character_style(self.outer_character_style)
-            self.outer.writer = self.writer
-
-    class NestedStyle(contextlib.AbstractContextManager):
-        def __init__(self, outer):
-            super().__init__()
-            self.outer = outer
             self.outer_state = self.outer.set_state(State())
 
         def __exit__(self, *args):
             self.outer.set_state(self.outer_state)
+            self.writer.leave_footnote()
+            self.writer.set_character_style(self.outer_character_style)
+            self.outer.writer = self.writer
 
     def report_statistics(self):
         realms = {s.realm for s in self.styles.values()}
@@ -609,32 +628,7 @@ class WordProcessorToInDesignTaggedText(object):
                 section.pop(ini_name, None)
 
 
-class StopMarkerFound(Exception):
-    """We raise this to stop the presses."""
-    pass
-
-
-class BadReferenceInRule(Exception):
-    """We raise this for bad ruels."""
-    pass
-
-
-class ParseDict(argparse.Action):
-    """Helper class to convert KEY=VALUE pairs to a dict."""
-    def __call__(self, parser, namespace, values, option_string):
-        setattr(namespace, self.dest, dict(val.split('=', 1) for val in values))
-
-
-@attr.s
-class State(object):
-    curr_char_style = attr.ib(default=None)
-    prev_para_style = attr.ib(default=None)
-    curr_para_text = attr.ib(default='')
-    prev_para_text = attr.ib(default=None)
-
-
 # TODO:
-# - PUB: setup.py, split into files, wheel
 # - ODT: footnotes
 # - ODT: comments
 # - PUB: Support non-ME docs
