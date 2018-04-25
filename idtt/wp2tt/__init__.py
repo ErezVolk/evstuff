@@ -312,11 +312,12 @@ class WordProcessorToInDesignTaggedText(object):
                     required=True,
                     inherit_from=rule.turn_this_style,
                 )
-                rule.when_following_styles = [
-                    self.find_style_by_ini_ref(ini_ref)
-                    for ini_ref in
-                    re.findall(r'\[.*?\]', rule.when_following)
-                ]
+                if rule.when_following is not None:
+                    rule.when_following_styles = [
+                        self.find_style_by_ini_ref(ini_ref)
+                        for ini_ref in
+                        re.findall(r'\[.*?\]', rule.when_following)
+                    ]
             except BadReferenceInRule:
                 logging.warn('Ignoring rule with bad references: %s', rule)
                 rule.valid = False
@@ -446,13 +447,23 @@ class WordProcessorToInDesignTaggedText(object):
 
     def apply_rules_to(self, style):
         for rule in self.rules:
-            if not rule.valid:
-                continue
-            if rule.turn_this_style == style:
-                if self.state.prev_para_style in rule.when_following_styles:
-                    rule.applied += 1
-                    return rule.into_this_style
+            if self.rule_applies_to(rule, style):
+                rule.applied += 1
+                return rule.into_this_style
         return style
+
+    def rule_applies_to(self, rule, style):
+        if not rule.valid:
+            return False
+        if rule.turn_this_style is not style:
+            return False
+        if rule.when_first_in_doc:
+            if style.count > 1:
+                return False
+        if rule.when_following_styles:
+            if self.state.prev_para_style not in rule.when_following_styles:
+                return False
+        return True
 
     def check_for_stop_paragraph(self, p):
         text = ''
@@ -538,7 +549,7 @@ class WordProcessorToInDesignTaggedText(object):
             self.outer_character_style = outer.state.curr_char_style
             ref_style = ref_style or outer.footnote_ref_style
 
-            self.outer.style_encountered(ref_style)
+            self.outer.activate_style(ref_style)
             self.writer.set_character_style(ref_style)
             self.writer.enter_footnote()
             self.outer.writer = WhitespaceStripper(self.writer)
@@ -569,10 +580,11 @@ class WordProcessorToInDesignTaggedText(object):
             if style.internal_name in self.IGNORED_STYLES[realm]:
                 return None
 
-        self.style_encountered(style)
+        self.activate_style(style)
+        style.count += 1
         return style
 
-    def style_encountered(self, style):
+    def activate_style(self, style):
         section_name = self.section_name(style.realm, style.internal_name)
         if section_name in self.style_sections_used:
             return
@@ -582,13 +594,13 @@ class WordProcessorToInDesignTaggedText(object):
                 logging.debug('[%s] leads to missing %r', section_name, style.parent_wpid)
                 style.parent_style = self.base_styles[style.realm]
                 style.parent_wpid = style.parent_style.wpid
-            self.style_encountered(style.parent_style)
+            self.activate_style(style.parent_style)
 
         self.update_setting_section(section_name, style)
         self.style_sections_used.add(section_name)
 
         if style.next_style and style.next_style.used:
-            self.style_encountered(style.next_style)
+            self.activate_style(style.next_style)
         elif style.next_wpid:
             logging.debug('[%s] leads to missing %r', section_name, style.next_wpid)
 
@@ -634,6 +646,11 @@ class WordProcessorToInDesignTaggedText(object):
 # - PUB: Support non-ME docs
 # - PUB: Manual
 # - many-to-one wp_name -> name
+# - mapping csv
+# - [paragraph rule] when_first_in_doc
+# - [paragraph rule] when_matches_re
+# - [paragraph style] keep_last_n_chars
+# - character style rule (grep)
 # - Non-unicode when not required?
 # - Import MarkDown
 # - Paragraph direction (w:r/w:rPr/w:rtl -> <pParaDir:1>; but what about the basic dir?)

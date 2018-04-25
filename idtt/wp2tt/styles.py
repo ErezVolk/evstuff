@@ -22,6 +22,7 @@ class Style(object):
     variable = attr.ib(default=None)
 
     used = attr.ib(default=None, metadata=ATTR_NO_INI)
+    count = attr.ib(default=0, metadata=ATTR_NO_INI)
 
     parent_style = attr.ib(default=None, metadata=ATTR_NO_INI)
     next_style = attr.ib(default=None, metadata=ATTR_NO_INI)
@@ -38,6 +39,7 @@ class Rule(object):
     turn_this = attr.ib(default=None)
     into_this = attr.ib(default=None)
     when_following = attr.ib(default=None)
+    when_first_in_doc = attr.ib(default=None)
 
     turn_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
     into_this_style = attr.ib(default=None, metadata=ATTR_NO_INI)
