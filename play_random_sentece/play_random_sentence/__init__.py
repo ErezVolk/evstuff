@@ -1,16 +1,28 @@
-def start():
-    from .anki import initialize
-    initialize()
+#  def start():
+#      from .anki import initialize
+#      initialize()
+import aqt
+from anki.hooks import addHook
+from .play_random_sentence import PlayRandomSentence
 
 
-"""
-TO RELOAD:
+def onK():
+    card = aqt.mw.reviewer.card
+    note = card.note()
+    if not all(f in note for f in ('Expression', 'Meaning')):
+        return
 
-In Anki's debug console (ctrl-shift-:)
+    expression = note['Expression']
+    if aqt.mw.reviewer.state == 'answer':
+        meaning = note['Meaning']
+    else:
+        meaning = None
 
-import sys
-from aqt import mw
-sys.path.insert(0,mw.pm.addonFolder())
-import play_random_sentence
-reload(play_random_sentence)
-"""
+    PlayRandomSentence(aqt.mw, expression, meaning).exec_()
+
+
+def shortcutHook(shortcuts):
+    shortcuts.append(('k', onK))
+
+
+addHook('reviewStateShortcuts', shortcutHook)

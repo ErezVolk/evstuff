@@ -365,11 +365,7 @@ class PlayRandomSentence(Qt.QDialog):
             self.saying.waitForFinished()
 
 
-# TODO: Config file
-# TODO: Config dialog
 # TODO: cycle defs
 # TODO: Utility to produce sentnces_*.txt (incl. download etc.)
 # TODO: TTS using awesometts (w/ voices and groups)
 # TODO: Play using Anki/awesometts
-# TODO: Option: Don't play immediately
-# TODO: Option: Don't play English at all

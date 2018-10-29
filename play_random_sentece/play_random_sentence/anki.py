@@ -3,10 +3,7 @@ import aqt
 from .logger import logger
 from .play_random_sentence import PlayRandomSentence
 
-try:
-    from PyQt5 import QtCore
-except ImportError:
-    from PyQt4 import QtCore
+from PyQt5 import QtCore
 
 
 class ListenForKey(QtCore.QObject):
@@ -15,12 +12,15 @@ class ListenForKey(QtCore.QObject):
             if event.type() != QtCore.QEvent.KeyPress:
                 return False
             if event.isAutoRepeat():
+                aqt.utils.showInfo('EREZ EREZ: AutoRepeat')
                 return False
             if event.spontaneous():
+                aqt.utils.showInfo('EREZ EREZ: Spontaneous')
                 return False
             if event.key() != QtCore.Qt.Key_K:
                 return False
             if aqt.mw.state != 'review':
+                aqt.utils.showInfo('EREZ EREZ: Not review')
                 return False
 
             card = aqt.mw.reviewer.card
@@ -42,4 +42,16 @@ class ListenForKey(QtCore.QObject):
 
 
 def initialize():
-    aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
+    # aqt.mw.installEventFilter(ListenForKey(parent=aqt.mw))
+    oldHandler = aqt.mw.eventFilter
+
+    newObject = ListenForKey(parent=aqt.mw)
+
+    def newHandler(obj, event):
+        if not newObject.eventFilter(obj, event):
+            return oldHandler(obj, event)
+
+    aqt.mw.eventFilter = newHandler
+
+
+
