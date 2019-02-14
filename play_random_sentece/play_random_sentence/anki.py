@@ -12,15 +12,12 @@ class ListenForKey(QtCore.QObject):
             if event.type() != QtCore.QEvent.KeyPress:
                 return False
             if event.isAutoRepeat():
-                aqt.utils.showInfo('EREZ EREZ: AutoRepeat')
                 return False
             if event.spontaneous():
-                aqt.utils.showInfo('EREZ EREZ: Spontaneous')
                 return False
             if event.key() != QtCore.Qt.Key_K:
                 return False
             if aqt.mw.state != 'review':
-                aqt.utils.showInfo('EREZ EREZ: Not review')
                 return False
 
             card = aqt.mw.reviewer.card

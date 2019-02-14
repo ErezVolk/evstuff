@@ -101,14 +101,17 @@ class PlayRandomSentence(Qt.QDialog):
     ENG_VOICES = []
     BLACKLIST = ['Fred', 'Kathy', 'Vicki', 'Victoria']
 
-    def __init__(self, parent=None, expression=None, meaning=None):
+    def __init__(self, parent=None, expression=None, meaning=None, lookup=True):
         super(PlayRandomSentence, self).__init__(parent)
         self.get_voices()
         self.saying = None
         self.jpn = Side('jpn', self.JPN_VOICES)
         self.eng = Side('eng', self.ENG_VOICES)
         self.get_word(expression, meaning)
-        self.look_it_up()
+        if lookup:
+            self.look_it_up()
+        else:
+            self.found_nothing()
         self.create_gui()
 
     @classmethod
@@ -197,9 +200,12 @@ class PlayRandomSentence(Qt.QDialog):
         return label
 
     def get_word(self, expression, meaning):
-        self.word = expression
-        self.meaning = meaning
-        self.both = expression and meaning
+        self.word = self.strip(expression)
+        self.meaning = self.strip(meaning)
+        self.both = self.word and self.meaning
+
+    def strip(self, s):
+        return re.sub(r'<.*?>', r'', s)
 
     def look_it_up(self):
         self.jpn_matches = []
@@ -218,6 +224,7 @@ class PlayRandomSentence(Qt.QDialog):
         self.eng.text = self.meaning
 
     def found_pair(self, jpn_match):
+        # self.setWindowTitle('%s [%s]' % (self.word, len(self.jpn_matches)))
         eng_match = EngMatch(jpn_match)
         self.jpn.from_match(jpn_match.fields)
         self.eng.from_match(eng_match.fields)
