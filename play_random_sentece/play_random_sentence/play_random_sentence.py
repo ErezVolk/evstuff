@@ -205,6 +205,8 @@ class PlayRandomSentence(Qt.QDialog):
         self.both = self.word and self.meaning
 
     def strip(self, s):
+        if not s:
+            return s
         return re.sub(r'<.*?>', r'', s)
 
     def look_it_up(self):
