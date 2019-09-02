@@ -1,11 +1,15 @@
 import os
 import random
-import re
 import subprocess
 import itertools
 from functools import partial
 
 from .logger import logger
+
+try:
+    import regex as re
+except ImportError:
+    import re
 
 try:
     import urllib2
@@ -99,14 +103,20 @@ class EngMatch(object):
 class PlayRandomSentence(Qt.QDialog):
     JPN_VOICES = []
     ENG_VOICES = []
+    HEB_VOICES = []
     BLACKLIST = ['Fred', 'Kathy', 'Vicki', 'Victoria']
 
     def __init__(self, parent=None, expression=None, meaning=None, lookup=True):
         super(PlayRandomSentence, self).__init__(parent)
+        self.grep_bin = next(
+            path for path in ['/usr/local/bin/rg', '/usr/bin/grep']
+            if os.path.exists(path)
+        )
         self.get_voices()
         self.saying = None
         self.jpn = Side('jpn', self.JPN_VOICES)
         self.eng = Side('eng', self.ENG_VOICES)
+        self.heb = Side('heb', self.HEB_VOICES)
         self.get_word(expression, meaning)
         if lookup:
             self.look_it_up()
@@ -118,6 +128,7 @@ class PlayRandomSentence(Qt.QDialog):
     def get_voices(cls):
         cls.JPN_VOICES = cls.JPN_VOICES or cls.get_lang_voices('ja', ['Kyoko', 'Otoyoa'])
         cls.ENG_VOICES = cls.ENG_VOICES or cls.get_lang_voices('en', ['Daniel', 'Samantha'])
+        cls.HEB_VOICES = cls.HEB_VOICES or cls.get_lang_voices('he', ['Carmit'])
 
     @classmethod
     def get_lang_voices(cls, lang, default):
@@ -157,17 +168,17 @@ class PlayRandomSentence(Qt.QDialog):
         self.jpn.font.setPointSize(36)
         self.jpn.humanize_font()
 
-        self.eng.font.setPointSize(18)
-        self.eng.humanize_font()
+        self.ans.font.setPointSize(18)
+        self.ans.humanize_font()
         self.setLayout(layout)
         self.setWindowTitle(self.word)
 
         layout.addWidget(self.mklabel(self.jpn))
 
-        if self.both and self.eng.text:
-            self.eng_label = self.mklabel(self.eng)
-            self.hide_eng()
-            layout.addWidget(self.eng_label)
+        if self.both and self.ans.text:
+            self.ans_label = self.mklabel(self.ans)
+            self.hide_ans()
+            layout.addWidget(self.ans_label)
 
         button = Qt.QPushButton('More', self)
         layout.addWidget(button)
@@ -178,7 +189,7 @@ class PlayRandomSentence(Qt.QDialog):
 
         self.actions = [self.play_jpn]
         if self.both:
-            self.actions.append(self.play_eng)
+            self.actions.append(self.play_ans)
         self.curr = itertools.cycle(self.actions)
 
     def humanize_font(self, font, human, mp3):
@@ -223,7 +234,11 @@ class PlayRandomSentence(Qt.QDialog):
 
     def found_nothing(self):
         self.jpn.text = self.word
-        self.eng.text = self.meaning
+        if self.meaning and re.search(r'[\u05D0-\u05EA]', self.meaning):
+            self.ans = self.heb
+        else:
+            self.ans = self.eng
+        self.ans.text = self.meaning
 
     def found_pair(self, jpn_match):
         # self.setWindowTitle('%s [%s]' % (self.word, len(self.jpn_matches)))
@@ -232,6 +247,7 @@ class PlayRandomSentence(Qt.QDialog):
         self.eng.from_match(eng_match.fields)
         self.jpn.mp3 = self.try_human(self.jpn)
         # self.eng.mp3 = self.try_human(self.eng)
+        self.ans = self.eng
 
     def try_human(self, side):
         if not side.human:
@@ -313,28 +329,28 @@ class PlayRandomSentence(Qt.QDialog):
             return self.play(self.jpn.mp3)
         self.say(self.jpn)
 
-    def play_eng(self):
-        self.show_eng()
-        if self.eng.human and self.eng.mp3:
-            return self.play(self.eng.mp3)
-        self.say(self.eng)
+    def play_ans(self):
+        self.show_ans()
+        if self.ans.human and self.ans.mp3:
+            return self.play(self.ans.mp3)
+        self.say(self.ans)
 
-    def hide_eng(self):
-        p = self.eng_label.palette()
-        self.eng_foreground = p.color(self.eng_label.foregroundRole())
-        self.eng_background = p.color(self.eng_label.backgroundRole())
-        p.setColor(self.eng_label.foregroundRole(), self.eng_background)
-        self.eng_label.setPalette(p)
+    def hide_ans(self):
+        p = self.ans_label.palette()
+        self.ans_foreground = p.color(self.ans_label.foregroundRole())
+        self.ans_background = p.color(self.ans_label.backgroundRole())
+        p.setColor(self.ans_label.foregroundRole(), self.ans_background)
+        self.ans_label.setPalette(p)
 
-    def show_eng(self):
-        p = self.eng_label.palette()
-        p.setColor(self.eng_label.foregroundRole(), self.eng_foreground)
-        self.eng_label.setPalette(p)
+    def show_ans(self):
+        p = self.ans_label.palette()
+        p.setColor(self.ans_label.foregroundRole(), self.ans_foreground)
+        self.ans_label.setPalette(p)
 
     def try_corpus(self, corpus_no):
         try:
             output = run(
-                '/usr/bin/grep',
+                self.grep_bin,
                 '-n',
                 self.word,
                 corpus_fn('jpn', corpus_no)
