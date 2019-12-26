@@ -3,6 +3,7 @@ import argparse
 import os
 import platform
 import re
+import shutil
 import sys
 import subprocess
 
@@ -28,7 +29,7 @@ parser.add_argument(
 )
 parser.add_argument(
     '--external-downloader',
-    default='aria2c',
+    default=shutil.which('aria2c'),
     help='Use the specified external downloader.'
 )
 parser.add_argument(
@@ -72,9 +73,8 @@ for url in args.urls:
 
 
 run_args = []
-if IS_MACOS:
-    if not args.allow_sleep:
-        run_args.append('caffeinate')
+if IS_MACOS and not args.allow_sleep:
+    run_args.append('caffeinate')
 run_args.append('youtube-dl')
 if args.username:
     run_args.extend(['--username', args.username])
