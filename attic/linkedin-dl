@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 import argparse
 import os
+import platform
 import re
 import sys
 import subprocess
+
+IS_MACOS = platform.system() == 'Darwin'
 
 parser = argparse.ArgumentParser(description='Download stuff')
 parser.add_argument(
@@ -40,6 +43,11 @@ parser.add_argument(
     '--wait', action='store_true',
     help='Do not start immediately'
 )
+if IS_MACOS:
+    parser.add_argument(
+        '--allow-sleep', action='store_true',
+        help='Do not prevent sleep'
+    )
 parser.add_argument(
     'urls', metavar='URL', nargs='+',
     help='LinkedIn Learning URL'
@@ -63,7 +71,11 @@ for url in args.urls:
     urls.append(url)
 
 
-run_args = ['youtube-dl']
+run_args = []
+if IS_MACOS:
+    if not args.allow_sleep:
+        run_args.append('caffeinate')
+run_args.append('youtube-dl')
 if args.username:
     run_args.extend(['--username', args.username])
 if args.password:
