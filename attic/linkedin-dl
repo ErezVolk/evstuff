@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import re
+import sys
+import subprocess
+
+parser = argparse.ArgumentParser(description='Download stuff')
+parser.add_argument(
+    '-u', '--username', default='erez.volk@gmail.com',
+    help='Username'
+)
+parser.add_argument(
+    '-p', '--password', required=False,
+    help='Password'
+)
+parser.add_argument(
+    '-c', '--config', default=os.path.expanduser('~/.linkedinrc'),
+    help='Netrc-type file with username and password'
+)
+parser.add_argument(
+    '-o', '--output', metavar='TEMPLATE',
+    default='%(playlist_title)s/%(playlist_index)02d %(title)s.%(ext)s',
+    help='Output filename template'
+)
+parser.add_argument(
+    '--external-downloader',
+    default='aria2c',
+    help='Use the specified external downloader.'
+)
+parser.add_argument(
+    '--no-sub', action='store_true',
+    help='Disable subtitles'
+)
+parser.add_argument(
+    '--fail-on-error', action='store_true',
+    help='Fail if any video cannot be downloaded'
+)
+parser.add_argument(
+    '--wait', action='store_true',
+    help='Do not start immediately'
+)
+parser.add_argument(
+    'urls', metavar='URL', nargs='+',
+    help='LinkedIn Learning URL'
+)
+args, more_args = parser.parse_known_args()
+
+if os.path.isfile(args.config):
+    with open(args.config) as cf:
+        for line in cf:
+            m = re.match(r'(username|password)\s+(.*)', line.strip())
+            if m:
+                setattr(args, m.group(1), m.group(2))
+
+urls = []
+for url in args.urls:
+    m = re.match(r'(https://[^/]+/learning/[^/]*)', url)
+    if not m:
+        args.wait = True
+    else:
+        url = m.group(1)
+    urls.append(url)
+
+
+run_args = ['youtube-dl']
+if args.username:
+    run_args.extend(['--username', args.username])
+if args.password:
+    run_args.extend(['--password', args.password])
+if args.output:
+    run_args.extend(['--output', args.output])
+if args.external_downloader:
+    run_args.extend(['--external-downloader', args.external_downloader])
+if not args.no_sub:
+    run_args.append('--write-sub')
+if not args.fail_on_error:
+    run_args.append('--ignore-errors')
+run_args.extend(more_args)
+run_args.extend(urls)
+
+if len(urls) == 1:
+    print(f'Will download {urls[0]}')
+else:
+    print('Will download the following:')
+    for n, url in enumerate(urls, 1):
+        print(f' {n}. {url}')
+if args.wait:
+    input('Press Enter to download...')
+
+result = subprocess.run(run_args)
+sys.exit(result.returncode)
