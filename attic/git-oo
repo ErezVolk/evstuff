@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -d .git ]; then
+	git depull
+fi
+
+for dd in */.git; do
+	if [ -d $dd ]; then
+		d=`dirname $dd`
+		echo "*** $d/ ***"
+		cd $d
+		git depull
+		cd ..
+	fi
+done

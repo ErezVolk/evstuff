@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+# something like git debranch; git pull --ff
+from subprocess import run
+from subprocess import PIPE
+import re
+
+
+def git(cmd, echo=True, **kwargs):
+    if echo:
+        print(f'>>> git {cmd}')
+    return run(f'git {cmd}', shell=True, check=True, **kwargs)
+
+
+def git_lines(cmd):
+    return git(cmd, echo=False, stdout=PIPE).stdout.decode().split('\n')
+
+
+git('fetch -p --all')
+branches = git_lines('branch -vv')
+
+current = None
+goners = []
+
+for line in branches:
+    if not line:
+        continue
+    m = re.match(
+        r'(?P<star>.) '
+        r'(?P<name>.*\S)\s+'
+        r'(?P<hash>[0-9a-f]{5,})\s'
+        r'(?P<remote_clause>\[(?P<remote>\S+)(: (?P<gone>.*))?\])?'
+        r'.*',
+        line
+    )
+    if not m:
+        print(f'UNKNOWN LINE: {line}')
+        continue
+    branch = m.group('name')
+    remote = m.group('remote')
+    gone = m.group('gone') == 'gone'
+    if m.group('star') == '*':
+        if branch.startswith('(HEAD deatched at'):
+            print(f'{branch}: Not pulling')
+        elif gone:
+            print(f'{branch}: Remote branch gone, not pulling')
+        else:
+            current = m.group('remote')
+    elif gone:
+        goners.append(branch)
+
+
+if current:
+    git(f'merge --ff-only {current}')
+
+if goners:
+    goners = ' '.join(goners)
+    git(f'branch -D {goners}')
