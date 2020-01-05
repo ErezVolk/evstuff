@@ -24,7 +24,7 @@ def git_lines(cmd):
     return git_out(cmd).split('\n')
 
 
-git('fetch -p --all')
+git('fetch -p --all', echo=False)
 branches = git_lines('branch -vv')
 
 current = None
