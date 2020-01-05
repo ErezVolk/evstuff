@@ -3,16 +3,24 @@
 from subprocess import run
 from subprocess import PIPE
 import re
+import sys
 
 
 def git(cmd, echo=True, **kwargs):
     if echo:
         print(f'>>> git {cmd}')
-    return run(f'git {cmd}', shell=True, check=True, **kwargs)
+    output = run(f'git {cmd}', shell=True, **kwargs)
+    if output.returncode != 0:
+        sys.exit(output.returncode)
+    return output
+
+
+def git_out(cmd):
+    return git(cmd, echo=False, stdout=PIPE).stdout.decode()
 
 
 def git_lines(cmd):
-    return git(cmd, echo=False, stdout=PIPE).stdout.decode().split('\n')
+    return git_out(cmd).split('\n')
 
 
 git('fetch -p --all')
@@ -50,7 +58,10 @@ for line in branches:
 
 
 if current:
-    git(f'merge --ff-only {current}')
+    local_hash = git_out('rev-parse HEAD')
+    remote_hash = git_out(f'rev-parse {current}')
+    if local_hash != remote_hash:
+        git(f'merge --ff-only {current}')
 
 if goners:
     goners = ' '.join(goners)
