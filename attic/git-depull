@@ -6,12 +6,13 @@ import re
 import sys
 
 
-def git(cmd, echo=True, **kwargs):
+def git(cmd, echo=True, check=True, **kwargs):
     if echo:
         print(f'>>> git {cmd}')
     output = run(f'git {cmd}', shell=True, **kwargs)
-    if output.returncode != 0:
-        sys.exit(output.returncode)
+    if check:
+        if output.returncode != 0:
+            sys.exit(output.returncode)
     return output
 
 
