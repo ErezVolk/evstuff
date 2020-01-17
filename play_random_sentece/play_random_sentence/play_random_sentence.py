@@ -31,12 +31,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def corpus_fn(lang, corpus_no):
-    return os.path.join(HERE, '%s_%02d.txt' % (lang, corpus_no))
+    return os.path.join(HERE, "%s_%02d.txt" % (lang, corpus_no))
 
 
 def run(*args):
     output = subprocess.check_output(args)
-    return output.decode('utf-8')
+    return output.decode("utf-8")
 
 
 class Side(object):
@@ -59,9 +59,9 @@ class Side(object):
             self.font.setItalic(True)
 
     def from_match(self, match):
-        self.text = match['text']
-        self.sid = match['sid']
-        self.human = match['mp3']
+        self.text = match["text"]
+        self.sid = match["sid"]
+        self.human = match["mp3"]
 
     def next_voice(self):
         if self.index is None:
@@ -75,28 +75,30 @@ class JpnMatch(object):
     def __init__(self, corpus_no, line):
         self.corpus_no = corpus_no
         self.fields = re.match(
-            r'^'
-            r'(?P<lineno>\d+):'
-            r'((?P<sid>\d+)(?P<mp3>[*]?)\t)?'
-            r'(?P<text>[^\t]+)'
-            r'$',
-            line.strip()
+            r"^"
+            r"(?P<lineno>\d+):"
+            r"((?P<sid>\d+)(?P<mp3>[*]?)\t)?"
+            r"(?P<text>[^\t]+)"
+            r"$",
+            line.strip(),
         ).groupdict()
 
 
 class EngMatch(object):
     def __init__(self, jpn_match):
+        sed_bin = next(
+            path
+            for path in ["/usr/local/bin/rg", "/usr/bin/grep"]
+            if os.path.exists(path)
+        )
         line = run(
-            '/usr/local/bin/sed',
-            '%sq;d' % jpn_match.fields['lineno'],
-            corpus_fn('eng', jpn_match.corpus_no)
+            sed_bin,
+            "%sq;d" % jpn_match.fields["lineno"],
+            corpus_fn("eng", jpn_match.corpus_no),
         )
 
         self.fields = re.match(
-            r'^'
-            r'((?P<sid>\d+)(?P<mp3>[*]?)\t)?'
-            r'(?P<text>[^\t]+)',
-            line.strip()
+            r"^" r"((?P<sid>\d+)(?P<mp3>[*]?)\t)?" r"(?P<text>[^\t]+)", line.strip()
         ).groupdict()
 
 
@@ -104,19 +106,20 @@ class PlayRandomSentence(Qt.QDialog):
     JPN_VOICES = []
     ENG_VOICES = []
     HEB_VOICES = []
-    BLACKLIST = ['Fred', 'Kathy', 'Vicki', 'Victoria']
+    BLACKLIST = ["Fred", "Kathy", "Vicki", "Victoria"]
 
     def __init__(self, parent=None, expression=None, meaning=None, lookup=True):
         super(PlayRandomSentence, self).__init__(parent)
         self.grep_bin = next(
-            path for path in ['/usr/local/bin/rg', '/usr/bin/grep']
+            path
+            for path in ["/usr/local/bin/rg", "/usr/bin/grep"]
             if os.path.exists(path)
         )
         self.get_voices()
         self.saying = None
-        self.jpn = Side('jpn', self.JPN_VOICES)
-        self.eng = Side('eng', self.ENG_VOICES)
-        self.heb = Side('heb', self.HEB_VOICES)
+        self.jpn = Side("jpn", self.JPN_VOICES)
+        self.eng = Side("eng", self.ENG_VOICES)
+        self.heb = Side("heb", self.HEB_VOICES)
         self.get_word(expression, meaning)
         if lookup:
             self.look_it_up()
@@ -126,39 +129,39 @@ class PlayRandomSentence(Qt.QDialog):
 
     @classmethod
     def get_voices(cls):
-        cls.JPN_VOICES = cls.JPN_VOICES or cls.get_lang_voices('ja', ['Kyoko', 'Otoyoa'])
-        cls.ENG_VOICES = cls.ENG_VOICES or cls.get_lang_voices('en', ['Daniel', 'Samantha'])
-        cls.HEB_VOICES = cls.HEB_VOICES or cls.get_lang_voices('he', ['Carmit'])
+        cls.JPN_VOICES = cls.JPN_VOICES or cls.get_lang_voices(
+            "ja", ["Kyoko", "Otoyoa"]
+        )
+        cls.ENG_VOICES = cls.ENG_VOICES or cls.get_lang_voices(
+            "en", ["Daniel", "Samantha"]
+        )
+        cls.HEB_VOICES = cls.HEB_VOICES or cls.get_lang_voices("he", ["Carmit"])
 
     @classmethod
     def get_lang_voices(cls, lang, default):
-        all_lang_voices = cls.get_lang_voices_with_voices(lang) or cls.get_lang_voices_with_say(lang)
+        all_lang_voices = cls.get_lang_voices_with_voices(
+            lang
+        ) or cls.get_lang_voices_with_say(lang)
         return [
-            voice
-            for voice in all_lang_voices
-            if voice not in cls.BLACKLIST
+            voice for voice in all_lang_voices if voice not in cls.BLACKLIST
         ] or default
 
     @classmethod
     def get_lang_voices_with_voices(cls, lang):
         try:
-            output = run('/usr/local/bin/voices', '-l', lang)
-            return [
-                line.split(' ', 1)[0]
-                for line in output.split('\n')
-                if ' ' in line
-            ]
+            output = run("/usr/local/bin/voices", "-l", lang)
+            return [line.split(" ", 1)[0] for line in output.split("\n") if " " in line]
         except Exception:
             return []
 
     @classmethod
     def get_lang_voices_with_say(cls, lang):
         try:
-            output = run('say', '-v', '?')
+            output = run("say", "-v", "?")
             return [
-                line.split(' ', 1)[0]
-                for line in output.split('\n')
-                if ' %s_' % lang in line
+                line.split(" ", 1)[0]
+                for line in output.split("\n")
+                if " %s_" % lang in line
             ]
         except Exception:
             return []
@@ -180,7 +183,7 @@ class PlayRandomSentence(Qt.QDialog):
             self.hide_ans()
             layout.addWidget(self.ans_label)
 
-        button = Qt.QPushButton('More', self)
+        button = Qt.QPushButton("More", self)
         layout.addWidget(button)
         button.clicked.connect(self.next_clicked)
         button.setFocus()
@@ -218,7 +221,7 @@ class PlayRandomSentence(Qt.QDialog):
     def strip(self, s):
         if not s:
             return s
-        return re.sub(r'<.*?>', r'', s)
+        return re.sub(r"<.*?>", r"", s)
 
     def look_it_up(self):
         self.jpn_matches = []
@@ -234,7 +237,7 @@ class PlayRandomSentence(Qt.QDialog):
 
     def found_nothing(self):
         self.jpn.text = self.word
-        if self.meaning and re.search(r'[\u05D0-\u05EA]', self.meaning):
+        if self.meaning and re.search(r"[\u05D0-\u05EA]", self.meaning):
             self.ans = self.heb
         else:
             self.ans = self.eng
@@ -253,9 +256,9 @@ class PlayRandomSentence(Qt.QDialog):
         if not side.human:
             return None
 
-        fn = '%s.mp3' % side.sid
+        fn = "%s.mp3" % side.sid
         path = os.path.join(HERE, fn)
-        url = 'https://audio.tatoeba.org/sentences/%s/%s' % (side.lang, fn)
+        url = "https://audio.tatoeba.org/sentences/%s/%s" % (side.lang, fn)
 
         places = [
             partial(os.path.isfile, path),
@@ -278,7 +281,7 @@ class PlayRandomSentence(Qt.QDialog):
         try:
             r = requests.get(url, timeout=2)
             r.raise_for_status()
-            with open(path, 'wb') as fd:
+            with open(path, "wb") as fd:
                 for chunk in r.iter_content(chunk_size=1024):
                     fd.write(chunk)
             return True
@@ -288,7 +291,7 @@ class PlayRandomSentence(Qt.QDialog):
 
     def try_wget(self, url):
         try:
-            run('/usr/local/bin/wget', '--timeout=3', url, '-P', HERE)
+            run("/usr/local/bin/wget", "--timeout=3", url, "-P", HERE)
             return True
         except Exception as ex:
             logger.exception(ex)
@@ -304,14 +307,14 @@ class PlayRandomSentence(Qt.QDialog):
             logger.exception(ex)
             return False
         if not response:
-            logger.info('No response from %s', url)
+            logger.info("No response from %s", url)
             return False
         if response.getcode() != 200:
-            logger.info('%s => HTTP %s', url, response.getcode())
+            logger.info("%s => HTTP %s", url, response.getcode())
             response.close()
             return False
 
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             f.write(response.read())
         response.close()
         return True
@@ -349,18 +352,9 @@ class PlayRandomSentence(Qt.QDialog):
 
     def try_corpus(self, corpus_no):
         try:
-            output = run(
-                self.grep_bin,
-                '-n',
-                self.word,
-                corpus_fn('jpn', corpus_no)
-            )
+            output = run(self.grep_bin, "-n", self.word, corpus_fn("jpn", corpus_no))
 
-            matches = [
-                JpnMatch(corpus_no, line)
-                for line in output.split('\n')
-                if line
-            ]
+            matches = [JpnMatch(corpus_no, line) for line in output.split("\n") if line]
             if not matches:
                 return False
             self.jpn_matches.extend(matches)
@@ -370,10 +364,10 @@ class PlayRandomSentence(Qt.QDialog):
             return False
 
     def say(self, side):
-        self._say('/usr/bin/say', '-v', side.next_voice(), side.text)
+        self._say("/usr/bin/say", "-v", side.next_voice(), side.text)
 
     def play(self, path):
-        self._say('/usr/local/bin/play', path)
+        self._say("/usr/local/bin/play", path)
 
     def _say(self, executable, *args):
         self.saying = Qt.QProcess(self)
