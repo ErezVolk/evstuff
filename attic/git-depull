@@ -9,6 +9,7 @@ import sys
 def git(cmd, echo=True, check=True, **kwargs):
     if echo:
         print(f'>>> git {cmd}')
+
     output = run(f'git {cmd}', shell=True, **kwargs)
     if check:
         if output.returncode != 0:
@@ -20,11 +21,15 @@ def git_out(cmd):
     return git(cmd, echo=False, stdout=PIPE).stdout.decode()
 
 
+def git_oneliner(cmd):
+    return git_out(cmd).strip()
+
+
 def git_lines(cmd):
     return git_out(cmd).split('\n')
 
 
-git('fetch -p --all', echo=False)
+git('fetch --prune --all --jobs=2', echo=False)
 branches = git_lines('branch -vv')
 
 current = None
@@ -59,9 +64,10 @@ for line in branches:
 
 
 if current:
-    local_hash = git_out('rev-parse HEAD')
-    remote_hash = git_out(f'rev-parse {current}')
-    if local_hash != remote_hash:
+    local_hash = git_oneliner('rev-parse HEAD')
+    remote_hash = git_oneliner(f'rev-parse {current}')
+    common_hash = git_oneliner(f'merge-base HEAD {current}')
+    if common_hash != remote_hash:
         git(f'merge --ff-only {current}')
 
 if goners:

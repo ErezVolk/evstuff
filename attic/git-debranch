@@ -1,0 +1,5 @@
+#!/bin/sh
+git fetch -p
+for b in `LC_ALL=C git branch -vv |grep gone |cut -d ' ' -f 3`; do
+	git branch -D $b
+done

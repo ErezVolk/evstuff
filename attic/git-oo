@@ -7,9 +7,9 @@ fi
 for dd in */.git; do
 	if [ -d "$dd" ]; then
 		d=`dirname "$dd"`
-		echo "*** $d/ ***"
+#		echo "*** $d/ ***"
 		cd "$d"
-		git depull
+		git depull |sed -e "s/^/[$d] /"
 		cd ..
 	fi
 done
