@@ -88,7 +88,7 @@ class EngMatch(object):
     def __init__(self, jpn_match):
         sed_bin = next(
             path
-            for path in ["/usr/local/bin/rg", "/usr/bin/grep"]
+            for path in ["/usr/local/bin/gsed", "/usr/bin/sed"]
             if os.path.exists(path)
         )
         line = run(
