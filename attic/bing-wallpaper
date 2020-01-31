@@ -9,9 +9,17 @@ import re
 
 class BingWallpaper:
     BASE = "https://www.bing.com/"
+    COUNTRIES = ("us", "jp", "cn")
     PATH = os.path.expanduser("~/Pictures/bing-wallpapers")
 
     def run(self):
+        self.parse_args()
+
+        self.downloaded = set()
+        for cc in self.COUNTRIES:
+            self.download(cc)
+
+    def parse_args(self):
         parser = argparse.ArgumentParser(description="Download Bing wallpaper")
         parser.add_argument(
             "-f",
@@ -19,30 +27,62 @@ class BingWallpaper:
             action="store_true",
             help="Download even if already exists.",
         )
-        args = parser.parse_args()
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "-q", "--quiet", action="store_true", help="No output.",
+        )
+        group.add_argument(
+            "-d", "--debug", action="store_true", help="More output.",
+        )
+        self.args = parser.parse_args()
 
-        page_r = requests.get(self.BASE)
+    def download(self, cc):
+        page_r = requests.get(f"{self.BASE}?cc={cc}")
         parser = lxml.etree.HTMLParser()
         html = lxml.etree.parse(StringIO(page_r.text), parser)
         for e in html.xpath('./head/link[@as="image"]'):
+            if e.get("id") != "preloadBg":
+                continue
+
             href = e.get("href")
+            astext = lxml.etree.tostring(e)
             m = re.search(r"[.&=?]([^.&=?]*\.jpg)[.&=?]", href)
             if not m:
-                print(f"I don't know what to do with {lxml.etree.tostring(e)}")
+                self.write(f"I don't know what to do with {astext}")
                 continue
+            self.debug(f"Considering {astext}")
             url = f"{self.BASE}/{href}"
-            fn = m.group(1)
+            rn = m.group(1)
+
+            m = re.match(r"([A-Za-z]*)_[-A-Z]+[0-9]+_([0-9]+x[0-9]+.jpg)", rn)
+            if m:
+                fn = m.group(1) + "_" + m.group(2)
+            else:
+                fn = rn
+
+            if fn in self.downloaded:
+                continue
+
             path = os.path.join(self.PATH, fn)
             if os.path.isfile(path):
-                if not args.force:
-                    print(f"Already downloaded {fn}")
+                if not self.args.force:
+                    self.write(f"Already downloaded {fn}")
                     continue
 
-            print(f"Downloading {fn}")
+            self.write(f"Downloading {fn}")
 
             file_r = requests.get(url)
             with open(path, "wb") as fo:
                 fo.write(file_r.content)
+            self.downloaded.add(fn)
+
+    def write(self, *args):
+        if not self.args.quiet:
+            print(*args)
+
+    def debug(self, *args):
+        if self.args.debug:
+            print(*args)
 
 
 if __name__ == "__main__":
