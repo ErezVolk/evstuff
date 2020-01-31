@@ -9,13 +9,13 @@ import re
 
 class BingWallpaper:
     BASE = "https://www.bing.com/"
-    COUNTRIES = ("us", "jp", "cn")
+    COUNTRIES = ("us", "jp", "cn", "uk")
     PATH = os.path.expanduser("~/Pictures/bing-wallpapers")
 
     def run(self):
         self.parse_args()
 
-        self.downloaded = set()
+        self.downloaded = {}
         for cc in self.COUNTRIES:
             self.download(cc)
 
@@ -41,11 +41,11 @@ class BingWallpaper:
         parser = lxml.etree.HTMLParser()
         html = lxml.etree.parse(StringIO(page_r.text), parser)
         for e in html.xpath('./head/link[@as="image"]'):
-            if e.get("id") != "preloadBg":
+            if e.get("id") not in ("preloadBg", "bgLink"):
                 continue
 
             href = e.get("href")
-            astext = lxml.etree.tostring(e)
+            astext = lxml.etree.tostring(e).decode()
             m = re.search(r"[.&=?]([^.&=?]*\.jpg)[.&=?]", href)
             if not m:
                 self.write(f"I don't know what to do with {astext}")
@@ -61,6 +61,7 @@ class BingWallpaper:
                 fn = rn
 
             if fn in self.downloaded:
+                self.debug(f"Downloaded {fn} from {self.downloaded[fn]}, skipping {cc}")
                 continue
 
             path = os.path.join(self.PATH, fn)
@@ -69,12 +70,12 @@ class BingWallpaper:
                     self.write(f"Already downloaded {fn}")
                     continue
 
-            self.write(f"Downloading {fn}")
+            self.write(f"Downloading {rn} as {fn}")
 
             file_r = requests.get(url)
             with open(path, "wb") as fo:
                 fo.write(file_r.content)
-            self.downloaded.add(fn)
+            self.downloaded[fn] = cc
 
     def write(self, *args):
         if not self.args.quiet:
