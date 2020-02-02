@@ -3,7 +3,6 @@ import argparse
 import os
 import platform
 import re
-import shutil
 import sys
 import subprocess
 
@@ -11,7 +10,7 @@ IS_MACOS = platform.system() == 'Darwin'
 
 parser = argparse.ArgumentParser(description='Download stuff')
 parser.add_argument(
-    '-u', '--username', default='erez.volk@gmail.com',
+    '-u', '--username',
     help='Username'
 )
 parser.add_argument(
@@ -28,11 +27,6 @@ parser.add_argument(
     help='Output filename template'
 )
 parser.add_argument(
-    '--external-downloader',
-    default=shutil.which('aria2c'),
-    help='Use the specified external downloader.'
-)
-parser.add_argument(
     '--no-sub', action='store_true',
     help='Disable subtitles'
 )
@@ -43,6 +37,10 @@ parser.add_argument(
 parser.add_argument(
     '--wait', action='store_true',
     help='Do not start immediately'
+)
+parser.add_argument(
+    '--unrestricted-filenames', action='store_true',
+    help='Allow all characters in filenames'
 )
 if IS_MACOS:
     parser.add_argument(
@@ -58,9 +56,14 @@ args, more_args = parser.parse_known_args()
 if os.path.isfile(args.config):
     with open(args.config) as cf:
         for line in cf:
-            m = re.match(r'(username|password)\s+(.*)', line.strip())
-            if m:
-                setattr(args, m.group(1), m.group(2))
+            m = re.match(r'(\w+)\s+(.*)', line.strip())
+            if not m:
+                continue
+            key, value = m.groups()
+            if key in ('username', 'login'):
+                args.username = value
+            elif key == 'password':
+                args.password = value
 
 urls = []
 for url in args.urls:
@@ -82,10 +85,10 @@ if args.password:
     run_args.extend(['--password', args.password])
 if args.output:
     run_args.extend(['--output', args.output])
-if args.external_downloader:
-    run_args.extend(['--external-downloader', args.external_downloader])
 if not args.no_sub:
     run_args.append('--write-sub')
+if not args.unrestricted_filenames:
+    run_args.append('--restrict-filenames')
 if not args.fail_on_error:
     run_args.append('--ignore-errors')
 run_args.extend(more_args)
