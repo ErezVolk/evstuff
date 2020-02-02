@@ -16,6 +16,7 @@ class BingWallpaper:
         self.parse_args()
 
         self.downloaded = {}
+        self.download_archive()
         for cc in self.COUNTRIES:
             self.download(cc)
 
@@ -27,6 +28,14 @@ class BingWallpaper:
             action="store_true",
             help="Download even if already exists.",
         )
+        parser.add_argument(
+            "-a",
+            "--archive",
+            metavar="N",
+            type=int,
+            default=5,
+            help="Try to download N archived images.",
+        )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "-q", "--quiet", action="store_true", help="No output.",
@@ -36,46 +45,70 @@ class BingWallpaper:
         )
         self.args = parser.parse_args()
 
+    def download_archive(self):
+        if not self.args.archive:
+            return
+        r = requests.get(
+            f"{self.BASE}HPImageArchive.aspx?format=js&n={self.args.archive}"
+        )
+        if r.status_code != requests.codes.ok:
+            return
+        for image in r.json()["images"]:
+            self.handle_href(image["url"])
+
     def download(self, cc):
         page_r = requests.get(f"{self.BASE}?cc={cc}")
+        if page_r.status_code != requests.codes.ok:
+            return
+
         parser = lxml.etree.HTMLParser()
         html = lxml.etree.parse(StringIO(page_r.text), parser)
         for e in html.xpath('./head/link[@as="image"]'):
             if e.get("id") not in ("preloadBg", "bgLink"):
                 continue
 
-            href = e.get("href")
             astext = lxml.etree.tostring(e).decode()
-            m = re.search(r"[.&=?]([^.&=?]*\.jpg)[.&=?]", href)
-            if not m:
-                self.write(f"I don't know what to do with {astext}")
-                continue
-            self.debug(f"Considering {astext}")
-            url = f"{self.BASE}/{href}"
-            rn = m.group(1)
+            self.handle_href(e.get("href"), desc=astext, source=cc)
 
-            m = re.match(r"([A-Za-z]*)_[-A-Z]+[0-9]+_([0-9]+x[0-9]+.jpg)", rn)
-            if m:
-                fn = m.group(1) + "_" + m.group(2)
-            else:
-                fn = rn
+    def handle_href(self, href, desc=None, source=None):
+        if not desc:
+            desc = href
 
-            if fn in self.downloaded:
-                self.debug(f"Downloaded {fn} from {self.downloaded[fn]}, skipping {cc}")
-                continue
+        if not source:
+            source = href
 
-            path = os.path.join(self.PATH, fn)
-            if os.path.isfile(path):
-                if not self.args.force:
-                    self.write(f"Already downloaded {fn}")
-                    continue
+        m = re.search(r"[.&=?]([^.&=?]*\.jpg)[.&=?]", href)
+        if not m:
+            self.write(f"I don't know what to do with {desc}")
+            return
 
-            self.write(f"Downloading {rn} as {fn}")
+        self.debug(f"Considering {desc}")
+        url = f"{self.BASE}/{href}"
+        rn = m.group(1)
 
-            file_r = requests.get(url)
-            with open(path, "wb") as fo:
-                fo.write(file_r.content)
-            self.downloaded[fn] = cc
+        m = re.match(r"([A-Za-z]*)_[-A-Z]+[0-9]+_([0-9]+x[0-9]+.jpg)", rn)
+        if m:
+            fn = m.group(1) + "_" + m.group(2)
+        else:
+            fn = rn
+
+        if fn in self.downloaded:
+            self.debug(f"Already downloaded {fn} from {self.downloaded[fn]}")
+            return
+
+        path = os.path.join(self.PATH, fn)
+        if os.path.isfile(path):
+            if not self.args.force:
+                self.write(f"Already downloaded {fn}")
+                self.downloaded[fn] = "N/A"
+                return
+
+        self.write(f"Downloading {rn} as {fn}")
+
+        file_r = requests.get(url)
+        with open(path, "wb") as fo:
+            fo.write(file_r.content)
+        self.downloaded[fn] = source
 
     def write(self, *args):
         if not self.args.quiet:
