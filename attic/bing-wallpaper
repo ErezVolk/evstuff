@@ -9,7 +9,7 @@ import re
 
 class BingWallpaper:
     BASE = "https://www.bing.com/"
-    COUNTRIES = ("us", "jp", "cn", "uk")
+    COUNTRIES = ("us", "jp", "cn", "uk", "de")
     PATH = os.path.expanduser("~/Pictures/bing-wallpapers")
 
     def run(self):
@@ -99,7 +99,7 @@ class BingWallpaper:
         path = os.path.join(self.PATH, fn)
         if os.path.isfile(path):
             if not self.args.force:
-                self.write(f"Already downloaded {fn}")
+                self.write(f"Already have {fn}")
                 self.downloaded[fn] = "N/A"
                 return
 
