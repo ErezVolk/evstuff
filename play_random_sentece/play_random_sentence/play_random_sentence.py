@@ -139,12 +139,12 @@ class PlayRandomSentence(Qt.QDialog):
 
     @classmethod
     def get_lang_voices(cls, lang, default):
-        all_lang_voices = cls.get_lang_voices_with_voices(
-            lang
-        ) or cls.get_lang_voices_with_say(lang)
-        return [
-            voice for voice in all_lang_voices if voice not in cls.BLACKLIST
-        ] or default
+        if lang == "en":
+            look_for = "Hello, my name is"
+        else:
+            look_for = f"{lang}_"
+        voices = cls.get_lang_voices_with_say(look_for)
+        return voices or default
 
     @classmethod
     def get_lang_voices_with_voices(cls, lang):
@@ -155,13 +155,13 @@ class PlayRandomSentence(Qt.QDialog):
             return []
 
     @classmethod
-    def get_lang_voices_with_say(cls, lang):
+    def get_lang_voices_with_say(cls, look_for):
         try:
             output = run("say", "-v", "?")
             return [
                 line.split(" ", 1)[0]
                 for line in output.split("\n")
-                if " %s_" % lang in line
+                if look_for in line
             ]
         except Exception:
             return []
