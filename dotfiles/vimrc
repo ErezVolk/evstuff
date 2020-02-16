@@ -1,0 +1,15 @@
+execute pathogen#infect()
+
+syntax on
+filetype plugin indent on
+set hlsearch
+set incsearch
+set listchars=tab:»·,trail:·
+set list
+
+nnoremap <CR> :noh<CR><CR>
+nnoremap <F7> :SyntasticCheck mypy pylint<CR>
+
+" let g:syntastic_python_checkers=['flake8', 'mypy']
+let g:syntastic_python_checkers=['flake8']
+let g:syntastic_cpp_include_dirs=['/usr/local/Cellar/qt/5.14.1/lib/QtCore.framework/Versions/5/Headers']

@@ -1,0 +1,6 @@
+#!/bin/sh
+git ooo
+brew upgrade
+brew cask upgrade
+bing-wallpaper
+ggev
