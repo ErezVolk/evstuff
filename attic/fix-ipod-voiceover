@@ -1,0 +1,212 @@
+#!/usr/bin/env python3
+import argparse
+from collections import defaultdict
+import os
+from pathlib import Path
+import random
+import re
+import shellescape
+import struct
+import subprocess
+from tempfile import NamedTemporaryFile
+from typing import Optional, Dict, Any
+
+
+class FixIpodVoiceover:
+    def run(self):
+        self.parse_args()
+        self.read_shdb()
+        self.scan_playlist_voiceovers()
+
+        tid_to_path = {
+            shtr_id: self.str256(shtr_offset + 24)
+            for shtr_id, shtr_offset in enumerate(self.iter_items(36, "shth", "shtr"))
+        }
+
+        lang_voices = defaultdict(list)
+        for line in self.execute("say", "-v", "?", quiet=True, capture_stdout=True).split("\n"):
+            m = re.match(r"(\S.*?\S)\s+([a-z][a-z])[-_]", line)
+            if not m:
+                continue
+            lang = m.group(2)
+            if lang == "en":
+                if "Hello, my name is" not in line:
+                    # Novelty voice
+                    continue
+            lang_voices[lang].append(m.group(1))
+
+        for shpl_id, shpl_offset in enumerate(self.iter_items(40, "shph", "shpl")):
+            shpl_num_songs = self.uint32(shpl_offset + 8)
+            if shpl_num_songs == 0:
+                # Empty playlist, who cares
+                continue
+
+            shpl_type = self.uint32(shpl_offset + 24)
+            if shpl_type != 2:
+                # Not a regular playlist
+                continue
+
+            shpl_dbid_n = self.uint64(shpl_offset + 16)
+            shpl_dbid_x = f"{shpl_dbid_n:X}"
+
+            if shpl_dbid_x in self.playlists_with_voiceover:
+                # Already has a voiceover
+                if not self.args.force:
+                    continue
+
+            print(
+                f"{shpl_id} type={shpl_type} num_songs={shpl_num_songs} dbid={shpl_dbid_x}"
+            )
+            first_track_id = self.uint32(shpl_offset + 44)
+            first_track_path = self.root / tid_to_path[first_track_id][1:]
+            try:
+                self.execute("play", str(first_track_path))
+            except KeyboardInterrupt:
+                pass
+            text = input("Enter playlist name: ")
+            if not text:
+                continue
+
+            lang = input("Enter language [en]: ") or "en"
+            voice = random.choice(lang_voices[lang])
+            wav_fn = self.playlist_voiceover_dir / f"{shpl_dbid_x}.wav"
+            with NamedTemporaryFile(suffix=".aiff") as ntf:
+                aiff_fn = ntf.name
+                self.execute("say", "-v", voice, "-o", aiff_fn, text)
+                self.execute("sox", aiff_fn, str(wav_fn))
+
+    def iter_items(self, header_offset_offset, header_tag, item_tag):
+        header_offset = self.uint32(header_offset_offset)
+        actual_header_tag = self.tag(header_offset)
+        if actual_header_tag != header_tag:
+            raise ValueError(f'{header_tag} tag is "{actual_header_tag}"')
+
+        header_len = self.uint32(header_offset + 4)
+        num_items = self.uint32(header_offset + 8)
+        item_offset = header_offset + header_len
+        for item_id in range(num_items):
+            actual_item_tag = self.tag(item_offset)
+            if actual_item_tag != item_tag:
+                raise ValueError(f'{item_tag} tag is "{actual_item_tag}"')
+
+            yield item_offset
+
+            item_len = self.uint32(item_offset + 4)
+            item_offset += item_len
+
+    def scan_playlist_voiceovers(self):
+        self.playlist_voiceover_dir.mkdir(exist_ok=True)
+        self.playlists_with_voiceover = {
+            fn.stem: fn
+            for fn in self.playlist_voiceover_dir.iterdir()
+            if fn.suffix == ".wav"
+        }
+
+    def read_shdb(self):
+        with open(self.itunes_sd_path, "rb") as fo:
+            self.shdb = fo.read()
+
+        tag = self.tag(0)
+        if tag != "shdb":
+            self.parser.error(f"This ({tag}) is not an iPod shuffle.")
+
+        version = self.uint32(4)
+        print(f"shdb version: {version:X}")
+
+    def uint16(self, offset):
+        assert offset + 6 <= len(self.shdb)
+        (value,) = struct.unpack_from("<H", self.shdb, offset)
+        return value
+
+    def uint32(self, offset):
+        assert offset + 4 <= len(self.shdb)
+        (value,) = struct.unpack_from("<L", self.shdb, offset)
+        return value
+
+    def uint64(self, offset):
+        assert offset + 8 <= len(self.shdb)
+        (value,) = struct.unpack_from("<Q", self.shdb, offset)
+        return value
+
+    def tag(self, offset=0):
+        assert offset + 4 <= len(self.shdb)
+        ba = bytearray(self.shdb[offset: offset + 4])
+        ba.reverse()
+        return ba.decode()
+
+    def str256(self, offset):
+        assert offset + 256 <= len(self.shdb)
+        all_bytes = self.shdb[offset: offset + 256]
+        meat_bytes = all_bytes.split(b"\0", 1)[0]
+        return meat_bytes.decode()
+
+    def parse_args(self):
+        self.parser = argparse.ArgumentParser(description="Fix VoiceOver on an IPod")
+        self.parser.add_argument(
+            "-r", "--root", default="/Volumes/IPOD", help="Root of mounted IPod"
+        )
+        self.parser.add_argument("--itunes-sd", help="Specify iTunesSD file. Don't.")
+        self.parser.add_argument(
+            "-f",
+            "--force",
+            action="store_true",
+            help="Regenerate existing VoiceOver for playlists.",
+        )
+        group = self.parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "-y",
+            "--yes",
+            action="store_true",
+            help="Fix without asking for confirmation.",
+        )
+        group.add_argument(
+            "-n",
+            "--dry-run",
+            action="store_true",
+            help="Only print what would be done.",
+        )
+        self.args = self.parser.parse_args()
+
+        self.root = Path(self.args.root)
+        self.ipod_control = Path(self.root) / "iPod_Control"
+        if not self.ipod_control.is_dir():
+            self.parser.error(f'No IPod found in "{self.root}", please use --root')
+
+        self.playlist_voiceover_dir = self.ipod_control / "Speakable" / "Playlists"
+
+        if self.args.itunes_sd:
+            self.itunes_sd_path = Path(self.args.itunes_sd)
+        else:
+            self.itunes_sd_path = self.ipod_control / "iTunes" / "iTunesSD"
+            if not self.itunes_sd_path.exists():
+                self.parser.error(f'"{self.root}" seems to be broken.')
+
+    @classmethod
+    def execute(
+        cls,
+        *args,
+        stdin: Optional[str] = None,
+        capture_stdout: bool = False,
+        quiet: bool = False,
+    ) -> str:
+        """Wrapper for subprocess.run()"""
+        if not quiet:
+            cmdline = " ".join(shellescape.quote(a) for a in args)
+            cmdline = cmdline.replace(os.getcwd(), ".")
+            cmdline = cmdline.replace(os.path.dirname(os.getcwd()), "..")
+            print(f"> {cmdline}")
+
+        kwargs: Dict[str, Any] = {"check": True}
+        if stdin:
+            kwargs["input"] = stdin
+        if capture_stdout:
+            kwargs["capture_output"] = True
+        kwargs["encoding"] = "utf-8"
+        result = subprocess.run(args, **kwargs)
+        if capture_stdout:
+            return result.stdout
+        return ""
+
+
+if __name__ == "__main__":
+    FixIpodVoiceover().run()
