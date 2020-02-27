@@ -36,18 +36,20 @@ class FixIpodVoiceover:
             lang_voices[lang].append(m.group(1))
 
         for shpl_id, shpl_offset in enumerate(self.iter_items(40, "shph", "shpl")):
+            shpl_dbid_n = self.uint64(shpl_offset + 16)
+            shpl_dbid_x = f"{shpl_dbid_n:X}"
+
             shpl_num_songs = self.uint32(shpl_offset + 8)
+            shpl_type = self.uint32(shpl_offset + 24)
+
             if shpl_num_songs == 0:
                 # Empty playlist, who cares
+                print(f"Playlist {shpl_dbid_x} (type {shpl_type}) is empty")
                 continue
 
-            shpl_type = self.uint32(shpl_offset + 24)
             if shpl_type != 2:
                 # Not a regular playlist
                 continue
-
-            shpl_dbid_n = self.uint64(shpl_offset + 16)
-            shpl_dbid_x = f"{shpl_dbid_n:X}"
 
             if shpl_dbid_x in self.playlists_with_voiceover:
                 # Already has a voiceover
@@ -69,11 +71,13 @@ class FixIpodVoiceover:
 
             lang = input("Enter language [en]: ") or "en"
             voice = random.choice(lang_voices[lang])
-            wav_fn = self.playlist_voiceover_dir / f"{shpl_dbid_x}.wav"
             with NamedTemporaryFile(suffix=".aiff") as ntf:
                 aiff_fn = ntf.name
                 self.execute("say", "-v", voice, "-o", aiff_fn, text)
-                self.execute("sox", aiff_fn, str(wav_fn))
+                self.execute("sox", aiff_fn, str(self.wav_fn(shpl_dbid_x)))
+
+    def wav_fn(self, dbid: str) -> Path:
+        return self.playlist_voiceover_dir / f"{dbid}.wav"
 
     def iter_items(self, header_offset_offset, header_tag, item_tag):
         header_offset = self.uint32(header_offset_offset)
@@ -152,19 +156,19 @@ class FixIpodVoiceover:
             action="store_true",
             help="Regenerate existing VoiceOver for playlists.",
         )
-        group = self.parser.add_mutually_exclusive_group()
-        group.add_argument(
-            "-y",
-            "--yes",
-            action="store_true",
-            help="Fix without asking for confirmation.",
-        )
-        group.add_argument(
-            "-n",
-            "--dry-run",
-            action="store_true",
-            help="Only print what would be done.",
-        )
+        # group = self.parser.add_mutually_exclusive_group()
+        # group.add_argument(
+        #     "-y",
+        #     "--yes",
+        #     action="store_true",
+        #     help="Fix without asking for confirmation.",
+        # )
+        # group.add_argument(
+        #     "-n",
+        #     "--dry-run",
+        #     action="store_true",
+        #     help="Only print what would be done.",
+        # )
         self.args = self.parser.parse_args()
 
         self.root = Path(self.args.root)
