@@ -18,8 +18,8 @@ class FixIpodVoiceover:
         self.read_shdb()
         self.scan_playlist_voiceovers()
 
-        tid_to_path = {
-            shtr_id: self.str256(shtr_offset + 24)
+        track_id_to_relpath = {
+            shtr_id: self.str256(shtr_offset + 24).lstrip("/\\")
             for shtr_id, shtr_offset in enumerate(self.iter_items(36, "shth", "shtr"))
         }
 
@@ -60,7 +60,7 @@ class FixIpodVoiceover:
                 f"{shpl_id} type={shpl_type} num_songs={shpl_num_songs} dbid={shpl_dbid_x}"
             )
             first_track_id = self.uint32(shpl_offset + 44)
-            first_track_path = self.root / tid_to_path[first_track_id][1:]
+            first_track_path = self.root / track_id_to_relpath[first_track_id]
             try:
                 self.execute("play", str(first_track_path))
             except KeyboardInterrupt:
