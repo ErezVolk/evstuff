@@ -18,7 +18,7 @@ class FixIpodVoiceover:
         self.read_shdb()
         self.scan_playlist_voiceovers()
 
-        track_id_to_relpath = {
+        self.track_id_to_relpath = {
             shtr_id: self.str256(shtr_offset + 24).lstrip("/\\")
             for shtr_id, shtr_offset in enumerate(self.iter_items(36, "shth", "shtr"))
         }
@@ -35,9 +35,12 @@ class FixIpodVoiceover:
                     continue
             lang_voices[lang].append(m.group(1))
 
+        existing_shpl_dbid_xs = set()
         for shpl_id, shpl_offset in enumerate(self.iter_items(40, "shph", "shpl")):
             shpl_dbid_n = self.uint64(shpl_offset + 16)
             shpl_dbid_x = f"{shpl_dbid_n:X}"
+
+            existing_shpl_dbid_xs.add(shpl_dbid_x)
 
             shpl_num_songs = self.uint32(shpl_offset + 8)
             shpl_type = self.uint32(shpl_offset + 24)
@@ -49,6 +52,8 @@ class FixIpodVoiceover:
 
             if shpl_type != 2:
                 # Not a regular playlist
+                if shpl_dbid_x != "0":
+                    print(f"Playlist {shpl_dbid_x} (size: {shpl_num_songs}) has type {shpl_type}")
                 continue
 
             if shpl_dbid_x in self.playlists_with_voiceover:
@@ -59,12 +64,7 @@ class FixIpodVoiceover:
             print(
                 f"{shpl_id} type={shpl_type} num_songs={shpl_num_songs} dbid={shpl_dbid_x}"
             )
-            first_track_id = self.uint32(shpl_offset + 44)
-            first_track_path = self.root / track_id_to_relpath[first_track_id]
-            try:
-                self.execute("play", str(first_track_path))
-            except KeyboardInterrupt:
-                pass
+            self.play_first_track(shpl_offset)
             text = input("Enter playlist name: ")
             if not text:
                 continue
@@ -75,6 +75,21 @@ class FixIpodVoiceover:
                 aiff_fn = ntf.name
                 self.execute("say", "-v", voice, "-o", aiff_fn, text)
                 self.execute("sox", aiff_fn, str(self.wav_fn(shpl_dbid_x)))
+
+        for shpl_dbid_x in self.playlists_with_voiceover.keys() - existing_shpl_dbid_xs:
+            zombie_path = self.wav_fn(shpl_dbid_x)
+            print(f"Deleting zombie {zombie_path}")
+            zombie_path.unlink()
+
+    def play_first_track(self, shpl_offset: int):
+        try:
+            self.execute("play", str(self.first_track_path(shpl_offset)))
+        except KeyboardInterrupt:
+            pass
+
+    def first_track_path(self, shpl_offset: int):
+        first_track_id = self.uint32(shpl_offset + 44)
+        return self.root / self.track_id_to_relpath[first_track_id]
 
     def wav_fn(self, dbid: str) -> Path:
         return self.playlist_voiceover_dir / f"{dbid}.wav"
