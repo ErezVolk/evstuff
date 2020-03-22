@@ -120,7 +120,7 @@ PROMPT='%{$bold_color%}$(git_prompt_status)%{$reset_color%}'\
 
 PROMPT2='%{$fg[red]%}\ %{$reset_color%}'
 
-alias ls='ls -F --color'
+alias ls='ls -F --color=auto'
 alias lsh='ls -sh'
 alias brug='brew upgrade; brew cask upgrade; ggev'
 

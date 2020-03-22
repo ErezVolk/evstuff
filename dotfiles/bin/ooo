@@ -3,4 +3,4 @@ git ooo
 brew upgrade
 brew cask upgrade
 bing-wallpaper
-ggev
+if [ -f ~/bin/ggev ]; then ~/bin/ggev; fi

@@ -98,6 +98,7 @@ class BingWallpaper:
         m = re.match(r"([A-Za-z0-9]*)_[-A-Z]+[0-9]+_([0-9]+x[0-9]+.jpg)", rn)
         if not m:
             self.write(f"I don't know how to parse {desc}")
+            return
         fn = m.group(1) + "_" + m.group(2)
         stem = m.group(1)
 
