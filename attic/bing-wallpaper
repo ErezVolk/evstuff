@@ -95,11 +95,11 @@ class BingWallpaper:
         url = f"{self.BASE}/{href}"
         rn = m.group(1)
 
-        m = re.match(r"([A-Za-z0-9]*)_[-A-Z]+[0-9]+_([0-9]+x[0-9]+.jpg)", rn)
+        m = re.match(r"([A-Za-z0-9]*)_.+_([0-9]+x[0-9]+).*\.jpg", rn)
         if not m:
-            self.write(f"I don't know how to parse {desc}")
+            self.write(f"I don't know how to parse {rn} in {desc}")
             return
-        fn = m.group(1) + "_" + m.group(2)
+        fn = m.group(1) + "_" + m.group(2) + ".jpg"
         stem = m.group(1)
 
         if stem in self.stem_to_state:
