@@ -1,4 +1,5 @@
 // ex: set et sw=2:
+// TODO: Fix unfixing Source
 
 function cr_main() {
   cr = {
@@ -23,7 +24,7 @@ function cr_get_docs(cr) {
   cr.docs = [];
   var book = undefined;
   try {
-    book = activeBook;
+    book = app.activeBook;
   } catch(err) {
     // ignore
   }
@@ -85,13 +86,14 @@ function cr_doc_style_do_destinations(cr, style) {
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
     var name = text.contents;
-    if (cr.destinations.hasOwnProperty(name))
-      throw new Error("Duplicate destination: " + name);
-
-    cr_log(cr, "Creating destination \"" + name+ "\"");
-    cr.destinations[name] = cr.doc.hyperlinkTextDestinations.add(text, {label: "cxr"})
-    cr_unlog(cr);
-    added = added + 1;
+    if (cr.destinations.hasOwnProperty(name)) {
+      cr_log(cr, "Ignoring duplicate: \"" + name + "\" is " + cr.destinations[name].toSource());
+    } else {
+      cr_log(cr, "Creating destination \"" + name+ "\"");
+      cr.destinations[name] = cr.doc.hyperlinkTextDestinations.add(text, {label: "cxr"})
+      cr_unlog(cr);
+      added = added + 1;
+    }
   }
   app.findGrepPreferences = NothingEnum.nothing;
   return added;
@@ -118,7 +120,7 @@ function cr_doc_undo_sources(cr) {
     }
   }
   if (removed > 0)
-    cr_log(cr, "Removed " + removed + " source(s)");
+    cr_log(cr, "Undid " + removed + " source(s)");
 }
 
 function cr_doc_redo_sources(cr) {
