@@ -6,9 +6,11 @@ set hlsearch
 set incsearch
 set listchars=tab:»·,trail:·
 set list
+set ruler
 
 nnoremap <CR> :noh<CR><CR>
-nnoremap <F7> :SyntasticCheck mypy pylint<CR>
+nnoremap <F7> :SyntasticCheck mypy<CR>
+nnoremap <F8> :SyntasticCheck pylint<CR>
 
 " let g:syntastic_python_checkers=['flake8', 'mypy']
 let g:syntastic_python_checkers=['flake8']
