@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+from argparse import ArgumentParser
+from pathlib import Path
+import shutil
+
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--input", type=Path, default=".")
+    parser.add_argument("-o", "--output", type=Path, default="sandisk")
+    parser.add_argument("-n", "--playlist-name", type=str)
+    args = parser.parse_args()
+
+    mp3s = [p for p in args.input.rglob("*.mp3")]
+    if not mp3s:
+        parser.error(f"No MP3 files in {args.input}")
+
+    name_to_path = {p.name: p for p in mp3s}
+    if len(name_to_path) != len(mp3s):
+        parser.error("Duplicate file names!")
+
+    if args.output.is_dir():
+        shutil.rmtree(args.output)
+    args.output.mkdir(parents=True, exist_ok=True)
+
+    m3ufn = args.output / f"{args.playlist_name or args.output.name}.m3u"
+
+    print(f"Writing {len(mp3s)} files to {m3ufn}")
+    with open(m3ufn, "w", newline="\r\n") as m3u:
+        m3u.write("#EXTM3U\n")
+        for name, path in sorted(name_to_path.items()):
+            path.link_to(args.output / name)
+            m3u.write("#EXTINF:0,")
+            m3u.write(name)
+            m3u.write("\n")
+            m3u.write(name)
+            m3u.write("\n\n")
+
+
+if __name__ == "__main__":
+    main()
