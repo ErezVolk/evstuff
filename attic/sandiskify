@@ -17,7 +17,12 @@ def main():
 
     name_to_path = {p.name: p for p in mp3s}
     if len(name_to_path) != len(mp3s):
-        parser.error("Duplicate file names!")
+        dupes = [
+            name
+            for name in sorted(name_to_path)
+            if sum(1 for p in mp3s if p.name == name) > 1
+        ]
+        parser.error(f"Duplicate file names! {dupes}")
 
     if args.output.is_dir():
         shutil.rmtree(args.output)
@@ -39,3 +44,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# TODO: auto name
+# TODO: id3 (mp3-tagger?)
