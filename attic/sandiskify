@@ -1,15 +1,32 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
+from mp3_tagger import MP3File
 from pathlib import Path
+import re
 import shutil
 
 
 def main():
     parser = ArgumentParser()
     parser.add_argument("-i", "--input", type=Path, default=".")
-    parser.add_argument("-o", "--output", type=Path, default="sandisk")
+    parser.add_argument("-o", "--output", type=Path)
     parser.add_argument("-n", "--playlist-name", type=str)
+    parser.add_argument("-a", "--artist", type=str)
+    parser.add_argument("-A", "--album", type=str)
     args = parser.parse_args()
+
+    if not args.output:
+        inname = args.input.resolve().name
+        if (m := re.match(r"^(.*) - (.*)$", inname)):
+            if not args.artist:
+                args.artist = m.group(1)
+            if not args.album:
+                args.album = m.group(2)
+            args.output = Path(inname)
+        else:
+            args.output = Path("sandisk")
+    if args.output.is_dir():
+        shutil.rmtree(args.output)
 
     mp3s = [p for p in args.input.rglob("*.mp3")]
     if not mp3s:
@@ -24,8 +41,6 @@ def main():
         ]
         parser.error(f"Duplicate file names! {dupes}")
 
-    if args.output.is_dir():
-        shutil.rmtree(args.output)
     args.output.mkdir(parents=True, exist_ok=True)
 
     m3ufn = args.output / f"{args.playlist_name or args.output.name}.m3u"
@@ -33,7 +48,16 @@ def main():
     print(f"Writing {len(mp3s)} files to {m3ufn}")
     with open(m3ufn, "w", newline="\r\n") as m3u:
         m3u.write("#EXTM3U\n")
-        for name, path in sorted(name_to_path.items()):
+        for track, (name, path) in enumerate(sorted(name_to_path.items()), 1):
+            if args.album or args.artist:
+                mp3f = MP3File(str(path))
+                if args.album:
+                    mp3f.album = args.album
+                if args.artist:
+                    mp3f.artist = args.artist
+                mp3f.track = str(track)
+                mp3f.save()
+
             path.link_to(args.output / name)
             m3u.write("#EXTINF:0,")
             m3u.write(name)
@@ -44,7 +68,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# TODO: auto name
-# TODO: id3 (mp3-tagger?)
