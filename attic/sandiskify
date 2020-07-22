@@ -55,6 +55,7 @@ def main():
                     mp3f.album = args.album
                 if args.artist:
                     mp3f.artist = args.artist
+                mp3f.song = path.stem
                 mp3f.track = str(track)
                 mp3f.save()
 
