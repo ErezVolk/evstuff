@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
-from mp3_tagger import MP3File
+from mutagen.easyid3 import EasyID3
 from pathlib import Path
 import re
 import shutil
@@ -50,14 +50,14 @@ def main():
         m3u.write("#EXTM3U\n")
         for track, (name, path) in enumerate(sorted(name_to_path.items()), 1):
             if args.album or args.artist:
-                mp3f = MP3File(str(path))
+                id3 = EasyID3()
                 if args.album:
-                    mp3f.album = args.album
+                    id3["album"] = args.album
                 if args.artist:
-                    mp3f.artist = args.artist
-                mp3f.song = path.stem
-                mp3f.track = str(track)
-                mp3f.save()
+                    id3["artist"] = args.artist
+                id3["title"] = path.stem
+                id3["tracknumber"] = str(track)
+                id3.save(path)
 
             path.link_to(args.output / name)
             m3u.write("#EXTINF:0,")
