@@ -28,6 +28,7 @@ def main():
     parser.add_argument("-t", "--tag", default="To Skim", help="Tag to set/remove")
     parser.add_argument("-a", "--application", default="Preview", help="Application with which to open")
     parser.add_argument("-n", "--max-files", type=int, help="Limit to MAX_FILES files")
+    parser.add_argument("-f", "--flat", action="store_true", help="No recursion")
 
     args = parser.parse_args()
 
@@ -49,7 +50,11 @@ def main():
 
     n_done = 0
     for root in args.roots:
-        for fn in root.rglob("*.pdf"):
+        if args.flat:
+            fns = root.glob("*.pdf")
+        else:
+            fns = root.rglob("*.pdf")
+        for fn in fns:
             if macos_tags.get_all(fn) == if_is:
                 print(fn)
                 then_do(file=fn)
