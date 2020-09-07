@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+import argparse
+from functools import partial
+from pathlib import Path
+import subprocess
+
+import macos_tags
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Deal with 'To Skim' tags",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "action",
+        choices=["tag", "untag", "open", "nop"],
+        help="What to do to files"
+    )
+    parser.add_argument(
+        "roots",
+        metavar="ROOT",
+        nargs="*",
+        type=Path,
+        default=[Path.cwd()],
+        help="Root directory to scan",
+    )
+    parser.add_argument("-t", "--tag", default="To Skim", help="Tag to set/remove")
+    parser.add_argument("-a", "--application", default="Preview", help="Application with which to open")
+    parser.add_argument("-n", "--max-files", type=int, help="Limit to MAX_FILES files")
+
+    args = parser.parse_args()
+
+    default_tag = next(t for t in macos_tags.tags() if t.name == args.tag)
+    if args.action == "tag":
+        if_is = []
+        then_do = partial(macos_tags, [default_tag])
+    elif args.action == "untag":
+        if_is = [default_tag]
+        then_do = partial(macos_tags, [])
+    elif args.action == "open":
+        if_is = [default_tag]
+        then_do = partial(open_file, application=args.application)
+    elif args.action == "nop":
+        if_is = [default_tag]
+        then_do = noop
+    else:
+        raise NotImplementedError(args.action)
+
+    n_done = 0
+    for root in args.roots:
+        for fn in root.rglob("*.pdf"):
+            if macos_tags.get_all(fn) == if_is:
+                print(fn)
+                then_do(file=fn)
+                n_done += 1
+                if args.max_files and n_done >= args.max_files:
+                    print(f"Reached {n_done} files, stopping")
+                    return
+    print(f"Number of files processed: {n_done}")
+
+
+def open_file(application: str, file: Path):
+    subprocess.run(["open", "-a", application, file])
+
+
+def noop(*args, **kwargs):
+    pass
+
+
+if __name__ == "__main__":
+    main()
