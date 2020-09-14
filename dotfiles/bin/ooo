@@ -1,6 +1,5 @@
 #!/bin/sh
 git ooo
 brew upgrade
-brew cask upgrade
 bing-wallpaper
 if [ -f ~/bin/ggev ]; then ~/bin/ggev; fi
