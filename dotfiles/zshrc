@@ -122,7 +122,7 @@ PROMPT2='%{$fg[red]%}\ %{$reset_color%}'
 
 alias ls='ls -F --color=auto'
 alias lsh='ls -sh'
-alias brug='brew upgrade; ggev'
+alias brug='brew upgrade; bing-wallpaper; ggev'
 # alias brug='brew upgrade; brew cask upgrade; ggev'
 
 export LESS="-X -r"
