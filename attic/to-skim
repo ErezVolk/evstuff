@@ -22,7 +22,7 @@ def main():
         metavar="ROOT",
         nargs="*",
         type=Path,
-        default=[Path.cwd()],
+        default=[str(Path.cwd())],
         help="Root directory to scan",
     )
     parser.add_argument("-t", "--tag", default="To Skim", help="Tag to set/remove")
@@ -35,10 +35,10 @@ def main():
     default_tag = next(t for t in macos_tags.tags() if t.name == args.tag)
     if args.action == "tag":
         if_is = []
-        then_do = partial(macos_tags, [default_tag])
+        then_do = partial(macos_tags.set_all, [default_tag])
     elif args.action == "untag":
         if_is = [default_tag]
-        then_do = partial(macos_tags, [])
+        then_do = partial(macos_tags.set_all, [])
     elif args.action == "open":
         if_is = [default_tag]
         then_do = partial(open_file, application=args.application)
@@ -50,6 +50,8 @@ def main():
 
     n_done = 0
     for root in args.roots:
+        if not isinstance(root, Path):
+            root = Path(root)
         if args.flat:
             fns = root.glob("*.pdf")
         else:
