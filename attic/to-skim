@@ -75,7 +75,7 @@ def open_file(application: str, file: Path):
 
 
 def tag_and_open(tag: str, application: str, file: Path):
-    macos_tags.set_all(file, tag)
+    macos_tags.set_all([tag], file=file)
     subprocess.run(["open", "-a", application, file])
 
 
