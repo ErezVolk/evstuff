@@ -14,7 +14,7 @@ def main():
     )
     parser.add_argument(
         "action",
-        choices=["tag", "untag", "open", "nop"],
+        choices=["tag", "untag", "open", "nop", "tag-and-open"],
         help="What to do to files"
     )
     parser.add_argument(
@@ -42,6 +42,9 @@ def main():
     elif args.action == "open":
         if_is = [default_tag]
         then_do = partial(open_file, application=args.application)
+    elif args.action == "tag-and-open":
+        if_is = []
+        then_do = partial(tag_and_open, tag=default_tag, application=args.application)
     elif args.action == "nop":
         if_is = [default_tag]
         then_do = noop
@@ -68,6 +71,11 @@ def main():
 
 
 def open_file(application: str, file: Path):
+    subprocess.run(["open", "-a", application, file])
+
+
+def tag_and_open(tag: str, application: str, file: Path):
+    macos_tags.set_all(file, tag)
     subprocess.run(["open", "-a", application, file])
 
 
