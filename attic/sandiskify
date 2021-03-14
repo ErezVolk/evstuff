@@ -32,6 +32,8 @@ def main():
     if not mp3s:
         parser.error(f"No MP3 files in {args.input}")
 
+    jpgs = [p for p in args.input.rglob("*.jpg")]
+
     name_to_path = {p.name: p for p in mp3s}
     if len(name_to_path) != len(mp3s):
         dupes = [
@@ -65,6 +67,12 @@ def main():
             m3u.write("\n")
             m3u.write(name)
             m3u.write("\n\n")
+
+    if len(jpgs) == 1:
+        jpg, = jpgs
+        cover = args.output / "cover.jpg"
+        print(f"{cover} -> {jpg}")
+        cover.symlink_to(jpg)
 
 
 if __name__ == "__main__":
