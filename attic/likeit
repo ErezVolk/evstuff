@@ -1,0 +1,90 @@
+#!/usr/bin/env python3.8
+import argparse
+import logging
+from pathlib import Path
+import re
+import time
+import random
+
+import pandas as pd
+import browser_cookie3
+import requests
+
+
+logging.basicConfig(format="%(asctime)s %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description="LibraryThing 'Will You Like It?'",
+    )
+    parser.add_argument("-i", "--input", default=Path.home() / "audible" / "wishlist.xls", help="Excel input")
+    parser.add_argument("-o", "--output", default=Path.cwd() / "likeit.xlsx", help="Output file")
+    parser.add_argument("-d", "--debug", action="store_true", help="Say more")
+    args = parser.parse_args()
+
+    logger.info("Reading %s", args.input)
+    wishlist = pd.read_excel(args.input)
+    cookies = browser_cookie3.firefox()
+
+    done = {}
+    undone = []
+    checkpoint = time.time()
+    for label, row in wishlist.iterrows():
+        title = row.Title
+        try:
+            ltw = int(row.LTW)
+        except ValueError:
+            logger.warning("%s: No LTW", title)
+            continue
+
+        if ltw in done:
+            continue
+
+        desc = f"[{ltw}] {title}"
+
+        time.sleep(random.uniform(0.01, 0.25))
+        url = f"https://www.librarything.com/ajax_willilikeit.php?work={ltw}"
+        try:
+            reply = requests.get(url, cookies=cookies, timeout=60)
+        except requests.exceptions.Timeout:
+            undone.append(desc)
+            logger.warning("%s: Timeout", desc)
+            continue
+
+        if reply.status_code != requests.codes.ok:
+            undone.append(desc)
+            logger.warning("%s: HTTP %d", desc, reply.status_code)
+            continue
+
+        text = reply.text
+        if not (m := re.search(r'title="([0-9.]+), uncertainty ([0-9]+)"', text)):
+            undone.append(desc)
+            logger.warning("%s: BAD REPLY", desc)
+            continue
+
+        (score, uncertainty) = m.groups()
+        logger.info("%s: score %s, uncertainty %s", desc, score, uncertainty)
+        done[ltw] = (score, uncertainty)
+
+        wishlist.loc[wishlist.LTW == ltw, "L"] = score
+        wishlist.loc[wishlist.LTW == ltw, "T"] = uncertainty
+
+        if args.debug:
+            break
+
+        if done and time.time() - checkpoint > 120:
+            logger.info("Courtesy writing %s", args.output)
+            wishlist.to_excel(args.output)
+
+    logger.info("Number of works successfully queried: %d", len(done))
+    if done:
+        logger.info("Writing %s", args.output)
+        wishlist.to_excel(args.output)
+
+
+if __name__ == '__main__':
+    main()
