@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
-from mutagen.easyid3 import EasyID3
+from io import BytesIO
 from pathlib import Path
 import re
 import shutil
+
+from mutagen.id3 import ID3
+from mutagen.id3 import APIC
+from mutagen.id3 import TRCK
+from mutagen.id3 import TIT2
+from mutagen.id3 import TALB
+from mutagen.id3 import TPE1
+from PIL import Image
 
 
 def main():
@@ -13,6 +21,7 @@ def main():
     parser.add_argument("-n", "--playlist-name", type=str)
     parser.add_argument("-a", "--artist", type=str)
     parser.add_argument("-A", "--album", type=str)
+    parser.add_argument("-t", "--thumbnail-size", type=int, default=480)
     args = parser.parse_args()
 
     if not args.output:
@@ -33,6 +42,15 @@ def main():
         parser.error(f"No MP3 files in {args.input}")
 
     jpgs = [p for p in args.input.rglob("*.jpg")]
+    if len(jpgs) == 1:
+        image = Image.open(jpgs[0])
+        if any(s > args.thumbnail_size for s in image.size):
+            image.thumbnail((args.thumbnail_size, args.thumbnail_size))
+        with BytesIO() as bio:
+            image.save(bio, "JPEG")
+            apic = APIC(encoding=3, mime="image/jpeg", type=3, data=bio.getvalue())
+    else:
+        apic = None
 
     name_to_path = {p.name: p for p in mp3s}
     if len(name_to_path) != len(mp3s):
@@ -51,14 +69,17 @@ def main():
     with open(m3ufn, "w", newline="\r\n") as m3u:
         m3u.write("#EXTM3U\n")
         for track, (name, path) in enumerate(sorted(name_to_path.items()), 1):
-            if args.album or args.artist:
-                id3 = EasyID3()
+            if args.album or args.artist or apic:
+                id3 = ID3()
+                id3.setall("TRCK", [TRCK(encoding=3, text=str(track))])
+                id3.setall("TIT2", [TIT2(encoding=3, text=path.stem)])
+
                 if args.album:
-                    id3["album"] = args.album
+                    id3.setall("TALB", [TALB(encoding=3, text=args.album)])
                 if args.artist:
-                    id3["artist"] = args.artist
-                id3["title"] = path.stem
-                id3["tracknumber"] = str(track)
+                    id3.setall("TPE1", [TPE1(encoding=3, text=args.artist)])
+                if apic:
+                    id3.setall("apic", [apic])
                 id3.save(path)
 
             path.link_to(args.output / name)
