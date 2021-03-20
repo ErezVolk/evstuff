@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+import argparse
+from pathlib import Path
+import re
+
+import numpy as np
+import pandas as pd
+from pydub import AudioSegment
+
+
+class Spleet:
+    def main(self):
+        for fn in self.parse_args():
+            self.spleet(fn)
+
+    def parse_args(self):
+        parser = argparse.ArgumentParser(description="Split audio files by silence")
+        parser.add_argument(
+            "-m",
+            "--mean",
+            metavar="MM[:SS]",
+            type=self.mmss_to_ms,
+            default="2:00",
+            help="Aim for mean split duration [default: 2:00]",
+        )
+        parser.add_argument(
+            "--slice-ms",
+            type=int,
+            default=50,
+            help="Used for silence estimation",
+        )
+        parser.add_argument(
+            "--top-quantile",
+            type=float,
+            default=0.99,
+            help="Used for silence estimation",
+        )
+        parser.add_argument(
+            "--threshold-nth",
+            type=int,
+            default=32,
+            help="Used for silence estimation",
+        )
+        parser.add_argument(
+            "--wiggle-nth",
+            type=int,
+            default=4,
+            help="Used for split point search",
+        )
+        parser.add_argument(
+            "files",
+            metavar="MP3_FILE",
+            nargs="+",
+            type=Path,
+            help="Input file",
+        )
+        self.args = parser.parse_args()
+        self.min_ms = self.args.mean // self.args.wiggle_nth
+        return self.args.files
+
+    def spleet(self, fn: Path):
+        points_ms = self.get_splitpoints(fn)
+        points_text = ["0.00"] + [self.ms_to_mp3splt(ms) for ms in points_ms] + ["EOF"]
+        points = " ".join(points_text)
+        print(
+            "mp3splt -f -n -d '.' -o '$@f/@f @n2' "
+            f"'{fn}' {points}"
+        )
+
+    def ms_to_mp3splt(self, ms) -> str:
+        if np.isnan(ms):
+            return ""
+
+        secs, millis = divmod(ms, 1000)
+        mins, secs = divmod(secs, 60)
+        if millis == 0:
+            return f"{mins}.{secs:02d}"
+
+        return f"{mins}.{secs:02d}.{millis // 10:02d}"
+
+    def mmss_to_ms(self, mmss: str) -> int:
+        if not (m := re.match(r"^(\d+):(\d\d)$", mmss)):
+            raise argparse.ArgumentTypeError
+
+        return (int(m.group(1)) * 60 + int(m.group(2))) * 1000
+
+    def get_splitpoints(self, fn: Path):
+        snd = AudioSegment.from_file(fn)
+        if len(snd) <= self.args.mean + self.min_ms:
+            return []
+
+        sliceable_ms = (len(snd) // self.args.slice_ms) * self.args.slice_ms
+        rmss = np.array([
+            snd[start_ms : start_ms + self.args.slice_ms].rms
+            for start_ms in range(0, sliceable_ms, self.args.slice_ms)
+        ])
+        threshold = np.quantile(rmss, self.args.top_quantile) / self.args.threshold_nth
+        vads = rmss > threshold
+
+        run_values, run_starts, run_lengths = find_runs(vads)
+        sil_tmap = run_values == 0
+        sils = pd.DataFrame({
+            "start": run_starts[sil_tmap] * self.args.slice_ms,
+            "length": run_lengths[sil_tmap] * self.args.slice_ms,
+        })
+        sils["end"] = sils.start + sils.length
+
+        points = []
+        target = self.args.mean
+        limit_ms = len(snd) - self.min_ms
+        while target <= limit_ms:
+            window_min = target - self.min_ms
+            window_max = target + self.min_ms
+            rows = sils.loc[(sils.start < window_max) & (sils.end > window_min)]
+            if len(rows) == 0:
+                point = np.nan
+            else:
+                row = rows.loc[rows.length.idxmax()]
+                if row.length > self.args.slice_ms:
+                    point = row.end - self.args.slice_ms
+                else:
+                    point = (row.start + row.end) // 2
+                if point > limit_ms:
+                    point = np.nan
+
+            points.append(point)
+            target = point + self.args.mean
+
+        return points
+
+
+def find_runs(x):
+    """Find runs of consecutive items in an array.
+
+    https://gist.github.com/alimanfoo/c5977e87111abe8127453b21204c1065
+    """
+
+    # ensure array
+    x = np.asanyarray(x)
+    if x.ndim != 1:
+        raise ValueError('only 1D array supported')
+    n = x.shape[0]
+
+    # handle empty array
+    if n == 0:
+        return np.array([]), np.array([]), np.array([])
+
+    else:
+        # find run starts
+        loc_run_start = np.empty(n, dtype=bool)
+        loc_run_start[0] = True
+        np.not_equal(x[:-1], x[1:], out=loc_run_start[1:])
+        run_starts = np.nonzero(loc_run_start)[0]
+
+        # find run values
+        run_values = x[loc_run_start]
+
+        # find run lengths
+        run_lengths = np.diff(np.append(run_starts, n))
+
+        return run_values, run_starts, run_lengths
+
+
+if __name__ == "__main__":
+    Spleet().main()

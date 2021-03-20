@@ -70,9 +70,9 @@ def main():
 
     if len(jpgs) == 1:
         jpg, = jpgs
-        cover = args.output / "cover.jpg"
+        cover = m3ufn.with_suffix(".jpg")
         print(f"{cover} -> {jpg}")
-        cover.symlink_to(jpg)
+        jpg.link_to(cover)
 
 
 if __name__ == "__main__":
