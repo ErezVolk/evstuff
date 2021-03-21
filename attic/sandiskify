@@ -12,6 +12,8 @@ from mutagen.id3 import TIT2
 from mutagen.id3 import TALB
 from mutagen.id3 import TPE1
 from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
 
 def main():
@@ -22,6 +24,7 @@ def main():
     parser.add_argument("-a", "--artist", type=str)
     parser.add_argument("-A", "--album", type=str)
     parser.add_argument("-t", "--thumbnail-size", type=int, default=480)
+    parser.add_argument("-P", "--no-pic", action="store_true")
     args = parser.parse_args()
 
     if not args.output:
@@ -42,15 +45,17 @@ def main():
         parser.error(f"No MP3 files in {args.input}")
 
     jpgs = [p for p in args.input.rglob("*.jpg")]
-    if len(jpgs) == 1:
-        image = Image.open(jpgs[0])
-        if any(s > args.thumbnail_size for s in image.size):
-            image.thumbnail((args.thumbnail_size, args.thumbnail_size))
-        with BytesIO() as bio:
-            image.save(bio, "JPEG")
-            apic = APIC(encoding=3, mime="image/jpeg", type=3, data=bio.getvalue())
+    if len(jpgs) == 1 and not args.no_pic:
+        cover = Image.open(jpgs[0])
+        if any(s > args.thumbnail_size for s in cover.size):
+            cover.thumbnail((args.thumbnail_size, args.thumbnail_size))
     else:
-        apic = None
+        cover = None
+
+    try:
+        font = ImageFont.truetype("Arial Bold.ttf", 48)
+    except OSError:
+        font = None
 
     name_to_path = {p.name: p for p in mp3s}
     if len(name_to_path) != len(mp3s):
@@ -69,17 +74,29 @@ def main():
     with open(m3ufn, "w", newline="\r\n") as m3u:
         m3u.write("#EXTM3U\n")
         for track, (name, path) in enumerate(sorted(name_to_path.items()), 1):
-            if args.album or args.artist or apic:
+            if args.album or args.artist or cover:
                 id3 = ID3()
-                id3.setall("TRCK", [TRCK(encoding=3, text=str(track))])
-                id3.setall("TIT2", [TIT2(encoding=3, text=path.stem)])
+                set_tag(id3, TRCK(encoding=3, text=str(track)))
+                set_tag(id3, TIT2(encoding=3, text=path.stem))
 
                 if args.album:
-                    id3.setall("TALB", [TALB(encoding=3, text=args.album)])
+                    set_tag(id3, TALB(encoding=3, text=args.album))
                 if args.artist:
-                    id3.setall("TPE1", [TPE1(encoding=3, text=args.artist)])
-                if apic:
-                    id3.setall("apic", [apic])
+                    set_tag(id3, TPE1(encoding=3, text=args.artist))
+                if cover:
+                    image = cover.copy()
+                    ImageDraw.Draw(image).text(
+                        xy=(0, 0),
+                        text=path.stem,
+                        fill=(255, 255, 0),
+                        stroke_width=3,
+                        stroke_fill=(0, 0, 255),
+                        font=font,
+                    )
+                    with BytesIO() as bio:
+                        image.save(bio, "JPEG")
+                        apic = APIC(encoding=3, mime="image/jpeg", type=3, data=bio.getvalue())
+                    set_tag(id3, apic)
                 id3.save(path)
 
             path.link_to(args.output / name)
@@ -89,11 +106,9 @@ def main():
             m3u.write(name)
             m3u.write("\n\n")
 
-    if len(jpgs) == 1:
-        jpg, = jpgs
-        cover = m3ufn.with_suffix(".jpg")
-        print(f"{cover} -> {jpg}")
-        jpg.link_to(cover)
+
+def set_tag(id3: ID3, tag):
+    id3.setall(tag.FrameID, [tag])
 
 
 if __name__ == "__main__":
