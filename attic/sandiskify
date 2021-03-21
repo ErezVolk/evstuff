@@ -23,8 +23,10 @@ def main():
     parser.add_argument("-n", "--playlist-name", type=str)
     parser.add_argument("-a", "--artist", type=str)
     parser.add_argument("-A", "--album", type=str)
-    parser.add_argument("-t", "--thumbnail-size", type=int, default=480)
+    parser.add_argument("-t", "--thumbnail-size", type=int, default=120)
     parser.add_argument("-P", "--no-pic", action="store_true")
+    parser.add_argument("-f", "--font", type=str, default="Arial Bold.ttf")
+    parser.add_argument("-F", "--font-size", type=int, default=36)
     args = parser.parse_args()
 
     if not args.output:
@@ -53,7 +55,7 @@ def main():
         cover = None
 
     try:
-        font = ImageFont.truetype("Arial Bold.ttf", 48)
+        font = ImageFont.truetype(args.font, args.font_size)
     except OSError:
         font = None
 
@@ -84,15 +86,18 @@ def main():
                 if args.artist:
                     set_tag(id3, TPE1(encoding=3, text=args.artist))
                 if cover:
-                    image = cover.copy()
-                    ImageDraw.Draw(image).text(
-                        xy=(0, 0),
-                        text=path.stem,
-                        fill=(255, 255, 0),
-                        stroke_width=3,
-                        stroke_fill=(0, 0, 255),
-                        font=font,
-                    )
+                    if (m := re.search(r"\D(\d+ \d+)$", path.stem)) is not None:
+                        image = cover.copy()
+                        ImageDraw.Draw(image).text(
+                            xy=(0, 0),
+                            text=m.group(1),
+                            fill=(255, 255, 0),
+                            stroke_width=3,
+                            stroke_fill=(0, 0, 255),
+                            font=font,
+                        )
+                    else:
+                        image = cover
                     with BytesIO() as bio:
                         image.save(bio, "JPEG")
                         apic = APIC(encoding=3, mime="image/jpeg", type=3, data=bio.getvalue())
