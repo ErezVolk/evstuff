@@ -48,6 +48,12 @@ class Spleet:
             help="Used for split point search",
         )
         parser.add_argument(
+            "-o",
+            "--output",
+            type=Path,
+            help="Write output script",
+        )
+        parser.add_argument(
             "files",
             metavar="MP3_FILE",
             nargs="+",
@@ -62,10 +68,12 @@ class Spleet:
         points_ms = self.get_splitpoints(fn)
         points_text = ["0.00"] + [self.ms_to_mp3splt(ms) for ms in points_ms] + ["EOF"]
         points = " ".join(points_text)
-        print(
-            "mp3splt -f -n -d '.' -o '$@f/@f @n2' "
-            f"'{fn}' {points}"
-        )
+        line = f"mp3splt -f -n -d '.' -o '$@f/@f @n2' '{fn}' {points}"
+        print(line)
+        if self.args.output:
+            with open(self.args.output, "a+t") as fo:
+                fo.write(line)
+                fo.write("\n")
 
     def ms_to_mp3splt(self, ms) -> str:
         if np.isnan(ms):
