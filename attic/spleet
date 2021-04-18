@@ -68,7 +68,7 @@ class Spleet:
         points_ms = self.get_splitpoints(fn)
         points_text = ["0.00"] + [self.ms_to_mp3splt(ms) for ms in points_ms] + ["EOF"]
         points = " ".join(points_text)
-        line = f"mp3splt -f -n -d '.' -o '$@f/@f @n2' '{fn}' {points}"
+        line = f"mp3splt -f -n -d '.' -o '@f/@f @n2' '{fn}' {points}"
         print(line)
         if self.args.output:
             with open(self.args.output, "a+t") as fo:
