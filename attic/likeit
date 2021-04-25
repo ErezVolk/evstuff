@@ -16,75 +16,113 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description="LibraryThing 'Will You Like It?'",
-    )
-    parser.add_argument("-i", "--input", default=Path.home() / "audible" / "wishlist.xls", help="Excel input")
-    parser.add_argument("-o", "--output", default=Path.cwd() / "likeit.xlsx", help="Output file")
-    parser.add_argument("-d", "--debug", action="store_true", help="Say more")
-    args = parser.parse_args()
+class LikeIt:
+    NO_TITLE = "(N/A)"
 
-    logger.info("Reading %s", args.input)
-    wishlist = pd.read_excel(args.input)
-    cookies = browser_cookie3.firefox()
+    def run(self):
+        parser = argparse.ArgumentParser(
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+            description="LibraryThing 'Will You Like It?'",
+        )
+        parser.add_argument(
+            "-i",
+            "--input",
+            default=Path.home() / "audible" / "wishlist.xls",
+            help="Excel input",
+        )
+        parser.add_argument(
+            "-o", "--output", default=Path.cwd() / "likeit.xlsx", help="Output file"
+        )
+        parser.add_argument("-d", "--debug", action="store_true", help="Say more")
+        parser.add_argument(
+            "ltws",
+            metavar="WORK_ID",
+            type=int,
+            nargs="*",
+            help="Query specific LibraryThing works instead of spreadsheet",
+        )
+        self.args = parser.parse_args()
 
-    done = {}
-    undone = []
-    checkpoint = time.time()
-    for label, row in wishlist.iterrows():
-        title = row.Title
-        try:
-            ltw = int(row.LTW)
-        except ValueError:
-            logger.warning("%s: No LTW", title)
-            continue
+        logger.info("Reading %s", self.args.input)
+        if self.args.ltws:
+            wishlist = self.make_wishlist()
+        else:
+            wishlist = self.read_wishlist()
 
-        if ltw in done:
-            continue
+        cookies = browser_cookie3.firefox()
 
-        desc = f"[{ltw}] {title}"
+        done = {}
+        undone = []
+        checkpoint = time.time()
+        for label, row in wishlist.iterrows():
+            title = row.Title or self.NO_TITLE
+            try:
+                ltw = int(row.LTW)
+            except ValueError:
+                logger.warning("%s: No LTW", title)
+                continue
 
-        time.sleep(random.uniform(0.01, 0.25))
-        url = f"https://www.librarything.com/ajax_willilikeit.php?work={ltw}"
-        try:
-            reply = requests.get(url, cookies=cookies, timeout=60)
-        except requests.exceptions.Timeout:
-            undone.append(desc)
-            logger.warning("%s: Timeout", desc)
-            continue
+            if ltw in done:
+                continue
 
-        if reply.status_code != requests.codes.ok:
-            undone.append(desc)
-            logger.warning("%s: HTTP %d", desc, reply.status_code)
-            continue
+            desc = f"[{ltw}] {title}"
 
-        text = reply.text
-        if not (m := re.search(r'title="([0-9.]+), uncertainty ([0-9]+)"', text)):
-            undone.append(desc)
-            logger.warning("%s: BAD REPLY", desc)
-            continue
+            time.sleep(random.uniform(0.01, 0.25))
+            url = f"https://www.librarything.com/ajax_willilikeit.php?work={ltw}"
+            try:
+                reply = requests.get(url, cookies=cookies, timeout=60)
+            except requests.exceptions.Timeout:
+                undone.append(desc)
+                logger.warning("%s: Timeout", desc)
+                continue
 
-        (score, uncertainty) = m.groups()
-        logger.info("%s: score %s, uncertainty %s", desc, score, uncertainty)
-        done[ltw] = (score, uncertainty)
+            if reply.status_code != requests.codes.ok:
+                undone.append(desc)
+                logger.warning("%s: HTTP %d", desc, reply.status_code)
+                continue
 
-        wishlist.loc[wishlist.LTW == ltw, "L"] = score
-        wishlist.loc[wishlist.LTW == ltw, "T"] = uncertainty
+            text = reply.text
+            if not (m := re.search(r'title="([0-9.]+), uncertainty ([0-9]+)"', text)):
+                undone.append(desc)
+                logger.warning("%s: BAD REPLY", desc)
+                continue
 
-        if args.debug:
-            break
+            if title == self.NO_TITLE:
+                if (n := re.search(r'<i>([^<]+)</i> \(prediction confidence:', text)):
+                    title = n.group(1)
+                    desc = f"[{ltw}] {title}"
+                    wishlist.loc[wishlist.LTW == ltw, "Title"] = title
 
-        if done and time.time() - checkpoint > 120:
-            logger.info("Courtesy writing %s", args.output)
-            wishlist.to_excel(args.output)
+            (score, uncertainty) = m.groups()
+            logger.info("%s: score %s, uncertainty %s", desc, score, uncertainty)
+            done[ltw] = (score, uncertainty)
 
-    logger.info("Number of works successfully queried: %d", len(done))
-    if done:
-        logger.info("Writing %s", args.output)
-        wishlist.to_excel(args.output)
+            wishlist.loc[wishlist.LTW == ltw, "L"] = float(score)
+            wishlist.loc[wishlist.LTW == ltw, "T"] = int(uncertainty)
+
+            if self.args.debug:
+                break
+
+            if done and time.time() - checkpoint > 120:
+                logger.info("Courtesy writing %s", self.args.output)
+                wishlist.to_excel(self.args.output)
+
+        logger.info("Number of works successfully queried: %d", len(done))
+        if done:
+            logger.info("Writing %s", self.args.output)
+            wishlist.to_excel(self.args.output)
+
+    def read_wishlist(self) -> pd.DataFrame:
+        return pd.read_excel(self.args.input)
+
+    def make_wishlist(self) -> pd.DataFrame:
+        return pd.DataFrame({
+            "Title": self.NO_TITLE,
+            "LTW": self.args.ltws,
+            "L": 250.0,
+            "T": 500,
+        })
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    LikeIt().run()
