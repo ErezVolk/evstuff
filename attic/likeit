@@ -43,10 +43,10 @@ class LikeIt:
         )
         self.args = parser.parse_args()
 
-        logger.info("Reading %s", self.args.input)
         if self.args.ltws:
             wishlist = self.make_wishlist()
         else:
+            logger.info("Reading %s", self.args.input)
             wishlist = self.read_wishlist()
 
         cookies = browser_cookie3.firefox()
