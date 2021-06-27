@@ -18,16 +18,39 @@ def time_to_hours(t):
     raise ValueError(repr(t))
 
 
-stats = pd.read_excel(
-    "/Users/erez/translation/skel/stats.xls",
-    converters={"Time": time_to_hours},
-)
-stats.Time = stats.Time.astype(float)
-stats = stats[~stats.Time.isna()]
-stats = stats.groupby(["Lg", "T/E"]).sum()
-stats["O-W/H"] = (stats["O-Words"] / stats["Time"]).round(0).astype(int)
-stats["O-Words"] = stats["O-Words"].map('{:,.0f}'.format)
-stats = stats[["O-Words", "O-W/H"]]
-stats.sort_values(["T/E", "O-W/H"], ascending=[False, True], inplace=True)
-print(stats)
-print(datetime.utcnow())
+def main():
+    sheet = pd.read_excel(
+        "/Users/erez/translation/skel/stats.xls",
+        converters={"Time": time_to_hours},
+    )
+    sheet.Time = sheet.Time.astype(float)
+
+    df = sheet[~sheet.Time.isna()]
+    df = df.groupby(["Lg", "T/E"]).sum()
+    df["O-W/H"] = (df["O-Words"] / df["Time"]).round(0).astype(int)
+    df = df[["O-Words", "O-W/H"]]
+    df.sort_values(["T/E", "O-W/H"], ascending=[False, True], inplace=True)
+    for c in df.columns:
+        df[c] = df[c].map("{:,.0f}".format)
+    print(df)
+    print("")
+
+    df = sheet[(sheet["O-Words"] > 0) & (sheet["T-Chars+"] > 0) & (sheet["O-Chars"] > 0)]
+    df = df.groupby(["Lg"]).sum()
+    df["T-GD+"] = df["T-Chars+"] / 24000
+    df["O-W/T-GD+"] = (df["O-Words"] / df["T-GD+"]).astype(int)
+    df["O-C/T-GD+"] = (df["O-Chars"] / df["T-GD+"]).astype(int)
+    df["O-C/O-W"] = (df["O-Chars"] / df["O-Words"]).round(1)
+    df = df[["O-Words", "O-Chars", "O-C/O-W", "O-W/T-GD+", "O-C/T-GD+"]]
+    df.sort_values("O-W/T-GD+", inplace=True)
+    for c in df.columns:
+        if c != "O-C/O-W":
+            df[c] = df[c].map("{:,.0f}".format)
+    print(df)
+    print("")
+
+    print(datetime.utcnow())
+
+
+if __name__ == "__main__":
+    main()
