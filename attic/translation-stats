@@ -37,9 +37,10 @@ def main():
 
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
     fig.suptitle("Words per Hour by Language")
+    plats = sheet.loc[sheet["O-W/H"] > 0]
     sns.violinplot(
         ax=ax,
-        data=sheet.loc[sheet["O-W/H"] > 0],
+        data=plats,
         x="Lg", y="O-W/H", hue="T/E",
         split=True, inner="quart", linewidth=1,
         palette={"Tr": "b", "Ed": ".85"}
