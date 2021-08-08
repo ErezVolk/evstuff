@@ -27,11 +27,16 @@ class LikeIt:
         parser.add_argument(
             "-i",
             "--input",
+            type=Path,
             default=Path.home() / "audible" / "wishlist.xls",
             help="Excel input",
         )
         parser.add_argument(
-            "-o", "--output", default=Path.cwd() / "likeit.xlsx", help="Output file"
+            "-o",
+            "--output",
+            type=Path,
+            default=Path.cwd() / "likeit.xlsx",
+            help="Output file",
         )
         parser.add_argument("-d", "--debug", action="store_true", help="Say more")
         parser.add_argument(
@@ -56,8 +61,14 @@ class LikeIt:
         checkpoint = time.time()
         for label, row in wishlist.iterrows():
             title = row.Title or self.NO_TITLE
+            ltw = orig_ltw = row.LTW
+
+            if "/" in ltw:
+                ltw = ltw[ltw.rindex("/") + 1 :]
+
             try:
-                ltw = int(row.LTW)
+                ltw = int(ltw)
+                wishlist.loc[wishlist.LTW == orig_ltw, "LTW"] = ltw
             except ValueError:
                 logger.warning("%s: No LTW", title)
                 continue
@@ -88,7 +99,7 @@ class LikeIt:
                 continue
 
             if title == self.NO_TITLE:
-                if (n := re.search(r'<i>([^<]+)</i> \(prediction confidence:', text)):
+                if (n := re.search(r"<i>([^<]+)</i> \(prediction confidence:", text)) :
                     title = n.group(1)
                     desc = f"[{ltw}] {title}"
                     wishlist.loc[wishlist.LTW == ltw, "Title"] = title
@@ -110,18 +121,23 @@ class LikeIt:
         logger.info("Number of works successfully queried: %d", len(done))
         if done:
             logger.info("Writing %s", self.args.output)
-            wishlist.to_excel(self.args.output)
+            if self.args.output.suffix.lower() == ".csv":
+                wishlist.to_csv(self.args.output)
+            else:
+                wishlist.to_excel(self.args.output)
 
     def read_wishlist(self) -> pd.DataFrame:
         return pd.read_excel(self.args.input)
 
     def make_wishlist(self) -> pd.DataFrame:
-        return pd.DataFrame({
-            "Title": self.NO_TITLE,
-            "LTW": self.args.ltws,
-            "L": 250.0,
-            "T": 500,
-        })
+        return pd.DataFrame(
+            {
+                "Title": self.NO_TITLE,
+                "LTW": self.args.ltws,
+                "L": 250.0,
+                "T": 500,
+            }
+        )
 
 
 if __name__ == "__main__":
