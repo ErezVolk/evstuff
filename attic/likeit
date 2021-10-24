@@ -63,7 +63,7 @@ class LikeIt:
             title = row.Title or self.NO_TITLE
             ltw = orig_ltw = row.LTW
 
-            if "/" in ltw:
+            if isinstance(ltw, str) and "/" in ltw:
                 ltw = ltw[ltw.rindex("/") + 1 :]
 
             try:
