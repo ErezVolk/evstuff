@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+from pathlib import Path
+from argparse import ArgumentParser
+from subprocess import run
+
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--input", type=Path, default="cbd", help="Directory with card images"
+    )
+    parser.add_argument(
+        "--output", type=Path, default="spreads", help="Output directory"
+    )
+    parser.add_argument(
+        "-s",
+        "--suffix",
+        type=str,
+        help="Suffix to add to spread filenames (default: input dirname)",
+    )
+    parser.add_argument("-f", "--force", action="store_true")
+    parser.add_argument(
+        "cards", metavar="STEM", nargs="+", help="Card names, e.g., a01 a23"
+    )
+    args = parser.parse_args()
+
+    stem = "_".join(args.cards)
+    suffix = args.suffix
+    if suffix is None:
+        suffix = f"-{args.input.name}"
+    output = args.output / f"{stem}{suffix}.jpg"
+
+    def input_fn(card):
+        for path in args.input.glob(f"{card}.*"):
+            return path
+
+    if not args.force and not output.is_file():
+        inputs = [input_fn(card) for card in args.cards]
+
+        command = ["convert", "+append"] + inputs + [output]
+        run(command, check=True)
+        print(f"Created {output}")
+
+    run(["open", output])
+
+
+if __name__ == "__main__":
+    main()
