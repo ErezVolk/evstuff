@@ -50,6 +50,7 @@ def main():
         def input_fn(card):
             for path in card_dir.glob(f"{card}.*"):
                 return path
+            raise FileNotFoundError(card_dir / f"{card}.*")
 
         if not args.force and not output.is_file():
             inputs = [input_fn(card) for card in args.cards]
