@@ -54,25 +54,25 @@ def main():
         if not args.force and not output.is_file():
             inputs = [input_fn(card) for card in args.cards]
 
-        if args.method == "convert":
-            command = ["convert", "+append"] + inputs + [output]
-            command = [str(a) for a in command]
-            run(command, check=True)
-        else:
-            images = [Image.open(fn) for fn in inputs]
-            spread_width = sum(i.size[0] for i in images)
-            spread_height = max(i.size[1] for i in images)
-            spread = Image.new(
-                mode="RGB",
-                size=(spread_width, spread_height),
-                color="white"
-            )
-            offset = 0
-            for image in images:
-                spread.paste(image, (offset, 0))
-                offset += image.size[0]
-            spread.save(output)
-        print(f"Created {output}")
+            if args.method == "convert":
+                command = ["convert", "+append"] + inputs + [output]
+                command = [str(a) for a in command]
+                run(command, check=True)
+            else:
+                images = [Image.open(fn) for fn in inputs]
+                spread_width = sum(i.size[0] for i in images)
+                spread_height = max(i.size[1] for i in images)
+                spread = Image.new(
+                    mode="RGB",
+                    size=(spread_width, spread_height),
+                    color="white"
+                )
+                offset = 0
+                for image in images:
+                    spread.paste(image, (offset, 0))
+                    offset += image.size[0]
+                spread.save(output)
+            print(f"Created {output}")
 
         open_cmd.append(output)
 
