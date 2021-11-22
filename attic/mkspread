@@ -8,10 +8,21 @@ from PIL import Image
 def main():
     parser = ArgumentParser()
     parser.add_argument(
-        "--input", type=Path, default="cbd", help="Directory with card images"
+        "-i",
+        "--inputs",
+        nargs="+",
+        type=Path,
+        metavar="DIRECTORY",
+        default=[Path("cbd")],
+        help="Directory with card images",
     )
     parser.add_argument(
-        "--output", type=Path, default="spreads", help="Output directory"
+        "-o",
+        "--output",
+        type=Path,
+        metavar="DIRECTORY",
+        default="spreads",
+        help="Output directory",
     )
     parser.add_argument(
         "-s",
@@ -28,18 +39,20 @@ def main():
     )
     args = parser.parse_args()
 
-    stem = "_".join(args.cards)
-    suffix = args.suffix
-    if suffix is None:
-        suffix = f"-{args.input.name}"
-    output = args.output / f"{stem}{suffix}.jpg"
+    open_cmd = ["open"]
+    for card_dir in args.inputs:
+        stem = "_".join(args.cards)
+        suffix = args.suffix
+        if suffix is None:
+            suffix = f"-{card_dir.name}"
+        output = args.output / f"{stem}{suffix}.jpg"
 
-    def input_fn(card):
-        for path in args.input.glob(f"{card}.*"):
-            return path
+        def input_fn(card):
+            for path in card_dir.glob(f"{card}.*"):
+                return path
 
-    if not args.force and not output.is_file():
-        inputs = [input_fn(card) for card in args.cards]
+        if not args.force and not output.is_file():
+            inputs = [input_fn(card) for card in args.cards]
 
         if args.method == "convert":
             command = ["convert", "+append"] + inputs + [output]
@@ -61,7 +74,9 @@ def main():
             spread.save(output)
         print(f"Created {output}")
 
-    run(["open", output])
+        open_cmd.append(output)
+
+    run(open_cmd)
 
 
 if __name__ == "__main__":
