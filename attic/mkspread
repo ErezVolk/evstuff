@@ -2,6 +2,7 @@
 from pathlib import Path
 from argparse import ArgumentParser
 from subprocess import run
+from PIL import Image
 
 
 def main():
@@ -20,6 +21,9 @@ def main():
     )
     parser.add_argument("-f", "--force", action="store_true")
     parser.add_argument(
+        "-m", "--method", choices=["ImageMagic", "python"], default="python"
+    )
+    parser.add_argument(
         "cards", metavar="STEM", nargs="+", help="Card names, e.g., a01 a23"
     )
     args = parser.parse_args()
@@ -37,8 +41,24 @@ def main():
     if not args.force and not output.is_file():
         inputs = [input_fn(card) for card in args.cards]
 
-        command = ["convert", "+append"] + inputs + [output]
-        run(command, check=True)
+        if args.method == "convert":
+            command = ["convert", "+append"] + inputs + [output]
+            command = [str(a) for a in command]
+            run(command, check=True)
+        else:
+            images = [Image.open(fn) for fn in inputs]
+            spread_width = sum(i.size[0] for i in images)
+            spread_height = max(i.size[1] for i in images)
+            spread = Image.new(
+                mode="RGB",
+                size=(spread_width, spread_height),
+                color="white"
+            )
+            offset = 0
+            for image in images:
+                spread.paste(image, (offset, 0))
+                offset += image.size[0]
+            spread.save(output)
         print(f"Created {output}")
 
     run(["open", output])
