@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for d in .vim/bundle src play wis; do
+for d in .vim/bundle src play neuralight; do
     cd $HOME/$d
     git oo || exit
 done

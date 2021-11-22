@@ -15,4 +15,5 @@
 
 # parallel git depull-in {//} ::: */.git
 find . -name .git -a -type d |parallel git depull-in {//}
+# find . -name .svn -a -type d |parallel svn update {//}
 

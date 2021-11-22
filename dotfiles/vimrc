@@ -18,3 +18,7 @@ let g:syntastic_cpp_include_dirs=['/usr/local/Cellar/qt/5.14.1/lib/QtCore.framew
 
 let g:airline_theme='bubblegum'
 let g:recutils_no_folding=1
+
+let zotcite_conceallevel = 0
+
+autocmd bufreadpre *.md setlocal textwidth=72
