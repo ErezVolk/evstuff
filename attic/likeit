@@ -61,14 +61,15 @@ class LikeIt:
         checkpoint = time.time()
         for label, row in wishlist.iterrows():
             title = row.Title or self.NO_TITLE
-            ltw = orig_ltw = row.LTW
+            ltw = row.LTW
+            tmap = wishlist.LTW == ltw
 
             if isinstance(ltw, str) and "/" in ltw:
                 ltw = ltw[ltw.rindex("/") + 1 :]
 
             try:
                 ltw = int(ltw)
-                wishlist.loc[wishlist.LTW == orig_ltw, "LTW"] = ltw
+                wishlist.loc[tmap, "LTW"] = ltw
             except ValueError:
                 logger.warning("%s: No LTW", title)
                 continue
@@ -105,14 +106,14 @@ class LikeIt:
                 if (n := re.search(r"<i>([^<]+)</i> \(prediction confidence:", text)) :
                     title = n.group(1)
                     desc = f"[{ltw}] {title}"
-                    wishlist.loc[wishlist.LTW == ltw, "Title"] = title
+                    wishlist.loc[tmap, "Title"] = title
 
             (score, uncertainty) = m.groups()
             logger.info("%s: score %s, uncertainty %s", desc, score, uncertainty)
             done[ltw] = (score, uncertainty)
 
-            wishlist.loc[wishlist.LTW == ltw, "L"] = float(score)
-            wishlist.loc[wishlist.LTW == ltw, "T"] = int(uncertainty)
+            wishlist.loc[tmap, "L"] = float(score)
+            wishlist.loc[tmap, "T"] = int(uncertainty)
 
             if self.args.debug:
                 break
