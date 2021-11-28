@@ -96,6 +96,9 @@ class LikeIt:
             if not (m := re.search(r'title="([0-9.]+), uncertainty ([0-9]+)"', text)):
                 undone.append(desc)
                 logger.warning("%s: BAD REPLY", desc)
+                if self.args.debug:
+                    logger.warning(text)
+                    break
                 continue
 
             if title == self.NO_TITLE:

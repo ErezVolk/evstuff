@@ -519,7 +519,7 @@ function ri_groom_fully_justify(ri) {
     return;
 
   var page = ri.doc.pages[0];
-  var frame = page.textFrames[0];
+  var frame = ri_main_frame(ri, page);
   var story = frame.parentStory;
   var paragraphs = story.paragraphs;
 
