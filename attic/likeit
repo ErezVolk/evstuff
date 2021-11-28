@@ -120,6 +120,7 @@ class LikeIt:
             if done and time.time() - checkpoint > 120:
                 logger.info("Courtesy writing %s", self.args.output)
                 wishlist.to_excel(self.args.output)
+                checkpoint = time.time()
 
         logger.info("Number of works successfully queried: %d", len(done))
         if done:
