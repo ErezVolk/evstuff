@@ -87,7 +87,7 @@ def input_fn(card_dir, card) -> Path:
 def spec_to_cards(spec: str) -> List[str]:
     """Return a single card or a random sequence"""
     if not spec.startswith("r"):
-        return spec
+        return [spec]
 
     count = int(spec[1:])
     return [
