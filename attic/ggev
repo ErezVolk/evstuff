@@ -45,7 +45,7 @@ def main():
     for hit in hits.values():
         abstract = hit["abstract"]
         abstract = re.sub(
-            r"^לפני [^—]+ — ",
+            r"^לפני [^—]+ —",
             r"",
             abstract,
         )
