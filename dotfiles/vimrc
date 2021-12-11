@@ -10,7 +10,7 @@ set ruler
 
 nnoremap <CR> :noh<CR><CR>
 nnoremap <F7> :SyntasticCheck mypy<CR>
-nnoremap <F8> :SyntasticCheck pylint<CR>
+nnoremap <F8> :SyntasticCheck flake8 pylint bandit<CR>
 
 " let g:syntastic_python_checkers=['flake8', 'mypy']
 let g:syntastic_python_checkers=['flake8']
@@ -21,4 +21,4 @@ let g:recutils_no_folding=1
 
 let zotcite_conceallevel = 0
 
-autocmd bufreadpre *.md setlocal textwidth=72
+autocmd bufreadpre *.md setlocal textwidth=88
