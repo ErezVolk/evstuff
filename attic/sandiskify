@@ -46,11 +46,17 @@ def main():
     if not mp3s:
         parser.error(f"No MP3 files in {args.input}")
 
-    jpgs = [p for p in args.input.rglob("*.jpg")]
+    jpgs = [p for p in args.input.glob("*.jpg")]
     if len(jpgs) == 1 and not args.no_pic:
         cover = Image.open(jpgs[0])
         if any(s > args.thumbnail_size for s in cover.size):
             cover.thumbnail((args.thumbnail_size, args.thumbnail_size))
+        (width, height) = cover.size
+        if width != height:
+            length = max(width, height)
+            square = Image.new(cover.mode, (length, length))
+            square.paste(cover, ((length - width) // 2, (length - height) // 2))
+            cover = square
     else:
         cover = None
 
