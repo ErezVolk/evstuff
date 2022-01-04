@@ -92,7 +92,7 @@ def main():
                 if args.artist:
                     set_tag(id3, TPE1(encoding=3, text=args.artist))
                 if cover:
-                    if (m := re.search(r"\D(\d+ \d+)$", path.stem)) is not None:
+                    if (m := re.search(r"\D(\d+[-_]\d+)$", path.stem)) is not None:
                         image = cover.copy()
                         ImageDraw.Draw(image).text(
                             xy=(0, 0),
