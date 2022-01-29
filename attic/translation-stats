@@ -16,7 +16,7 @@ def main():
     sns.set()
     root = Path.home() / "translation"
     sheet = pd.read_excel(root / "skel" / "stats.xls", converters={"Time": time_to_hours})
-    sheet.Time = sheet.Time.astype(float)
+    sheet["Hours"] = sheet.Time.astype(float)
 
     lgs = sheet[(sheet["O-Words"] > 0) & (sheet["T-Chars+"] > 0) & (sheet["O-Chars"] > 0)]
     lgs = lgs.groupby(["Lg"]).sum()
@@ -25,10 +25,10 @@ def main():
     lgs["O-C/T-GD+"] = lgs["O-Chars"] / lgs["T-GD+"]
     lgs["O-C/O-W"] = (lgs["O-Chars"] / lgs["O-Words"]).round(1)
 
-    stats = sheet[~sheet.Time.isna()]
+    stats = sheet[~sheet.Hours.isna()]
     stats = stats.groupby(["Lg", "T/E"]).sum()
-    stats["O-W/H"] = (stats["O-Words"] / stats["Time"]).round(0).astype(int)
-    stats = stats[["O-Words", "O-W/H"]]
+    stats["O-W/H"] = (stats["O-Words"] / stats["Hours"]).round(0).astype(int)
+    stats = stats[["O-Words", "Hours", "O-W/H"]]
 
     lgs = lgs.loc[stats.index.levels[0], ["O-Chars", "O-C/O-W", "O-W/T-GD+", "O-C/T-GD+"]]
     for lg, row in lgs.iterrows():
