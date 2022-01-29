@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from datetime import datetime
-from datetime import date
 from datetime import time
 from pathlib import Path
 
@@ -8,8 +7,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-EPOCH_DATE = date(1900, 1, 1)
-EPOCH_DATETIME = datetime(1900, 1, 1, 0, 0, 0)
+# Stupid Excel
+# EPOCH_DATETIME = datetime(1900, 1, 1, 0, 0, 0)
+EPOCH_DATETIME = datetime(1899, 12, 31, 0, 0, 0)
 
 
 def main():
@@ -65,7 +65,7 @@ def time_to_hours(t):
     if t is None:
         return None
     if isinstance(t, time):
-        t = datetime.combine(EPOCH_DATE, t)
+        return t.hour + t.minute / 60 + t.second / 3600
     if isinstance(t, datetime):
         return (t - EPOCH_DATETIME).total_seconds() / 3600
     raise ValueError(repr(t))

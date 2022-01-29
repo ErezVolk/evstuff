@@ -373,6 +373,7 @@ function ri_post_fix_dashes(ri) {
     return;
 
   ri_change_grep(ri, "[ ~<]+~=[ ~k~<]+", "~<~=~k~<");
+  ri_change_grep(ri, " ([-+]) ", "~<$1~<");
 }
 
 function ri_post_remove_footnote_whitespace(ri) {
