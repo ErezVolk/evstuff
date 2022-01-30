@@ -15,10 +15,14 @@ EPOCH_DATETIME = datetime(1899, 12, 31, 0, 0, 0)
 def main():
     sns.set()
     root = Path.home() / "translation"
-    sheet = pd.read_excel(root / "skel" / "stats.xls", converters={"Time": time_to_hours})
+    sheet = pd.read_excel(
+        root / "skel" / "stats.xls", converters={"Time": time_to_hours}
+    )
     sheet["Hours"] = sheet.Time.astype(float)
 
-    lgs = sheet[(sheet["O-Words"] > 0) & (sheet["T-Chars+"] > 0) & (sheet["O-Chars"] > 0)]
+    lgs = sheet[
+        (sheet["O-Words"] > 0) & (sheet["T-Chars+"] > 0) & (sheet["O-Chars"] > 0)
+    ]
     lgs = lgs.groupby(["Lg"]).sum()
     lgs["T-GD+"] = lgs["T-Chars+"] / 24000
     lgs["O-W/T-GD+"] = lgs["O-Words"] / lgs["T-GD+"]
@@ -30,20 +34,29 @@ def main():
     stats["O-W/H"] = (stats["O-Words"] / stats["Hours"]).round(0).astype(int)
     stats = stats[["O-Words", "Hours", "O-W/H"]]
 
-    lgs = lgs.loc[stats.index.levels[0], ["O-Chars", "O-C/O-W", "O-W/T-GD+", "O-C/T-GD+"]]
-    for lg, row in lgs.iterrows():
-        for col, value in row.iteritems():
-            stats.loc[lg, col] = value
+    lgs = lgs.loc[
+        stats.index.levels[0],
+        ["O-Chars", "O-Words", "O-C/O-W", "O-W/T-GD+", "O-C/T-GD+"],
+    ]
 
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
     fig.suptitle("Words per Hour by Language")
-    plats = sheet.loc[sheet["O-W/H"] > 0]
+    plats = sheet.loc[sheet["O-W/H"] > 0].copy()
+    for lg, row in lgs.iterrows():
+        kw = int(row["O-Words"]) // 1000
+        plats.loc[plats.Lg == lg, "Lg"] = f"{lg}\n({kw:,} kW)"
+
     sns.violinplot(
         ax=ax,
         data=plats,
-        x="Lg", y="O-W/H", hue="T/E",
-        split=True, inner="quart", linewidth=1,
-        palette={"Tr": "b", "Ed": ".85"}
+        x="Lg",
+        y="O-W/H",
+        hue="T/E",
+        split=True,
+        inner="quart",
+        linewidth=1,
+        palette={"Tr": "b", "Ed": ".85"},
+        scale="count",
     )
     sns.despine(left=True)
     fig.savefig(root / "stats.pdf")
