@@ -29,16 +29,17 @@ UNDERLINE = "\033[4m"
 END = "\033[0m"
 
 
-class GoogleError(Exception):
+class SearchError(Exception):
     pass
 
 
 def main():
     try:
         hits = {}
-        for search in config["SEARCHES"]:
-            hits.update(google(**search))
-    except GoogleError as ge:
+        for kwargs in config["SEARCHES"]:
+            hits.update(google(**kwargs))
+            hits.update(ddg(**kwargs))
+    except SearchError as ge:
         print(ge)
         return
 
@@ -84,16 +85,44 @@ def main():
                 fo.write("\n")
 
 
+GG2DDG_LANG = {
+    "iv": "il-he",
+}
+
+GG2DDG_TIME = {
+    "m1": "m",
+    "w1": "w",
+}
+
+
+def ddg(query, lang=None, timeframe="m1"):
+    cmd = ["ddgr", "--json"]
+    if lang is not None:
+        cmd.append("--reg")
+        cmd.append(GG2DDG_LANG[lang])
+    if timeframe:
+        cmd.append("--time")
+        cmd.append(GG2DDG_TIME[timeframe])
+    cmd.append(query)
+    return call_searcher(cmd)
+
+
 def google(query, lang=None, timeframe="m1"):
     cmd = ["googler"]
     if lang:
         cmd.extend(["-l", lang])
     cmd.extend(["--json", "-t", timeframe, query])
+    return call_searcher(cmd)
+
+
+def call_searcher(cmd):
     out = subprocess.run(cmd, capture_output=True)
     if out.returncode != 0:
-        raise GoogleError(out.stderr.decode())
+        raise SearchError(out.stderr.decode())
     return {
-        hit["url"]: hit for hit in json.loads(out.stdout) if not blacklisted(hit["url"])
+        hit["url"]: hit
+        for hit in json.loads(out.stdout)
+        if not blacklisted(hit["url"])
     }
 
 

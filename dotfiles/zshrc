@@ -151,6 +151,8 @@ export PATH="$PATH:/usr/local/opt/qt/bin"
 
 autoload -U zmv
 
+function pman() { groff -Tpdf -mandoc -c `man -w "$@"` | open -f -a "Preview" ;}
+
 fortune
 source ~/powerlevel10k/powerlevel10k.zsh-theme
 
