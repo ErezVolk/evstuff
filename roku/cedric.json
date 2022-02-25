@@ -58,28 +58,52 @@
       }
     }
   ],
-  "movies": [{
-    "id": "rsg_unit1_intro",
-    "title": "Introduction to the course",
-    "content": {
-      "dateAdded": "2020-07-22T02:32:24Z",
-      "videos": [{
-        "videoType": "MP4",
-        "url": "https://image.roku.com/ZHZscHItMTc2/rsg-unit1-intro-v3.mp4",
-        "quality": "HD"
-      }],
-      "duration": 178,
-      "language": "en-us"
-    },
-    "thumbnail": "https://image.roku.com/ZHZscHItMTc2/video1-intro-course-v2.png",
-    "shortDescription": "SceneGraph: Build a Channel",
-    "releaseDate": "2020-07-21",
-    "longDescription": "Watch the introduction to the \"SceneGraph: Build a Channel\" development course. This video outlines the course syllabus.",
-    "tags": [
-      "rsg_row"
+  "movies": [
+    {
+      "id": "rsg_unit1_intro",
+      "title": "Introduction to the course",
+      "content": {
+        "dateAdded": "2020-07-22T02:32:24Z",
+        "videos": [{
+          "videoType": "MP4",
+          "url": "https://image.roku.com/ZHZscHItMTc2/rsg-unit1-intro-v3.mp4",
+          "quality": "HD"
+        }],
+        "duration": 178,
+        "language": "en-us"
+      },
+      "thumbnail": "https://image.roku.com/ZHZscHItMTc2/video1-intro-course-v2.png",
+      "shortDescription": "SceneGraph: Build a Channel",
+      "releaseDate": "2020-07-21",
+      "longDescription": "Watch the introduction to the \"SceneGraph: Build a Channel\" development course. This video outlines the course syllabus.",
+      "tags": [
+        "rsg_row"
       ],
       "genres": [
         "educational"
       ]
-  }]
+    },
+    {
+      "id": "2802ef8dd5674ca7bc25940a0075029e",
+      "title": "World News July 3, 2020",
+      "content": {
+        "dateAdded": "2020-07-05T14:11:13+00:00",
+        "videos": [
+          {
+            "url": "https://shawnroku.sfo2.digitaloceanspaces.com/I/20200703_World_New.mp4",
+            "quality": "FHD",
+            "videoType": "MP4"
+          }
+        ],
+        "duration": 61
+      },
+      "thumbnail": "https://shawnroku.sfo2.digitaloceanspaces.com/I/20200703_World_News.jpg",
+      "shortDescription": "Weekly World News",
+      "releaseDate": "2020-01-28",
+      "longDescription": "Timely world news",
+      "tags": [
+        "interviews"
+      ]
+    }
+  ]
 }
