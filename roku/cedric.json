@@ -19,6 +19,7 @@
         ]
       },
       "thumbnail": "https://erezvolk.github.io/evstuff/roku/thumb-kan11-800x450.png",
+      "brandedThumbnail": "https://erezvolk.github.io/evstuff/roku/empty-800x450.png",
       "shortDescription": "Kan 11",
       "longDescription": "Kan 11 is an Israeli state-owned free-to-air pay-per-view television channel.",
       "tags": [
@@ -45,6 +46,7 @@
         ]
       },
       "thumbnail": "https://erezvolk.github.io/evstuff/roku/thumb-nhk-800x450.png",
+      "brandedThumbnail": "https://erezvolk.github.io/evstuff/roku/empty-800x450.png",
       "shortDescription": "NHK World",
       "longDescription": "NHK World is the international arm of the Japanese state-controlled public broadcaster NHK.",
       "tags": [
