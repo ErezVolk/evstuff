@@ -1,13 +1,13 @@
 {
   "providerName": "Cedric Labs",
-  "lastUpdated": "2022-02-25T13:13",
+  "lastUpdated": "2022-02-25T14:26",
   "language": "he-IL",
   "liveFeeds": [
     {
       "id": "CedricKan11",
       "title": "Kan 11",
       "content": {
-        "dateAdded": "2022-02-25T13:13",
+        "dateAdded": "2022-02-25T14:26",
         "language": "he",
         "duration": 43200,
         "videos": [
@@ -34,7 +34,7 @@
       "id": "CedricNHK",
       "title": "NHK World",
       "content": {
-        "dateAdded": "2022-02-25T13:13",
+        "dateAdded": "2022-02-25T14:26",
         "language": "ja",
         "duration": 43200,
         "videos": [
