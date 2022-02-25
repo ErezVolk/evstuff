@@ -1,13 +1,13 @@
 {
   "providerName": "Cedric Labs",
-  "lastUpdated": "2022-02-25T12:57",
+  "lastUpdated": "2022-02-25T13:13",
   "language": "he-IL",
   "liveFeeds": [
     {
       "id": "CedricKan11",
       "title": "Kan 11",
       "content": {
-        "dateAdded": "2022-02-25T12:57",
+        "dateAdded": "2022-02-25T13:13",
         "language": "he",
         "duration": 43200,
         "videos": [
@@ -34,7 +34,7 @@
       "id": "CedricNHK",
       "title": "NHK World",
       "content": {
-        "dateAdded": "2022-02-25T12:57",
+        "dateAdded": "2022-02-25T13:13",
         "language": "ja",
         "duration": 43200,
         "videos": [
@@ -59,36 +59,26 @@
     },
 
     {
-      "providerName": "OTTfeed.com"
-      , "lastUpdated": "2021-01-22T21:01:43+00:00"
-      , "language": "en-US"
-      , "liveFeeds": [{
-        "id": "GCUGbgJZalE6XOuIzJVV"
-        , "title": "OTTfeed"
-        , "content": {
-          "dateAdded": "2021-01-23T17:20:46+00:00"
-          , "videos": [{
-            "url": "https://playlist.ottfeed.com/live/master.m3u8?channel=GCUGbgJZalE6XOuIzJVV"
-            , "quality": "FHD"
-            , "videoType": "HLS"
-          }]
-          , "language": "en-US"
-        }
-        , "thumbnail": "https://ottfeed.com/GCUGbgJZalE6XOuIzJVV/OTTfeed-live-image.png"
-        , "shortDescription": "All-in-one feed management system for Roku Direct Publisher, Roku Channel and custom OTT apps"
-        , "longDescription": "OTTfeed: All-in-one feed management system for Roku Direct Publisher, Roku Channel and custom OTT apps. All Content Types, Management Tools & Advanced workflows. For more info go to https://OTTfeed.com"
-        , "tags": ["ottfeed", "live"]
-        , "rating": {
-          "rating": "UNRATED"
-          , "ratingSource": "USA_PR"
-        }
-        , "genres": ["technology"]
-      }]
-      , "categories": [{
-        "name": "Latest"
-        , "order": "most_recent"
-        , "query": "live OR ottfeed"
-      }]
+      "id": "GCUGbgJZalE6XOuIzJVV"
+      , "title": "OTTfeed"
+      , "content": {
+        "dateAdded": "2021-01-23T17:20:46+00:00"
+        , "videos": [{
+          "url": "https://playlist.ottfeed.com/live/master.m3u8?channel=GCUGbgJZalE6XOuIzJVV"
+          , "quality": "FHD"
+          , "videoType": "HLS"
+        }]
+        , "language": "en-US"
+      }
+      , "thumbnail": "https://ottfeed.com/GCUGbgJZalE6XOuIzJVV/OTTfeed-live-image.png"
+      , "shortDescription": "All-in-one feed management system for Roku Direct Publisher, Roku Channel and custom OTT apps"
+      , "longDescription": "OTTfeed: All-in-one feed management system for Roku Direct Publisher, Roku Channel and custom OTT apps. All Content Types, Management Tools & Advanced workflows. For more info go to https://OTTfeed.com"
+      , "tags": ["ottfeed", "live"]
+      , "rating": {
+        "rating": "UNRATED"
+        , "ratingSource": "USA_PR"
+      }
+      , "genres": ["technology"]
     }
   ],
   "movies": [
