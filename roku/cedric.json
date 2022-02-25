@@ -115,28 +115,6 @@
       "genres": [
         "educational"
       ]
-    },
-    {
-      "id": "2802ef8dd5674ca7bc25940a0075029e",
-      "title": "World News July 3, 2020",
-      "content": {
-        "dateAdded": "2020-07-05T14:11:13+00:00",
-        "videos": [
-          {
-            "url": "https://shawnroku.sfo2.digitaloceanspaces.com/I/20200703_World_New.mp4",
-            "quality": "FHD",
-            "videoType": "MP4"
-          }
-        ],
-        "duration": 61
-      },
-      "thumbnail": "https://shawnroku.sfo2.digitaloceanspaces.com/I/20200703_World_News.jpg",
-      "shortDescription": "Weekly World News",
-      "releaseDate": "2020-01-28",
-      "longDescription": "Timely world news",
-      "tags": [
-        "interviews"
-      ]
     }
   ]
 }
