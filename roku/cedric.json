@@ -1,13 +1,13 @@
 {
   "providerName": "Cedric Volk",
-  "lastUpdated": "2022-02-25T11:59",
+  "lastUpdated": "2022-02-25T12:22",
   "language": "he-IL",
   "liveFeeds": [
     {
       "id": "CedricKan11",
       "title": "Kan 11",
       "content": {
-        "dateAdded": "2022-02-25T11:59",
+        "dateAdded": "2022-02-25T12:22",
         "language": "he-IL",
         "videos": [
           {
@@ -26,10 +26,32 @@
       "rating": {
         "rating": "UNRATED",
         "ratingSource": "USA_PR"
+      }
+    },
+    {
+      "id": "CedricNHK",
+      "title": "NHK World",
+      "content": {
+        "dateAdded": "2022-02-25T12:22",
+        "language": "ja",
+        "videos": [
+          {
+            "url": "https://nhkwlive-xjp.akamaized.net/hls/live/2003458/nhkwlive-xjp-en/index_1M.m3u8",
+            "videoType": "HLS",
+            "quality": "HD"
+          }
+        ]
       },
-      "genres": [
-        "technology"
-      ]
+      "thumbnail": "https://erezvolk.github.io/evstuff/roku/thumb-nhk-800x450.png",
+      "shortDescription": "NHK World",
+      "longDescription": "NHK World",
+      "tags": [
+        "live"
+      ],
+      "rating": {
+        "rating": "UNRATED",
+        "ratingSource": "USA_PR"
+      }
     }
   ],
   "categories": [
