@@ -1,13 +1,13 @@
 {
   "providerName": "Cedric Labs",
-  "lastUpdated": "2022-02-25T12:39",
+  "lastUpdated": "2022-02-25T12:50",
   "language": "he-IL",
   "liveFeeds": [
     {
       "id": "CedricKan11",
       "title": "Kan 11",
       "content": {
-        "dateAdded": "2022-02-25T12:39",
+        "dateAdded": "2022-02-25T12:50",
         "language": "he",
         "duration": 43200,
         "videos": [
@@ -34,7 +34,7 @@
       "id": "CedricNHK",
       "title": "NHK World",
       "content": {
-        "dateAdded": "2022-02-25T12:39",
+        "dateAdded": "2022-02-25T12:50",
         "language": "ja",
         "duration": 43200,
         "videos": [
@@ -57,5 +57,29 @@
         "ratingSource": "USA_PR"
       }
     }
-  ]
+  ],
+  "movies": [{
+    "id": "rsg_unit1_intro",
+    "title": "Introduction to the course",
+    "content": {
+      "dateAdded": "2020-07-22T02:32:24Z",
+      "videos": [{
+        "videoType": "MP4",
+        "url": "https://image.roku.com/ZHZscHItMTc2/rsg-unit1-intro-v3.mp4",
+        "quality": "HD"
+      }],
+      "duration": 178,
+      "language": "en-us"
+    },
+    "thumbnail": "https://image.roku.com/ZHZscHItMTc2/video1-intro-course-v2.png",
+    "shortDescription": "SceneGraph: Build a Channel",
+    "releaseDate": "2020-07-21",
+    "longDescription": "Watch the introduction to the \"SceneGraph: Build a Channel\" development course. This video outlines the course syllabus.",
+    "tags": [
+      "rsg_row"
+      ],
+      "genres": [
+        "educational"
+      ]
+  }]
 }
