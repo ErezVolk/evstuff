@@ -1,14 +1,15 @@
 {
-  "providerName": "Cedric Volk",
-  "lastUpdated": "2022-02-25T12:22",
+  "providerName": "Cedric Labs",
+  "lastUpdated": "2022-02-25T12:39",
   "language": "he-IL",
   "liveFeeds": [
     {
       "id": "CedricKan11",
       "title": "Kan 11",
       "content": {
-        "dateAdded": "2022-02-25T12:22",
-        "language": "he-IL",
+        "dateAdded": "2022-02-25T12:39",
+        "language": "he",
+        "duration": 43200,
         "videos": [
           {
             "url": "http://kan11.media.kan.org.il/hls/live/2024514/2024514/master.m3u8",
@@ -19,7 +20,7 @@
       },
       "thumbnail": "https://erezvolk.github.io/evstuff/roku/thumb-kan11-800x450.png",
       "shortDescription": "Kan 11",
-      "longDescription": "Kan 11",
+      "longDescription": "Kan 11 is an Israeli state-owned free-to-air pay-per-view television channel.",
       "tags": [
         "live"
       ],
@@ -32,8 +33,9 @@
       "id": "CedricNHK",
       "title": "NHK World",
       "content": {
-        "dateAdded": "2022-02-25T12:22",
+        "dateAdded": "2022-02-25T12:39",
         "language": "ja",
+        "duration": 43200,
         "videos": [
           {
             "url": "https://nhkwlive-xjp.akamaized.net/hls/live/2003458/nhkwlive-xjp-en/index_1M.m3u8",
@@ -44,7 +46,7 @@
       },
       "thumbnail": "https://erezvolk.github.io/evstuff/roku/thumb-nhk-800x450.png",
       "shortDescription": "NHK World",
-      "longDescription": "NHK World",
+      "longDescription": "NHK World is the international arm of the Japanese state-controlled public broadcaster NHK.",
       "tags": [
         "live"
       ],
@@ -53,7 +55,5 @@
         "ratingSource": "USA_PR"
       }
     }
-  ],
-  "categories": [
   ]
 }
