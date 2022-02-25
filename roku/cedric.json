@@ -57,28 +57,34 @@
         "ratingSource": "USA_PR"
       }
     },
-
     {
-      "id": "GCUGbgJZalE6XOuIzJVV"
-      , "title": "OTTfeed"
-      , "content": {
-        "dateAdded": "2021-01-23T17:20:46+00:00"
-        , "videos": [{
-          "url": "https://playlist.ottfeed.com/live/master.m3u8?channel=GCUGbgJZalE6XOuIzJVV"
-          , "quality": "FHD"
-          , "videoType": "HLS"
-        }]
-        , "language": "en-US"
-      }
-      , "thumbnail": "https://ottfeed.com/GCUGbgJZalE6XOuIzJVV/OTTfeed-live-image.png"
-      , "shortDescription": "All-in-one feed management system for Roku Direct Publisher, Roku Channel and custom OTT apps"
-      , "longDescription": "OTTfeed: All-in-one feed management system for Roku Direct Publisher, Roku Channel and custom OTT apps. All Content Types, Management Tools & Advanced workflows. For more info go to https://OTTfeed.com"
-      , "tags": ["ottfeed", "live"]
-      , "rating": {
-        "rating": "UNRATED"
-        , "ratingSource": "USA_PR"
-      }
-      , "genres": ["technology"]
+      "id": "GCUGbgJZalE6XOuIzJVV",
+      "title": "OTTfeed",
+      "content": {
+        "dateAdded": "2021-01-23T17:20:46+00:00",
+        "videos": [
+          {
+            "url": "https://playlist.ottfeed.com/live/master.m3u8?channel=GCUGbgJZalE6XOuIzJVV",
+            "quality": "FHD",
+            "videoType": "HLS"
+          }
+        ],
+        "language": "en-US"
+      },
+      "thumbnail": "https://ottfeed.com/GCUGbgJZalE6XOuIzJVV/OTTfeed-live-image.png",
+      "shortDescription": "All-in-one feed management system for Roku Direct Publisher, Roku Channel and custom OTT apps",
+      "longDescription": "OTTfeed: All-in-one feed management system for Roku Direct Publisher, Roku Channel and custom OTT apps. All Content Types, Management Tools & Advanced workflows. For more info go to https://OTTfeed.com",
+      "tags": [
+        "ottfeed",
+        "live"
+      ],
+      "rating": {
+        "rating": "UNRATED",
+        "ratingSource": "USA_PR"
+      },
+      "genres": [
+        "technology"
+      ]
     }
   ],
   "movies": [
@@ -87,11 +93,13 @@
       "title": "Introduction to the course",
       "content": {
         "dateAdded": "2020-07-22T02:32:24Z",
-        "videos": [{
-          "videoType": "MP4",
-          "url": "https://image.roku.com/ZHZscHItMTc2/rsg-unit1-intro-v3.mp4",
-          "quality": "HD"
-        }],
+        "videos": [
+          {
+            "videoType": "MP4",
+            "url": "https://image.roku.com/ZHZscHItMTc2/rsg-unit1-intro-v3.mp4",
+            "quality": "HD"
+          }
+        ],
         "duration": 178,
         "language": "en-us"
       },
