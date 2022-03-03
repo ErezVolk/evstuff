@@ -36,15 +36,16 @@ def main():
 
     lgs = lgs.loc[
         stats.index.levels[0],
-        ["O-Chars", "O-Words", "O-C/O-W", "O-W/T-GD+", "O-C/T-GD+"],
+        ["O-Chars", "O-Words", "O-C/O-W", "O-W/T-GD+", "O-C/T-GD+", "Hours"],
     ]
 
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
     fig.suptitle("Words per Hour by Language")
     plats = sheet.loc[sheet["O-W/H"] > 0].copy()
     for lg, row in lgs.iterrows():
-        kw = int(row["O-Words"]) // 1000
-        plats.loc[plats.Lg == lg, "Lg"] = f"{lg}\n({kw:,} kW)"
+        kws = int(row["O-Words"]) // 1000
+        hrs = row["Hours"]
+        plats.loc[plats.Lg == lg, "Lg"] = f"{lg}\n{kws:,} kW\n{int(hrs):,} hrs"
 
     sns.violinplot(
         ax=ax,
