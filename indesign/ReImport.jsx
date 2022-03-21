@@ -192,12 +192,17 @@ function ri_get_options(ri) {
           ri.ui_groom_fully_justify =
             checkboxControls.add({
               staticLabel: "Fix to full justification",
-              checkedState: true
+              checkedState: !ri.saved_settings.unfix_justification,
             });
           ri.ui_groom_fix_masters =
             checkboxControls.add({
               staticLabel: "Fix master pages",
-              checkedState: true
+              checkedState: !ri.saved_settings.unfix_masters,
+            });
+          ri.ui_groom_keep_masters =
+            checkboxControls.add({
+              staticLabel: "Keep correct masters",
+              checkedState: !ri.saved_settings.unkeep_masters,
             });
           if (ri.have_toc) {
             ri.ui_groom_update_toc =
@@ -343,6 +348,9 @@ function ri_do_import(ri) {
     keep_grep: !ri.ui_disable_grep.checkedState,
     keep_reflow: !ri.ui_disable_reflow.checkedState,
     hide_import_options: !ri.ui_import_options.checkedState,
+    unfix_justification: !ri.ui_groom_fully_justify.checkedState,
+    unfix_masters: !ri.ui_groom_fix_masters,
+    unkeep_masters: !ri.ui_groom_keep_masters,
   })
 }
 
@@ -372,8 +380,9 @@ function ri_post_fix_dashes(ri) {
   if (!ri.ui_post_fix_dashes.checkedState)
     return;
 
-  ri_change_grep(ri, "[ ~<]+~=[ ~k~<]+", "~<~=~k~<");
-  ri_change_grep(ri, " ([-+]) ", "~<$1~<");
+  ri_change_grep(ri, "[~k\\s]+([~=/]+)[~k\\s]+", "~<$1~k~<");
+  ri_change_grep(ri, "[~k\\s]+(/+)[~k\\s]+", "~S$1 ");
+  ri_change_grep(ri, "\\s+([-+])\\s+", "~<$1~<");
 }
 
 function ri_post_remove_footnote_whitespace(ri) {
@@ -672,7 +681,7 @@ function ri_groom_fix_masters(ri) {
 
   // title page is B-Master
   var title_page = ri.doc.pages[0];
-  title_page.appliedMaster = ri.b_master;
+  ri_set_master(ri, title_page, ri.b_master);
 
   for (var i = 1; i < ri.doc.pages.length; ++ i) {
     var page = ri.doc.pages[i];
@@ -682,6 +691,13 @@ function ri_groom_fix_masters(ri) {
       page.appliedMaster = ri.a_master;
     }
   }
+}
+
+function ri_set_master(ri, page, master) {
+  if (ri.ui_groom_keep_masters)
+    if (page.appliedMaster.id == master.id)
+      return;
+  page.appliedMaster = master;
 }
 
 function ri_groom_update_toc(ri) {
