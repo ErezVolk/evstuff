@@ -370,7 +370,7 @@ function ri_post_fix_spaces(ri) {
     return;
 
   // Multiple Space to Single Space
-  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ]{2,}", "\\s");
+  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ]{2,}", " ");
 
   // No whitespace at the end of paragraphs (doesn't work!?)
   ri_change_grep(ri, "\\s+$", "");
@@ -380,9 +380,9 @@ function ri_post_fix_dashes(ri) {
   if (!ri.ui_post_fix_dashes.checkedState)
     return;
 
-  ri_change_grep(ri, "[~k\\s]+([~=/]+)[~k\\s]+", "~<$1~k~<");
-  ri_change_grep(ri, "[~k\\s]+(/+)[~k\\s]+", "~S$1 ");
-  ri_change_grep(ri, "\\s+([-+])\\s+", "~<$1~<");
+  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+([~=/]+)[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "~<$1~k~<");
+  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+(/+)[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "~S$1 ");
+  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+([-+])[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "~<$1~<");
 }
 
 function ri_post_remove_footnote_whitespace(ri) {
