@@ -3,7 +3,6 @@ from datetime import datetime
 from datetime import time
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
@@ -22,7 +21,8 @@ def main():
 
     lgs = sheet[
         (sheet["O-Words"] > 0) & (sheet["T-Chars+"] > 0) & (sheet["O-Chars"] > 0)
-    ]
+    ].copy()
+    lgs["Books"] = 1
     lgs = lgs.groupby(["Lg"]).sum()
     lgs["T-GD+"] = lgs["T-Chars+"] / 24000
     lgs["O-W/T-GD+"] = lgs["O-Words"] / lgs["T-GD+"]
@@ -36,19 +36,23 @@ def main():
 
     lgs = lgs.loc[
         stats.index.levels[0],
-        ["O-Chars", "O-Words", "O-C/O-W", "O-W/T-GD+", "O-C/T-GD+", "Hours"],
+        ["O-Chars", "O-Words", "O-C/O-W", "O-W/T-GD+", "O-C/T-GD+", "Hours", "Books"],
     ]
 
-    fig, ax = plt.subplots(1, 1, figsize=(8, 8))
-    fig.suptitle("Words per Hour by Language")
     plats = sheet.loc[sheet["O-W/H"] > 0].copy()
     for lg, row in lgs.iterrows():
         kws = int(row["O-Words"]) // 1000
         hrs = row["Hours"]
-        plats.loc[plats.Lg == lg, "Lg"] = f"{lg}\n{kws:,} kW\n{int(hrs):,} hrs"
+        bks = int(row["Books"])
+        plats.loc[plats.Lg == lg, "Lg"] = (
+            f"{lg}\n"
+            f"{bks} bk\n"
+            f"{kws:,} kW\n"
+            f"{int(hrs):,} hrs"
+        )
 
-    sns.violinplot(
-        ax=ax,
+    g = sns.catplot(
+        kind="violin",
         data=plats,
         x="Lg",
         y="O-W/H",
@@ -58,10 +62,12 @@ def main():
         linewidth=1,
         palette={"Tr": "b", "Ed": ".85"},
         scale="count",
+        height=8,
+        aspect=1.2,
     )
-    sns.despine(left=True)
-    fig.savefig(root / "stats.pdf")
-    plt.close()
+    g.fig.subplots_adjust(top=0.9)
+    g.fig.suptitle("Words per Hour by Language")
+    g.savefig(root / "stats.pdf")
 
     stats.sort_values(["T/E", "Lg"], ascending=[False, True], inplace=True)
     for c in stats.columns:
