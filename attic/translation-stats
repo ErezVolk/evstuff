@@ -32,7 +32,12 @@ def main():
     stats = sheet[~sheet.Hours.isna()]
     stats = stats.groupby(["Lg", "T/E"]).sum()
     stats["O-W/H"] = (stats["O-Words"] / stats["Hours"]).round(0).astype(int)
-    stats = stats[["O-Words", "Hours", "O-W/H"]]
+
+    stats["lgow"] = stats.groupby("Lg")["O-Words"].transform("sum")
+    stats["lgtc"] = stats.groupby("Lg")["T-Chars+"].transform("sum")
+    stats["O-W/GD+"] = (stats.lgow * 24000 / stats.lgtc).round(0).astype(int)
+
+    stats = stats[["O-Words", "Hours", "O-W/H", "O-W/GD+"]]
 
     lgs = lgs.loc[
         stats.index.levels[0],
