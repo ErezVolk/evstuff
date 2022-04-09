@@ -48,6 +48,7 @@ function ri_run(ri) {
     ri_reset_searches(ri);
     ri_post_fix_spaces(ri);
     ri_post_fix_dashes(ri);
+    ri_post_fix_vav(ri);
     ri_post_remove_footnote_whitespace(ri);
     ri_post_convert_post_its(ri);
     ri_reset_searches(ri);
@@ -172,6 +173,11 @@ function ri_get_options(ri) {
           ri.ui_post_fix_dashes =
             checkboxControls.add({
               staticLabel: "Fix spacing around dashes",
+              checkedState: true
+            });
+          ri.ui_post_fix_vav =
+            checkboxControls.add({
+              staticLabel: "Use VAV WITH HOLAM glyph",
               checkedState: true
             });
           ri.ui_post_remove_footnote_whitespace =
@@ -380,9 +386,14 @@ function ri_post_fix_dashes(ri) {
   if (!ri.ui_post_fix_dashes.checkedState)
     return;
 
-  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+([~=/]+)[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "~<$1~k~<");
-  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+(/+)[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "~S$1 ");
-  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+([-+])[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "~<$1~<");
+  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+([-+~=/]+)[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "~S$1 ");
+}
+
+function ri_post_fix_vav(ri) {
+  if (!ri.ui_post_fix_vav.checkedState)
+    return;
+
+  ri_change_grep(ri, "\\x{05D5}\\x{05B9}", "\\x{FB4B}");
 }
 
 function ri_post_remove_footnote_whitespace(ri) {
