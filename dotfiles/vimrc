@@ -10,7 +10,7 @@ set ruler
 
 nnoremap <CR> :noh<CR><CR>
 nnoremap <F7> :SyntasticCheck mypy<CR>
-nnoremap <F8> :SyntasticCheck flake8 pylint bandit<CR>
+nnoremap <F8> :SyntasticCheck flake8 pylint mypy bandit<CR>
 
 " let g:syntastic_python_checkers=['flake8', 'mypy']
 let g:syntastic_python_checkers=['flake8']
