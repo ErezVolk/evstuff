@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
+"""Shuffle chapters in a PDF file"""
 from argparse import ArgumentParser
 from pathlib import Path
 import random
 
 import fitz  # pip install pymupdf
 
+# We only use bookmarks that point to a new page
+TOP_OF_PAGE = fitz.Point(0, 0)
+
 
 def main():
-    parser = ArgumentParser()
+    """Shuffle chapters in a PDF file"""
+    parser = ArgumentParser(description="Shuffle chapters in a PDF file")
     parser.add_argument("input", type=Path, help="PDF file to shuffle")
     parser.add_argument(
         "output", type=Path, nargs="?", help="Shuffled PDF file to create"
@@ -21,7 +26,6 @@ def main():
         outfn = infn.with_stem(f"{infn.stem}-shuffled")
 
     print(f"{infn} -> {outfn}")
-    TOP_OF_PAGE = fitz.Point(0, 0)
 
     indoc = fitz.Document(infn)
     n_pages = indoc.page_count
@@ -30,11 +34,12 @@ def main():
         return
 
     toc = indoc.get_toc(simple=False)
-    bookmarks = list(sorted([
+    bookmarks = [
         entry[2] - 1  # ToC entries are 1-based
         for entry in toc
         if entry[3].get("to") == TOP_OF_PAGE
-    ]))
+    ]
+    bookmarks = list(sorted(bookmarks))
     if bookmarks[0] != 0:
         bookmarks.insert(0, 0)
     if len(bookmarks) < 2:
