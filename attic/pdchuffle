@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 import random
 
-import fitz  # pip install pymupdf
+import fitz  # type: ignore; pip install pymupdf
 
 # We only use bookmarks that point to a new page
 TOP_OF_PAGE = fitz.Point(0, 0)
