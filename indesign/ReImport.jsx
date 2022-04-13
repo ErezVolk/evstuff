@@ -177,8 +177,8 @@ function ri_get_options(ri) {
             });
           ri.ui_post_fix_vav =
             checkboxControls.add({
-              staticLabel: "Use VAV WITH HOLAM glyph",
-              checkedState: ri.saved_settings.fix_vav,
+              staticLabel: "Use VAV WITH HOLAM glyph (Hadassah)",
+              checkedState: !ri.saved_settings.unfix_vav,
             });
           ri.ui_post_remove_footnote_whitespace =
             checkboxControls.add({
@@ -352,12 +352,12 @@ function ri_do_import(ri) {
 
     a_master: ri.a_master_name,
     b_master: ri.b_master_name,
-    fix_vav: !ri.ui_post_fix_vav,
     hide_import_options: !ri.ui_import_options.checkedState,
     keep_grep: !ri.ui_disable_grep.checkedState,
     keep_reflow: !ri.ui_disable_reflow.checkedState,
     unfix_justification: !ri.ui_groom_fully_justify.checkedState,
     unfix_masters: !ri.ui_groom_fix_masters,
+    unfix_vav: !ri.ui_post_fix_vav,
     unkeep_masters: !ri.ui_groom_keep_masters,
   })
 }
@@ -395,7 +395,10 @@ function ri_post_fix_vav(ri) {
   if (!ri.ui_post_fix_vav.checkedState)
     return;
 
+  app.findGrepPreferences.appliedFont = "Hadassah Friedlaender";
   ri_change_grep(ri, "\\x{05D5}\\x{05B9}", "\\x{FB4B}");
+  app.findGrepPreferences = NothingEnum.nothing;
+
   ri_change_grep(ri, "([^~m~>~f~|~S~s~<~/~.~3~4~% ~k])(\\x{FB4B})", "$1~j$2");
   ri_change_grep(ri, "(\\x{FB4B})([^~m~>~f~|~S~s~<~/~.~3~4~% ~k])", "$1~j$2");
 }
