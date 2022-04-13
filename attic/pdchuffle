@@ -17,6 +17,7 @@ def main():
     parser.add_argument(
         "output", type=Path, nargs="?", help="Shuffled PDF file to create"
     )
+    parser.add_argument("-e", "--keep-empty-pages", action="store_true")
     args = parser.parse_args()
 
     infn = args.input
@@ -53,11 +54,15 @@ def main():
     outdoc = fitz.Document()
 
     for nspan, (span_from, span_to) in enumerate(spans, 1):
-        from_page = span_from
-        to_page = span_to - 1
-        while to_page > from_page and not indoc.get_page_fonts(to_page):
-            to_page = to_page - 1
-        outdoc.insert_pdf(indoc, from_page, to_page, final=nspan == len(spans))
+        outdoc.insert_pdf(indoc, span_from, span_to - 1, final=nspan == len(spans))
+    if not args.keep_empty_pages:
+        deleted = 0
+        for pno in range(outdoc.page_count - 1, 0, -1):
+            if not outdoc.get_page_fonts(pno):
+                outdoc.delete_page(pno)
+                deleted = deleted + 1
+        if deleted:
+            print(f"Number of empty pages deleted: {deleted}")
     outdoc.ez_save(outfn)
 
 
