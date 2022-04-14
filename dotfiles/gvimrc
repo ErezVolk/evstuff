@@ -17,7 +17,7 @@ if hostname == "ErezBook"
         call RandomColorScheme()
     endif
 else
-    colorscheme evening
+    colorscheme peachpuff
 endif
 
 :command NewColor call RandomColorScheme()
