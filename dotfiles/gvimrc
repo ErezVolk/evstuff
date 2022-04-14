@@ -6,13 +6,18 @@ function RandomColorScheme()
   unlet mycolors
 endfunction
 
-let here = fnamemodify(getcwd(), ":t")
-if here == "sandbox"
-    colorscheme evening
-elseif here == "cloud" || here == "trials"
-    colorscheme peachpuff
+let hostname = substitute(system('hostname'), '\n', '', '')
+if hostname == "ErezBook"
+    let here = fnamemodify(getcwd(), ":t")
+    if here == "sandbox"
+        colorscheme evening
+    elseif here == "cloud" || here == "trials"
+        colorscheme peachpuff
+    else
+        call RandomColorScheme()
+    endif
 else
-    call RandomColorScheme()
+    colorscheme evening
 endif
 
 :command NewColor call RandomColorScheme()
