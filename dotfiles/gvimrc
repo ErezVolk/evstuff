@@ -1,2 +1,18 @@
-colorscheme evening
 set guifont=AndaleMono:h18
+
+function RandomColorScheme()
+  let mycolors = split(globpath(&rtp,"**/colors/*.vim"),"\n") 
+  exe 'so ' . mycolors[localtime() % len(mycolors)]
+  unlet mycolors
+endfunction
+
+let here = fnamemodify(getcwd(), ":t")
+if here == "sandbox"
+    colorscheme evening
+elseif here == "cloud" || here == "trials"
+    colorscheme peachpuff
+else
+    call RandomColorScheme()
+endif
+
+:command NewColor call RandomColorScheme()
