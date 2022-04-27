@@ -388,7 +388,8 @@ function ri_post_fix_dashes(ri) {
   if (!ri.ui_post_fix_dashes.checkedState)
     return;
 
-  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+([-+~=/]+)[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "~S$1 ");
+  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+([-+~=/]+)", "~S$1");
+  ri_change_grep(ri, "([-+~=/]+)[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "$1 ");
 }
 
 function ri_post_fix_vav(ri) {
