@@ -124,13 +124,13 @@ function ri_get_options(ri) {
         with (dialogColumns.add() ) {
           ri.ui_pre_remaster =
             checkboxControls.add({
-              staticLabel: "Reset all master pages",
-              checkedState: true
+              staticLabel: "Reset all parent pages",
+              checkedState: true,
             });
           ri.ui_pre_clear =
             checkboxControls.add({
               staticLabel: "Remove all text",
-              checkedState: true
+              checkedState: true,
             });
         }
       }
@@ -149,7 +149,7 @@ function ri_get_options(ri) {
           }
           ri.ui_import_rerun = checkboxControls.add({
             staticLabel: "(If Tagged Taged) Try to reconvert",
-            checkedState: true
+            checkedState: true,
           });
           ri.ui_import_options = checkboxControls.add({
             staticLabel: "Show import options",
@@ -163,17 +163,17 @@ function ri_get_options(ri) {
           ri.ui_post_clear_overrides =
             checkboxControls.add({
               staticLabel: "Clear all imported style overrides",
-              checkedState: true
+              checkedState: true,
             });
           ri.ui_post_fix_spaces =
             checkboxControls.add({
               staticLabel: "Eliminate multiple spaces",
-              checkedState: true
+              checkedState: true,
             });
           ri.ui_post_fix_dashes =
             checkboxControls.add({
               staticLabel: "Fix spacing around dashes",
-              checkedState: true
+              checkedState: true,
             });
           ri.ui_post_fix_vav =
             checkboxControls.add({
@@ -183,12 +183,12 @@ function ri_get_options(ri) {
           ri.ui_post_remove_footnote_whitespace =
             checkboxControls.add({
               staticLabel: "Remove leading whitespace in footnotes",
-              checkedState: true
+              checkedState: true,
             });
           ri.ui_post_convert_post_its =
             checkboxControls.add({
               staticLabel: "(If Tagged Text) Convert comments",
-              checkedState: true
+              checkedState: true,
             });
         }
       }
@@ -202,19 +202,19 @@ function ri_get_options(ri) {
             });
           ri.ui_groom_fix_masters =
             checkboxControls.add({
-              staticLabel: "Fix master pages",
+              staticLabel: "Fix parent pages",
               checkedState: !ri.saved_settings.unfix_masters,
             });
           ri.ui_groom_keep_masters =
             checkboxControls.add({
-              staticLabel: "Keep correct masters",
+              staticLabel: "Keep correct parents",
               checkedState: !ri.saved_settings.unkeep_masters,
             });
           if (ri.have_toc) {
             ri.ui_groom_update_toc =
               checkboxControls.add({
                 staticLabel: "Update TOC",
-                checkedState: true
+                checkedState: !ri.saved_settings.unupdate_toc,
               });
             ri.ui_groom_toc_style = dropdowns.add({
               stringList: ri.toc_styles,
@@ -226,8 +226,8 @@ function ri_get_options(ri) {
 
       with (borderPanels.add()) {
         with (dialogColumns.add() ) {
-          staticTexts.add({staticLabel: "Default Master:"});
-          staticTexts.add({staticLabel: "Headless Master:"});
+          staticTexts.add({staticLabel: "Default Parent:"});
+          staticTexts.add({staticLabel: "Headless Parent:"});
         }
         with (dialogColumns.add()) {
           var masters = ri.doc.masterSpreads.everyItem().name;
@@ -359,6 +359,7 @@ function ri_do_import(ri) {
     unfix_masters: !ri.ui_groom_fix_masters,
     unfix_vav: !ri.ui_post_fix_vav,
     unkeep_masters: !ri.ui_groom_keep_masters,
+    unupdate_toc: !ri.ui_groom_update_toc,
   })
 }
 
@@ -663,7 +664,7 @@ function ri_fully_justify(ri, paragraphs, index) {
   var fudge = lastChar.pointSize / 2;
 
   if (gap != 0 && gap < fudge && gap > -fudge) {
-    paragraph.justification = Justification.FULLY_JUSTIFIED;
+    ri_really_fully_justify(ri, paragraph);
     ri.last_good_line = lastLine;
     ri.last_good_char = lastChar;
   } else {
@@ -673,6 +674,27 @@ function ri_fully_justify(ri, paragraphs, index) {
   if (paragraph.justification != justification) {
     ++ ri.num_adjustified;
   }
+}
+
+function ri_really_fully_justify(ri, paragraph) {
+  var unfull_style = paragraph.appliedParagraphStyle;
+
+  groups = ri.doc.paragraphStyleGroups;
+  var group = groups.itemByName("ReImport");
+  if (!group.isValid)
+    group = groups.add({name: "ReImport"});
+
+  full_name = unfull_style.name + " (fully justified)"
+  var group_styles = group.paragraphStyles;
+  var full_style = group_styles.itemByName(full_name);
+  if (!full_style.isValid) {
+    full_style = group_styles.add({
+      name: full_name,
+      basedOn: unfull_style,
+      justification: Justification.FULLY_JUSTIFIED,
+    });
+  }
+  paragraph.applyParagraphStyle(full_style);
 }
 
 function ri_reset_searches(ri) {
