@@ -35,6 +35,10 @@ def main():
         return
 
     toc = indoc.get_toc(simple=False)
+    if len(toc) == 0:
+        print("There are no bookmarks")
+        return
+
     bookmarks = [
         entry[2] - 1  # ToC entries are 1-based
         for entry in toc
