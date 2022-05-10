@@ -37,7 +37,7 @@ def main():
     try:
         hits = {}
         for kwargs in config["SEARCHES"]:
-            hits.update(google(**kwargs))
+            # hits.update(google(**kwargs))
             hits.update(ddg(**kwargs))
     except SearchError as ge:
         print(ge)
@@ -108,6 +108,7 @@ def ddg(query, lang=None, timeframe="m1"):
 
 
 def google(query, lang=None, timeframe="m1"):
+    """DEPRECATED"""
     cmd = ["googler"]
     if lang:
         cmd.extend(["-l", lang])
