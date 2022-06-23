@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+from argparse import ArgumentParser
+from pathlib import Path
+import subprocess
+import sys
+
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-b", "--backup",
+        type=Path,
+        help="Where the backups are",
+        default=Path.home() / "Dropbox" / "Backup",
+    )
+    parser.add_argument(
+        "-t", "--translation",
+        type=Path,
+        help="Where the work directories are",
+        default=Path.home() / "translation",
+    )
+    parser.add_argument(
+        "-n", "--number",
+        type=int,
+        help="Number of latest backups to download",
+        default=3,
+    )
+    args = parser.parse_args()
+
+    backup = args.backup
+    translation = args.translation
+
+    tarballs = sorted(
+        backup.glob("*.tar.xz"),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+
+    folders = []
+    for tarball in tarballs:
+        stem, dot, suffixes = tarball.name.partition(".")
+        found = [
+            f
+            for f in translation.glob(f"*_{stem}")
+            if f.is_dir() and f.is_symlink() and (f / "Makefile").is_file()
+        ]
+        if len(found) != 1:
+            if len(found) > 1:
+                print(f"More than one link {translation}/*_{stem}")
+            continue
+
+        folders.insert(0, found[0])
+        if len(folders) >= args.number:
+            break
+
+    if not folders:
+        print("Nothing to download...")
+        return -1
+
+    input(f"Press Enter to run 'make down' in {' '.join(f.name for f in folders)}...")
+
+    for folder in folders:
+        subprocess.run(
+            "make down",
+            shell=True,
+            cwd=folder,
+            check=True
+        )
+
+    subprocess.run(
+        "translation-stats",
+        shell=True,
+        check=True
+    )
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
