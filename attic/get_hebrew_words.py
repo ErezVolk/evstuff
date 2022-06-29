@@ -16,11 +16,12 @@ ROOT = Path(
 JSON = Path("hebrew.json")
 WRDS = Path("hebrew.words")
 
-_NIQQ = "\u05B0-\u05BC"
+_NIQQ = "\u05B0-\u05BC\u05C1\u05C2"
 _ALPH = "\u05D0-\u05EA"
 _OTHR = "\u05F3"
-WORD_RE = f"[{_ALPH}][{_NIQQ}][{_ALPH}{_NIQQ}{_OTHR}]*[{_ALPH}{_NIQQ}]"
-BRACKETS_RE = r"\[[^\]]+?\]"
+NIQQ_RE = re.compile(f"[{_NIQQ}]")
+WORD_RE = re.compile(f"[{_ALPH}][{_ALPH}{_NIQQ}{_OTHR}]*[{_ALPH}{_NIQQ}]")
+BRACKETS_RE = re.compile(r"\[[^\]]+:[^\]]*\]")
 
 
 def main():
@@ -43,10 +44,14 @@ def main():
         text = bext.decode("utf-8")
 
         if "[" in text:
-            text = re.sub(BRACKETS_RE, "", text)
+            text = BRACKETS_RE.sub("", text)
 
-        tords = re.findall(WORD_RE, text)
-        words.update(tords)
+        tords = WORD_RE.findall(text)
+        words.update(
+            tord
+            for tord in tords
+            if NIQQ_RE.search(tord)
+        )
         if any(tord.startswith("אְ") for tord in tords):
             print(text)
             return
