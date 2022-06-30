@@ -16,10 +16,14 @@ ROOT = Path(
 JSON = Path("hebrew.json")
 WRDS = Path("hebrew.words")
 
-_NIQQ = "\u05B0-\u05BC"
+_NIQQ = "\u05B0-\u05BC\u05C1\u05C2"
 _ALPH = "\u05D0-\u05EA"
-_OTHR = "\u05F3"
-WORD_RE = f"[{_ALPH}][{_NIQQ}][{_ALPH}{_NIQQ}{_OTHR}]*[{_ALPH}{_NIQQ}]"
+_GRSH = "\u05F3"
+_OTHR = "\u05F3\u05F4"
+_ZVOR = "\u05BD\u05BF(4)"
+WORD_RE = f"[{_ALPH}][{_ALPH}{_NIQQ}{_OTHR}{_ZVOR}]*[{_ALPH}{_NIQQ}{_GRSH}]"
+ZVOR_RE = f"[{_ZVOR}]"
+NIQQ_RE = f"[{_NIQQ}]"
 BRACKETS_RE = r"\[[^\]]+?\]"
 
 
@@ -40,17 +44,25 @@ def main():
     words = {}
     for key, xml in entries:
         node = etree.fromstring(xml)
+
+        for label in node.xpath("//span[contains(@class, 'ty_label')]"):
+            label.getparent().remove(label)
+
         bext = etree.tostring(node, encoding="utf-8", method="text")
         text = bext.decode("utf-8")
 
         if "[" in text:
             text = re.sub(BRACKETS_RE, "", text)
 
-        for tord in re.findall(WORD_RE, text):
+        kord = re.sub(ZVOR_RE, "", key)
+        for tord in re.findall(WORD_RE, f"{kord} {text}"):
+            if not re.search(NIQQ_RE, tord):
+                continue
             if tord.startswith("אְ"):
                 print(text)
                 return
-            words.setdefault(tord, key)
+            tord = re.sub(ZVOR_RE, "", tord)
+            words.setdefault(tord, kord)
 
     print(f"Number of words: {len(words)}")
     with open(WRDS, "w", encoding="utf8") as fobj:
