@@ -21,10 +21,10 @@ _ALPH = "\u05D0-\u05EA"
 _GRSH = "\u05F3"
 _OTHR = "\u05F3\u05F4"
 _ZVOR = "\u05BD\u05BF(4)"
-WORD_RE = f"[{_ALPH}][{_ALPH}{_NIQQ}{_OTHR}{_ZVOR}]*[{_ALPH}{_NIQQ}{_GRSH}]"
-ZVOR_RE = f"[{_ZVOR}]"
-NIQQ_RE = f"[{_NIQQ}]"
-BRACKETS_RE = r"\[[^\]]+?\]"
+WORD_RE = re.compile(f"[{_ALPH}][{_ALPH}{_NIQQ}{_OTHR}{_ZVOR}]*[{_ALPH}{_NIQQ}{_GRSH}]")
+ZVOR_RE = re.compile(f"[{_ZVOR}]")
+NIQQ_RE = re.compile(f"[{_NIQQ}]")
+BRACKETS_RE = re.compile(r"\[[^\]]+?\]")
 
 
 def main():
@@ -54,14 +54,14 @@ def main():
         if "[" in text:
             text = BRACKETS_RE.sub("", text)
 
-        kord = re.sub(ZVOR_RE, "", key)
-        for tord in re.findall(WORD_RE, f"{kord} {text}"):
-            if not re.search(NIQQ_RE, tord):
+        kord = ZVOR_RE.sub("", key)
+        for tord in WORD_RE.findall(f"{kord} {text}"):
+            if not NIQQ_RE.search(tord):
                 continue
             if tord.startswith("אְ"):
                 print(text)
                 return
-            tord = re.sub(ZVOR_RE, "", tord)
+            tord = ZVOR_RE.sub("", tord)
             words.setdefault(tord, kord)
 
     print(f"Number of words: {len(words)}")
