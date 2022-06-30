@@ -23,7 +23,7 @@ def main():
         "-n", "--number",
         type=int,
         help="Number of latest backups to download",
-        default=3,
+        default=2,
     )
     args = parser.parse_args()
 

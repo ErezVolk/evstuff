@@ -18,55 +18,65 @@ WRDS = Path("hebrew.words")
 
 _NIQQ = "\u05B0-\u05BC\u05C1\u05C2"
 _ALPH = "\u05D0-\u05EA"
-_OTHR = "\u05F3"
-NIQQ_RE = re.compile(f"[{_NIQQ}]")
-WORD_RE = re.compile(f"[{_ALPH}][{_ALPH}{_NIQQ}{_OTHR}]*[{_ALPH}{_NIQQ}]")
-BRACKETS_RE = re.compile(r"\[[^\]]+:[^\]]*\]")
+_GRSH = "\u05F3"
+_OTHR = "\u05F3\u05F4"
+_ZVOR = "\u05BD\u05BF(4)"
+WORD_RE = f"[{_ALPH}][{_ALPH}{_NIQQ}{_OTHR}{_ZVOR}]*[{_ALPH}{_NIQQ}{_GRSH}]"
+ZVOR_RE = f"[{_ZVOR}]"
+NIQQ_RE = f"[{_NIQQ}]"
+BRACKETS_RE = r"\[[^\]]+?\]"
 
 
 def main():
+    """Get Hebrew words"""
     if JSON.is_file():
         print("Reading parsed dictionary...")
-        with open(JSON, encoding="utf8") as fo:
-            d = json.load(fo)
+        with open(JSON, encoding="utf8") as fobj:
+            entries = json.load(fobj)
     else:
         body = next(ROOT.glob("**/Hebrew.dictionary/Contents/Resources/Body.data"))
         print(f"Parsing {body}...")
-        d = _parse(body)
-        with open(JSON, "w", encoding="utf8") as fo:
-            json.dump(d, fo, ensure_ascii=False)
-    print(f"Number of entries: {len(d)}")
+        entries = _parse(body)
+        with open(JSON, "w", encoding="utf8") as fobj:
+            json.dump(entries, fobj, ensure_ascii=False)
+    print(f"Number of entries: {len(entries)}")
 
-    words = set()
-    for key, xml in d:
+    words = {}
+    for key, xml in entries:
         node = etree.fromstring(xml)
+
+        for label in node.xpath("//span[contains(@class, 'ty_label')]"):
+            label.getparent().remove(label)
+
         bext = etree.tostring(node, encoding="utf-8", method="text")
         text = bext.decode("utf-8")
 
         if "[" in text:
             text = BRACKETS_RE.sub("", text)
 
-        tords = WORD_RE.findall(text)
-        words.update(
-            tord
-            for tord in tords
-            if NIQQ_RE.search(tord)
-        )
-        if any(tord.startswith("אְ") for tord in tords):
-            print(text)
-            return
+        kord = re.sub(ZVOR_RE, "", key)
+        for tord in re.findall(WORD_RE, f"{kord} {text}"):
+            if not re.search(NIQQ_RE, tord):
+                continue
+            if tord.startswith("אְ"):
+                print(text)
+                return
+            tord = re.sub(ZVOR_RE, "", tord)
+            words.setdefault(tord, kord)
 
     print(f"Number of words: {len(words)}")
-    with open(WRDS, "w", encoding="utf8") as fo:
-        for word in sorted(words):
-            fo.write(word)
-            fo.write("\n")
+    with open(WRDS, "w", encoding="utf8") as fobj:
+        for word, key in sorted(words.items()):
+            fobj.write(word)
+            fobj.write("\t")
+            fobj.write(key)
+            fobj.write("\n")
 
 
 def _parse(dictionary_path) -> list[tuple[str, str]]:
     """Parse Body.data into a list of entries given as key, definition tuples."""
-    with open(dictionary_path, "rb") as f:
-        content_bytes = f.read()
+    with open(dictionary_path, "rb") as fobj:
+        content_bytes = fobj.read()
     total_bytes = len(content_bytes)
 
     # The first zip file starts at ~100 bytes:
@@ -78,8 +88,8 @@ def _parse(dictionary_path) -> list[tuple[str, str]]:
         if not content_bytes:  # Backup condition in case stop is never True.
             break
         try:
-            d = zlib.decompressobj()
-            res = d.decompress(content_bytes)
+            dec = zlib.decompressobj()
+            res = dec.decompress(content_bytes)
             new_entries, stop = _split(res, verbose=first)
             entries += new_entries
             if stop:
@@ -96,7 +106,7 @@ def _parse(dictionary_path) -> list[tuple[str, str]]:
 
             # Set content_bytes to the unused data so we can start the search for the
             # next zip file.
-            content_bytes = d.unused_data
+            content_bytes = dec.unused_data
 
         except zlib.error:  # Current content_bytes is not a zipfile -> skip a byte.
             content_bytes = content_bytes[1:]
@@ -145,7 +155,7 @@ def _split(input_bytes, verbose) -> tuple[list[tuple[str, str]], bool]:
         # curly brackets).
         xml_entry = etree.fromstring(entry_text)
         domain = xml_entry.nsmap["d"]
-        key = "{%s}title" % domain
+        key = f"{domain}title"
         name = xml_entry.get(key)  # Lookup the attribute in the tree.
 
         entries.append((name, entry_text))
@@ -158,7 +168,7 @@ def _split(input_bytes, verbose) -> tuple[list[tuple[str, str]], bool]:
 
         # There is always 4 bytes of chibberish between entries. Skip them
         # and the new lines (for a total of 5 bytes).
-        input_bytes = input_bytes[next_offset + 5 :]
+        input_bytes = input_bytes[next_offset + 5:]
         total_offset += next_offset
     return entries, stop_further_parsing
 
