@@ -24,7 +24,7 @@ _ZVOR = "\u05BD\u05BF(4)"
 WORD_RE = re.compile(f"[{_ALPH}][{_ALPH}{_NIQQ}{_OTHR}{_ZVOR}]*[{_ALPH}{_NIQQ}{_GRSH}]")
 ZVOR_RE = re.compile(f"[{_ZVOR}]")
 NIQQ_RE = re.compile(f"[{_NIQQ}]")
-BRACKETS_RE = re.compile(r"\[[^\]]+?\]")
+BRACKETS_RE = re.compile(r"\[[^\]]+:[^\]]*?\]")
 
 
 def main():
