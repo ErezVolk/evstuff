@@ -18,7 +18,11 @@ def main():
         "output", type=Path, nargs="?", help="Shuffled PDF file to create"
     )
     parser.add_argument("-e", "--keep-empty-pages", action="store_true")
+    parser.add_argument("-s", "--seed", type=int)
     args = parser.parse_args()
+
+    if args.seed is not None:
+        random.seed(args.seed)
 
     infn = args.input
     if args.output:
