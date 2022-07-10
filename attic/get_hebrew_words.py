@@ -155,7 +155,7 @@ def _split(input_bytes, verbose) -> tuple[list[tuple[str, str]], bool]:
         # curly brackets).
         xml_entry = etree.fromstring(entry_text)
         domain = xml_entry.nsmap["d"]
-        key = f"{domain}title"
+        key = f"{{{domain}}}title"
         name = xml_entry.get(key)  # Lookup the attribute in the tree.
 
         entries.append((name, entry_text))
