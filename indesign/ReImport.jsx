@@ -664,7 +664,7 @@ function ri_fully_justify(ri, paragraphs, index) {
   var fudge = lastChar.pointSize / 2;
 
   if (gap != 0 && gap < fudge && gap > -fudge) {
-    ri_really_fully_justify(ri, paragraph);
+    paragraph.justification = Justification.FULLY_JUSTIFIED;
     ri.last_good_line = lastLine;
     ri.last_good_char = lastChar;
   } else {
@@ -676,6 +676,7 @@ function ri_fully_justify(ri, paragraphs, index) {
   }
 }
 
+/* NOT CURRENTLY USED */
 function ri_really_fully_justify(ri, paragraph) {
   var unfull_style = paragraph.appliedParagraphStyle;
 
