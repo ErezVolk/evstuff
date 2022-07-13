@@ -15,19 +15,7 @@ Function loadConfig() as Object
     Title: "Kan 11"
     streamFormat: "hls"
     Logo: "https://erezvolk.github.io/iltv/images/posters/ipbc_tv_11.png"
-    Stream: "https://kan11.media.kan.org.il/hls/live/2024514-b/2024514/source1_2.5k/chunklist.m3u8"
-}
-{
-    Title: "Keshet 12"
-    streamFormat: "hls"
-    Logo: "pkg:/images/kehet12.png"
-    Stream: "https://mako-streaming.akamaized.net/direct/hls/live/2033791/k12dvr/hdntl=exp=1654539318~acl=%2f*~data=hdntl~hmac=bffb1d0c9a235e86ed789d8b524cf5eff5af44bdccd6c6e3f5d53f7ea0866883/index_550.m3u8"
-}
-{
-    Title: "Reshet 13"
-    streamFormat: "hls"
-    Logo: "https://erezvolk.github.io/iltv/images/posters/reshet_13.png"
-    Stream: "https://d18b0e6mopany4.cloudfront.net/out/v1/08bc71cf0a0f4712b6b03c732b0e6d25/index_3.m3u8"
+    Stream: "https://kan11.media.kan.org.il/hls/live/2024514/2024514/source1_2.5k/chunklist.m3u8"
 }
 {
     Title: "Channel 14"
@@ -51,6 +39,11 @@ Function loadConfig() as Object
     Title: "NHK World"
     streamFormat: "hls"
     Stream: "https://nhkwlive-xjp.akamaized.net/hls/live/2003458/nhkwlive-xjp-en/index_1M.m3u8"
+}
+{
+    Title: "103 FM"
+    streamFormat: "mp4"
+    Stream: "https://cdn.cybercdn.live/103FM/Live/icecast.audio"
 }
     
     
