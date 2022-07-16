@@ -21,7 +21,7 @@ Function loadConfig() as Object
     Title: "Channel 14"
     streamFormat: "hls"
     Logo: "https://erezvolk.github.io/iltv/images/posters/now14.png"
-    Stream: "https://splittv.ch20-cdnwiz.com/hls/live_360/index.m3u8"
+    Stream: "https://dvr.ch20-cdnwiz.com/hls/live_360/index.m3u8"
 }
 {
     Title: "Channel 24"
