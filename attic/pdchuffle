@@ -18,6 +18,13 @@ def main():
         "output", type=Path, nargs="?", help="Shuffled PDF file to create"
     )
     parser.add_argument("-e", "--keep-empty-pages", action="store_true")
+    parser.add_argument(
+        "-m",
+        "--min-chapter",
+        type=int,
+        default=1,
+        help="Throw away chapters less than MIN_CHAPTER pages",
+    )
     parser.add_argument("-s", "--seed", type=int)
     args = parser.parse_args()
 
@@ -38,14 +45,14 @@ def main():
         print(f"Not enough pages ({n_pages}) in document")
         return
 
-    toc = indoc.get_toc(simple=False)
-    if len(toc) == 0:
+    intoc = indoc.get_toc(simple=False)
+    if len(intoc) == 0:
         print("There are no bookmarks")
         return
 
     bookmarks = [
         entry[2] - 1  # ToC entries are 1-based
-        for entry in toc
+        for entry in intoc
         if entry[3].get("to") == TOP_OF_PAGE
     ]
     bookmarks = list(sorted(bookmarks))
@@ -57,12 +64,24 @@ def main():
 
     bookmarks.append(n_pages)
     spans = list(zip(bookmarks[:-1], bookmarks[1:]))
+    spans = [
+        (span_from, span_to)
+        for (span_from, span_to) in spans
+        if span_to >= span_from + args.min_chapter
+    ]
     random.shuffle(spans)
 
     outdoc = fitz.Document()
+    old_to_new = {}
 
     for nspan, (span_from, span_to) in enumerate(spans, 1):
+        old_to_new[span_from + 1] = outdoc.page_count + 1
         outdoc.insert_pdf(indoc, span_from, span_to - 1, final=nspan == len(spans))
+    outdoc.set_toc([
+        [1, f"{pold} is now {pnew}", pnew]
+        for pold, pnew in old_to_new.items()
+    ])
+
     if not args.keep_empty_pages:
         deleted = 0
         for pno in range(outdoc.page_count - 1, 0, -1):
