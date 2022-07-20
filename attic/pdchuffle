@@ -20,11 +20,16 @@ def main():
     )
     parser.add_argument("-e", "--keep-empty-pages", action="store_true")
     parser.add_argument(
-        "-m",
-        "--min-chapter",
+        "--min",
         type=int,
-        default=1,
-        help="Throw away chapters less than MIN_CHAPTER pages",
+        metavar="NNN",
+        help="Throw away chapters with less than NNN pages",
+    )
+    parser.add_argument(
+        "--max",
+        type=int,
+        metavar="NNN",
+        help="Throw away chapters with more than MAX pages",
     )
     parser.add_argument("-s", "--seed", type=int)
     args = parser.parse_args()
@@ -62,11 +67,19 @@ def main():
         return
 
     bookmarks.setdefault(n_pages, "(END)")
-    spans = [
-        (span_from, span_to)
-        for (span_from, span_to) in pairwise(sorted(bookmarks))
-        if span_to >= span_from + args.min_chapter
-    ]
+    spans = list(pairwise(sorted(bookmarks)))
+    if args.min:
+        spans = [
+            (span_from, span_to)
+            for (span_from, span_to) in spans
+            if span_to >= span_from + args.min
+        ]
+    if args.max:
+        spans = [
+            (span_from, span_to)
+            for (span_from, span_to) in spans
+            if span_to <= span_from + args.max
+        ]
     random.shuffle(spans)
 
     outdoc = fitz.Document()
