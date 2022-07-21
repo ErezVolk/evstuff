@@ -15,6 +15,7 @@ ROOT = Path(
 )
 JSON = Path("hebrew.json")
 WRDS = Path("hebrew.words")
+TXTS = Path("hebrew.texts")
 
 _NIQQ = "\u05B0-\u05BC\u05C1\u05C2"
 _ALPH = "\u05D0-\u05EA"
@@ -41,28 +42,32 @@ def main():
             json.dump(entries, fobj, ensure_ascii=False)
     print(f"Number of entries: {len(entries)}")
 
-    words = {}
-    for key, xml in entries:
-        node = etree.fromstring(xml)
+    with open(TXTS, "w", encoding="utf8") as fobj:
+        words = {}
+        for key, xml in entries:
+            node = etree.fromstring(xml)
 
-        for label in node.xpath("//span[contains(@class, 'ty_label')]"):
-            label.getparent().remove(label)
+            for label in node.xpath("//span[contains(@class, 'ty_label')]"):
+                label.getparent().remove(label)
 
-        bext = etree.tostring(node, encoding="utf-8", method="text")
-        text = bext.decode("utf-8")
+            bext = etree.tostring(node, encoding="utf-8", method="text")
+            text = bext.decode("utf-8")
 
-        if "[" in text:
-            text = BRACKETS_RE.sub("", text)
+            fobj.write(text)
+            fobj.write("\n\n")
 
-        kord = ZVOR_RE.sub("", key)
-        for tord in WORD_RE.findall(f"{kord} {text}"):
-            if not NIQQ_RE.search(tord):
-                continue
-            if tord.startswith("אְ"):
-                print(text)
-                return
-            tord = ZVOR_RE.sub("", tord)
-            words.setdefault(tord, kord)
+            if "[" in text:
+                text = BRACKETS_RE.sub("", text)
+
+            kord = ZVOR_RE.sub("", key)
+            for tord in WORD_RE.findall(f"{kord} {text}"):
+                if not NIQQ_RE.search(tord):
+                    continue
+                if tord.startswith("אְ"):
+                    print(text)
+                    return
+                tord = ZVOR_RE.sub("", tord)
+                words.setdefault(tord, kord)
 
     print(f"Number of words: {len(words)}")
     with open(WRDS, "w", encoding="utf8") as fobj:
