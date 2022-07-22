@@ -5,8 +5,9 @@ from argparse import Namespace
 import itertools
 from pathlib import Path
 import pickle
-import random
 
+import numpy.random as npr
+import pandas as pd
 import fitz  # type: ignore; pip install pymupdf
 
 # We only use bookmarks that point to a new page
@@ -24,6 +25,7 @@ def parse_command_line() -> Namespace:
     parser.add_argument(
         "--min",
         type=int,
+        default=1,
         metavar="NNN",
         help="Throw away chapters with less than NNN pages",
     )
@@ -49,7 +51,7 @@ def main():
 
     print(f"{args.input} -> {args.output}")
 
-    randomize(args)
+    rng = randomize(args)
 
     indoc = fitz.Document(args.input)
     n_pages = indoc.page_count
@@ -57,38 +59,38 @@ def main():
         print(f"Not enough pages ({n_pages}) in document")
         return
 
-    bookmarks: dict[int, str] = {
-        entry[2] - 1: entry[1]  # ToC entries are 1-based
+    # In most PyMuPDF APIs, page numbers are 0-based, but in the toc they're 1-based
+    chaps = pd.DataFrame.from_records([
+        {"first_1": entry[2], "title": entry[1]}
         for entry in indoc.get_toc(simple=False)
         if entry[3].get("to") == TOP_OF_PAGE
-    }
-    bookmarks.setdefault(0, "(START)")
-    if len(bookmarks) < 2:
+    ], index="first_1")
+    chaps.loc[1, "title"] = "(START)"
+
+    if len(chaps) < 2:
         print(f"Not enough bookmarks in {args.input}")
         return
 
-    bookmarks.setdefault(n_pages, "(END)")
-    spans = list(pairwise(sorted(bookmarks)))
-    if args.min:
-        spans = [
-            (span_from, span_to)
-            for (span_from, span_to) in spans
-            if span_to >= span_from + args.min
-        ]
+    chaps.loc[n_pages + 1, "title"] = "(END)"
+    chaps = chaps.sort_index().reset_index()
+    chaps["next_1"] = chaps.first_1.shift(-1, fill_value=0)
+    chaps["length"] = chaps.next_1 - chaps.first_1
+    chaps["first_0"] = chaps.first_1 - 1
+    chaps["last_0"] = chaps.next_1 - 2
+
+    chaps = chaps.loc[chaps.length >= args.min]
     if args.max:
-        spans = [
-            (span_from, span_to)
-            for (span_from, span_to) in spans
-            if span_to <= span_from + args.max
-        ]
-    random.shuffle(spans)
+        chaps = chaps.loc[chaps.length <= args.max]
+
+    # Shuffle
+    chaps = chaps.sample(frac=1, random_state=rng.bit_generator)
 
     outdoc = fitz.Document()
     outtoc = []
 
-    for nspan, (span_from, span_to) in enumerate(spans, 1):
-        outtoc.append((1, bookmarks[span_from], outdoc.page_count + 1))
-        outdoc.insert_pdf(indoc, span_from, span_to - 1, final=nspan == len(spans))
+    for _, chap in chaps.iterrows():
+        outtoc.append((1, chap.title, outdoc.page_count + 1))
+        outdoc.insert_pdf(indoc, chap.first_0, chap.last_0, final=False)
     outdoc.set_toc(outtoc)
 
     if not args.keep_empty_pages:
@@ -102,24 +104,27 @@ def main():
     outdoc.ez_save(args.output)
 
 
-def randomize(args: Namespace):
+def randomize(args: Namespace) -> npr.Generator:
     """Set random seed"""
+    generator = npr.default_rng(seed=args.seed)
+
+    if args.seed_file is True:
+        args.seed_file = args.output.with_suffix(".seed")
+
     if args.seed_file:
-        if args.seed_file is True:
-            seed_fn = args.output.with_suffix(".seed")
-        else:
-            seed_fn = args.seed_file
         try:
-            with open(seed_fn, "rb") as fobj:
-                random.setstate(pickle.load(fobj))
-            print(f"Random state loaded from {seed_fn}")
+            with open(args.seed_file, "rb") as fobj:
+                loaded = pickle.load(fobj)
+            if not isinstance(loaded, npr.Generator):
+                print(f"Incompatible {args.seed_file}, regenerating")
+                raise TypeError()
+            print(f"Random state loaded from {args.seed_file}")
+            generator = loaded
         except (FileNotFoundError, TypeError, pickle.UnpicklingError):
-            print(f"Saving random state to {seed_fn}")
-            random.seed()
-            with open(seed_fn, "wb") as fobj:
-                pickle.dump(random.getstate(), fobj)
-    elif args.seed is not None:
-        random.seed(args.seed)
+            print(f"Saving random state to {args.seed_file}")
+            with open(args.seed_file, "wb") as fobj:
+                pickle.dump(generator, fobj)
+    return generator
 
 
 def pairwise(iterable):
