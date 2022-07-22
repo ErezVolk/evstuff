@@ -84,12 +84,12 @@ def main():
     random.shuffle(spans)
 
     outdoc = fitz.Document()
-    newtoc = []
+    outtoc = []
 
     for nspan, (span_from, span_to) in enumerate(spans, 1):
-        newtoc.append((1, bookmarks[span_from], outdoc.page_count + 1))
+        outtoc.append((1, bookmarks[span_from], outdoc.page_count + 1))
         outdoc.insert_pdf(indoc, span_from, span_to - 1, final=nspan == len(spans))
-    outdoc.set_toc(newtoc)
+    outdoc.set_toc(outtoc)
 
     if not args.keep_empty_pages:
         for pno in range(outdoc.page_count - 1, 0, -1):
