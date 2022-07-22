@@ -3,6 +3,7 @@
 from argparse import ArgumentParser
 import itertools
 from pathlib import Path
+import pickle
 import random
 
 import fitz  # type: ignore; pip install pymupdf
@@ -31,11 +32,10 @@ def main():
         metavar="NNN",
         help="Throw away chapters with more than MAX pages",
     )
-    parser.add_argument("-s", "--seed", type=int)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-s", "--seed", type=int)
+    group.add_argument("-S", "--seed-file", type=Path, nargs="?", default=False, const=True)
     args = parser.parse_args()
-
-    if args.seed is not None:
-        random.seed(args.seed)
 
     infn = args.input
     if args.output:
@@ -44,6 +44,23 @@ def main():
         outfn = infn.with_stem(f"{infn.stem}-shuffled")
 
     print(f"{infn} -> {outfn}")
+
+    if args.seed_file:
+        if args.seed_file is True:
+            seed_fn = outfn.with_suffix(".seed")
+        else:
+            seed_fn = args.seed_file
+        try:
+            with open(seed_fn, "rb") as fobj:
+                random.setstate(pickle.load(fobj))
+            print(f"Random state loaded from {seed_fn}")
+        except (FileNotFoundError, TypeError, pickle.UnpicklingError):
+            print(f"Saving random state to {seed_fn}")
+            random.seed()
+            with open(seed_fn, "wb") as fobj:
+                pickle.dump(random.getstate(), fobj)
+    elif args.seed is not None:
+        random.seed(args.seed)
 
     indoc = fitz.Document(infn)
     n_pages = indoc.page_count
