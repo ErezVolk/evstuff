@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Shuffle chapters in a PDF file"""
 from argparse import ArgumentParser
+from argparse import Namespace
 import itertools
 from pathlib import Path
 import pickle
@@ -12,8 +13,8 @@ import fitz  # type: ignore; pip install pymupdf
 TOP_OF_PAGE = fitz.Point(0, 0)
 
 
-def main():
-    """Shuffle chapters in a PDF file"""
+def parse_command_line() -> Namespace:
+    """Command-line arguments"""
     parser = ArgumentParser(description="Shuffle chapters in a PDF file")
     parser.add_argument("input", type=Path, help="PDF file to shuffle")
     parser.add_argument(
@@ -35,52 +36,35 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-s", "--seed", type=int)
     group.add_argument("-S", "--seed-file", type=Path, nargs="?", default=False, const=True)
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    infn = args.input
-    if args.output:
-        outfn = args.output
-    else:
-        outfn = infn.with_stem(f"{infn.stem}-shuffled")
 
-    print(f"{infn} -> {outfn}")
+def main():
+    """Shuffle chapters in a PDF file"""
+    args = parse_command_line()
 
-    if args.seed_file:
-        if args.seed_file is True:
-            seed_fn = outfn.with_suffix(".seed")
-        else:
-            seed_fn = args.seed_file
-        try:
-            with open(seed_fn, "rb") as fobj:
-                random.setstate(pickle.load(fobj))
-            print(f"Random state loaded from {seed_fn}")
-        except (FileNotFoundError, TypeError, pickle.UnpicklingError):
-            print(f"Saving random state to {seed_fn}")
-            random.seed()
-            with open(seed_fn, "wb") as fobj:
-                pickle.dump(random.getstate(), fobj)
-    elif args.seed is not None:
-        random.seed(args.seed)
+    args.input = args.input
+    if args.output is None:
+        args.output = args.input.with_stem(f"{args.input.stem}-shuffled")
 
-    indoc = fitz.Document(infn)
+    print(f"{args.input} -> {args.output}")
+
+    randomize(args)
+
+    indoc = fitz.Document(args.input)
     n_pages = indoc.page_count
     if n_pages < 2:
         print(f"Not enough pages ({n_pages}) in document")
         return
 
-    intoc = indoc.get_toc(simple=False)
-    if len(intoc) == 0:
-        print("There are no bookmarks")
-        return
-
     bookmarks: dict[int, str] = {
         entry[2] - 1: entry[1]  # ToC entries are 1-based
-        for entry in intoc
+        for entry in indoc.get_toc(simple=False)
         if entry[3].get("to") == TOP_OF_PAGE
     }
     bookmarks.setdefault(0, "(START)")
     if len(bookmarks) < 2:
-        print(f"Not enough bookmarks ({len(bookmarks)}) in document")
+        print(f"Not enough bookmarks in {args.input}")
         return
 
     bookmarks.setdefault(n_pages, "(END)")
@@ -100,15 +84,12 @@ def main():
     random.shuffle(spans)
 
     outdoc = fitz.Document()
-    old_to_new = {}
+    newtoc = []
 
     for nspan, (span_from, span_to) in enumerate(spans, 1):
-        old_to_new[span_from] = outdoc.page_count
+        newtoc.append((1, bookmarks[span_from], outdoc.page_count + 1))
         outdoc.insert_pdf(indoc, span_from, span_to - 1, final=nspan == len(spans))
-    outdoc.set_toc([
-        (1, bookmarks[pold], pnew + 1)
-        for pold, pnew in old_to_new.items()
-    ])
+    outdoc.set_toc(newtoc)
 
     if not args.keep_empty_pages:
         for pno in range(outdoc.page_count - 1, 0, -1):
@@ -116,9 +97,29 @@ def main():
                 outdoc.delete_page(pno)
 
     if outdoc.page_count < indoc.page_count:
-        print(f"Number of pages in {infn}: {indoc.page_count}")
-        print(f"Number of pages in {outfn}: {outdoc.page_count}")
-    outdoc.ez_save(outfn)
+        print(f"Number of pages in {args.input}: {indoc.page_count}")
+        print(f"Number of pages in {args.output}: {outdoc.page_count}")
+    outdoc.ez_save(args.output)
+
+
+def randomize(args: Namespace):
+    """Set random seed"""
+    if args.seed_file:
+        if args.seed_file is True:
+            seed_fn = args.output.with_suffix(".seed")
+        else:
+            seed_fn = args.seed_file
+        try:
+            with open(seed_fn, "rb") as fobj:
+                random.setstate(pickle.load(fobj))
+            print(f"Random state loaded from {seed_fn}")
+        except (FileNotFoundError, TypeError, pickle.UnpicklingError):
+            print(f"Saving random state to {seed_fn}")
+            random.seed()
+            with open(seed_fn, "wb") as fobj:
+                pickle.dump(random.getstate(), fobj)
+    elif args.seed is not None:
+        random.seed(args.seed)
 
 
 def pairwise(iterable):
