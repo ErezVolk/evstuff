@@ -22,6 +22,8 @@ def parse_command_line() -> Namespace:
         "output", type=Path, nargs="?", help="Shuffled PDF file to create"
     )
     parser.add_argument("-e", "--keep-empty-pages", action="store_true")
+    parser.add_argument("-f", "--first-chapter", type=int, default=1)
+    parser.add_argument("-l", "--last-chapter", type=int, default=-1)
     parser.add_argument(
         "--min",
         type=int,
@@ -60,20 +62,35 @@ def main():
         return
 
     # In most PyMuPDF APIs, page numbers are 0-based, but in the toc they're 1-based
-    chaps = pd.DataFrame.from_records([
+    toc = [
         {"first_1": entry[2], "title": entry[1]}
         for entry in indoc.get_toc(simple=False)
-        if entry[3].get("to") == TOP_OF_PAGE
-    ], index="first_1")
+        if entry[3].get("to", TOP_OF_PAGE) == TOP_OF_PAGE
+    ]
+    if len(toc) < 1:
+        print("No relevant bookmarks in document")
+        return
+
+    chaps = pd.DataFrame.from_records(toc, index="first_1")
     if 1 not in chaps.index:
         chaps.loc[1, "title"] = f"{args.input.name}:1"
 
-    if len(chaps) < 2:
+    chaps.loc[n_pages + 1, "title"] = "END"
+    chaps = chaps.sort_index().reset_index()
+
+    if (n_chaps := len(chaps)) < 2:
         print(f"Not enough bookmarks in {args.input}")
         return
 
-    chaps.loc[n_pages + 1, "title"] = "END"
-    chaps = chaps.sort_index().reset_index()
+    first_idx = num_to_idx(args.first_chapter, n_chaps)
+    last_idx = num_to_idx(args.last_chapter, n_chaps)
+
+    if not 0 <= first_idx <= last_idx < n_chaps:
+        print(f"Document has {n_chaps} chapters, doens't fit")
+        return
+
+    chaps = chaps.iloc[first_idx : last_idx].copy()
+
     chaps["next_1"] = chaps.first_1.shift(-1, fill_value=0)
     chaps["length"] = chaps.next_1 - chaps.first_1
     chaps["first_0"] = chaps.first_1 - 1
@@ -126,6 +143,15 @@ def randomize(args: Namespace) -> npr.Generator:
             with open(args.seed_file, "wb") as fobj:
                 pickle.dump(generator, fobj)
     return generator
+
+
+def num_to_idx(num, n_chaps):
+    """Convert, e.g., --first-chapter=1 to 0"""
+    if num > 0:
+        return num - 1
+    if num < 0:
+        return n_chaps + num
+    return 0
 
 
 def pairwise(iterable):
