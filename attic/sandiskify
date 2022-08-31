@@ -33,11 +33,11 @@ def main():
 
     if not args.output:
         inname = args.input.resolve().name
-        if m := re.match(r"^(.*) - (.*)$", inname):
+        if rem := re.match(r"^(.*) - (.*)$", inname):
             if not args.artist:
-                args.artist = m.group(1)
+                args.artist = rem.group(1)
             if not args.album:
-                args.album = m.group(2)
+                args.album = rem.group(2)
             args.output = Path(inname)
         else:
             args.output = Path("sandisk")
@@ -94,11 +94,11 @@ def main():
                 if args.artist:
                     set_tag(id3, TPE1(encoding=3, text=args.artist))
                 if cover:
-                    if (m := re.search(r"\D(\d+[-_ ]\d+)$", path.stem)) is not None:
+                    if (rem := re.search(r"\D(\d+[-_ ]\d+)$", path.stem)) is not None:
                         image = cover.copy()
                         ImageDraw.Draw(image).text(
                             xy=(0, 0),
-                            text=m.group(1),
+                            text=rem.group(1),
                             fill=(255, 255, 0),
                             stroke_width=3,
                             stroke_fill=(0, 0, 255),
@@ -114,7 +114,7 @@ def main():
                     set_tag(id3, apic)
                 id3.save(path)
 
-            path.link_to(args.output / name)
+            path.hardlink_to(args.output / name)
             m3u.write("#EXTINF:0,")
             m3u.write(name)
             m3u.write("\n")
