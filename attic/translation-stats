@@ -23,14 +23,14 @@ def main():
         (sheet["O-Words"] > 0) & (sheet["T-Chars+"] > 0) & (sheet["O-Chars"] > 0)
     ].copy()
     lgs["Books"] = 1
-    lgs = lgs.groupby(["Lg"]).sum()
+    lgs = lgs.groupby(["Lg"]).sum(numeric_only=True)
     lgs["T-GD+"] = lgs["T-Chars+"] / 24000
     lgs["O-W/T-GD+"] = lgs["O-Words"] / lgs["T-GD+"]
     lgs["O-C/T-GD+"] = lgs["O-Chars"] / lgs["T-GD+"]
     lgs["O-C/O-W"] = (lgs["O-Chars"] / lgs["O-Words"]).round(1)
 
     stats = sheet[~sheet.Hours.isna()]
-    stats = stats.groupby(["Lg", "T/E"]).sum()
+    stats = stats.groupby(["Lg", "T/E"]).sum(numeric_only=True)
     stats["O-W/H"] = (stats["O-Words"] / stats["Hours"]).round(0).astype(int)
 
     stats["lgow"] = stats.groupby("Lg")["O-Words"].transform("sum")
@@ -74,7 +74,7 @@ def main():
     g.fig.suptitle("Words per Hour by Language")
     g.savefig(root / "stats.pdf")
 
-    stats.sort_values(["T/E", "Lg"], ascending=[False, True], inplace=True)
+    stats = stats.sort_values(["T/E", "Lg"], ascending=[False, True])
     for c in stats.columns:
         if c != "O-C/O-W":
             stats[c] = stats[c].map("{:,.0f}".format)
