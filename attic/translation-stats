@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Translation stats"""
 from datetime import datetime
 from datetime import time
 from pathlib import Path
@@ -12,6 +13,7 @@ EPOCH_DATETIME = datetime(1899, 12, 31, 0, 0, 0)
 
 
 def main():
+    """Translation stats"""
     sns.set()
     root = Path.home() / "translation"
     sheet = pd.read_excel(
@@ -45,18 +47,18 @@ def main():
     ]
 
     plats = sheet.loc[sheet["O-W/H"] > 0].copy()
-    for lg, row in lgs.iterrows():
+    for lang, row in lgs.iterrows():
         kws = int(row["O-Words"]) // 1000
         hrs = row["Hours"]
         bks = int(row["Books"])
-        plats.loc[plats.Lg == lg, "Lg"] = (
-            f"{lg}\n"
+        plats.loc[plats.Lg == lang, "Lg"] = (
+            f"{lang}\n"
             f"{bks} bk\n"
             f"{kws:,} kW\n"
             f"{int(hrs):,} hrs"
         )
 
-    g = sns.catplot(
+    plot = sns.catplot(
         kind="violin",
         data=plats,
         x="Lg",
@@ -70,30 +72,30 @@ def main():
         height=8,
         aspect=1.2,
     )
-    g.fig.subplots_adjust(top=0.9)
-    g.fig.suptitle("Words per Hour by Language")
-    g.savefig(root / "stats.pdf")
+    plot.fig.subplots_adjust(top=0.9)
+    plot.fig.suptitle("Words per Hour by Language")
+    plot.savefig(root / "stats.pdf")
 
     stats = stats.sort_values(["T/E", "Lg"], ascending=[False, True])
-    for c in stats.columns:
-        if c != "O-C/O-W":
-            stats[c] = stats[c].map("{:,.0f}".format)
+    for col in stats.columns:
+        if col != "O-C/O-W":
+            stats[col] = stats[col].map("{:,.0f}".format)
     print(stats)
     print(datetime.utcnow())
 
 
-def time_to_hours(t):
+def time_to_hours(timestamp):
     """Time cell is either `datetime.time` or `datetime.datetime` (if >24h).
 
     This coverts both to hours (float).
     """
-    if t is None:
+    if timestamp is None:
         return None
-    if isinstance(t, time):
-        return t.hour + t.minute / 60 + t.second / 3600
-    if isinstance(t, datetime):
-        return (t - EPOCH_DATETIME).total_seconds() / 3600
-    raise ValueError(repr(t))
+    if isinstance(timestamp, time):
+        return timestamp.hour + timestamp.minute / 60 + timestamp.second / 3600
+    if isinstance(timestamp, datetime):
+        return (timestamp - EPOCH_DATETIME).total_seconds() / 3600
+    raise ValueError(repr(timestamp))
 
 
 if __name__ == "__main__":
