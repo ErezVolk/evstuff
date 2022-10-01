@@ -38,8 +38,17 @@ def parse_command_line() -> Namespace:
         help="Throw away chapters with more than MAX pages",
     )
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-s", "--seed", type=int)
-    group.add_argument("-S", "--seed-file", type=Path, nargs="?", default=False, const=True)
+    group.add_argument("-s", "--seed", type=int, help="Set random seed")
+    group.add_argument(
+        "-S",
+        "--seed-file",
+        type=Path,
+        nargs="?",
+        default=False,
+        const=True,
+        help="Load or generate and save random seed",
+    )
+    group.add_argument("--no-shuffle", action="store_true", help="No shuffling")
     return parser.parse_args()
 
 
@@ -89,7 +98,7 @@ def main():
         print(f"Document has {n_chaps} chapters, doens't fit")
         return
 
-    chaps = chaps.iloc[first_idx : last_idx].copy()
+    chaps = chaps.iloc[first_idx:last_idx].copy()
 
     chaps["next_1"] = chaps.first_1.shift(-1, fill_value=0)
     chaps["length"] = chaps.next_1 - chaps.first_1
@@ -100,8 +109,9 @@ def main():
     if args.max:
         chaps = chaps.loc[chaps.length <= args.max]
 
-    # Shuffle
-    chaps = chaps.sample(frac=1, random_state=rng.bit_generator)
+    if rng is not None:
+        # Shuffle
+        chaps = chaps.sample(frac=1, random_state=rng.bit_generator)
 
     outdoc = fitz.Document()
     outtoc = []
@@ -122,8 +132,11 @@ def main():
     outdoc.ez_save(args.output)
 
 
-def randomize(args: Namespace) -> npr.Generator:
+def randomize(args: Namespace) -> npr.Generator | None:
     """Set random seed"""
+    if args.no_shuffle:
+        return None
+
     generator = npr.default_rng(seed=args.seed)
 
     if args.seed_file is True:
