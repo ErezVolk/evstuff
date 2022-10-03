@@ -114,7 +114,7 @@ def main():
                     set_tag(id3, apic)
                 id3.save(path)
 
-            path.hardlink_to(args.output / name)
+            (args.output / name).hardlink_to(path)
             m3u.write("#EXTINF:0,")
             m3u.write(name)
             m3u.write("\n")
