@@ -89,13 +89,14 @@ def time_to_hours(timestamp):
 
     This coverts both to hours (float).
     """
-    if timestamp is None:
+    if not timestamp:
         return None
     if isinstance(timestamp, time):
         return timestamp.hour + timestamp.minute / 60 + timestamp.second / 3600
     if isinstance(timestamp, datetime):
         return (timestamp - EPOCH_DATETIME).total_seconds() / 3600
-    raise ValueError(repr(timestamp))
+    print(f"Warning: Cannot parse timestamp {repr(timestamp)}")
+    return None
 
 
 if __name__ == "__main__":
