@@ -2,6 +2,7 @@
 """Translation stats"""
 from datetime import datetime
 from datetime import time
+from functools import partial
 from pathlib import Path
 
 import pandas as pd
@@ -17,7 +18,8 @@ def main():
     sns.set()
     root = Path.home() / "translation"
     sheet = pd.read_excel(
-        root / "skel" / "stats.xls", converters={"Time": time_to_hours}
+        root / "skel" / "stats.xls",
+        converters={"Time": partial(time_to_hours, state={})},
     )
     sheet["Hours"] = sheet.Time.astype(float)
 
@@ -51,12 +53,8 @@ def main():
         kws = int(row["O-Words"]) // 1000
         hrs = row["Hours"]
         bks = int(row["Books"])
-        plats.loc[plats.Lg == lang, "Lg"] = (
-            f"{lang}\n"
-            f"{bks} bk\n"
-            f"{kws:,} kW\n"
-            f"{int(hrs):,} hrs"
-        )
+        lg_lines = [lang, f"{bks} bk", f"{kws:,} kW", f"{int(hrs):,} hrs"]
+        plats.loc[plats.Lg == lang, "Lg"] = "\n".join(lg_lines)
 
     plot = sns.catplot(
         kind="violin",
@@ -79,23 +77,24 @@ def main():
     stats = stats.sort_values(["T/E", "Lg"], ascending=[False, True])
     for col in stats.columns:
         if col != "O-C/O-W":
-            stats[col] = stats[col].map("{:,.0f}".format)
+            stats[col] = stats[col].map(lambda val: f"{val:,.0f}")
     print(stats)
     print(datetime.utcnow())
 
 
-def time_to_hours(timestamp):
+def time_to_hours(timestamp: str, state: dict) -> float or None:
     """Time cell is either `datetime.time` or `datetime.datetime` (if >24h).
 
     This coverts both to hours (float).
     """
+    n_times = state["n_times"] = state.get("n_times", 0) + 1
     if not timestamp:
         return None
     if isinstance(timestamp, time):
         return timestamp.hour + timestamp.minute / 60 + timestamp.second / 3600
     if isinstance(timestamp, datetime):
         return (timestamp - EPOCH_DATETIME).total_seconds() / 3600
-    print(f"Warning: Cannot parse timestamp {repr(timestamp)}")
+    print(f"[Time:{n_times + 1}] Warning: Cannot parse timestamp {repr(timestamp)}")
     return None
 
 
