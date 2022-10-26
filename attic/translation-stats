@@ -78,7 +78,7 @@ def main():
     for col in stats.columns:
         if col != "O-C/O-W":
             stats[col] = stats[col].map(lambda val: f"{val:,.0f}")
-    print(stats)
+    print(stats.to_string(index_names=False))
     print(datetime.utcnow())
 
 
