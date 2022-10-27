@@ -59,9 +59,11 @@ def main():
             for f in translation.glob(f"*_{stem}")
             if f.is_dir() and not f.is_symlink() and (f / "Makefile").is_file()
         ]
-        if len(found) != 1:
-            if len(found) > 1:
-                print(f"More than one folder {translation}/*_{stem}")
+        if len(found) == 0:
+            print(f"Possibly missing {translation}/*_{stem}?")
+            continue
+        elif len(found) != 1:
+            print(f"More than one folder {translation}/*_{stem}")
             continue
 
         folders.insert(0, found[0])
