@@ -1,24 +1,30 @@
 #!/usr/bin/env python3
 """Translation stats"""
+from argparse import ArgumentParser
 from datetime import datetime
 from datetime import time
 from functools import partial
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-# Stupid Excel
-# EPOCH_DATETIME = datetime(1900, 1, 1, 0, 0, 0)
-EPOCH_DATETIME = datetime(1899, 12, 31, 0, 0, 0)
+EPOCH_DATETIME = datetime(1899, 12, 31, 0, 0, 0)  # Stupid Excel
+ROOT = Path.home() / "translation"
 
 
 def main():
     """Translation stats"""
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--input", type=Path, default=ROOT / "skel" / "stats.xls")
+    parser.add_argument("-o", "--output", type=Path, default=ROOT / "stats.pdf")
+    parser.add_argument("--show", action="store_true")
+    args = parser.parse_args()
+
     sns.set()
-    root = Path.home() / "translation"
     sheet = pd.read_excel(
-        root / "skel" / "stats.xls",
+        args.input,
         converters={"Time": partial(time_to_hours, state={})},
     )
     sheet["Hours"] = sheet.Time.astype(float)
@@ -72,7 +78,7 @@ def main():
     )
     plot.fig.subplots_adjust(top=0.9)
     plot.fig.suptitle("Words per Hour by Language")
-    plot.savefig(root / "stats.pdf")
+    plot.savefig(args.output)
 
     stats = stats.sort_values(["T/E", "Lg"], ascending=[False, True])
     for col in stats.columns:
@@ -81,8 +87,11 @@ def main():
     print(stats.to_string(index_names=False))
     print(datetime.utcnow())
 
+    if args.show:
+        plt.show(block=True)
 
-def time_to_hours(timestamp: str, state: dict) -> float or None:
+
+def time_to_hours(timestamp: str or time or datetime, state: dict) -> float or None:
     """Time cell is either `datetime.time` or `datetime.datetime` (if >24h).
 
     This coverts both to hours (float).
