@@ -1,19 +1,31 @@
 #!/usr/bin/env python3
+"""Spleet audio files by silence"""
 import argparse
 from pathlib import Path
+import typing as t
 import re
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from pydub import AudioSegment
 
 
+SplitPoint = t.Union[float, int]
+
+
 class Spleet:
+    """Spleet audio files by silence"""
+    args: argparse.Namespace
+    min_ms: int
+
     def main(self):
-        for fn in self.parse_args():
-            self.spleet(fn)
+        """Entry point"""
+        for path in self.parse_args():
+            self.spleet(path)
 
     def parse_args(self):
+        """Command line"""
         parser = argparse.ArgumentParser(description="Split audio files by silence")
         parser.add_argument(
             "-m",
@@ -64,37 +76,49 @@ class Spleet:
         self.min_ms = self.args.mean // self.args.wiggle_nth
         return self.args.files
 
-    def spleet(self, fn: Path):
-        points_ms = self.get_splitpoints(fn)
+    def spleet(self, path: Path):
+        """Process one audio file"""
+        points_ms = self.get_splitpoints(path)
         points_text = ["0.00"] + [self.ms_to_mp3splt(ms) for ms in points_ms] + ["EOF"]
         points = " ".join(points_text)
-        line = f"mp3splt -f -n -d '.' -o '@f/@f @n2' '{fn}' {points}"
+        line = f"mp3splt -f -n -d '.' -o '@f/@f @n2' '{path}' {points}"
         print(line)
-        if self.args.output:
-            with open(self.args.output, "a+t") as fo:
-                fo.write(line)
-                fo.write("\n")
+        if not self.args.output:
+            return
 
-    def ms_to_mp3splt(self, ms) -> str:
-        if np.isnan(ms):
+        existed = self.args.output.is_file()
+        with open(self.args.output, "a+t", encoding="utf-8") as fobj:
+            fobj.write(line)
+            fobj.write("\n")
+        if not existed:
+            self.args.output.chmod(0o755)
+
+    @classmethod
+    def ms_to_mp3splt(cls, msec: SplitPoint) -> str:
+        """Convert number to the time format used by mp3splt"""
+        if np.isnan(msec):
             return ""
 
-        secs, millis = divmod(ms, 1000)
+        secs, millis = divmod(msec, 1000)
         mins, secs = divmod(secs, 60)
         if millis == 0:
             return f"{mins}.{secs:02d}"
 
         return f"{mins}.{secs:02d}.{millis // 10:02d}"
 
-    def mmss_to_ms(self, mmss: str) -> int:
-        if not (m := re.match(r"^(\d+):(\d\d)$", mmss)):
+    @classmethod
+    def mmss_to_ms(cls, mmss: str) -> int:
+        """Convert MIN:SEC string like '1:20' to milliseconds (80000)"""
+        if not (match := re.match(r"^(\d+):(\d\d)$", mmss)):
             raise argparse.ArgumentTypeError
 
-        return (int(m.group(1)) * 60 + int(m.group(2))) * 1000
+        return (int(match.group(1)) * 60 + int(match.group(2))) * 1000
 
-    def get_splitpoints(self, fn: Path):
-        snd = AudioSegment.from_file(fn)
-        if len(snd) <= self.args.mean + self.min_ms:
+    def get_splitpoints(self, path: Path) -> list[SplitPoint]:
+        """Find where to split"""
+        snd = AudioSegment.from_file(path)
+        duration_ms = len(snd)
+        if duration_ms <= self.args.mean + self.min_ms:
             return []
 
         sliceable_ms = (len(snd) // self.args.slice_ms) * self.args.slice_ms
@@ -105,7 +129,7 @@ class Spleet:
         threshold = np.quantile(rmss, self.args.top_quantile) / self.args.threshold_nth
         vads = rmss > threshold
 
-        run_values, run_starts, run_lengths = find_runs(vads)
+        run_values, run_starts, run_lengths = self.find_runs(vads)
         sil_tmap = run_values == 0
         sils = pd.DataFrame({
             "start": run_starts[sil_tmap] * self.args.slice_ms,
@@ -113,9 +137,13 @@ class Spleet:
         })
         sils["end"] = sils.start + sils.length
 
+        return self.sils_to_points(sils, duration_ms)
+
+    def sils_to_points(self, sils: pd.DataFrame, duration_ms: int) -> list[SplitPoint]:
+        """Find split points from silences"""
         points = []
         target = self.args.mean
-        limit_ms = len(snd) - self.min_ms
+        limit_ms = duration_ms - self.min_ms
         while target <= limit_ms:
             window_min = target - self.min_ms
             window_max = target + self.min_ms
@@ -136,35 +164,34 @@ class Spleet:
 
         return points
 
+    @classmethod
+    def find_runs(cls, arr: npt.ArrayLike) -> t.Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Find runs of consecutive items in an array.
 
-def find_runs(x):
-    """Find runs of consecutive items in an array.
+        https://gist.github.com/alimanfoo/c5977e87111abe8127453b21204c1065
+        """
 
-    https://gist.github.com/alimanfoo/c5977e87111abe8127453b21204c1065
-    """
+        # ensure array
+        arr = np.asanyarray(arr)
+        if arr.ndim != 1:
+            raise ValueError('only 1D array supported')
+        nvals = arr.shape[0]
 
-    # ensure array
-    x = np.asanyarray(x)
-    if x.ndim != 1:
-        raise ValueError('only 1D array supported')
-    n = x.shape[0]
+        # handle empty array
+        if nvals == 0:
+            return np.array([]), np.array([]), np.array([])
 
-    # handle empty array
-    if n == 0:
-        return np.array([]), np.array([]), np.array([])
-
-    else:
         # find run starts
-        loc_run_start = np.empty(n, dtype=bool)
+        loc_run_start = np.empty(nvals, dtype=bool)
         loc_run_start[0] = True
-        np.not_equal(x[:-1], x[1:], out=loc_run_start[1:])
+        np.not_equal(arr[:-1], arr[1:], out=loc_run_start[1:])
         run_starts = np.nonzero(loc_run_start)[0]
 
         # find run values
-        run_values = x[loc_run_start]
+        run_values = arr[loc_run_start]
 
         # find run lengths
-        run_lengths = np.diff(np.append(run_starts, n))
+        run_lengths = np.diff(np.append(run_starts, nvals))
 
         return run_values, run_starts, run_lengths
 

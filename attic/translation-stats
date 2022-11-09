@@ -39,7 +39,7 @@ def main():
     lgs["O-C/T-GD+"] = lgs["O-Chars"] / lgs["T-GD+"]
     lgs["O-C/O-W"] = (lgs["O-Chars"] / lgs["O-Words"]).round(1)
 
-    stats = sheet[~sheet.Hours.isna()]
+    stats = sheet[sheet.Hours.notna()]
     stats = stats.groupby(["Lg", "T/E"]).sum(numeric_only=True)
     stats["O-W/H"] = (stats["O-Words"] / stats["Hours"]).round(0).astype(int)
 
