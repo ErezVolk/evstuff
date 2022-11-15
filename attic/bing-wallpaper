@@ -1,26 +1,35 @@
 #!/usr/bin/env python3
+"""Download latest wallpapers from bing"""
 import argparse
-import requests
-import lxml.etree
 from io import StringIO
 import re
 from pathlib import Path
 
+import requests
+import lxml.etree
+
 
 class BingWallpaper:
+    """Download latest wallpapers from bing"""
     BASE = "https://www.bing.com/"
     COUNTRIES = ("us", "jp", "cn", "uk", "de")
 
+    stem_to_state: dict[str, str] = {}
+    args: argparse.Namespace
+    directory: Path
+
     def run(self):
+        """Entry point"""
         self.parse_args()
 
         self.directory = Path.home() / "Pictures" / "bing-wallpapers"
         self.scan_existing()
         self.download_archive()
-        for cc in self.COUNTRIES:
-            self.download(cc)
+        for country_code in self.COUNTRIES:
+            self.download(country_code)
 
     def parse_args(self):
+        """Command line"""
         parser = argparse.ArgumentParser(description="Download Bing wallpaper")
         parser.add_argument(
             "-f",
@@ -36,6 +45,13 @@ class BingWallpaper:
             default=5,
             help="Try to download N archived images.",
         )
+        parser.add_argument(
+            "-t",
+            "--timeout",
+            type=int,
+            default=10,
+            help="HTTP GET timeout (Seconds)",
+        )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "-q", "--quiet", action="store_true", help="No output.",
@@ -46,84 +62,88 @@ class BingWallpaper:
         self.args = parser.parse_args()
 
     def scan_existing(self):
-        self.stem_to_state = {}
-        for fn in self.directory.iterdir():
-            m = re.match(r"([^_]*)_.*\.jpg$", fn.name)
-            if m:
-                self.stem_to_state[m.group(1)] = "N/A"
+        """Find out what files we already have"""
+        for fname in self.directory.iterdir():
+            match = re.match(r"([^_]*)_.*\.jpg$", fname.name)
+            if match:
+                self.stem_to_state[match.group(1)] = "N/A"
 
     def download_archive(self):
         """Download N photos from the "archive" json."""
         if not self.args.archive:
             return
-        r = requests.get(
-            f"{self.BASE}HPImageArchive.aspx?format=js&n={self.args.archive}"
+        reply = requests.get(
+            f"{self.BASE}HPImageArchive.aspx?format=js&n={self.args.archive}",
+            timeout=self.args.timeout,
         )
-        if r.status_code != requests.codes.ok:
+        if reply.status_code != requests.codes.ok:
             return
-        for image in r.json()["images"]:
+        for image in reply.json()["images"]:
             self.handle_href(image["url"])
 
-    def download(self, cc):
+    def download(self, country_code):
         """Download today's image from a specific country code."""
-        page_r = requests.get(f"{self.BASE}?cc={cc}")
+        page_r = requests.get(f"{self.BASE}?cc={country_code}", timeout=self.args.timeout)
         if page_r.status_code != requests.codes.ok:
             return
 
         parser = lxml.etree.HTMLParser()
         html = lxml.etree.parse(StringIO(page_r.text), parser)
-        for e in html.xpath('./head/link[@as="image"]'):
-            if e.get("id") not in ("preloadBg", "bgLink"):
+        for node in html.xpath('./head/link[@as="image"]'):
+            if node.get("id") not in ("preloadBg", "bgLink"):
                 continue
 
-            astext = lxml.etree.tostring(e).decode()
-            self.handle_href(e.get("href"), desc=astext, source=cc)
+            astext = lxml.etree.tostring(node).decode()
+            self.handle_href(node.get("href"), desc=astext, source=country_code)
 
     def handle_href(self, href, desc=None, source=None):
+        """Download an image"""
         if not desc:
             desc = href
 
         if not source:
             source = href
 
-        m = re.search(r"[.&=?]([^.&=?]*\.jpg)[.&=?]", href)
-        if not m:
+        match = re.search(r"[.&=?]([^.&=?]*\.jpg)[.&=?]", href)
+        if not match:
             self.write(f"I don't know what to do with {desc}")
             return
 
         self.debug(f"Considering {desc}")
         url = f"{self.BASE}/{href}"
-        rn = m.group(1)
+        remote_name = match.group(1)
 
-        m = re.match(r"([A-Za-z0-9]+)_.+_([0-9]+x[0-9]+).*\.jpg", rn)
-        if m:
-            fn = m.group(1) + "_" + m.group(2) + ".jpg"
+        match = re.match(r"([A-Za-z0-9]+)_.+_([0-9]+x[0-9]+).*\.jpg", remote_name)
+        if match:
+            fname = match.group(1) + "_" + match.group(2) + ".jpg"
         else:
-            m = re.match(r"([A-Za-z0-9]*)_[^.]*\.jpg", rn)
-            if m:
-                fn = m.group(1) + ".jpg"
+            match = re.match(r"([A-Za-z0-9]*)_[^.]*\.jpg", remote_name)
+            if match:
+                fname = match.group(1) + ".jpg"
 
-        if not m:
-            self.write(f"I don't know how to parse {rn} in {desc}")
+        if not match:
+            self.write(f"I don't know how to parse {remote_name} in {desc}")
             return
-        stem = m.group(1)
+        stem = match.group(1)
 
         if stem in self.stem_to_state:
-            self.debug(f"Already downloaded {fn} from {self.stem_to_state[stem]}")
+            self.debug(f"Already downloaded {fname} from {self.stem_to_state[stem]}")
             return
 
-        self.write(f"Downloading {rn} as {fn}")
+        self.write(f"Downloading {remote_name} as {fname}")
 
-        file_r = requests.get(url)
-        with open(self.directory / fn, "wb") as fo:
-            fo.write(file_r.content)
+        file_r = requests.get(url, timeout=self.args.timeout)
+        with open(self.directory / fname, "wb") as fobj:
+            fobj.write(file_r.content)
         self.stem_to_state[stem] = source
 
     def write(self, *args):
+        """Write to stdout (unless configured not to)"""
         if not self.args.quiet:
             print(*args)
 
     def debug(self, *args):
+        """Optional debug print"""
         if self.args.debug:
             print(*args)
 
