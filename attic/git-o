@@ -1,16 +1,16 @@
 #!/bin/bash
 
 if [ -d .git ]; then
-	echo "git fetch -p"
-	git fetch -p
+	echo "git fetch -p --all"
+	git fetch -p --all
 fi
 
 for dd in */.git; do
 	if [ -d $dd ]; then
 		d=`dirname $dd`
-		echo "[$d] git fetch -p"
+		echo "[$d] git fetch -p --all"
 		cd $d
-		git fetch -p
+		git fetch -p --all
 		cd ..
 	fi
 done
