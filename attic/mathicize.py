@@ -170,13 +170,15 @@ class Mathicizer:
         worked = False
         if self._find_style():
             worked = self._italicize_math() or worked
+            self._note_suspects()
         worked = self._fix_islands() or worked
-        self._note_suspects()
+
         if worked:
             print("Change counts:")
             mkw = max(len(key) for key in self.counts)
             for key, val in sorted(self.counts.items(), key=lambda kv: kv[1], reverse=True):
                 print(f" {key.ljust(mkw)}  {val}")
+
         return worked
 
     def _italicize_math(self) -> bool:
