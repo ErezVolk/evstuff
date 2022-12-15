@@ -167,8 +167,9 @@ class Mathicizer:
 
     def _mathicize(self) -> bool:
         """Does the heavly lifting on self.doc"""
-        self._find_style()
-        worked = self._italicize_math()
+        worked = False
+        if self._find_style():
+            worked = self._italicize_math() or worked
         worked = self._fix_islands() or worked
         self._note_suspects()
         if worked:
@@ -255,17 +256,21 @@ class Mathicizer:
         """Checks whether a <w:r> node is RTL"""
         return self._first(rnode, "./w:rPr/w:rtl") is not None
 
-    def _find_style(self):
+    def _find_style(self) -> bool:
         """Find the right style, set `self.formula_xpath`"""
         with self.izip.open(self.STYLES_IN_ZIP) as ifo:
             styles = etree.parse(ifo).getroot()
-        xpath = f"//w:style[w:name[@w:val='{self.args.style}']]"
-        node = self._first(styles, xpath)
+        node = self._first(
+            styles,
+            f"//w:style[w:name[@w:val='{self.args.style}']]"
+        )
         if node is None:
-            raise ValueError(f'No style named "{self.args.style}" in {self.args.input}')
+            print(f'No style named "{self.args.style}" in {self.args.input}')
+            return False
         style_id = node.get(self._wtag("styleId"))
         self.formula_xpath = self._FORMULA_XPATH_FORMAT.format(style_id=style_id)
         self.suspect_xpath = self._SUSPECT_XPATH_FORMAT.format(style_id=style_id)
+        return True
 
     def _mknode(self, model: etree._Entity, text: str, italic: bool) -> etree._Entity:
         """Create a duplicate of `model` with different text, and possibly italics."""
@@ -282,7 +287,7 @@ class Mathicizer:
         if text[0].isspace() or text[-1].isspace():
             tnode.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
 
-    def _make_italic(self, node: etree._Element):
+    def _make_italic(self, node: etree._Entity):
         """Add the italic tag"""
         self._find(node, "w:rPr").append(self._w_i())
 
