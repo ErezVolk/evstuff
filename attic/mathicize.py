@@ -2,6 +2,7 @@
 """Italicize math"""
 import argparse
 from collections import Counter
+from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
 import re
@@ -48,6 +49,7 @@ class Mathicizer:
     LOCK_MARK = "~$"
 
     args: argparse.Namespace
+    comments: dict = defaultdict(list)
     counts: Counter = Counter()
     doc: etree._ElementTree
     formula_xpath: str
@@ -124,9 +126,10 @@ class Mathicizer:
             print("Nothing changed.")
             return
 
-        if postract:
-            self._save_to("mathicize-output.xml")
         self._write()
+        if postract:
+            self._add_comments()
+            self._save_to("mathicize-output.xml")
         if self.args.open:
             subprocess.run(["open", str(self.args.output)], check=False)
 
@@ -197,6 +200,7 @@ class Mathicizer:
                 self.counts["full"] += 1
                 self.counts["italicized"] += 1
                 self._make_italic(rnode)
+                self._prepare_comment(rnode, "Italicized in full")
                 continue
 
             # This is the difficult case: Need to create duplicates
@@ -207,7 +211,9 @@ class Mathicizer:
                     rnode.addprevious(self._mknode(rnode, text[idx_prev:idx_from], False))
                     self.counts["chunks"] += 1
                 if idx_from < idx_to:
-                    rnode.addprevious(self._mknode(rnode, text[idx_from:idx_to], True))
+                    addend = self._mknode(rnode, text[idx_from:idx_to], True)
+                    rnode.addprevious(addend)
+                    self._prepare_comment(addend, "Extracted and italicized")
                     self.counts["chunks"] += 1
                     self.counts["italicized"] += 1
                 idx_prev = idx_to
@@ -253,6 +259,7 @@ class Mathicizer:
                 self._rnode_text(rnode.getnext()),
             ])
             print(f"You may want to look at '... {context} ...'")
+            self._prepare_comment(rnode, "Forgotten formula?")
 
     def _is_rtl(self, rnode) -> bool:
         """Checks whether a <w:r> node is RTL"""
@@ -292,6 +299,18 @@ class Mathicizer:
     def _make_italic(self, node: etree._Entity):
         """Add the italic tag"""
         self._find(node, "w:rPr").append(self._w_i())
+
+    def _prepare_comment(self, node: etree._Entity, message: str):
+        """Save a comment to be postracted"""
+        if not self.args.no_postract:
+            self.comments[message].append(node)
+
+    def _add_comments(self):
+        """Write XML comments for postracted file"""
+        for message, nodes in self.comments.items():
+            comment = f"MATHICHIZE: {message}"
+            for node in nodes:
+                node.addprevious(etree.Comment(comment))
 
     def _write(self):
         """Create the output .docx"""
