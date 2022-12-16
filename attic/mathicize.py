@@ -34,18 +34,33 @@ class Mathicizer:
     DOC_IN_ZIP = "word/document.xml"
     STYLES_IN_ZIP = "word/styles.xml"
     _FORMULA_XPATH_FORMAT = (
-        "//w:r[w:rPr[w:rStyle[@w:val='{style_id}'] and not(w:i)] and w:t]"
+        "//w:r["
+        " w:rPr["
+        "  w:rStyle[@w:val='{style_id}']"  # Formula style
+        "  and"
+        "  not(w:i)"  # Not already italicized
+        " ]"
+        " and"
+        " w:t[normalize-space(text()) != '']"  # With actual text
+        "]"
     )
     _SUSPECT_XPATH_FORMAT = (
-        "//w:r"
-        "["
-        "w:rPr[(not(w:rStyle) or w:rStyle[@w:val!='{style_id}']) and not(w:rtl)]"
-        " and w:t"
-        "[normalize-space(text()) != '']"
+        "//w:r["
+        " w:rPr["
+        "  (not(w:rStyle) or w:rStyle[@w:val!='{style_id}'])"  # Not formula style
+        "  and"
+        "  not(w:rtl)"  # But LTR
+        " ]"
+        " and"
+        " w:t[normalize-space(text()) != '']"  # With actual text
         "]"
     )
     ISLAND_XPATH = (
-        "//w:r[not(w:rPr/w:rtl) and w:t[@xml:space='preserve']]"
+        "//w:r["
+        " not(w:rPr/w:rtl)"  # LTR
+        " and"
+        " w:t[@xml:space='preserve']"  # With whitespace at edge
+        "]"
     )
     ITALICABLE_RE = r"\b([A-Z]{0,2}[a-z][A-Za-z]*|[A-Z])\b"
     SUSPECT_RE = r"(^\s*[A-Z]\s*$|\bP\()"
@@ -199,7 +214,7 @@ class Mathicizer:
                 # A dud
                 continue
 
-            if relevant.start() == 0 and relevant.end() == len(text):
+            if relevant.span() == (0, len(text)):
                 # The simple case: range == italic
                 self._make_italic(rnode)
                 self._count("full", rnode)
@@ -300,9 +315,9 @@ class Mathicizer:
         if text[0].isspace() or text[-1].isspace():
             tnode.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
 
-    def _make_italic(self, node: etree._Entity):
+    def _make_italic(self, rnode: etree._Entity):
         """Add the italic tag"""
-        self._find(node, "w:rPr").append(self._w_i())
+        self._find(rnode, "w:rPr").append(self._w_i())
 
     def _count(self, key: str, node: etree._Entity | None = None):
         """Save a comment to be postracted"""
@@ -339,10 +354,6 @@ class Mathicizer:
     def _w_i(self) -> etree._Entity:
         """Create <w:i> node"""
         return self.root.makeelement(self._wtag("i"))
-
-    def _w_rtl(self) -> etree._Entity:
-        """Create <w:rtl> node"""
-        return self.root.makeelement(self._wtag("rtl"))
 
     @classmethod
     def _rnode_text(cls, rnode: etree._Entity) -> str:
