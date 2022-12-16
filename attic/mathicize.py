@@ -37,7 +37,12 @@ class Mathicizer:
         "//w:r[w:rPr[w:rStyle[@w:val='{style_id}'] and not(w:i)] and w:t]"
     )
     _SUSPECT_XPATH_FORMAT = (
-        "//w:r[w:rPr[(not(w:rStyle) or w:rStyle[@w:val!='{style_id}']) and not(w:rtl)] and w:t]"
+        "//w:r"
+        "["
+        "w:rPr[(not(w:rStyle) or w:rStyle[@w:val!='{style_id}']) and not(w:rtl)]"
+        " and w:t"
+        "[normalize-space(text()) != '']"
+        "]"
     )
     ISLAND_XPATH = (
         "//w:r[not(w:rPr/w:rtl) and w:t[@xml:space='preserve']]"
@@ -122,15 +127,15 @@ class Mathicizer:
             print("Cowardly refusing to overwrite open .docx file")
             return
 
-        if not self._mathicize():
+        if (changed := self._mathicize()):
+            self._write()
+        else:
             print("Nothing changed.")
-            return
 
-        self._write()
         if postract:
-            self._add_comments()
-            self._save_to("mathicize-output.xml")
-        if self.args.open:
+            if self._add_comments() > 0:
+                self._save_to("mathicize-output.xml")
+        if changed and self.args.open:
             subprocess.run(["open", str(self.args.output)], check=False)
 
     def _save_to(self, name: str):
@@ -176,8 +181,8 @@ class Mathicizer:
             self._note_suspects()
         worked = self._fix_islands() or worked
 
-        if worked:
-            print("Change counts:")
+        if self.counts:
+            print("Counts:")
             mkw = max(len(key) for key in self.counts)
             for key, val in sorted(self.counts.items(), key=lambda kv: kv[1], reverse=True):
                 print(f" {key.ljust(mkw)}  {val}")
@@ -187,20 +192,18 @@ class Mathicizer:
     def _italicize_math(self) -> bool:
         """Convert text in formulas to italics"""
         for rnode in self._xpath(self.root, self.formula_xpath):
-            self.counts["considered_for_italics"] += 1
+            self._count("considered for italics")
             text = self._rnode_text(rnode)
             relevant = re.search(self.ITALICABLE_RE, text)
             if relevant is None:
                 # A dud
                 continue
 
-            self.counts["range"] += 1
             if relevant.start() == 0 and relevant.end() == len(text):
                 # The simple case: range == italic
-                self.counts["full"] += 1
-                self.counts["italicized"] += 1
                 self._make_italic(rnode)
-                self._prepare_comment(rnode, "Italicized in full")
+                self._count("full", rnode)
+                self._count("italicized")
                 continue
 
             # This is the difficult case: Need to create duplicates
@@ -208,18 +211,20 @@ class Mathicizer:
             for match in re.finditer(self.ITALICABLE_RE, text):
                 (idx_from, idx_to) = match.span()
                 if idx_prev < idx_from:
-                    rnode.addprevious(self._mknode(rnode, text[idx_prev:idx_from], False))
-                    self.counts["chunks"] += 1
+                    addend = self._mknode(rnode, text[idx_prev:idx_from], False)
+                    rnode.addprevious(addend)
+                    self._count("split", addend)
                 if idx_from < idx_to:
                     addend = self._mknode(rnode, text[idx_from:idx_to], True)
                     rnode.addprevious(addend)
-                    self._prepare_comment(addend, "Extracted and italicized")
-                    self.counts["chunks"] += 1
-                    self.counts["italicized"] += 1
+                    self._count("part", addend)
+                    self._count("split")
+                    self._count("italicized")
                 idx_prev = idx_to
             if idx_prev < len(text):
-                rnode.addprevious(self._mknode(rnode, text[idx_prev:], False))
-                self.counts["chunks"] += 1
+                addend = self._mknode(rnode, text[idx_prev:], False)
+                rnode.addprevious(addend)
+                self._count("split", addend)
             rnode.getparent().remove(rnode)
 
         return self.counts["italicized"] > 0
@@ -227,7 +232,7 @@ class Mathicizer:
     def _fix_islands(self) -> bool:
         """Find islands of LTR whitespace in RTL"""
         for rnode in self._xpath(self.root, self.ISLAND_XPATH):
-            self.counts["considered_for_island"] += 1
+            self._count("considered for island")
             text = self._rnode_text(rnode)
             if not text.isspace():
                 continue
@@ -241,25 +246,24 @@ class Mathicizer:
 
             self._set_rnode_text(rprev, self._rnode_text(rprev) + text)
             rnode.getparent().remove(rnode)
-
-            self.counts["rtlized"] += 1
+            self._count("rtlized", rprev)
         return self.counts["rtlized"] > 0
 
     def _note_suspects(self):
         """Look for text that may be an unmarked formula"""
         for rnode in self._xpath(self.root, self.suspect_xpath):
-            self.counts["considered_for_suspect"] += 1
+            self._count("considered for suspect", rnode)
             text = self._rnode_text(rnode)
             if not re.search(self.SUSPECT_RE, text):
                 continue
-            self.counts["suspect"] += 1
+
+            self._count("suspect", rnode)
             context = "".join([
                 self._rnode_text(rnode.getprevious()),
                 text,
                 self._rnode_text(rnode.getnext()),
             ])
             print(f"You may want to look at '... {context} ...'")
-            self._prepare_comment(rnode, "Forgotten formula?")
 
     def _is_rtl(self, rnode) -> bool:
         """Checks whether a <w:r> node is RTL"""
@@ -300,17 +304,21 @@ class Mathicizer:
         """Add the italic tag"""
         self._find(node, "w:rPr").append(self._w_i())
 
-    def _prepare_comment(self, node: etree._Entity, message: str):
+    def _count(self, key: str, node: etree._Entity | None = None):
         """Save a comment to be postracted"""
-        if not self.args.no_postract:
-            self.comments[message].append(node)
+        self.counts[key] += 1
+        if node and not self.args.no_postract:
+            self.comments[key].append(node)
 
-    def _add_comments(self):
+    def _add_comments(self) -> int:
         """Write XML comments for postracted file"""
+        n_added = 0
         for message, nodes in self.comments.items():
             comment = f"MATHICHIZE: {message}"
             for node in nodes:
                 node.addprevious(etree.Comment(comment))
+                n_added += 1
+        return n_added
 
     def _write(self):
         """Create the output .docx"""
