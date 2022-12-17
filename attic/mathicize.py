@@ -15,19 +15,42 @@ from lxml import etree
 
 
 class Mathicizer:
-    """Italicize match in .docx"""
+    """Italicize math in .docx files."""
 
     def parse_args(self):
         """Command line"""
-        parser = argparse.ArgumentParser()
-        parser.add_argument("-i", "--input", type=Path)
-        parser.add_argument("-o", "--output", type=Path)
-        parser.add_argument("-x", "--extract", action="store_true")
-        parser.add_argument("-y", "--no-postract", action="store_true")
-        parser.add_argument("-s", "--style", default="נוסחה")
-        parser.add_argument("--force", action="store_true")
-        parser.add_argument("--open", action="store_true")
-        parser.add_argument("--extract-to", type=Path, default="play")
+        parser = argparse.ArgumentParser(description=self.__class__.__doc__)
+        parser.add_argument("-i", "--input", type=Path, help="Input .docx file")
+        parser.add_argument("-o", "--output", type=Path, help="Output .docx file")
+        parser.add_argument(
+            "-x",
+            "--extract",
+            action="store_true",
+            help="Only save copy of XML document before processing",
+        )
+        parser.add_argument(
+            "-y",
+            "--no-postract",
+            action="store_true",
+            help="Do NOT save copy of XML after processing",
+        )
+        parser.add_argument(
+            "-s", "--style", default="נוסחה", help="Style name for formulas"
+        )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Work even if output file is currently open",
+        )
+        parser.add_argument(
+            "--open", action="store_true", help="Open output file after processing"
+        )
+        parser.add_argument(
+            "--extract-to",
+            type=Path,
+            default="play",
+            help="Folder in which to extract XML files",
+        )
         self.args = parser.parse_args()
         self.figure_out_paths(parser)
 
@@ -142,7 +165,8 @@ class Mathicizer:
             print("Cowardly refusing to overwrite open .docx file")
             return
 
-        if (changed := self._mathicize()):
+        changed = self._mathicize()
+        if changed:
             self._write()
         else:
             print("Nothing changed.")
@@ -178,9 +202,8 @@ class Mathicizer:
 
     def _may_work(self) -> bool:
         """Check (unless --force) whether the output file is open"""
-        lock = self.args.output.with_stem(
-            self.LOCK_MARK + self.args.output.stem[len(self.LOCK_MARK):]
-        )
+        tail = self.args.output.stem[len(self.LOCK_MARK):]
+        lock = self.args.output.with_stem(self.LOCK_MARK + tail)
         locked = lock.is_file()
         if not locked:
             return True
@@ -273,11 +296,9 @@ class Mathicizer:
                 continue
 
             self._count("suspect", rnode)
-            context = "".join([
-                self._rnode_text(rnode.getprevious()),
-                text,
-                self._rnode_text(rnode.getnext()),
-            ])
+            ptext = self._rnode_text(rnode.getprevious())
+            ntext = self._rnode_text(rnode.getnext())
+            context = "".join([ptext, text, ntext])
             print(f"You may want to look at '... {context} ...'")
 
     def _is_rtl(self, rnode) -> bool:
@@ -288,10 +309,7 @@ class Mathicizer:
         """Find the right style, set `self.formula_xpath`"""
         with self.izip.open(self.STYLES_IN_ZIP) as ifo:
             styles = etree.parse(ifo).getroot()
-        node = self._first(
-            styles,
-            f"//w:style[w:name[@w:val='{self.args.style}']]"
-        )
+        node = self._first(styles, f"//w:style[w:name[@w:val='{self.args.style}']]")
         if node is None:
             print(f'No style named "{self.args.style}" in {self.args.input}')
             return False
