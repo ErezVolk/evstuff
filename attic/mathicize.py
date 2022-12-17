@@ -322,7 +322,7 @@ class Mathicizer:
     def _count(self, key: str, node: etree._Entity | None = None):
         """Save a comment to be postracted"""
         self.counts[key] += 1
-        if node and not self.args.no_postract:
+        if node is not None and not self.args.no_postract:
             self.comments[key].append(node)
 
     def _add_comments(self) -> int:
