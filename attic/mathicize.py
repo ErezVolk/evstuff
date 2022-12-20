@@ -11,6 +11,7 @@ from zipfile import ZipFile
 
 from typing import Iterator
 
+from bidi.algorithm import get_display
 from lxml import etree
 
 
@@ -22,6 +23,13 @@ class Mathicizer:
         parser = argparse.ArgumentParser(description=self.__class__.__doc__)
         parser.add_argument("-i", "--input", type=Path, help="Input .docx file")
         parser.add_argument("-o", "--output", type=Path, help="Output .docx file")
+        parser.add_argument(
+            "-d",
+            "--antidict",
+            type=Path,
+            default="antidict.txt",
+            help="File with one regex per line which should NOT be in the text",
+        )
         parser.add_argument(
             "-x",
             "--extract",
@@ -91,6 +99,7 @@ class Mathicizer:
     _NS = {"w": _W}
     LOCK_MARK = "~$"
 
+    antiwords: Counter = Counter()
     args: argparse.Namespace
     comments: dict = defaultdict(list)
     counts: Counter = Counter()
@@ -202,7 +211,7 @@ class Mathicizer:
 
     def _may_work(self) -> bool:
         """Check (unless --force) whether the output file is open"""
-        tail = self.args.output.stem[len(self.LOCK_MARK):]
+        tail = self.args.output.stem[len(self.LOCK_MARK) :]
         lock = self.args.output.with_stem(self.LOCK_MARK + tail)
         locked = lock.is_file()
         if not locked:
@@ -218,14 +227,28 @@ class Mathicizer:
             worked = self._italicize_math() or worked
             self._note_suspects()
         worked = self._fix_islands() or worked
+        self._check_antidict()
 
         if self.counts:
             print("Counts:")
             mkw = max(len(key) for key in self.counts)
-            for key, val in sorted(self.counts.items(), key=lambda kv: kv[1], reverse=True):
-                print(f" {key.ljust(mkw)}  {val}")
+            for key, count in self._iter_counter(self.counts):
+                print(f" {key.ljust(mkw)}  {count}")
+
+        if self.antiwords:
+            print("Antidict:")
+            for antiword, count in self._iter_counter(self.antiwords):
+                print(f" {get_display(antiword)}  {count}")
 
         return worked
+
+    @classmethod
+    def _iter_counter(cls, counter: Counter) -> Iterator[tuple[str, int]]:
+        """Helper function to iterate a Counter object"""
+        yield from sorted(
+            counter.items(),
+            key=lambda item: (-item[1], item[0]),
+        )
 
     def _italicize_math(self) -> bool:
         """Convert text in formulas to italics"""
@@ -300,6 +323,21 @@ class Mathicizer:
             ntext = self._rnode_text(rnode.getnext())
             context = "".join([ptext, text, ntext])
             print(f"You may want to look at '... {context} ...'")
+
+    def _check_antidict(self):
+        """Look for misspelled words"""
+        if not self.args.antidict.is_file():
+            return
+        with open(self.args.antidict, encoding="utf-8") as fobj:
+            antire = "|".join(filter(None, (line.strip() for line in fobj)))
+        if not antire:
+            return
+        text = "\n".join(
+            "".join(tnode.text for tnode in self._xpath(pnode, "./w:r/w:t"))
+            for pnode in self._xpath(self.root, "//w:p[w:r/w:t]")
+        )
+        for match in re.finditer(f"\\b({antire})\\b", text):
+            self.antiwords[f"'{get_display(match.group(0))}'"] += 1
 
     def _is_rtl(self, rnode) -> bool:
         """Checks whether a <w:r> node is RTL"""
