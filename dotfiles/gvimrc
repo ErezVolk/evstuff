@@ -14,7 +14,7 @@ if hostname =~ "ErezBook"
     elseif here == "cloud" || here == "trials"
         colorscheme peachpuff
     else
-        call RandomColorScheme()
+        colorscheme morning
     endif
 else
     colorscheme peachpuff
