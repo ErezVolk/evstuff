@@ -6,6 +6,7 @@ from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
 import re
+import shutil
 import subprocess
 from zipfile import ZipFile
 
@@ -58,6 +59,11 @@ class Mathicizer:
             type=Path,
             default="play",
             help="Folder in which to extract XML files",
+        )
+        parser.add_argument(
+            "--overwrite",
+            action="store_true",
+            help="If the input file isn't open, overwrite it",
         )
         self.args = parser.parse_args()
         self.figure_out_paths(parser)
@@ -211,14 +217,16 @@ class Mathicizer:
 
     def _may_work(self) -> bool:
         """Check (unless --force) whether the output file is open"""
-        tail = self.args.output.stem[len(self.LOCK_MARK) :]
-        lock = self.args.output.with_stem(self.LOCK_MARK + tail)
-        locked = lock.is_file()
-        if not locked:
-            return True
+        return self.args.force or not self._is_open(self.args.output)
 
-        print(f"{self.args.output} seems to be open ({lock.name} exists)")
-        return self.args.force
+    def _is_open(self, path: Path) -> bool:
+        """Check if a Word document seems to be open"""
+        tail = path.stem[len(self.LOCK_MARK) :]
+        lock = path.with_stem(self.LOCK_MARK + tail)
+        if lock.is_file():
+            print(f"{path} seems to be open ({lock.name} exists)")
+            return True
+        return False
 
     def _mathicize(self) -> bool:
         """Does the heavly lifting on self.doc"""
@@ -337,7 +345,7 @@ class Mathicizer:
             for pnode in self._xpath(self.root, "//w:p[w:r/w:t]")
         )
         for match in re.finditer(f"\\b({antire})\\b", text):
-            self.antiwords[f"'{get_display(match.group(0))}'"] += 1
+            self.antiwords[match.group(0)] += 1
 
     def _is_rtl(self, rnode) -> bool:
         """Checks whether a <w:r> node is RTL"""
@@ -402,6 +410,22 @@ class Mathicizer:
                     else:
                         with izip.open(info, "r") as ifo:
                             ofo.write(ifo.read())
+
+        self._consider_overwrite()
+
+    def _consider_overwrite(self):
+        """Carefully overwrite the input file"""
+        if not self.args.overwrite:
+            return
+
+        if self._is_open(self.args.input):
+            return
+
+        backup = self.args.extract_to / "mathicize-input.docx"
+        print(f"{self.args.input} -> {backup}")
+        shutil.copy(self.args.input, backup)
+        print(f"{self.args.output} -> {self.args.input}")
+        shutil.copy(self.args.output, self.args.input)
 
     @classmethod
     def _wtag(cls, tag: str) -> str:
