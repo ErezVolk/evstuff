@@ -4,6 +4,7 @@ import argparse
 from collections import Counter
 from collections import defaultdict
 from copy import deepcopy
+import datetime
 from pathlib import Path
 import re
 import shutil
@@ -23,7 +24,7 @@ class Mathicizer:
         """Command line"""
         parser = argparse.ArgumentParser(description=self.__class__.__doc__)
         parser.add_argument("-i", "--input", type=Path, help="Input .docx file")
-        parser.add_argument("-o", "--output", type=Path, help="Output .docx file")
+        parser.add_argument("-o", "--outdir", type=Path, help="Output directory")
         parser.add_argument(
             "-d",
             "--antidict",
@@ -61,9 +62,9 @@ class Mathicizer:
             help="Folder in which to extract XML files",
         )
         parser.add_argument(
-            "--overwrite",
+            "--no-overwrite",
             action="store_true",
-            help="If the input file isn't open, overwrite it",
+            help="Do not overwrite input file, even if closed",
         )
         self.args = parser.parse_args()
         self.figure_out_paths(parser)
@@ -100,7 +101,7 @@ class Mathicizer:
         "]"
     )
     ITALICABLE_RE = r"\b([A-Z]{0,2}[a-z][A-Za-z]*|[A-Z])\b"
-    SUSPECT_RE = r"(^\s*[A-Z]\s*$|\bP\()"
+    SUSPECT_RE = r"(^\s*[C-WZ]\s*$|\bP\()"
     _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     _NS = {"w": _W}
     LOCK_MARK = "~$"
@@ -112,6 +113,7 @@ class Mathicizer:
     doc: etree._ElementTree
     formula_xpath: str
     izip: ZipFile
+    opath: Path
     root: etree._Entity
     suspect_xpath: str
 
@@ -125,60 +127,38 @@ class Mathicizer:
 
     def figure_out_paths(self, parser: argparse.ArgumentParser):
         """Find input and output, if not given"""
-        if self.args.output and not self.args.input:
-            parser.error("You cannot specify --output without --input")
+        if not self.args.input:
+            docxs = [
+                path
+                for path in Path.cwd().glob("*.docx")
+                if not path.stem.startswith(self.LOCK_MARK)
+            ]
 
-        if self.args.input and self.args.output:
-            return
+            if len(docxs) != 1:
+                parser.error(
+                    f"Please specify --input; "
+                    f"I can only guess it if there's exactly 1 .docx file "
+                    f"(found {len(docxs)})"
+                )
 
-        if self.args.input and not self.args.output:
-            self._set_output_from_input()
-            return
-
-        docxs = [
-            path
-            for path in Path.cwd().glob("*.docx")
-            if not path.stem.startswith(self.LOCK_MARK)
-        ]
-
-        if len(docxs) == 0:
-            parser.error("No .docx files, please specify --input")
-
-        if len(docxs) == 1:
             self.args.input = docxs[0]
-            self._set_output_from_input()
-            return
 
-        if len(docxs) == 2:
-            (fna, fnb) = docxs
-            if fnb.stem == fna.stem + "-math":
-                (self.args.input, self.args.output) = (fna, fnb)
-                return
-            if fna.stem == fnb.stem + "-math":
-                (self.args.input, self.args.output) = (fnb, fna)
-                return
+        if not self.args.outdir:
+            now = datetime.datetime.now()
+            self.args.outdir = Path("mathicize-out") / now.strftime("%Y%m%d-%H%M")
 
-        parser.error("Cannot guess file names, please specify --input")
-
-    def _set_output_from_input(self):
-        """Helper"""
-        self.args.output = self.args.input.with_stem(f"{self.args.input.stem}-math")
+        self.args.outdir.mkdir(parents=True, exist_ok=True)
+        self.opath = self.args.outdir / f"{self.args.input.stem}-math.docx"
 
     def _work(self):
         """Work with the open input zip file"""
+        self._copy(self.args.input, self.args.outdir / "mathicize-input.docx")
+
         with self.izip.open(self.DOC_IN_ZIP) as ifo:
             self.doc = etree.parse(ifo)
             self.root = self.doc.getroot()
 
-        postract = not self.args.no_postract
-        if self.args.extract or postract:
-            self._save_to("mathicize-input.xml")
-            if self.args.extract:
-                return
-
-        if not self._may_work():
-            print("Cowardly refusing to overwrite open .docx file")
-            return
+        self._save_to("mathicize-input.xml")
 
         changed = self._mathicize()
         if changed:
@@ -186,18 +166,20 @@ class Mathicizer:
         else:
             print("Nothing changed.")
 
-        if postract:
-            if self._add_comments() > 0:
-                self._save_to("mathicize-output.xml")
+        self._add_comments()
+        self._save_to("mathicize-output.xml")
+
+        if changed:
+            self._consider_overwrite()
+
         if changed and self.args.open:
-            subprocess.run(["open", str(self.args.output)], check=False)
+            subprocess.run(["open", str(self.opath)], check=False)
 
     def _save_to(self, name: str):
         """Save the XML in a nice format"""
-        output = self.args.extract_to / name
+        output = self.args.outdir / name
 
         print(f"Saving XML to {output}")
-        output.parent.mkdir(parents=True, exist_ok=True)
         self.doc.write(output, encoding="utf-8", pretty_print=True)
 
     def _xpath(self, node: etree._Entity, expr: str) -> Iterator[etree._Entity]:
@@ -214,10 +196,6 @@ class Mathicizer:
     def _find(cls, node: etree._Entity, expr: str) -> etree._Entity:
         """Wrapper for etree.find, with namespaces"""
         return node.find(expr, namespaces=cls._NS)
-
-    def _may_work(self) -> bool:
-        """Check (unless --force) whether the output file is open"""
-        return self.args.force or not self._is_open(self.args.output)
 
     def _is_open(self, path: Path) -> bool:
         """Check if a Word document seems to be open"""
@@ -386,7 +364,7 @@ class Mathicizer:
     def _count(self, key: str, node: etree._Entity | None = None):
         """Save a comment to be postracted"""
         self.counts[key] += 1
-        if node is not None and not self.args.no_postract:
+        if node is not None:
             self.comments[key].append(node)
 
     def _add_comments(self) -> int:
@@ -401,8 +379,8 @@ class Mathicizer:
 
     def _write(self):
         """Create the output .docx"""
-        print(f"Writing {self.args.output}")
-        with ZipFile(self.args.input) as izip, ZipFile(self.args.output, "w") as ozip:
+        print(f"Writing {self.opath}")
+        with ZipFile(self.args.input) as izip, ZipFile(self.opath, "w") as ozip:
             for info in izip.infolist():
                 with ozip.open(info.filename, "w") as ofo:
                     if info.filename == self.DOC_IN_ZIP:
@@ -411,21 +389,21 @@ class Mathicizer:
                         with izip.open(info, "r") as ifo:
                             ofo.write(ifo.read())
 
-        self._consider_overwrite()
-
     def _consider_overwrite(self):
         """Carefully overwrite the input file"""
-        if not self.args.overwrite:
+        if self.args.no_overwrite:
             return
 
         if self._is_open(self.args.input):
             return
 
-        backup = self.args.extract_to / "mathicize-input.docx"
-        print(f"{self.args.input} -> {backup}")
-        shutil.copy(self.args.input, backup)
-        print(f"{self.args.output} -> {self.args.input}")
-        shutil.copy(self.args.output, self.args.input)
+        print(f"Press Enter to overwrite {self.args.input}:")
+        self._copy(self.opath, self.args.input)
+
+    def _copy(self, src: Path | str, dst: Path | str):
+        """Wrapper around `shutil.copy`"""
+        print(f"{src} -> {dst}")
+        shutil.copy(src, dst)
 
     @classmethod
     def _wtag(cls, tag: str) -> str:
