@@ -116,7 +116,7 @@ class Mathicizer:
         "]"
     )
     ITALICABLE_RE = r"\b([A-Z]{0,2}[a-z][A-Za-z]*|[A-Z])\b"
-    SUSPECT_RE = r"(^\s*[C-WZ]\s*$|\bP\()"
+    SUSPECT_RE = r"(^\s*[A-Z]\s*$|\bP\()"
     _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     _NS = {"w": _W}
     LOCK_MARK = "~$"
@@ -323,7 +323,7 @@ class Mathicizer:
             self._count("suspect", rnode)
             ptext = self._rnode_text(rnode.getprevious())
             ntext = self._rnode_text(rnode.getnext())
-            context = "".join([ptext, text, ntext])
+            context = "||".join([ptext, text, ntext])
             print(f"You may want to look at '... {context} ...'")
 
     def _load_antidict(self) -> bool:
@@ -444,6 +444,7 @@ class Mathicizer:
 
         print(f"Press Enter to overwrite {self.args.input}:")
         self._copy(self.opath, self.args.input)
+        self.opath = self.args.input  # So we open that one now
 
     def _copy(self, src: Path | str, dst: Path | str):
         """Wrapper around `shutil.copy`"""
