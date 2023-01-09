@@ -94,7 +94,7 @@ class Mathicizer:
         "  not(w:rtl)"  # But LTR
         " ]"
         " and"
-        " w:t[normalize-space(text()) != '']"  # With actual text
+        " w:t[re:test(., '[a-z]', 'i')]"  # With actual letters
         "]"
     )
     _SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE = (
@@ -105,7 +105,7 @@ class Mathicizer:
         "  not(w:rtl)"  # But LTR
         " ]"
         " and"
-        " w:t[normalize-space(text()) != '']"  # With actual text
+        " w:t[re:test(., '[a-z]', 'i')]"  # With actual letters
         "]"
     )
     ISLAND_XPATH = (
