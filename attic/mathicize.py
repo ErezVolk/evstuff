@@ -48,6 +48,9 @@ class Mathicizer:
             "-s", "--style", default="נוסחה", help="Style name for formulas"
         )
         parser.add_argument(
+            "-S", "--anti-style", default="לא נוסחה", help="Style name for non-formulas"
+        )
+        parser.add_argument(
             "--force",
             action="store_true",
             help="Work even if output file is currently open",
@@ -68,6 +71,7 @@ class Mathicizer:
         )
         self.args = parser.parse_args()
         self.figure_out_paths(parser)
+        self._load_antidict()
 
     DOC_IN_ZIP = "word/document.xml"
     STYLES_IN_ZIP = "word/styles.xml"
@@ -93,6 +97,17 @@ class Mathicizer:
         " w:t[normalize-space(text()) != '']"  # With actual text
         "]"
     )
+    _SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE = (
+        "//w:r["
+        " w:rPr["
+        "  (not(w:rStyle) or w:rStyle[@w:val!='{style_id}' and @w:val!='{anti_style_id}'])"  # Not (anti-)formula style
+        "  and"
+        "  not(w:rtl)"  # But LTR
+        " ]"
+        " and"
+        " w:t[normalize-space(text()) != '']"  # With actual text
+        "]"
+    )
     ISLAND_XPATH = (
         "//w:r["
         " not(w:rPr/w:rtl)"  # LTR
@@ -106,6 +121,7 @@ class Mathicizer:
     _NS = {"w": _W}
     LOCK_MARK = "~$"
 
+    antidict: re.Pattern | None
     antiwords: Counter = Counter()
     args: argparse.Namespace
     comments: dict = defaultdict(list)
@@ -209,7 +225,7 @@ class Mathicizer:
     def _mathicize(self) -> bool:
         """Does the heavly lifting on self.doc"""
         worked = False
-        if self._find_style():
+        if self._find_styles():
             worked = self._italicize_math() or worked
             self._note_suspects()
         worked = self._fix_islands() or worked
@@ -310,36 +326,65 @@ class Mathicizer:
             context = "".join([ptext, text, ntext])
             print(f"You may want to look at '... {context} ...'")
 
-    def _check_antidict(self):
-        """Look for misspelled words"""
+    def _load_antidict(self) -> bool:
+        """Load (and test before it's too late) antidict"""
+        self.antidict = None
+
         if not self.args.antidict.is_file():
             return
+
         with open(self.args.antidict, encoding="utf-8") as fobj:
             antire = "|".join(filter(None, (line.strip() for line in fobj)))
         if not antire:
             return
+
+        try:
+            pattern = f"\\b({antire})\\b"
+            self.antidict = re.compile(pattern)
+        except re.error as exc:
+            print(f"Ignoring {self.args.antidict} due to regex error")
+            if exc.pos is not None:
+                context = pattern[exc.pos - 10 : exc.pos + 10]
+                print(f" - {exc}")
+                print(f" - Context: {repr(context)}")
+
+    def _check_antidict(self):
+        """Look for misspelled words"""
+        if self.antidict is None:
+            return
+
         text = "\n".join(
             "".join(tnode.text for tnode in self._xpath(pnode, "./w:r/w:t"))
             for pnode in self._xpath(self.root, "//w:p[w:r/w:t]")
         )
-        for match in re.finditer(f"\\b({antire})\\b", text):
+        for match in self.antidict.finditer(text):
             self.antiwords[match.group(0)] += 1
 
     def _is_rtl(self, rnode) -> bool:
         """Checks whether a <w:r> node is RTL"""
         return self._first(rnode, "./w:rPr/w:rtl") is not None
 
-    def _find_style(self) -> bool:
-        """Find the right style, set `self.formula_xpath`"""
+    def _find_styles(self) -> bool:
+        """Find the right styles, set `self.formula_xpath`"""
         with self.izip.open(self.STYLES_IN_ZIP) as ifo:
             styles = etree.parse(ifo).getroot()
+
         node = self._first(styles, f"//w:style[w:name[@w:val='{self.args.style}']]")
         if node is None:
             print(f'No style named "{self.args.style}" in {self.args.input}')
             return False
         style_id = node.get(self._wtag("styleId"))
         self.formula_xpath = self._FORMULA_XPATH_FORMAT.format(style_id=style_id)
-        self.suspect_xpath = self._SUSPECT_XPATH_FORMAT.format(style_id=style_id)
+
+        anti_node = self._first(styles, f"//w:style[w:name[@w:val='{self.args.anti_style}']]")
+        if node is not None:
+            anti_style_id = anti_node.get(self._wtag("styleId"))
+            self.suspect_xpath = self._SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE.format(
+                style_id=style_id,
+                anti_style_id=anti_style_id,
+            )
+        else:
+            self.suspect_xpath = self._SUSPECT_XPATH_FORMAT.format(style_id=style_id)
         return True
 
     def _mknode(self, model: etree._Entity, text: str, italic: bool) -> etree._Entity:
