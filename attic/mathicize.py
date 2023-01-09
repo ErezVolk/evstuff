@@ -83,7 +83,7 @@ class Mathicizer:
         "  not(w:i)"  # Not already italicized
         " ]"
         " and"
-        " w:t[normalize-space(text()) != '']"  # With actual text
+        " w:t[re:test(., '[a-z]', 'i')]"  # With actual letters
         "]"
     )
     _SUSPECT_XPATH_FORMAT = (
@@ -118,7 +118,7 @@ class Mathicizer:
     ITALICABLE_RE = r"\b([A-Z]{0,2}[a-z][A-Za-z]*|[A-Z])\b"
     SUSPECT_RE = r"(^\s*[A-Z]\s*$|\bP\()"
     _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-    _NS = {"w": _W}
+    _NS = {"w": _W, "re": "http://exslt.org/regular-expressions"}
     LOCK_MARK = "~$"
 
     antidict: re.Pattern | None
