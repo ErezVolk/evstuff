@@ -164,7 +164,7 @@ class Mathicizer:
             self.args.outdir = Path("mathicize-out") / now.strftime("%Y%m%d-%H%M")
 
         self.args.outdir.mkdir(parents=True, exist_ok=True)
-        self.opath = self.args.outdir / f"{self.args.input.stem}-math.docx"
+        self.opath = self.args.outdir / f"mathicized-{self.args.input.stem}.docx"
 
     def _work(self):
         """Work with the open input zip file"""
