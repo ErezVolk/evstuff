@@ -392,16 +392,17 @@ function ri_do_images(ri) {
   app.findGrepPreferences.findWhat = "\\S+";
   app.findGrepPreferences.appliedCharacterStyle = image_ref_style;
 
-  var refs = app.findGrep();
-  for (var i = 0; i < refs.length; ++ i) {
-    var ref = refs[i];
-    var path = File(ri.doc.filePath + "/" + ref.contents);
-    ref.select();
-    try {
+  try {
+    var refs = app.findGrep();
+    for (var i = 0; i < refs.length; ++ i) {
+      var ref = refs[i];
+      var path = File(ri.doc.filePath + "/" + ref.contents);
+      ref.select();
       ri.doc.place(path);
-    } catch(e) {
-      ri.messages.push('Could not import image ' + path + ': ' + e);
     }
+  } catch(e) {
+    ri.messages.push('Could not import image ' + path + ': ' + e);
+    ri.messages.push('Giving up on image conversion.');
   }
 
   app.findGrepPreferences = NothingEnum.nothing;
