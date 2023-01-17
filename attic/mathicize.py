@@ -110,11 +110,17 @@ class Mathicizer:
     )
     ISLAND_XPATH = (
         "//w:r["
-        " preceding-sibling::w:r/w:t"  # Follows some text
+        " not(w:rPr/w:rtl)"  # Is LTR text
         "  and"
-        " not(w:rPr/w:rtl)"  # LTR
+        " preceding-sibling::*[1][self::w:r[w:rPr/w:rtl and w:t]]"  # Is after some RTL text
         "  and"
-        " w:t[@xml:space='preserve']"  # With whitespace at edge
+        " following-sibling::*[1][self::w:r[w:rPr/w:rtl and w:t]]"  # Is before some RTL text
+        "  and"
+        " w:t["
+        "  @xml:space='preserve'"  # With whitespace at edge
+        "   and"
+        "   re:test(., '^ +$')"  # Only whitespace
+        " ]"
         "]"
     )
     ITALICABLE_RE = r"\b([A-Z]{0,2}[a-z][A-Za-z]*|[A-Z])\b"
@@ -298,18 +304,14 @@ class Mathicizer:
         """Find islands of LTR whitespace in RTL"""
         for rnode in self._xpath(self.root, self.ISLAND_XPATH):
             self._count("considered for island")
-            text = self._rnode_text(rnode)
-            if not text.isspace():
-                continue
+
+            # ISLAND_XPATH takes care of these, but I can't read it
+            assert self._rnode_text(rnode).isspace()
+            assert self._is_rtl(rnode.getnext())
+            assert self._is_rtl(rnode.getprevious())
 
             rprev = rnode.getprevious()
-            if not self._is_rtl(rprev):
-                continue
-
-            if not self._is_rtl(rnode.getnext()):
-                continue
-
-            self._set_rnode_text(rprev, self._rnode_text(rprev) + text)
+            self._set_rnode_text(rprev, self._rnode_text(rprev) + self._rnode_text(rnode))
             rnode.getparent().remove(rnode)
             self._count("rtlized", rprev)
         return self.counts["rtlized"] > 0
