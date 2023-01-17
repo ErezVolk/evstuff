@@ -110,8 +110,10 @@ class Mathicizer:
     )
     ISLAND_XPATH = (
         "//w:r["
+        " preceding-sibling::w:r/w:t"  # Follows some text
+        "  and"
         " not(w:rPr/w:rtl)"  # LTR
-        " and"
+        "  and"
         " w:t[@xml:space='preserve']"  # With whitespace at edge
         "]"
     )
