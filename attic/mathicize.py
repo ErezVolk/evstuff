@@ -303,8 +303,6 @@ class Mathicizer:
     def _fix_islands(self) -> bool:
         """Find islands of LTR whitespace in RTL"""
         for rnode in self._xpath(self.root, self.ISLAND_XPATH):
-            self._count("considered for island")
-
             # ISLAND_XPATH takes care of these, but I can't read it
             assert self._rnode_text(rnode).isspace()
             assert self._is_rtl(rnode.getnext())
@@ -313,7 +311,7 @@ class Mathicizer:
             rprev = rnode.getprevious()
             self._set_rnode_text(rprev, self._rnode_text(rprev) + self._rnode_text(rnode))
             rnode.getparent().remove(rnode)
-            self._count("rtlized", rprev)
+            self._count("rtlized islands", rprev)
         return self.counts["rtlized"] > 0
 
     def _note_suspects(self):
