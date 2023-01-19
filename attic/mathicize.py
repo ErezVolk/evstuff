@@ -135,7 +135,13 @@ class Mathicizer:
         "]"
     )
     _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-    _NS = {"w": _W, "re": "http://exslt.org/regular-expressions"}
+    _NS = {
+        "w": _W,
+        "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
+        "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+        "wp": "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing",
+        "re": "http://exslt.org/regular-expressions",
+    }
     LOCK_MARK = "~$"
 
     antidict: re.Pattern | None
@@ -247,6 +253,7 @@ class Mathicizer:
             self._note_suspects()
         worked = self._fix_islands() or worked
         self._check_antidict()
+        self._scan_images()
 
         if self.counts:
             print("Counts:")
@@ -415,6 +422,13 @@ class Mathicizer:
         self.counts[key] += 1
         if node is not None:
             self.comments[key].append(node)
+
+    def _scan_images(self):
+        """Count images with/without alt-text"""
+        for drawing in self._xpath(self.root, "//w:drawing[//a:blip[@r:embed]]"):
+            self._count("images")
+            for prop in self._xpath(drawing, "./wp:inline/wp:docPr[@descr]"):
+                self._count("images with alt-text")
 
     def _add_comments(self) -> int:
         """Write XML comments for postracted file"""
