@@ -75,7 +75,10 @@ class Mathicizer:
 
     DOC_IN_ZIP = "word/document.xml"
     STYLES_IN_ZIP = "word/styles.xml"
-    _FORMULA_XPATH_FORMAT = (
+    TOTAL_ITALICIZED_KEY = "italicized (total)"
+    ITALICABLE_RE = r"\b([A-Z]?[A-Z]?[a-z][A-Za-z]*|[A-Z][A-Z]?)\b"  # NB: Has to be XPathable
+    SUSPECT_RE = r"(^\s*[A-Z]\s*$|\bP\()"  # NB: Has to be XPathable
+    _ITALICABLE_XPATH_FORMAT = (
         "//w:r["
         " w:rPr["
         "  w:rStyle[@w:val='{style_id}']"  # Formula style
@@ -83,7 +86,7 @@ class Mathicizer:
         "  not(w:i)"  # Not already italicized
         " ]"
         " and"
-        " w:t[re:test(., '[a-z]', 'i')]"  # With actual letters
+        " w:t[re:test(., '" + ITALICABLE_RE + "')]"  # Has italicable bits
         "]"
     )
     _SUSPECT_XPATH_FORMAT = (
@@ -94,18 +97,26 @@ class Mathicizer:
         "  not(w:rtl)"  # But LTR
         " ]"
         " and"
-        " w:t[re:test(., '[a-z]', 'i')]"  # With actual letters
+        " w:t[re:test(., '" + SUSPECT_RE + "')]"  # Looks like it should be a formula
         "]"
     )
     _SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE = (
         "//w:r["
         " w:rPr["
-        "  (not(w:rStyle) or w:rStyle[@w:val!='{style_id}' and @w:val!='{anti_style_id}'])"  # Not (anti-)formula style
+        "  ("
+        "    not(w:rStyle)"   # Unstyled, OR
+        "    or"
+        "    w:rStyle["
+        "      @w:val!='{style_id}'"  # Not formula style
+        "      and"
+        "      @w:val!='{anti_style_id}'"  # Nor antiformula style
+        "    ]"
+        "  )"
         "  and"
         "  not(w:rtl)"  # But LTR
         " ]"
         " and"
-        " w:t[re:test(., '[a-z]', 'i')]"  # With actual letters
+        " w:t[re:test(., '" + SUSPECT_RE + "')]"  # Looks like it should be a formula
         "]"
     )
     ISLAND_XPATH = (
@@ -123,8 +134,6 @@ class Mathicizer:
         " ]"
         "]"
     )
-    ITALICABLE_RE = r"\b([A-Z]{0,2}[a-z][A-Za-z]*|[A-Z])\b"
-    SUSPECT_RE = r"(^\s*[A-Z]\s*$|\bP\()"
     _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     _NS = {"w": _W, "re": "http://exslt.org/regular-expressions"}
     LOCK_MARK = "~$"
@@ -135,7 +144,7 @@ class Mathicizer:
     comments: dict = defaultdict(list)
     counts: Counter = Counter()
     doc: etree._ElementTree
-    formula_xpath: str
+    italicable_xpath: str
     izip: ZipFile
     opath: Path
     root: etree._Entity
@@ -262,19 +271,16 @@ class Mathicizer:
 
     def _italicize_math(self) -> bool:
         """Convert text in formulas to italics"""
-        for rnode in self._xpath(self.root, self.formula_xpath):
-            self._count("considered for italics")
+        for rnode in self._xpath(self.root, self.italicable_xpath):
             text = self._rnode_text(rnode)
             relevant = re.search(self.ITALICABLE_RE, text)
-            if relevant is None:
-                # A dud
-                continue
+            assert relevant is not None  # XPath, but, you know
 
             if relevant.span() == (0, len(text)):
                 # The simple case: range == italic
                 self._make_italic(rnode)
-                self._count("full", rnode)
-                self._count("italicized")
+                self._count(self.TOTAL_ITALICIZED_KEY)
+                self._count("italicized in full")
                 continue
 
             # This is the difficult case: Need to create duplicates
@@ -284,21 +290,20 @@ class Mathicizer:
                 if idx_prev < idx_from:
                     addend = self._mknode(rnode, text[idx_prev:idx_from], False)
                     rnode.addprevious(addend)
-                    self._count("split", addend)
+                    self._count("non-italicized part", addend)
                 if idx_from < idx_to:
                     addend = self._mknode(rnode, text[idx_from:idx_to], True)
                     rnode.addprevious(addend)
-                    self._count("part", addend)
-                    self._count("split")
-                    self._count("italicized")
+                    self._count("italicized part", addend)
+                    self._count(self.TOTAL_ITALICIZED_KEY)
                 idx_prev = idx_to
             if idx_prev < len(text):
                 addend = self._mknode(rnode, text[idx_prev:], False)
                 rnode.addprevious(addend)
-                self._count("split", addend)
+                self._count("non-italicized part", addend)
             rnode.getparent().remove(rnode)
 
-        return self.counts["italicized"] > 0
+        return self.counts[self.TOTAL_ITALICIZED_KEY] > 0
 
     def _fix_islands(self) -> bool:
         """Find islands of LTR whitespace in RTL"""
@@ -317,18 +322,15 @@ class Mathicizer:
     def _note_suspects(self):
         """Look for text that may be an unmarked formula"""
         for rnode in self._xpath(self.root, self.suspect_xpath):
-            self._count("considered for suspect", rnode)
-            text = self._rnode_text(rnode)
-            if not re.search(self.SUSPECT_RE, text):
-                continue
-
             self._count("suspect", rnode)
+            text = self._rnode_text(rnode)
+            assert re.search(self.SUSPECT_RE, text)  # XPath takes care of that, but still
             ptext = self._rnode_text(rnode.getprevious())
             ntext = self._rnode_text(rnode.getnext())
-            context = "||".join([ptext, text, ntext])
-            print(f"You may want to look at '... {context} ...'")
+            context = "".join([ptext, text, ntext])
+            print(f"You may want to look at ... '{context}' ...")
 
-    def _load_antidict(self) -> bool:
+    def _load_antidict(self) -> None:
         """Load (and test before it's too late) antidict"""
         self.antidict = None
 
@@ -340,8 +342,8 @@ class Mathicizer:
         if not antire:
             return
 
+        pattern = f"\\b({antire})\\b"
         try:
-            pattern = f"\\b({antire})\\b"
             self.antidict = re.compile(pattern)
         except re.error as exc:
             print(f"Ignoring {self.args.antidict} due to regex error")
@@ -367,7 +369,7 @@ class Mathicizer:
         return self._first(rnode, "./w:rPr/w:rtl") is not None
 
     def _find_styles(self) -> bool:
-        """Find the right styles, set `self.formula_xpath`"""
+        """Find the right styles, set `self.italicable_xpath`"""
         with self.izip.open(self.STYLES_IN_ZIP) as ifo:
             styles = etree.parse(ifo).getroot()
 
@@ -376,10 +378,10 @@ class Mathicizer:
             print(f'No style named "{self.args.style}" in {self.args.input}')
             return False
         style_id = node.get(self._wtag("styleId"))
-        self.formula_xpath = self._FORMULA_XPATH_FORMAT.format(style_id=style_id)
+        self.italicable_xpath = self._ITALICABLE_XPATH_FORMAT.format(style_id=style_id)
 
         anti_node = self._first(styles, f"//w:style[w:name[@w:val='{self.args.anti_style}']]")
-        if node is not None:
+        if anti_node is not None:
             anti_style_id = anti_node.get(self._wtag("styleId"))
             self.suspect_xpath = self._SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE.format(
                 style_id=style_id,
