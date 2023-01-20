@@ -392,20 +392,25 @@ function ri_do_images(ri) {
   app.findGrepPreferences.findWhat = "\\S+";
   app.findGrepPreferences.appliedCharacterStyle = image_ref_style;
 
-  try {
-    var refs = app.findGrep();
-    for (var i = 0; i < refs.length; ++ i) {
-      var ref = refs[i];
-      var path = File(ri.doc.filePath + "/" + ref.contents);
-      ref.select();
+  var refs = app.findGrep();
+  for (var i = 0; i < refs.length; ++ i) {
+    var ref = refs[i];
+    var path = File(ri.doc.filePath + "/" + ref.contents);
+    ref.select();
+    try {
       ri.doc.place(path);
+    } catch(e) {
+      ri.messages.push('Could not import image ' + path + ': ' + e);
+      ri.messages.push('Giving up on image conversion.');
     }
-  } catch(e) {
-    ri.messages.push('Could not import image ' + path + ': ' + e);
-    ri.messages.push('Giving up on image conversion.');
   }
 
   app.findGrepPreferences = NothingEnum.nothing;
+
+  var links = ri.doc.links;
+  for (var i = 0; i < links.length; ++ i) {
+    links[i].unlink();
+  }
 }
 
 function ri_post_clear_overrides(ri) {
