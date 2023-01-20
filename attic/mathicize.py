@@ -427,8 +427,8 @@ class Mathicizer:
         """Count images with/without alt-text"""
         for drawing in self._xpath(self.root, "//w:drawing[//a:blip[@r:embed]]"):
             self._count("images")
-            for prop in self._xpath(drawing, "./wp:inline/wp:docPr[@descr]"):
-                self._count("images with alt-text")
+            for prop in self._xpath(drawing, "./wp:inline/wp:docPr[not(@descr)]"):
+                self._count("images without alt-text", prop)
 
     def _add_comments(self) -> int:
         """Write XML comments for postracted file"""
