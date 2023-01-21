@@ -16,8 +16,10 @@ from typing import Iterator
 from bidi.algorithm import get_display
 from lxml import etree
 
+from docx_worker import DocxWorker
 
-class Mathicizer:
+
+class Mathicizer(DocxWorker):
     """Italicize math in .docx files."""
 
     def parse_args(self):
@@ -73,8 +75,6 @@ class Mathicizer:
         self.figure_out_paths(parser)
         self._load_antidict()
 
-    DOC_IN_ZIP = "word/document.xml"
-    STYLES_IN_ZIP = "word/styles.xml"
     TOTAL_ITALICIZED_KEY = "italicized (total)"
     ITALICABLE_RE = r"\b([A-Z]?[A-Z]?[a-z][A-Za-z]*|[A-Z][A-Z]?)\b"  # NB: Has to be XPathable
     SUSPECT_RE = r"(^\s*[A-Z]\s*$|\bP\()"  # NB: Has to be XPathable
@@ -134,35 +134,20 @@ class Mathicizer:
         " ]"
         "]"
     )
-    _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-    _NS = {
-        "w": _W,
-        "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
-        "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
-        "wp": "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing",
-        "re": "http://exslt.org/regular-expressions",
-    }
-    LOCK_MARK = "~$"
 
     antidict: re.Pattern | None
     antiwords: Counter = Counter()
     args: argparse.Namespace
     comments: dict = defaultdict(list)
     counts: Counter = Counter()
-    doc: etree._ElementTree
     italicable_xpath: str
-    izip: ZipFile
     opath: Path
     root: etree._Entity
-    suspect_xpath: str
 
-    def main(self):
-        """Italicize math"""
+    def get_ipath(self) -> Path:
+        """Return path to input .docx"""
         self.parse_args()
-
-        print(f"Reading {self.args.input}")
-        with ZipFile(self.args.input) as self.izip:
-            self._work()
+        return self.args.input
 
     def figure_out_paths(self, parser: argparse.ArgumentParser):
         """Find input and output, if not given"""
@@ -189,7 +174,7 @@ class Mathicizer:
         self.args.outdir.mkdir(parents=True, exist_ok=True)
         self.opath = self.args.outdir / f"mathicized-{self.args.input.stem}.docx"
 
-    def _work(self):
+    def work_with_doc(self):
         """Work with the open input zip file"""
         self._copy(self.args.input, self.args.outdir / "mathicize-input.docx")
 
@@ -221,13 +206,9 @@ class Mathicizer:
         print(f"Saving XML to {output}")
         self.doc.write(output, encoding="utf-8", pretty_print=True)
 
-    def _xpath(self, node: etree._Entity, expr: str) -> Iterator[etree._Entity]:
-        """Wrapper for etree.xpath, with namespaces"""
-        yield from node.xpath(expr, namespaces=self._NS)
-
     def _first(self, node: etree._Entity, expr: str) -> etree._Entity | None:
         """First entity matching xpath"""
-        for entity in self._xpath(node, expr):
+        for entity in self.xpath(node, expr):
             return entity
         return None
 
@@ -278,7 +259,7 @@ class Mathicizer:
 
     def _italicize_math(self) -> bool:
         """Convert text in formulas to italics"""
-        for rnode in self._xpath(self.root, self.italicable_xpath):
+        for rnode in self.xpath(self.root, self.italicable_xpath):
             text = self._rnode_text(rnode)
             relevant = re.search(self.ITALICABLE_RE, text)
             assert relevant is not None  # XPath, but, you know
@@ -314,7 +295,7 @@ class Mathicizer:
 
     def _fix_islands(self) -> bool:
         """Find islands of LTR whitespace in RTL"""
-        for rnode in self._xpath(self.root, self.ISLAND_XPATH):
+        for rnode in self.xpath(self.root, self.ISLAND_XPATH):
             # ISLAND_XPATH takes care of these, but I can't read it
             assert self._rnode_text(rnode).isspace()
             assert self._is_rtl(rnode.getnext())
@@ -328,7 +309,7 @@ class Mathicizer:
 
     def _note_suspects(self):
         """Look for text that may be an unmarked formula"""
-        for rnode in self._xpath(self.root, self.suspect_xpath):
+        for rnode in self.xpath(self.root, self.suspect_xpath):
             self._count("suspect", rnode)
             text = self._rnode_text(rnode)
             assert re.search(self.SUSPECT_RE, text)  # XPath takes care of that, but still
@@ -365,8 +346,8 @@ class Mathicizer:
             return
 
         text = "\n".join(
-            "".join(tnode.text for tnode in self._xpath(pnode, "./w:r/w:t"))
-            for pnode in self._xpath(self.root, "//w:p[w:r/w:t]")
+            "".join(tnode.text for tnode in self.xpath(pnode, "./w:r/w:t"))
+            for pnode in self.xpath(self.root, "//w:p[w:r/w:t]")
         )
         for match in self.antidict.finditer(text):
             self.antiwords[match.group(0)] += 1
@@ -384,12 +365,12 @@ class Mathicizer:
         if node is None:
             print(f'No style named "{self.args.style}" in {self.args.input}')
             return False
-        style_id = node.get(self._wtag("styleId"))
+        style_id = node.get(self.wtag("styleId"))
         self.italicable_xpath = self._ITALICABLE_XPATH_FORMAT.format(style_id=style_id)
 
         anti_node = self._first(styles, f"//w:style[w:name[@w:val='{self.args.anti_style}']]")
         if anti_node is not None:
-            anti_style_id = anti_node.get(self._wtag("styleId"))
+            anti_style_id = anti_node.get(self.wtag("styleId"))
             self.suspect_xpath = self._SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE.format(
                 style_id=style_id,
                 anti_style_id=anti_style_id,
@@ -425,9 +406,9 @@ class Mathicizer:
 
     def _scan_images(self):
         """Count images with/without alt-text"""
-        for drawing in self._xpath(self.root, "//w:drawing[//a:blip[@r:embed]]"):
+        for drawing in self.xpath(self.root, "//w:drawing[//a:blip[@r:embed]]"):
             self._count("images")
-            for prop in self._xpath(drawing, "./wp:inline/wp:docPr[not(@descr)]"):
+            for prop in self.xpath(drawing, "./wp:inline/wp:docPr[not(@descr)]"):
                 self._count("images without alt-text", prop)
 
     def _add_comments(self) -> int:
@@ -443,13 +424,13 @@ class Mathicizer:
     def _write(self):
         """Create the output .docx"""
         print(f"Writing {self.opath}")
-        with ZipFile(self.args.input) as izip, ZipFile(self.opath, "w") as ozip:
-            for info in izip.infolist():
+        with ZipFile(self.opath, "w") as ozip:
+            for info in self.izip.infolist():
                 with ozip.open(info.filename, "w") as ofo:
                     if info.filename == self.DOC_IN_ZIP:
                         ofo.write(etree.tostring(self.doc))
                     else:
-                        with izip.open(info, "r") as ifo:
+                        with self.izip.open(info, "r") as ifo:
                             ofo.write(ifo.read())
 
     def _consider_overwrite(self):
@@ -469,13 +450,9 @@ class Mathicizer:
         print(f"{src} -> {dst}")
         shutil.copy(src, dst)
 
-    @classmethod
-    def _wtag(cls, tag: str) -> str:
-        return f"{{{cls._W}}}{tag}"
-
     def _w_i(self) -> etree._Entity:
         """Create <w:i> node"""
-        return self.root.makeelement(self._wtag("i"))
+        return self.root.makeelement(self.wtag("i"))
 
     @classmethod
     def _rnode_text(cls, rnode: etree._Entity) -> str:
@@ -484,8 +461,6 @@ class Mathicizer:
         if tnode is None:
             return ""
         return tnode.text
-
-    # MAYB: overwrite original doc, backup somewhere
 
 
 if __name__ == "__main__":
