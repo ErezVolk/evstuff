@@ -428,11 +428,11 @@ function ri_post_fix_spaces(ri) {
   if (!ri.ui_post_fix_spaces.checkedState)
     return;
 
-  // Multiple Space to Single Space
+  // Multiple Space to Single Space (ships with InDesign)
   ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ]{2,}", " ");
 
-  // No whitespace at the end of paragraphs (doesn't work!?)
-  ri_change_grep(ri, "\\s+$", "");
+  // Multiple Return to Single Return (ships with InDesign)
+  ri_change_grep(ri, "~b~b+", "\\r");
 }
 
 function ri_post_fix_dashes(ri) {
@@ -656,6 +656,11 @@ function ri_fully_justify(ri, paragraphs, index) {
   }
 
   var paragraph = paragraphs[index];
+
+  if (paragraph.contents == "") {
+    // Nothing to justify
+    return;
+  }
 
   if (paragraph.paragraphDirection != ParagraphDirectionOptions.RIGHT_TO_LEFT_DIRECTION) {
     // We only know about RTL
