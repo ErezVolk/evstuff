@@ -30,3 +30,5 @@ nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
 autocmd bufreadpre *.md setlocal textwidth=88
+
+" set fencs=ucs-bom,utf-16le,utf-8,default,latin1

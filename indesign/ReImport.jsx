@@ -1,5 +1,6 @@
 // ex: set et sw=2:
 
+// TODO: Status indication
 // TODO: Pairwise kerning
 // TODO: Check for the double frame thing at beginning/end.
 // TODO: Border tricks at end/beginning of frames
@@ -7,7 +8,6 @@
 // TODO: Configurable (and savable) Title matcher (r'Title|Frame Top')
 // TODO: Split (and unsplit!) frames on specific styles
 // TODO: Maybe do the start-of-line negative kerning trick?
-// TODO: Status indication
 // TODO: Change "old load" checkbox to radio
 // TODO: Offer the precooked searches!
 // TODO: Indexing stuff
