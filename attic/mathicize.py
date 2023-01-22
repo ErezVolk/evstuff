@@ -230,10 +230,10 @@ class Mathicizer(DocxWorker):
         """Does the heavly lifting on self.doc"""
         worked = False
         if self._find_styles():
+            worked = self._fix_rtl_formulas() or worked
+            worked = self._fix_islands() or worked
             worked = self._italicize_math() or worked
             self._note_suspects()
-        worked = self._fix_islands() or worked
-        worked = self._fix_rtl_formulas() or worked
         self._check_antidict()
         self._scan_images()
 
@@ -303,11 +303,12 @@ class Mathicizer(DocxWorker):
             f"]]/w:t[re:test(., '.')]"
         )
         for tnode in self.xpath(self.doc, expr):
-            self._count("rtl formula", tnode)
+            self._count("rtl formulas", tnode)
+            self._count(f"rtl formula: {repr(tnode.text.strip())}")
             tnode.text = tnode.text.translate(self.FLIP)
             rtl = self.find(tnode.getparent(), "./w:rPr/w:rtl")
             rtl.getparent().remove(rtl)
-        return self.counts["rtl formula"] > 0
+        return self.counts["rtl formulas"] > 0
 
     def _note_suspects(self):
         """Look for text that may be an unmarked formula"""
@@ -360,9 +361,6 @@ class Mathicizer(DocxWorker):
 
     def _find_styles(self) -> bool:
         """Find the right styles, set `self.italicable_xpath`"""
-        with self.izip.open(self.STYLES_IN_ZIP) as ifo:
-            styles = etree.parse(ifo).getroot()
-
         self.formula_style_id = self.find_style_id(self.args.style)
         if self.formula_style_id is None:
             print(f'No style named "{self.args.style}" in {self.args.input}')
