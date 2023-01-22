@@ -11,8 +11,6 @@ import shutil
 import subprocess
 from zipfile import ZipFile
 
-from typing import Iterator
-
 from bidi.algorithm import get_display
 from lxml import etree
 
@@ -134,17 +132,19 @@ class Mathicizer(DocxWorker):
         " ]"
         "]"
     )
+    FLIP = str.maketrans("()", ")(")
 
     antidict: re.Pattern | None
     antiwords: Counter = Counter()
     args: argparse.Namespace
     comments: dict = defaultdict(list)
     counts: Counter = Counter()
+    formula_style_id: str
     italicable_xpath: str
     opath: Path
     root: etree._Entity
 
-    def get_ipath(self) -> Path:
+    def pre_work(self) -> Path:
         """Return path to input .docx"""
         self.parse_args()
         return self.args.input
@@ -174,7 +174,7 @@ class Mathicizer(DocxWorker):
         self.args.outdir.mkdir(parents=True, exist_ok=True)
         self.opath = self.args.outdir / f"mathicized-{self.args.input.stem}.docx"
 
-    def work_with_doc(self):
+    def work(self):
         """Work with the open input zip file"""
         self._copy(self.args.input, self.args.outdir / "mathicize-input.docx")
 
@@ -233,29 +233,14 @@ class Mathicizer(DocxWorker):
             worked = self._italicize_math() or worked
             self._note_suspects()
         worked = self._fix_islands() or worked
+        worked = self._fix_rtl_formulas() or worked
         self._check_antidict()
         self._scan_images()
 
-        if self.counts:
-            print("Counts:")
-            mkw = max(len(key) for key in self.counts)
-            for key, count in self._iter_counter(self.counts):
-                print(f" {key.ljust(mkw)}  {count}")
-
-        if self.antiwords:
-            print("Antidict:")
-            for antiword, count in self._iter_counter(self.antiwords):
-                print(f" {get_display(antiword)}  {count}")
+        self.dump_counter("Counts", self.counts)
+        self.dump_counter("Antidict", self.antiwords, get_display)
 
         return worked
-
-    @classmethod
-    def _iter_counter(cls, counter: Counter) -> Iterator[tuple[str, int]]:
-        """Helper function to iterate a Counter object"""
-        yield from sorted(
-            counter.items(),
-            key=lambda item: (-item[1], item[0]),
-        )
 
     def _italicize_math(self) -> bool:
         """Convert text in formulas to italics"""
@@ -306,6 +291,23 @@ class Mathicizer(DocxWorker):
             rnode.getparent().remove(rnode)
             self._count("rtlized islands", rprev)
         return self.counts["rtlized"] > 0
+
+    def _fix_rtl_formulas(self):
+        """Fix RTL (parts) of formulas"""
+        expr = (
+            f"//w:r["
+            f" w:rPr["
+            f"  w:rStyle[@w:val='{self.formula_style_id}']"
+            f"  and"
+            f"  w:rtl"
+            f"]]/w:t[re:test(., '.')]"
+        )
+        for tnode in self.xpath(self.doc, expr):
+            self._count("rtl formula", tnode)
+            tnode.text = tnode.text.translate(self.FLIP)
+            rtl = self.find(tnode.getparent(), "./w:rPr/w:rtl")
+            rtl.getparent().remove(rtl)
+        return self.counts["rtl formula"] > 0
 
     def _note_suspects(self):
         """Look for text that may be an unmarked formula"""
@@ -361,22 +363,21 @@ class Mathicizer(DocxWorker):
         with self.izip.open(self.STYLES_IN_ZIP) as ifo:
             styles = etree.parse(ifo).getroot()
 
-        node = self._first(styles, f"//w:style[w:name[@w:val='{self.args.style}']]")
-        if node is None:
+        self.formula_style_id = self.find_style_id(self.args.style)
+        if self.formula_style_id is None:
             print(f'No style named "{self.args.style}" in {self.args.input}')
             return False
-        style_id = node.get(self.wtag("styleId"))
-        self.italicable_xpath = self._ITALICABLE_XPATH_FORMAT.format(style_id=style_id)
 
-        anti_node = self._first(styles, f"//w:style[w:name[@w:val='{self.args.anti_style}']]")
-        if anti_node is not None:
-            anti_style_id = anti_node.get(self.wtag("styleId"))
+        self.italicable_xpath = self._ITALICABLE_XPATH_FORMAT.format(style_id=self.formula_style_id)
+
+        anti_style_id = self.find_style_id(self.args.anti_style)
+        if anti_style_id is not None:
             self.suspect_xpath = self._SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE.format(
-                style_id=style_id,
+                style_id=self.formula_style_id,
                 anti_style_id=anti_style_id,
             )
         else:
-            self.suspect_xpath = self._SUSPECT_XPATH_FORMAT.format(style_id=style_id)
+            self.suspect_xpath = self._SUSPECT_XPATH_FORMAT.format(style_id=self.formula_style_id)
         return True
 
     def _mknode(self, model: etree._Entity, text: str, italic: bool) -> etree._Entity:

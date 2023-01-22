@@ -1,11 +1,17 @@
 """DocxWorker: Base class for scripts that do stuff to .docx files"""
 import abc
+from collections import Counter
 from pathlib import Path
 from zipfile import ZipFile
 
-from typing import Iterator
+from typing import Callable
+from typing import Iterable
 
 from lxml import etree
+
+__all__ = [
+    "DocxWorker",
+]
 
 
 class DocxWorker(abc.ABC):
@@ -23,6 +29,9 @@ class DocxWorker(abc.ABC):
         "re": "http://exslt.org/regular-expressions",
     }
 
+    CounterLike = dict[str, int]
+
+    counts: CounterLike = Counter()
     doc: etree._ElementTree
     izip: ZipFile
     root: etree._Entity
@@ -41,21 +50,21 @@ class DocxWorker(abc.ABC):
 
     def main(self):
         """Main structure of this script"""
-        with ZipFile(self.get_ipath()) as self.izip:
+        with ZipFile(self.pre_work()) as self.izip:
             self.doc = self.load_xml(self.DOC_IN_ZIP)
             self.root = self.doc.getroot()
-            self.work_with_doc()
-        self.work_after_doc()
+            self.work()
+        self.post_work()
 
     @abc.abstractmethod
-    def get_ipath(self) -> Path:
+    def pre_work(self) -> Path:
         """Return path to input .docx"""
 
     @abc.abstractmethod
-    def work_with_doc(self):
+    def work(self):
         """Work while `self.izip` is open."""
 
-    def work_after_doc(self):
+    def post_work(self):
         """(Optional) work after closing `self.izip`"""
 
     def load_xml(self, path_in_zip: str) -> etree._ElementTree:
@@ -63,7 +72,7 @@ class DocxWorker(abc.ABC):
         with self.izip.open(path_in_zip) as ifo:
             return etree.parse(ifo)
 
-    def find_style_id(self, name: str) -> str:
+    def find_style_id(self, name: str) -> str | None:
         """Get a style ID"""
         if self.styles is None:
             self.styles = self.load_xml(self.STYLES_IN_ZIP).getroot()
@@ -71,11 +80,16 @@ class DocxWorker(abc.ABC):
         for node in self.xpath(self.styles, f"//w:style[w:name[@w:val='{name}']]"):
             return node.get(self.wtag("styleId"))
 
-        raise RuntimeError(f"Style {repr(name)} not found")
+        raise None
 
-    def xpath(self, node: etree._Entity, expr: str) -> Iterator[etree._Entity]:
+    def xpath(self, node: etree._Entity, expr: str) -> Iterable[etree._Entity]:
         """Wrapper for etree.xpath, with namespaces"""
         yield from node.xpath(expr, namespaces=self._NS)
+
+    @classmethod
+    def find(cls, node: etree._Entity, expr: str) -> etree._Entity:
+        """Wrapper for etree.find, with namespaces"""
+        return node.find(expr, namespaces=cls._NS)
 
     @classmethod
     def wtag(cls, tag: str) -> str:
@@ -91,3 +105,33 @@ class DocxWorker(abc.ABC):
                     else:
                         with self.izip.open(info, "r") as ifo:
                             ofo.write(ifo.read())
+
+    @classmethod
+    def iter_counter(cls, counter: CounterLike) -> Iterable[tuple[str, int]]:
+        """Helper function to iterate a Counter object"""
+        yield from sorted(
+            counter.items(),
+            key=lambda item: (-item[1], item[0]),
+        )
+
+    def dump_counter(
+        self,
+        title: str,
+        counter: CounterLike | None = None,
+        fmt_key: Callable[[str], str] = lambda key: key,
+        sorter: Callable[[CounterLike], Iterable[tuple[str, int]]] | None = None,
+    ):
+        """Useful for printing summaries"""
+        if counter is None:
+            counter = self.counts
+
+        if len(counter) == 0:
+            return
+
+        if sorter is None:
+            sorter = self.iter_counter
+
+        print(f"{title}:")
+        mkw = max(len(key) for key in counter)
+        for key, count in sorter(counter):
+            print(f" {fmt_key(key).ljust(mkw)}  {count}")
