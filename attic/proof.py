@@ -17,8 +17,8 @@ from lxml import etree
 from docx_worker import DocxWorker
 
 
-class Mathicizer(DocxWorker):
-    """Italicize math in .docx files."""
+class Proof(DocxWorker):
+    """Checks things in .docx files."""
 
     def parse_args(self):
         """Command line"""
@@ -169,29 +169,29 @@ class Mathicizer(DocxWorker):
 
         if not self.args.outdir:
             now = datetime.datetime.now()
-            self.args.outdir = Path("mathicize-out") / now.strftime("%Y%m%d-%H%M")
+            self.args.outdir = Path("proof-out") / now.strftime("%Y%m%d-%H%M")
 
         self.args.outdir.mkdir(parents=True, exist_ok=True)
-        self.opath = self.args.outdir / f"mathicized-{self.args.input.stem}.docx"
+        self.opath = self.args.outdir / f"proofed-{self.args.input.stem}.docx"
 
     def work(self):
         """Work with the open input zip file"""
-        self._copy(self.args.input, self.args.outdir / "mathicize-input.docx")
+        self._copy(self.args.input, self.args.outdir / "proof-input.docx")
 
         with self.izip.open(self.DOC_IN_ZIP) as ifo:
             self.doc = etree.parse(ifo)
             self.root = self.doc.getroot()
 
-        self._save_to("mathicize-input.xml")
+        self._save_to("proof-input.xml")
 
-        changed = self._mathicize()
+        changed = self._proof()
         if changed:
             self._write()
         else:
             print("Nothing changed.")
 
         self._add_comments()
-        self._save_to("mathicize-output.xml")
+        self._save_to("proof-output.xml")
 
         if changed:
             self._consider_overwrite()
@@ -226,7 +226,7 @@ class Mathicizer(DocxWorker):
             return True
         return False
 
-    def _mathicize(self) -> bool:
+    def _proof(self) -> bool:
         """Does the heavly lifting on self.doc"""
         worked = False
         if self._find_styles():
@@ -463,4 +463,4 @@ class Mathicizer(DocxWorker):
 
 
 if __name__ == "__main__":
-    Mathicizer().main()
+    Proof().main()
