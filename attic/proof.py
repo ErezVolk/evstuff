@@ -329,7 +329,11 @@ class Proof(DocxWorker):
             return
 
         with open(self.args.antidict, encoding="utf-8") as fobj:
-            antire = "|".join(filter(None, (line.strip() for line in fobj)))
+            antire = "|".join(
+                line.strip()
+                for line in fobj
+                if line[0] != "#"
+            )
         if not antire:
             return
 
