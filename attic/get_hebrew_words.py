@@ -143,7 +143,6 @@ def _split(input_bytes, verbose) -> tuple[list[tuple[str, str]], bool]:
         entry_text = input_bytes[:next_offset].decode("utf-8")
 
         # The final part of the dictionary contains some meta info, which we skip.
-        # TODO: might only be for the NOAD, so check other dictionaries.
         if "fbm_AdvisoryBoard" in entry_text[:1000]:
             print("fbm_AdvisoryBoard detected, stopping...")
             stop_further_parsing = True

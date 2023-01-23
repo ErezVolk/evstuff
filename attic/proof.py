@@ -9,7 +9,6 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-from zipfile import ZipFile
 
 from bidi.algorithm import get_display
 from lxml import etree
@@ -23,14 +22,19 @@ class Proof(DocxWorker):
     def parse_args(self):
         """Command line"""
         parser = argparse.ArgumentParser(description=self.__class__.__doc__)
-        parser.add_argument("-i", "--input", type=Path, help="Input .docx file")
-        parser.add_argument("-o", "--outdir", type=Path, help="Output directory")
+        parser.add_argument("-i", "--input", type=Path, help="Input .docx")
+        parser.add_argument(
+            "-o", "--outdir", type=Path, help="Output directory"
+        )
         parser.add_argument(
             "-d",
             "--antidict",
             type=Path,
             default="antidict.txt",
-            help="File with one regex per line which should NOT be in the text",
+            help=(
+                "File with one regex per line"
+                " which should NOT be in the text"
+            ),
         )
         parser.add_argument(
             "-x",
@@ -48,7 +52,10 @@ class Proof(DocxWorker):
             "-s", "--style", default="נוסחה", help="Style name for formulas"
         )
         parser.add_argument(
-            "-S", "--anti-style", default="לא נוסחה", help="Style name for non-formulas"
+            "-S",
+            "--anti-style",
+            default="לא נוסחה",
+            help="Style name for non-formulas",
         )
         parser.add_argument(
             "--force",
@@ -56,7 +63,9 @@ class Proof(DocxWorker):
             help="Work even if output file is currently open",
         )
         parser.add_argument(
-            "--open", action="store_true", help="Open output file after processing"
+            "--open",
+            action="store_true",
+            help="Open output file after processing",
         )
         parser.add_argument(
             "--extract-to",
@@ -74,8 +83,10 @@ class Proof(DocxWorker):
         self._load_antidict()
 
     TOTAL_ITALICIZED_KEY = "italicized (total)"
-    ITALICABLE_RE = r"\b([A-Z]?[A-Z]?[a-z][A-Za-z]*|[A-Z][A-Z]?)\b"  # NB: Has to be XPathable
-    SUSPECT_RE = r"(^\s*[A-Z]\s*$|\bP\()"  # NB: Has to be XPathable
+    ITALICABLE_RE = (  # Must work in XPath
+        r"\b([A-Z]?[A-Z]?[a-z][A-Za-z]*|[A-Z][A-Z]?)\b"
+    )
+    SUSPECT_RE = r"(^\s*[A-Z]\s*$|\bP\()"  # Must work in XPath
     _ITALICABLE_XPATH_FORMAT = (
         "//w:r["
         " w:rPr["
@@ -90,19 +101,23 @@ class Proof(DocxWorker):
     _SUSPECT_XPATH_FORMAT = (
         "//w:r["
         " w:rPr["
-        "  (not(w:rStyle) or w:rStyle[@w:val!='{style_id}'])"  # Not formula style
+        "  ("
+        "    not(w:rStyle)"
+        "    or"
+        "    w:rStyle[@w:val!='{style_id}']"
+        "  )"  # Not formula style
         "  and"
         "  not(w:rtl)"  # But LTR
         " ]"
         " and"
-        " w:t[re:test(., '" + SUSPECT_RE + "')]"  # Looks like it should be a formula
+        " w:t[re:test(., '" + SUSPECT_RE + "')]"  # Formula-like
         "]"
     )
     _SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE = (
         "//w:r["
         " w:rPr["
         "  ("
-        "    not(w:rStyle)"   # Unstyled, OR
+        "    not(w:rStyle)"  # Unstyled, OR
         "    or"
         "    w:rStyle["
         "      @w:val!='{style_id}'"  # Not formula style
@@ -114,16 +129,16 @@ class Proof(DocxWorker):
         "  not(w:rtl)"  # But LTR
         " ]"
         " and"
-        " w:t[re:test(., '" + SUSPECT_RE + "')]"  # Looks like it should be a formula
+        " w:t[re:test(., '" + SUSPECT_RE + "')]"  # Formula-like
         "]"
     )
     ISLAND_XPATH = (
         "//w:r["
         " not(w:rPr/w:rtl)"  # Is LTR text
         "  and"
-        " preceding-sibling::*[1][self::w:r[w:rPr/w:rtl and w:t]]"  # Is after some RTL text
+        " preceding-sibling::*[1][self::w:r[w:rPr/w:rtl and w:t]]"  # Post-RTL
         "  and"
-        " following-sibling::*[1][self::w:r[w:rPr/w:rtl and w:t]]"  # Is before some RTL text
+        " following-sibling::*[1][self::w:r[w:rPr/w:rtl and w:t]]"  # Pre-RTl
         "  and"
         " w:t["
         "  @xml:space='preserve'"  # With whitespace at edge
@@ -138,11 +153,8 @@ class Proof(DocxWorker):
     antiwords: Counter = Counter()
     args: argparse.Namespace
     comments: dict = defaultdict(list)
-    counts: Counter = Counter()
     formula_style_id: str
-    italicable_xpath: str
     opath: Path
-    root: etree._Entity
 
     def pre_work(self) -> Path:
         """Return path to input .docx"""
@@ -186,7 +198,7 @@ class Proof(DocxWorker):
 
         changed = self._proof()
         if changed:
-            self._write()
+            self.write(self.opath)
         else:
             print("Nothing changed.")
 
@@ -219,7 +231,7 @@ class Proof(DocxWorker):
 
     def _is_open(self, path: Path) -> bool:
         """Check if a Word document seems to be open"""
-        tail = path.stem[len(self.LOCK_MARK) :]
+        tail = path.stem[len(self.LOCK_MARK):]
         lock = path.with_stem(self.LOCK_MARK + tail)
         if lock.is_file():
             print(f"{path} seems to be open ({lock.name} exists)")
@@ -244,7 +256,10 @@ class Proof(DocxWorker):
 
     def _italicize_math(self) -> bool:
         """Convert text in formulas to italics"""
-        for rnode in self.xpath(self.root, self.italicable_xpath):
+        italicable_xpath = self._ITALICABLE_XPATH_FORMAT.format(
+            style_id=self.formula_style_id
+        )
+        for rnode in self.xpath(self.root, italicable_xpath):
             text = self._rnode_text(rnode)
             relevant = re.search(self.ITALICABLE_RE, text)
             assert relevant is not None  # XPath, but, you know
@@ -261,7 +276,9 @@ class Proof(DocxWorker):
             for match in re.finditer(self.ITALICABLE_RE, text):
                 (idx_from, idx_to) = match.span()
                 if idx_prev < idx_from:
-                    addend = self._mknode(rnode, text[idx_prev:idx_from], False)
+                    addend = self._mknode(
+                        rnode, text[idx_prev:idx_from], False
+                    )
                     rnode.addprevious(addend)
                     self._count("non-italicized part", addend)
                 if idx_from < idx_to:
@@ -287,7 +304,8 @@ class Proof(DocxWorker):
             assert self._is_rtl(rnode.getprevious())
 
             rprev = rnode.getprevious()
-            self._set_rnode_text(rprev, self._rnode_text(rprev) + self._rnode_text(rnode))
+            new_text = self._rnode_text(rprev) + self._rnode_text(rnode)
+            self._set_rnode_text(rprev, new_text)
             rnode.getparent().remove(rnode)
             self._count("rtlized islands", rprev)
         return self.counts["rtlized"] > 0
@@ -312,10 +330,21 @@ class Proof(DocxWorker):
 
     def _note_suspects(self):
         """Look for text that may be an unmarked formula"""
-        for rnode in self.xpath(self.root, self.suspect_xpath):
+        anti_style_id = self.find_style_id(self.args.anti_style)
+        if anti_style_id is not None:
+            suspect_xpath = self._SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE.format(
+                style_id=self.formula_style_id,
+                anti_style_id=anti_style_id,
+            )
+        else:
+            suspect_xpath = self._SUSPECT_XPATH_FORMAT.format(
+                style_id=self.formula_style_id
+            )
+
+        for rnode in self.xpath(self.root, suspect_xpath):
             self._count("suspect", rnode)
             text = self._rnode_text(rnode)
-            assert re.search(self.SUSPECT_RE, text)  # XPath takes care of that, but still
+            assert re.search(self.SUSPECT_RE, text)  # XPath checks, but
             ptext = self._rnode_text(rnode.getprevious())
             ntext = self._rnode_text(rnode.getnext())
             context = "".join([ptext, text, ntext])
@@ -329,11 +358,7 @@ class Proof(DocxWorker):
             return
 
         with open(self.args.antidict, encoding="utf-8") as fobj:
-            antire = "|".join(
-                line.strip()
-                for line in fobj
-                if line[0] != "#"
-            )
+            antire = "|".join(line.strip() for line in fobj if line[0] != "#")
         if not antire:
             return
 
@@ -343,7 +368,7 @@ class Proof(DocxWorker):
         except re.error as exc:
             print(f"Ignoring {self.args.antidict} due to regex error")
             if exc.pos is not None:
-                context = pattern[exc.pos - 10 : exc.pos + 10]
+                context = pattern[(exc.pos - 10):(exc.pos + 10)]
                 print(f" - {exc}")
                 print(f" - Context: {repr(context)}")
 
@@ -365,25 +390,18 @@ class Proof(DocxWorker):
 
     def _find_styles(self) -> bool:
         """Find the right styles, set `self.italicable_xpath`"""
-        self.formula_style_id = self.find_style_id(self.args.style)
-        if self.formula_style_id is None:
+        formula_style_id = self.find_style_id(self.args.style)
+        if formula_style_id is None:
             print(f'No style named "{self.args.style}" in {self.args.input}')
             return False
-
-        self.italicable_xpath = self._ITALICABLE_XPATH_FORMAT.format(style_id=self.formula_style_id)
-
-        anti_style_id = self.find_style_id(self.args.anti_style)
-        if anti_style_id is not None:
-            self.suspect_xpath = self._SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE.format(
-                style_id=self.formula_style_id,
-                anti_style_id=anti_style_id,
-            )
-        else:
-            self.suspect_xpath = self._SUSPECT_XPATH_FORMAT.format(style_id=self.formula_style_id)
+        self.formula_style_id = formula_style_id
         return True
 
-    def _mknode(self, model: etree._Entity, text: str, italic: bool) -> etree._Entity:
-        """Create a duplicate of `model` with different text, and possibly italics."""
+    def _mknode(
+        self, model: etree._Entity, text: str, italic: bool
+    ) -> etree._Entity:
+        """Create a duplicate of `model` with different text,
+        and possibly italics."""
         rnode = deepcopy(model)
         self._set_rnode_text(rnode, text)
         if italic:
@@ -395,7 +413,9 @@ class Proof(DocxWorker):
         tnode = self._find(rnode, "w:t")
         tnode.text = text
         if text[0].isspace() or text[-1].isspace():
-            tnode.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+            tnode.set(
+                "{http://www.w3.org/XML/1998/namespace}space", "preserve"
+            )
 
     def _make_italic(self, rnode: etree._Entity):
         """Add the italic tag"""
@@ -409,9 +429,13 @@ class Proof(DocxWorker):
 
     def _scan_images(self):
         """Count images with/without alt-text"""
-        for drawing in self.xpath(self.root, "//w:drawing[//a:blip[@r:embed]]"):
+        for drawing in self.xpath(
+            self.root, "//w:drawing[//a:blip[@r:embed]]"
+        ):
             self._count("images")
-            for prop in self.xpath(drawing, "./wp:inline/wp:docPr[not(@descr)]"):
+            for prop in self.xpath(
+                drawing, "./wp:inline/wp:docPr[not(@descr)]"
+            ):
                 self._count("images without alt-text", prop)
 
     def _add_comments(self) -> int:
@@ -423,18 +447,6 @@ class Proof(DocxWorker):
                 node.addprevious(etree.Comment(comment))
                 n_added += 1
         return n_added
-
-    def _write(self):
-        """Create the output .docx"""
-        print(f"Writing {self.opath}")
-        with ZipFile(self.opath, "w") as ozip:
-            for info in self.izip.infolist():
-                with ozip.open(info.filename, "w") as ofo:
-                    if info.filename == self.DOC_IN_ZIP:
-                        ofo.write(etree.tostring(self.doc))
-                    else:
-                        with self.izip.open(info, "r") as ifo:
-                            ofo.write(ifo.read())
 
     def _consider_overwrite(self):
         """Carefully overwrite the input file"""

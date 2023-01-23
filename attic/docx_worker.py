@@ -77,10 +77,11 @@ class DocxWorker(abc.ABC):
         if self.styles is None:
             self.styles = self.load_xml(self.STYLES_IN_ZIP).getroot()
 
-        for node in self.xpath(self.styles, f"//w:style[w:name[@w:val='{name}']]"):
+        expr = f"//w:style[w:name[@w:val='{name}']]"
+        for node in self.xpath(self.styles, expr):
             return node.get(self.wtag("styleId"))
 
-        raise None
+        return None
 
     def xpath(self, node: etree._Entity, expr: str) -> Iterable[etree._Entity]:
         """Wrapper for etree.xpath, with namespaces"""
@@ -93,10 +94,11 @@ class DocxWorker(abc.ABC):
 
     @classmethod
     def wtag(cls, tag: str) -> str:
+        """Tag name for "w:tag"."""
         return f"{{{cls._W}}}{tag}"
 
     def write(self, output_path: Path):
-        """Write the open docx with modified doc"""
+        """Write a copy of the open docx with modified doc"""
         with ZipFile(output_path, "w") as ozip:
             for info in self.izip.infolist():
                 with ozip.open(info.filename, "w") as ofo:
