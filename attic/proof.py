@@ -318,7 +318,7 @@ class Proof(DocxWorker):
             f"  w:rStyle[@w:val='{self.formula_style_id}']"
             f"  and"
             f"  w:rtl"
-            f"]]/w:t[re:test(., '.')]"
+            f"]]/w:t[re:test(., '[^ ]')]"
         )
         for tnode in self.xpath(self.doc, expr):
             self._count("rtl formulas", tnode)
