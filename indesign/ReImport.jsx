@@ -52,7 +52,6 @@ function ri_run(ri) {
     ri_post_fix_vav(ri);
     ri_post_remove_footnote_whitespace(ri);
     ri_post_convert_post_its(ri);
-    ri_post_shrink_tables(ri);
     ri_reset_searches(ri);
   }
   if (ri.uig_groom.checkedState) {
@@ -62,6 +61,7 @@ function ri_run(ri) {
   ri_enable_grep(ri);
   ri_restore_reflow(ri);
   if (ri.uig_groom.checkedState) {
+    ri_groom_shrink_tables(ri);
     ri_groom_fix_masters(ri);
     ri_groom_update_toc(ri);
   }
@@ -196,15 +196,15 @@ function ri_get_options(ri) {
               staticLabel: "(If Tagged Text) Convert comments",
               checkedState: true,
             });
-          ri.ui_post_shrink_tables = checkboxControls.add({
-            staticLabel: "Shrink tables to frame width",
-            checkedState: !ri.saved_settings.dont_shrink_tables,
-          });
         }
       }
 
       with (ri.uig_groom = enablingGroups.add({staticLabel: "Grooming", checkedState: true})) {
         with (dialogColumns.add() ) {
+          ri.ui_groom_shrink_tables = checkboxControls.add({
+            staticLabel: "Shrink tables to frame width",
+            checkedState: !ri.saved_settings.dont_shrink_tables,
+          });
           ri.ui_groom_fully_justify =
             checkboxControls.add({
               staticLabel: "Fix to full justification",
@@ -363,6 +363,7 @@ function ri_do_import(ri) {
     a_master: ri.a_master_name,
     b_master: ri.b_master_name,
     dont_import_images: !ri.ui_import_images.checkedState,
+    dont_shrink_tables: !ri.ui_groom_shrink_tables.checkedState,
     hide_import_options: !ri.ui_import_options.checkedState,
     keep_grep: !ri.ui_disable_grep.checkedState,
     keep_reflow: !ri.ui_disable_reflow.checkedState,
@@ -594,8 +595,8 @@ function ri_post_it_object_style(ri) {
   return style;
 }
 
-function ri_post_shrink_tables(ri) {
-  if (!ri.ui_post_shrink_tables.checkedState)
+function ri_groom_shrink_tables(ri) {
+  if (!ri.ui_groom_shrink_tables.checkedState)
     return;
 
   var pages = ri.doc.pages;
