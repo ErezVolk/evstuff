@@ -58,6 +58,12 @@ class Proof(DocxWorker):
             help="Style name for non-formulas",
         )
         parser.add_argument(
+            "-D",
+            "--dict-style",
+            default="מְנֻקָּד",
+            help="Style name for anti-anti-dict",
+        )
+        parser.add_argument(
             "--force",
             action="store_true",
             help="Work even if output file is currently open",
@@ -377,8 +383,14 @@ class Proof(DocxWorker):
         if self.antidict is None:
             return
 
+        style_id = self.find_style_id(self.args.dict_style)
+        if style_id:
+            t_expr = f"./w:r[not(w:rStyle) or w:rStyle[@w:val!='{style_id}']]/w:t"
+        else:
+            t_expr = "./w:r/w:t"
+
         text = "\n".join(
-            "".join(tnode.text for tnode in self.xpath(pnode, "./w:r/w:t"))
+            "".join(tnode.text for tnode in self.xpath(pnode, t_expr))
             for pnode in self.xpath(self.root, "//w:p[w:r/w:t]")
         )
         for match in self.antidict.finditer(text):
