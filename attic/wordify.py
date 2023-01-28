@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Find words with vowels in a docx, compare to dict"""
 from argparse import ArgumentParser
 from collections import defaultdict
 from pathlib import Path
@@ -13,6 +14,7 @@ _HEBR = f"{_NIQQ}{_ALPH}{_OTHR}"
 
 
 def main():
+    """Find words with vowels in a docx, compare to dict"""
     parser = ArgumentParser()
     parser.add_argument("-i", "--input", metavar="DOCX_FILE", type=Path)
     parser.add_argument(
@@ -59,8 +61,8 @@ def main():
     else:
         wpids = None
 
-    with open("hebrew.words", encoding="utf-8") as fo:
-        hebrew = {line.split("\t")[0] for line in fo if "\t" in line}
+    with open("hebrew.words", encoding="utf-8") as fobj:
+        hebrew = {line.split("\t")[0] for line in fobj if "\t" in line}
 
     wrd2niqs = defaultdict(set)
     missing = set()

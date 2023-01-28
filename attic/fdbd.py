@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Rename Mohaliver files with their date"""
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
@@ -6,6 +7,7 @@ import re
 
 
 def main():
+    """Rename Mohaliver files with their date"""
     parser = ArgumentParser()
     parser.add_argument(
         "-r", "--root", type=Path, default=Path.home() / "Dropbox" / "Mohaliver"
@@ -21,7 +23,8 @@ def main():
         if (match := re.match(r"(\d\d\d\d-\d\d-\d\d) \1(.*)", stem)):
             src_dst[path] = path.with_stem("".join(match.groups()))
             continue
-        elif re.match(r"\d\d\d\d-\d\d-\d\d", stem):
+
+        if re.match(r"\d\d\d\d-\d\d-\d\d", stem):
             continue
         elif (match := re.search(r"(202[23])[-_ ]?(\d\d)[-_ ]?(\d\d)", stem)):
             (yyyy, mm, dd) = match.groups()
