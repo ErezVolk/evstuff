@@ -272,7 +272,7 @@ class Proof(DocxWorker):
 
             if relevant.span() == (0, len(text)):
                 # The simple case: range == italic
-                self._make_italic(rnode)
+                self._add_to_rprops(rnode, "i")
                 self._count(self.TOTAL_ITALICIZED_KEY)
                 self._count("italicized in full")
                 continue
@@ -309,7 +309,7 @@ class Proof(DocxWorker):
             assert self._is_rtl(rnode.getnext())
             assert self._is_rtl(rnode.getprevious())
 
-            self._find(rnode, "w:rPr").append(self._w_rtl())
+            self._add_to_rprops(rnode, "rtl")
             self._count("rtlized islands", rnode)
         return self.counts["rtlized islands"] > 0
 
@@ -414,7 +414,7 @@ class Proof(DocxWorker):
         rnode = deepcopy(model)
         self._set_rnode_text(rnode, text)
         if italic:
-            self._make_italic(rnode)
+            self._add_to_rprops(rnode, "i")
         return rnode
 
     def _set_rnode_text(self, rnode: etree._Entity, text: str):
@@ -425,10 +425,6 @@ class Proof(DocxWorker):
             tnode.set(
                 "{http://www.w3.org/XML/1998/namespace}space", "preserve"
             )
-
-    def _make_italic(self, rnode: etree._Entity):
-        """Add the italic tag"""
-        self._find(rnode, "w:rPr").append(self._w_i())
 
     def _count(self, key: str, node: etree._Entity | None = None):
         """Save a comment to be postracted"""
@@ -474,13 +470,13 @@ class Proof(DocxWorker):
         print(f"{src} -> {dst}")
         shutil.copy(src, dst)
 
-    def _w_i(self) -> etree._Entity:
-        """Create <w:i> node"""
-        return self.root.makeelement(self.wtag("i"))
+    def _add_to_rprops(self, rnode: etree._Entity, tag: str):
+        """Add the italic/rtl/etc. tag"""
+        self._find(rnode, "w:rPr").append(self._new_w(tag))
 
-    def _w_rtl(self) -> etree._Entity:
-        """Create <w:rtl> node"""
-        return self.root.makeelement(self.wtag("rtl"))
+    def _new_w(self, tag: str) -> etree._Entity:
+        """Create <w:*> node"""
+        return self.root.makeelement(self.wtag(tag))
 
     @classmethod
     def _rnode_text(cls, rnode: etree._Entity) -> str:
