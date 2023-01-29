@@ -144,7 +144,7 @@ class Proof(DocxWorker):
         "  and"
         " preceding-sibling::*[1][self::w:r[w:rPr/w:rtl and w:t]]"  # Post-RTL
         "  and"
-        " following-sibling::*[1][self::w:r[w:rPr/w:rtl and w:t]]"  # Pre-RTl
+        " following-sibling::*[1][self::w:r[w:rPr/w:rtl and w:t]]"  # Pre-RTL
         "  and"
         " w:t["
         "  @xml:space='preserve'"  # With whitespace at edge
@@ -309,12 +309,9 @@ class Proof(DocxWorker):
             assert self._is_rtl(rnode.getnext())
             assert self._is_rtl(rnode.getprevious())
 
-            rprev = rnode.getprevious()
-            new_text = self._rnode_text(rprev) + self._rnode_text(rnode)
-            self._set_rnode_text(rprev, new_text)
-            rnode.getparent().remove(rnode)
-            self._count("rtlized islands", rprev)
-        return self.counts["rtlized"] > 0
+            self._find(rnode, "w:rPr").append(self._w_rtl())
+            self._count("rtlized islands", rnode)
+        return self.counts["rtlized islands"] > 0
 
     def _fix_rtl_formulas(self):
         """Fix RTL (parts) of formulas"""
@@ -480,6 +477,10 @@ class Proof(DocxWorker):
     def _w_i(self) -> etree._Entity:
         """Create <w:i> node"""
         return self.root.makeelement(self.wtag("i"))
+
+    def _w_rtl(self) -> etree._Entity:
+        """Create <w:rtl> node"""
+        return self.root.makeelement(self.wtag("rtl"))
 
     @classmethod
     def _rnode_text(cls, rnode: etree._Entity) -> str:
