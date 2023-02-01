@@ -249,9 +249,9 @@ class Proof(DocxWorker):
         worked = False
         if self._find_styles():
             worked = self._fix_rtl_formulas() or worked
-            worked = self._fix_islands() or worked
             worked = self._italicize_math() or worked
             self._note_suspects()
+        worked = self._fix_islands() or worked
         self._check_antidict()
         self._scan_images()
 
