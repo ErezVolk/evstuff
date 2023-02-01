@@ -61,7 +61,7 @@ function ri_run(ri) {
   ri_enable_grep(ri);
   ri_restore_reflow(ri);
   if (ri.uig_groom.checkedState) {
-    ri_groom_shrink_tables(ri);
+    ri_groom_resize_tables(ri);
     ri_groom_fix_masters(ri);
     ri_groom_update_toc(ri);
   }
@@ -201,8 +201,8 @@ function ri_get_options(ri) {
 
       with (ri.uig_groom = enablingGroups.add({staticLabel: "Grooming", checkedState: true})) {
         with (dialogColumns.add() ) {
-          ri.ui_groom_shrink_tables = checkboxControls.add({
-            staticLabel: "Shrink tables to frame width",
+          ri.ui_groom_resize_tables = checkboxControls.add({
+            staticLabel: "Resize tables to frame width",
             checkedState: !ri.saved_settings.dont_shrink_tables,
           });
           ri.ui_groom_fully_justify =
@@ -363,7 +363,7 @@ function ri_do_import(ri) {
     a_master: ri.a_master_name,
     b_master: ri.b_master_name,
     dont_import_images: !ri.ui_import_images.checkedState,
-    dont_shrink_tables: !ri.ui_groom_shrink_tables.checkedState,
+    dont_shrink_tables: !ri.ui_groom_resize_tables.checkedState,
     hide_import_options: !ri.ui_import_options.checkedState,
     keep_grep: !ri.ui_disable_grep.checkedState,
     keep_reflow: !ri.ui_disable_reflow.checkedState,
@@ -595,8 +595,8 @@ function ri_post_it_object_style(ri) {
   return style;
 }
 
-function ri_groom_shrink_tables(ri) {
-  if (!ri.ui_groom_shrink_tables.checkedState)
+function ri_groom_resize_tables(ri) {
+  if (!ri.ui_groom_resize_tables.checkedState)
     return;
 
   var pages = ri.doc.pages;
@@ -606,13 +606,11 @@ function ri_groom_shrink_tables(ri) {
     var tables = frame.tables.everyItem().getElements();
     for (var j = tables.length - 1; j >= 0; --j) {
       var table = tables[j];
-      if (table.width > max_width) {
-        var columns = table.columns;
-        var num_columns = columns.length
-        var new_width = max_width / num_columns;
-        for (var k = 0; k < num_columns; ++k) {
-          columns[k].width = new_width;
-        }
+      var columns = table.columns;
+      var num_columns = columns.length
+      var new_width = max_width / num_columns;
+      for (var k = 0; k < num_columns; ++k) {
+        columns[k].width = new_width;
       }
     }
   }
