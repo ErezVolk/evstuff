@@ -609,6 +609,9 @@ function ri_groom_resize_tables(ri) {
   var pages = ri.doc.pages;
   for (var i = pages.length - 1; i >= 0; --i) {
     var frame = ri_main_frame(ri, pages[i]);
+    if (frame == null)
+      continue;
+
     var max_width = frame.geometricBounds[3] - frame.geometricBounds[1];
     var tables = frame.tables.everyItem().getElements();
     for (var j = tables.length - 1; j >= 0; --j) {
@@ -924,6 +927,8 @@ function ri_restore_reflow(ri) {
 
 function ri_main_frame(ri, page) {
   var frames = page.textFrames;
+  if (frames == null)
+    return null;
   for (var i = 0; i < frames.length; ++ i) {
     try {
       var frame = frames[i];
