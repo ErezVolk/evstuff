@@ -15,6 +15,8 @@ from lxml import etree
 
 from docx_worker import DocxWorker
 
+# TODO: Hebrew Maqaf
+
 
 class Proof(DocxWorker):
     """Checks things in .docx files."""
@@ -472,7 +474,10 @@ class Proof(DocxWorker):
 
     def _add_to_rprops(self, rnode: etree._Entity, tag: str):
         """Add the italic/rtl/etc. tag"""
-        self._find(rnode, "w:rPr").append(self._new_w(tag))
+        props = self._find(rnode, "w:rPr")
+        if props is None:
+            props = self._new_w("rPr")
+        props.append(self._new_w(tag))
 
     def _new_w(self, tag: str) -> etree._Entity:
         """Create <w:*> node"""

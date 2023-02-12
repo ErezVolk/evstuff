@@ -393,7 +393,15 @@ function ri_do_images(ri) {
   app.findGrepPreferences.findWhat = "\\S+";
   app.findGrepPreferences.appliedCharacterStyle = image_ref_style;
 
-  var refs = app.findGrep();
+  var where = app;
+  try {
+    var page = ri.doc.pages[0];
+    var frame = ri_main_frame(ri, page)
+    where = frame.parentStory;
+  } catch (e) {
+  }
+
+  var refs = where.findGrep();
   for (var i = 0; i < refs.length; ++ i) {
     var ref = refs[i];
     var path = File(ri.doc.filePath + "/" + ref.contents);
@@ -402,7 +410,6 @@ function ri_do_images(ri) {
       ri.doc.place(path);
     } catch(e) {
       ri.messages.push('Could not import image ' + path + ': ' + e);
-      ri.messages.push('Giving up on image conversion.');
     }
   }
 
