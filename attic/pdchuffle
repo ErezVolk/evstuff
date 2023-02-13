@@ -2,7 +2,6 @@
 """Shuffle chapters in a PDF file"""
 from argparse import ArgumentParser
 from argparse import Namespace
-import itertools
 from pathlib import Path
 import pickle
 
@@ -158,27 +157,13 @@ def randomize(args: Namespace) -> npr.Generator | None:
     return generator
 
 
-def num_to_idx(num, n_chaps):
+def num_to_idx(num: int, n_chaps: int) -> int:
     """Convert, e.g., --first-chapter=1 to 0"""
     if num > 0:
         return num - 1
     if num < 0:
         return n_chaps + num
     return 0
-
-
-def pairwise(iterable):
-    """Return successive overlapping pairs taken from the input iterable.
-
-    Added in Python 3.10.
-    """
-    try:
-        return itertools.pairwise(iterable)
-    except AttributeError:
-        # pairwise('ABCDEFG') --> AB BC CD DE EF FG
-        a_iter, b_iter = itertools.tee(iterable)
-        next(b_iter, None)
-        return zip(a_iter, b_iter)
 
 
 if __name__ == "__main__":
