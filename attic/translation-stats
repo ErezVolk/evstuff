@@ -89,12 +89,12 @@ def main():
 
     ohw_min = plats["O-W/H"].min()
     ohw_max = plats["O-W/H"].max()
-    print(plats.iloc[:2])
-    print(stats.iloc[:2])
-    stats["histogram"] = [
+    hcol = f"histogram ({int(ohw_min)}..{int(ohw_max)})"
+    stats[hcol] = [
         histogram(
             plats[plats.Lg.str.startswith(row.Lg) & (plats["T/E"] == row["T/E"])]["O-W/H"],
             min_max=(ohw_min, ohw_max),
+            bins=len(hcol),
         )
         for _, row in stats.reset_index().iterrows()
     ]
@@ -121,7 +121,7 @@ def time_to_hours(timestamp: str or time or datetime, state: dict) -> float:
     return float("nan")
 
 
-def histogram(values: npt.ArrayLike, bins=12, min_max=None) -> str:
+def histogram(values: npt.ArrayLike, bins=20, min_max=None) -> str:
     """Make an ASCII histogram"""
     counts, _ = np.histogram(np.asarray(values), bins=bins, range=min_max)
     if np.all(counts == 0):
