@@ -7,6 +7,8 @@ from functools import partial
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import seaborn as sns
 
@@ -39,8 +41,8 @@ def main():
     lgs["O-C/T-GD+"] = lgs["O-Chars"] / lgs["T-GD+"]
     lgs["O-C/O-W"] = (lgs["O-Chars"] / lgs["O-Words"]).round(1)
 
-    stats = sheet[sheet.Hours.notna()]
-    stats = stats.groupby(["Lg", "T/E"]).sum(numeric_only=True)
+    sheet = sheet[sheet.Hours.notna()]
+    stats = sheet.groupby(["Lg", "T/E"]).sum(numeric_only=True)
     stats["O-W/H"] = (stats["O-Words"] / stats["Hours"]).round(0).astype(int)
 
     stats["lgow"] = stats.groupby("Lg")["O-Words"].transform("sum")
@@ -84,6 +86,18 @@ def main():
     for col in stats.columns:
         if col != "O-C/O-W":
             stats[col] = stats[col].map(lambda val: f"{val:,.0f}")
+
+    ohw_min = plats["O-W/H"].min()
+    ohw_max = plats["O-W/H"].max()
+    print(plats.iloc[:2])
+    print(stats.iloc[:2])
+    stats["histogram"] = [
+        histogram(
+            plats[plats.Lg.str.startswith(row.Lg) & (plats["T/E"] == row["T/E"])]["O-W/H"],
+            min_max=(ohw_min, ohw_max),
+        )
+        for _, row in stats.reset_index().iterrows()
+    ]
     print(stats.to_string(index_names=False))
     print(datetime.utcnow())
 
@@ -91,20 +105,34 @@ def main():
         plt.show(block=True)
 
 
-def time_to_hours(timestamp: str or time or datetime, state: dict) -> float or None:
+def time_to_hours(timestamp: str or time or datetime, state: dict) -> float:
     """Time cell is either `datetime.time` or `datetime.datetime` (if >24h).
 
     This coverts both to hours (float).
     """
     n_times = state["n_times"] = state.get("n_times", 0) + 1
     if not timestamp:
-        return None
+        return float("nan")
     if isinstance(timestamp, time):
         return timestamp.hour + timestamp.minute / 60 + timestamp.second / 3600
     if isinstance(timestamp, datetime):
         return (timestamp - EPOCH_DATETIME).total_seconds() / 3600
     print(f"[Time:{n_times + 1}] Warning: Cannot parse timestamp {repr(timestamp)}")
-    return None
+    return float("nan")
+
+
+def histogram(values: npt.ArrayLike, bins=12, min_max=None) -> str:
+    """Make an ASCII histogram"""
+    counts, _ = np.histogram(np.asarray(values), bins=bins, range=min_max)
+    if np.all(counts == 0):
+        eighths = counts
+    else:
+        eighths = np.rint(counts * 8 / np.max(counts)).astype(int)
+    chars = [
+        "." if e == 0 else chr(0x2580 + e)
+        for e in eighths
+    ]
+    return "".join(chars)
 
 
 if __name__ == "__main__":
