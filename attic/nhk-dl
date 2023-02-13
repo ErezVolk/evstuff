@@ -1,4 +1,4 @@
 #!/bin/sh
 # caffeinate youtube-dl https://nhkwlive-fo-xjp.akamaized.net/hls/live/2003458/nhkwlive-xjp/index_1M.m3u8
 # caffeinate youtube-dl https://nhkwlive-xjp.akamaized.net/hls/live/2003458/nhkwlive-xjp-en/index_1M.m3u8
-caffeinate yt-dlp --downloader ffmpeg --hls-use-mpegts https://nhkwlive-xjp.akamaized.net/hls/live/2003458/nhkwlive-xjp-en/index_1M.m3u8
+caffeinate -ims yt-dlp --downloader ffmpeg --hls-use-mpegts https://nhkwlive-xjp.akamaized.net/hls/live/2003458/nhkwlive-xjp-en/index_1M.m3u8
