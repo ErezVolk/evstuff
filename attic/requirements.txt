@@ -1,0 +1,12 @@
+black
+fitz
+jupyterlab
+lxml
+mutagen
+pandas
+pylint
+pymupdf
+pyright
+python-bidi
+seaborn
+xlrd
