@@ -9,7 +9,7 @@ set list
 set ruler
 
 nnoremap <CR> :noh<CR><CR>
-nnoremap <F8> :SyntasticCheck flake8 pylint mypy<CR>
+"nnoremap <F8> :SyntasticCheck flake8 pylint mypy<CR>
 nnoremap <F8> :ALELint<CR>
 
 let g:syntastic_python_checkers=['flake8']

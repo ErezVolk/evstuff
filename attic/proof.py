@@ -252,6 +252,7 @@ class Proof(DocxWorker):
         if self._find_styles():
             worked = self._fix_rtl_formulas() or worked
             worked = self._italicize_math() or worked
+            worked = self._nbspize_math() or worked
             self._note_suspects()
         worked = self._fix_islands() or worked
         self._check_antidict()
@@ -302,6 +303,19 @@ class Proof(DocxWorker):
             rnode.getparent().remove(rnode)
 
         return self.counts[self.TOTAL_ITALICIZED_KEY] > 0
+
+    def _nbspize_math(self) -> bool:
+        """Convert regular spaces in formulas to NBSP"""
+        expr = (
+            f"//w:r["
+            f" w:rPr[w:rStyle[@w:val='{self.formula_style_id}']]"  # Formula style
+            f"]/w:t[re:test(., ' ')]"  # Contains spaces
+        )
+        for tnode in self.xpath(self.root, expr):
+            tnode.text = tnode.text.replace(" ", "\xA0")
+            self._count("nbsp")
+
+        return self.counts["nbsp"] > 0
 
     def _fix_islands(self) -> bool:
         """Find islands of LTR whitespace in RTL"""
