@@ -149,6 +149,8 @@ export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH="$PATH:/usr/local/opt/qt/bin"
 
+export PYRIGHT_PYTHON_FORCE_VERSION="latest"
+
 autoload -U zmv
 
 function pman() { groff -Tpdf -mandoc -c `man -w "$@"` | open -f -a "Preview" ;}
