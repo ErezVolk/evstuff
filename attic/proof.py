@@ -63,7 +63,13 @@ class Proof(DocxWorker):
             "-D",
             "--dict-style",
             default="מְנֻקָּד",
-            help="Style name for anti-anti-dict",
+            help="Style name for anti-spellcheck style",
+        )
+        parser.add_argument(
+            "-R",
+            "--rtl-style",
+            default="מימין לשמאל",
+            help="Style name for forced RTL",
         )
         parser.add_argument(
             "--force",
@@ -140,7 +146,7 @@ class Proof(DocxWorker):
         " w:t[re:test(., '" + SUSPECT_RE + "')]"  # Formula-like
         "]"
     )
-    ISLAND_XPATH = (
+    WEIRD_LTR_SPACE_XPATH = (
         "//w:r["
         " not(w:rPr/w:rtl)"  # Is LTR text
         "  and"
@@ -249,12 +255,13 @@ class Proof(DocxWorker):
     def _proof(self) -> bool:
         """Does the heavly lifting on self.doc"""
         worked = False
-        if self._find_styles():
+        if self.find_formula_style():
             worked = self._fix_rtl_formulas() or worked
             worked = self._italicize_math() or worked
             worked = self._nbspize_math() or worked
             self._note_suspects()
-        worked = self._fix_islands() or worked
+        worked = self._fix_weird_ltr_spaces() or worked
+        worked = self._force_rtl_islands() or worked
         self._check_antidict()
         self._scan_images()
 
@@ -317,17 +324,47 @@ class Proof(DocxWorker):
 
         return self.counts["nbsp"] > 0
 
-    def _fix_islands(self) -> bool:
+    def _fix_weird_ltr_spaces(self) -> bool:
         """Find islands of LTR whitespace in RTL"""
-        for rnode in self.xpath(self.root, self.ISLAND_XPATH):
-            # ISLAND_XPATH takes care of these, but I can't read it
+        for rnode in self.xpath(self.root, self.WEIRD_LTR_SPACE_XPATH):
+            # WEIRD_LTR_SPACE_XPATH takes care of these, but I can't read it
             assert self._rnode_text(rnode).isspace()
             assert self._is_rtl(rnode.getnext())
             assert self._is_rtl(rnode.getprevious())
 
             self._add_to_rprops(rnode, "rtl")
-            self._count("rtlized islands", rnode)
-        return self.counts["rtlized islands"] > 0
+            self._count("rtlized spaces", rnode)
+        return self.counts["rtlized spaces"] > 0
+
+    def _force_rtl_islands(self) -> bool:
+        """Find things which should be forced to be RTL"""
+        style_id = self.find_style_id(self.args.rtl_style)
+        if not style_id:
+            return False
+        expr = (
+            "//w:r["
+            " w:rPr["
+            "  w:rtl"  # Is RTL
+            "   and"
+            "  not(w:rStyle)"  # Unstyled
+            " ]"
+            "  and"
+            " preceding-sibling::*[1][self::w:r[not(w:rPr/w:rtl)]]"  # Post-LTR
+            "  and"
+            " following-sibling::*[1]["
+            "  self::w:r[not(w:rPr/w:rtl)]"  # Pre-LTR
+            # "  self::w:r[w:t[re:test(., '^[^א-ת]+$')]]"  # Pre-non-RTL
+            " ]"
+            "  and"
+            " w:t["
+            "   re:test(., '^[^א-ת]+$')"  # No directional characters
+            " ]"
+            "]"
+        )
+        for rnode in self.xpath(self.root, expr):
+            self._add_rstyle(rnode, style_id)
+            self._count("force rtl", rnode)
+        return self.counts["force rtl"] > 0
 
     def _fix_rtl_formulas(self):
         """Fix RTL (parts) of formulas"""
@@ -413,8 +450,8 @@ class Proof(DocxWorker):
         """Checks whether a <w:r> node is RTL"""
         return self._first(rnode, "./w:rPr/w:rtl") is not None
 
-    def _find_styles(self) -> bool:
-        """Find the right styles, set `self.italicable_xpath`"""
+    def find_formula_style(self) -> bool:
+        """Find the formula style"""
         formula_style_id = self.find_style_id(self.args.style)
         if formula_style_id is None:
             print(f'No style named "{self.args.style}" in {self.args.input}')
@@ -486,6 +523,13 @@ class Proof(DocxWorker):
         print(f"{src} -> {dst}")
         shutil.copy(src, dst)
 
+    def _add_rstyle(self, rnode: etree._Entity, style_id: str):
+        """Add w:rStyle tag. tag"""
+        props = self._find(rnode, "w:rPr")
+        if props is None:
+            props = self._new_w("rPr")
+        props.append(self._new_w("rStyle", attrib={"val": style_id}))
+
     def _add_to_rprops(self, rnode: etree._Entity, tag: str):
         """Add the italic/rtl/etc. tag"""
         props = self._find(rnode, "w:rPr")
@@ -493,9 +537,11 @@ class Proof(DocxWorker):
             props = self._new_w("rPr")
         props.append(self._new_w(tag))
 
-    def _new_w(self, tag: str) -> etree._Entity:
+    def _new_w(self, tag: str, attrib: dict[str, str] | None = None) -> etree._Entity:
         """Create <w:*> node"""
-        return self.root.makeelement(self.wtag(tag))
+        if attrib:
+            attrib = {self.wtag(key): val for key, val in attrib.items()}
+        return self.root.makeelement(self.wtag(tag), attrib=attrib)
 
     @classmethod
     def _rnode_text(cls, rnode: etree._Entity) -> str:
