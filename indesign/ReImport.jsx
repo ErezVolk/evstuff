@@ -48,8 +48,8 @@ function ri_run(ri) {
     ri_post_clear_overrides(ri);
     ri_reset_searches(ri);
     ri_post_fix_spaces(ri);
+    ri_post_fix_specific_fonts(ri);
     ri_post_fix_dashes(ri);
-    ri_post_fix_vav(ri);
     ri_post_remove_footnote_whitespace(ri);
     ri_post_convert_post_its(ri);
     ri_reset_searches(ri);
@@ -176,15 +176,15 @@ function ri_get_options(ri) {
               staticLabel: "Eliminate multiple spaces",
               checkedState: true,
             });
+          ri.ui_post_fix_specific_fonts =
+            checkboxControls.add({
+              staticLabel: "Fixes for specific Hebrew fonts",
+              checkedState: !ri.saved_settings.unfix_specific_fonts,
+            });
           ri.ui_post_fix_dashes =
             checkboxControls.add({
               staticLabel: "Fix spacing around dashes",
               checkedState: true,
-            });
-          ri.ui_post_fix_vav =
-            checkboxControls.add({
-              staticLabel: "Use VAV WITH HOLAM glyph",
-              checkedState: !ri.saved_settings.unfix_vav,
             });
           ri.ui_post_remove_footnote_whitespace =
             checkboxControls.add({
@@ -369,7 +369,7 @@ function ri_do_import(ri) {
     keep_reflow: !ri.ui_disable_reflow.checkedState,
     unfix_justification: !ri.ui_groom_fully_justify.checkedState,
     unfix_masters: !ri.ui_groom_fix_masters,
-    unfix_vav: !ri.ui_post_fix_vav,
+    unfix_specific_fonts: !ri.ui_post_fix_specific_fonts,
     unkeep_masters: !ri.ui_groom_keep_masters,
     unupdate_toc: !ri.ui_groom_update_toc,
   })
@@ -447,23 +447,33 @@ function ri_post_fix_dashes(ri) {
   if (!ri.ui_post_fix_dashes.checkedState)
     return;
 
-  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+([-+~=/]+)", "~S$1");
-  ri_change_grep(ri, "([-+~=/]+)[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "$1 ");
+  ri_change_grep(ri, "[~m~>~f~|~s~<~/~.~3~4~% ~k]+([-+~=~_/]+)", "~S$1");
+  ri_change_grep(ri, "([-+~=~_/]+)[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+", "$1 ");
 }
 
-function ri_post_fix_vav(ri) {
-  if (!ri.ui_post_fix_vav.checkedState)
+function ri_post_fix_specific_fonts(ri) {
+  if (!ri.ui_post_fix_specific_fonts.checkedState)
     return;
 
+  // VAV WITH HOLAM in Hadassah Friedlaender
   ri_fix_vav_in_font(ri, "Hadassah Friedlaender");
-
   ri_change_grep(ri, "([^~m~>~f~|~S~s~<~/~.~3~4~% ~k])(\\x{FB4B})", "$1~j$2");
   ri_change_grep(ri, "(\\x{FB4B})([^~m~>~f~|~S~s~<~/~.~3~4~% ~k])", "$1~j$2");
+
+  // Em-dash in MF_FrankRuhl
+  ri_en_to_em_dash_in_font(ri, "MF_FrankRuhl")
 }
 
 function ri_fix_vav_in_font(ri, fontname) {
   app.findGrepPreferences.appliedFont = fontname;
   ri_change_grep(ri, "\\x{05D5}\\x{05B9}", "\\x{FB4B}");
+  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ~k]+([-+~=/]+)", "~S$1");
+  app.findGrepPreferences = NothingEnum.nothing;
+}
+
+function ri_en_to_em_dash_in_font(ri, fontname) {
+  app.findGrepPreferences.appliedFont = fontname;
+  ri_change_grep(ri, "([~m~>~f~|~S~s~<~/~.~3~4~% ~k])(~=)", "$1~_");
   app.findGrepPreferences = NothingEnum.nothing;
 }
 
