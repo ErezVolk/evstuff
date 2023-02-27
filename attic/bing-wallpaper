@@ -83,12 +83,17 @@ class BingWallpaper:
 
     def download(self, country_code):
         """Download today's image from a specific country code."""
-        page_r = requests.get(f"{self.BASE}?cc={country_code}", timeout=self.args.timeout)
+        url = f"{self.BASE}?cc={country_code}"
+        page_r = requests.get(url, timeout=self.args.timeout)
         if page_r.status_code != requests.codes.ok:
             return
 
         parser = lxml.etree.HTMLParser()
-        html = lxml.etree.parse(StringIO(page_r.text), parser)
+        try:
+            html = lxml.etree.parse(StringIO(page_r.text), parser)
+        except lxml.etree.XMLSyntaxError:
+            print(f"ERROR: Invalid HTML (length={len(page_r.text)}) returned from {url}")
+            return
         for node in html.xpath('./head/link[@as="image"]'):
             if node.get("id") not in ("preloadBg", "bgLink"):
                 continue

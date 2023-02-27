@@ -136,7 +136,7 @@ def main():
         print(f"Generating audio (number of paragraphs: {len(paras)})")
         stem = args.stem or args.output.stem
         aiff = args.output.with_suffix(".aiff")
-        pause_to_gap = {2: 3.0, 1: 0.5, 0: 0.0}
+        pause_to_gap = {2: 3.0, 1: 1.0, 0: 0.0}
         for para, row in paras.iterrows():
             if args.first and para < args.first:
                 continue
