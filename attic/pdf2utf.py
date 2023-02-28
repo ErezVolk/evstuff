@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """Currently only geared to a specific PDF"""
 import argparse
+from functools import partial
+import html
 from pathlib import Path
 import pickle
+import re
 import subprocess
 
 import numpy as np
 import pandas as pd
 import fitz
+
+
+PAUSE_TO_GAP_MS = {2: 3000, 1: 1000}
 
 
 def main():
@@ -21,7 +27,9 @@ def main():
     parser.add_argument("input", type=Path, **input_kwargs)
     parser.add_argument("output", type=Path, nargs="?")
     parser.add_argument("-d", "--debug", action="store_true")
-    parser.add_argument("-v", "--voice")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-v", "--macos-voice")
+    group.add_argument("-g", "--google-voice")
     parser.add_argument("-s", "--stem")
     parser.add_argument("-f", "--first", type=int)
     parser.add_argument("-l", "--last", type=int)
@@ -29,6 +37,10 @@ def main():
 
     if not args.output:
         args.output = args.input.with_suffix(".utf8")
+
+    if args.google_voice and args.google_voice.endswith("?"):
+        list_google_voices(args.google_voice[:-1])
+        return
 
     print(f"Reading {args.input}")
     doc = fitz.Document(args.input)
@@ -97,19 +109,19 @@ def main():
         if curr_tmap.sum() == 0:
             break
         next_tmap = curr_tmap.shift(1, fill_value=False)
-        merged = book.loc[curr_tmap].join(
+        mrg = book.loc[curr_tmap].join(
             book.loc[next_tmap].set_index(book.index[curr_tmap]),
-            rsuffix="_next",
+            rsuffix="_n",
         )
-        merged["text"] = merged[["text", "text_next"]].astype(str).agg("".join, axis=1)
-        same_tmap = merged.page_number == merged.page_number_next
-        merged.loc[same_tmap, "left"] = merged[["left", "left_next"]].min(axis=1)
-        merged.loc[same_tmap, "top"] = merged[["top", "top_next"]].min(axis=1)
-        merged.loc[same_tmap, "right"] = merged[["right", "right_next"]].max(axis=1)
-        merged.loc[same_tmap, "bottom"] = merged[["bottom", "bottom_next"]].max(axis=1)
+        mrg["text"] = mrg[["text", "text_n"]].astype(str).agg("".join, axis=1)
+        same_tmap = mrg.page_number == mrg.page_number_n
+        mrg.loc[same_tmap, "left"] = mrg[["left", "left_n"]].min(axis=1)
+        mrg.loc[same_tmap, "top"] = mrg[["top", "top_n"]].min(axis=1)
+        mrg.loc[same_tmap, "right"] = mrg[["right", "right_n"]].max(axis=1)
+        mrg.loc[same_tmap, "bottom"] = mrg[["bottom", "bottom_n"]].max(axis=1)
 
         merge_cols = ["text", "left", "top", "right", "bottom"]
-        book.loc[curr_tmap, merge_cols] = merged[merge_cols]
+        book.loc[curr_tmap, merge_cols] = mrg[merge_cols]
         book.drop(labels=book.index[next_tmap], inplace=True)
 
     book.drop(book.index[book.height == "l"], inplace=True)  # Allende
@@ -138,29 +150,96 @@ def main():
             elif row.pause == 1:
                 fobj.write("\n\n")
 
-    if args.voice:
+    tts = None
+    if args.macos_voice:
+        tts = partial(macos_tts, voice=args.voice)
+    elif args.google_voice:
+        name = args.google_voice
+        tts = partial(google_tts, name=name)
+
+    if tts is not None:
         print(f"Generating audio (number of paragraphs: {len(paras)})")
         stem = args.stem or args.output.stem
-        aiff = args.output.with_suffix(".aiff")
-        pause_to_gap = {2: 2400, 1: 400, 0: 0}
         for para, row in paras.iterrows():
             if args.first and para < args.first:
                 continue
             if args.last and para > args.last:
                 break
-            path = args.output.with_name(f"{stem}-{para:04d}.mp3")
-            subprocess.run([
-                "say",
-                "-v", args.voice,
-                "-o", str(aiff),
-                f"[[slnc 600]] {row.text} [[slnc {pause_to_gap[row.pause]}]]",
-            ], check=True)
-            subprocess.run([
-                "sox",
-                str(aiff),
-                str(path),
-            ], check=True)
-            aiff.unlink()
+            tts(
+                text=row.text,
+                pause=row.pause,
+                path=args.output.with_name(f"{stem}-{para:04d}.mp3"),
+            )
+
+
+def macos_tts(voice: str, text: str, pause: int, path: Path):
+    """TTS using MacOS's `say (1)` and `sox`."""
+    aiff = path.with_suffix(".aiff")
+    subprocess.run([
+        "say",
+        "-v", voice,
+        "-o", str(aiff),
+        f"[[slnc 600]] "
+        f"{text} "
+        f"[[slnc {PAUSE_TO_GAP_MS[pause] - 600}]]",
+    ], check=True)
+    subprocess.run([
+        "sox",
+        str(aiff),
+        str(path),
+    ], check=True)
+    aiff.unlink()
+
+
+gstate = {}
+
+
+def list_google_voices(prefix: str):
+    """List Google cloud voices"""
+    from google.cloud import texttospeech as tts
+
+    print(f"Asking Google for voices starting with {repr(prefix)}...")
+    client = tts.TextToSpeechClient()
+    for voice in client.list_voices().voices:
+        if any(lang.startswith(prefix) for lang in voice.language_codes):
+            print(
+                voice.name,
+                voice.ssml_gender.name,
+                "".join(voice.language_codes),
+            )
+
+
+def google_tts(name: str, text: str, pause: int, path: Path):
+    """TTS using Google cloud."""
+    from google.cloud import texttospeech as tts
+    PRE_GAP_MS = 0
+
+    if "client" not in gstate:
+        gstate["client"] = tts.TextToSpeechClient()
+        gstate["voice"] = tts.VoiceSelectionParams(
+            name=name,
+            language_code=re.sub(r"^([a-z][a-z]-[A-Z][A-Z])", r"\1", name),
+        )
+
+    parts = []
+    if PRE_GAP_MS > 0:
+        parts.append(f"""<break time="{PRE_GAP_MS}ms"/>""")
+    parts.extend([
+        "<speak>",
+        html.escape(text),
+        "</speak>",
+        f"""<break time="{PAUSE_TO_GAP_MS[pause] - PRE_GAP_MS}ms"/>""",
+    ])
+
+    response = gstate["client"].synthesize_speech(request={
+        "voice": gstate["voice"],
+        "audio_config": tts.AudioConfig(audio_encoding=tts.AudioEncoding.MP3),
+        "input": tts.SynthesisInput(ssml="".join(parts))
+    })
+
+    print(path, "...")
+    with open(path, "wb") as ofo:
+        ofo.write(response.audio_content)
 
 
 def write_pickle(obj, path):

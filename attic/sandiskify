@@ -98,7 +98,7 @@ def main():
                 if args.artist:
                     set_tag(id3, TPE1(encoding=3, text=args.artist))
                 if cover:
-                    rem = re.search(r"\D((\d+)?[-_ ]\d+)$", path.stem)
+                    rem = re.search(r"\D((\d+[-_ ])?\d+)$", path.stem)
                     if rem is not None:
                         image = cover.copy()
                         ImageDraw.Draw(image).text(
