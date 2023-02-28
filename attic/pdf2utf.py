@@ -152,19 +152,23 @@ def main():
 
     tts = None
     if args.macos_voice:
-        tts = partial(macos_tts, voice=args.voice)
+        tts = partial(macos_tts, voice=args.macos_voice)
     elif args.google_voice:
         name = args.google_voice
         tts = partial(google_tts, name=name)
 
     if tts is not None:
-        print(f"Generating audio (number of paragraphs: {len(paras)})")
+        tosay = paras
+        if args.first:
+            tosay = tosay.loc[tosay.index >= args.first]
+        if args.last:
+            tosay = tosay.loc[tosay.index <= args.last]
+        if len(tosay) < len(paras):
+            print(f"TTS (paragraphs: {len(tosay)} of {len(paras)})")
+        else:
+            print(f"TTS (paragraphs: {len(tosay)})")
         stem = args.stem or args.output.stem
-        for para, row in paras.iterrows():
-            if args.first and para < args.first:
-                continue
-            if args.last and para > args.last:
-                break
+        for para, row in tosay.iterrows():
             tts(
                 text=row.text,
                 pause=row.pause,
@@ -237,7 +241,6 @@ def google_tts(name: str, text: str, pause: int, path: Path):
         "input": tts.SynthesisInput(ssml="".join(parts))
     })
 
-    print(path, "...")
     with open(path, "wb") as ofo:
         ofo.write(response.audio_content)
 
