@@ -23,6 +23,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=Path, nargs="?", help="Input PDF file")
     parser.add_argument("output", type=Path, nargs="?", help="Output text file")
+    parser.add_argument("-f", "--first-page", type=int, help="First page to convert")
+    parser.add_argument("-l", "--last-page", type=int, help="Last page to convert")
     parser.add_argument("-d", "--debug", action="store_true")
 
     group = parser.add_mutually_exclusive_group()
@@ -30,8 +32,8 @@ def main():
     group.add_argument("-g", "--google-voice", help="Generate audiobook using Google")
 
     parser.add_argument("-s", "--stem", help="Audio filename prefix")
-    parser.add_argument("-f", "--first", type=int, help="First audio paragraph")
-    parser.add_argument("-l", "--last", type=int, help="Last audio paragraph")
+    parser.add_argument("-F", "--first-paragraph", type=int, help="First audio paragraph")
+    parser.add_argument("-L", "--last-paragraph", type=int, help="Last audio paragraph")
     args = parser.parse_args()
 
     if not args.input:
@@ -82,6 +84,11 @@ def main():
 
     if args.debug:
         write_pickle(book, args.output, "raw")
+
+    if args.first_page:
+        book.drop(book.index[book.page_no < args.first_page], inplace=True)
+    if args.last_page:
+        book.drop(book.index[book.page_no > args.last_page], inplace=True)
 
     # Lose printer's marks and page numbers (not very generic)
     book.drop(book.index[book.text.str.contains(".indd")], inplace=True)
@@ -197,10 +204,10 @@ def main():
 
     if tts is not None:
         tosay = paras
-        if args.first:
-            tosay = tosay.loc[tosay.index >= args.first]
-        if args.last:
-            tosay = tosay.loc[tosay.index <= args.last]
+        if args.first_paragraph:
+            tosay = tosay.loc[tosay.index >= args.first_paragraph]
+        if args.last_paragraph:
+            tosay = tosay.loc[tosay.index <= args.last_paragraph]
         if len(tosay) < len(paras):
             print(f"TTS (paragraphs: {len(tosay)} of {len(paras)})")
         else:
