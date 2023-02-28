@@ -14,26 +14,33 @@ import fitz
 
 
 PAUSE_TO_GAP_MS = {2: 3000, 1: 1000}
+THIS = Path(__file__).stem
+NON_LOWER_RE = r"[^a-z\xDF-\xF6\xF8-\xFF]"
+HEADER_RE = f"{NON_LOWER_RE}*[A-Z]{NON_LOWER_RE}*"
 
 
 def main():
-    try:
-        only_pdf_here, = Path.cwd().glob("*.pdf")
-        input_kwargs = {"default": only_pdf_here}
-    except ValueError:
-        input_kwargs = {}
-
     parser = argparse.ArgumentParser()
-    parser.add_argument("input", type=Path, **input_kwargs)
-    parser.add_argument("output", type=Path, nargs="?")
+    parser.add_argument("input", type=Path, nargs="?", help="Input PDF file")
+    parser.add_argument("output", type=Path, nargs="?", help="Output text file")
     parser.add_argument("-d", "--debug", action="store_true")
+
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-v", "--macos-voice")
-    group.add_argument("-g", "--google-voice")
-    parser.add_argument("-s", "--stem")
-    parser.add_argument("-f", "--first", type=int)
-    parser.add_argument("-l", "--last", type=int)
+    group.add_argument("-v", "--macos-voice", help="Generate audiobook using MacOS")
+    group.add_argument("-g", "--google-voice", help="Generate audiobook using Google")
+
+    parser.add_argument("-s", "--stem", help="Audio filename prefix")
+    parser.add_argument("-f", "--first", type=int, help="First audio paragraph")
+    parser.add_argument("-l", "--last", type=int, help="Last audio paragraph")
     args = parser.parse_args()
+
+    if not args.input:
+        candidates = list(Path.cwd().glob("*.pdf"))
+        if len(candidates) != 1:
+            parser.error("Unable to guess input file name")
+
+        (args.input,) = candidates
+        input(f"Press Enter to process {repr(args.input.name)}...")
 
     if not args.output:
         args.output = args.input.with_suffix(".utf8")
@@ -44,51 +51,69 @@ def main():
 
     print(f"Reading {args.input}")
     doc = fitz.Document(args.input)
-    book = pd.DataFrame([
-        {
-            "page_label": page.get_label() or str(page_number),
-            "page_number": page_number,
-            "block": block[5],
-            "left": block[0],
-            "top": block[1],
-            "right": block[2],
-            "bottom": block[3],
-            "text": block[4].strip(),
-        } for page_number, page in enumerate(doc, 1)
-        for block in page.get_text(
-            "blocks",
-            clip=page.trimbox,
-            flags=fitz.TEXT_DEHYPHENATE | fitz.TEXT_PRESERVE_WHITESPACE,
-        )
-    ])
-
-    book["odd"] = (book.page_number % 2) == 1
-    book["height"] = (book.bottom - book.top).map(
-        lambda h: "s" if h < 13 else "l" if h > 15 else "n"
+    words = pd.DataFrame.from_records(
+        [
+            [page_no, page.get_label() or str(page_no)] + list(rec)
+            for page_no, page in enumerate(doc, 1)
+            for rec in page.get_text("words", clip=page.trimbox)
+        ],
+        columns=[
+            "page_no",
+            "page_label",
+            "left",
+            "top",
+            "right",
+            "bottom",
+            "word",
+            "block_no",
+            "line_no",
+            "word_no",
+        ],
     )
-    for height in book.height.unique():
-        tmap = book.height == height
-        book.loc[tmap, "left_margin"] = book[tmap].groupby(
-            "page_number"
-        ).left.transform("min")
+    book = words.groupby(["page_no", "page_label", "bottom"]).apply(lambda group: pd.Series({
+        "left": group.left.min(),
+        "right": group.right.max(),
+        "top": group.top.max(),
+        "text": " ".join(group.word),
+    })).reset_index()
+
+    book["odd"] = (book.page_no % 2) == 1
+    book["height"] = book.bottom - book.top
 
     if args.debug:
-        write_pickle(book, args.output.with_name("raw.pickle"))
+        write_pickle(book, args.output, "raw")
+
+    # Lose printer's marks and page numbers (not very generic)
+    book.drop(book.index[book.text.str.contains(".indd")], inplace=True)
+    book.drop(book.index[book.text == book.page_label], inplace=True)
+
+    common_height = book.height - most_common(book.height)
+    book["bigness"] = common_height.map(
+        lambda h: "s" if h < -5 else "n" if h < 5 else "l"
+    )
+    for bigness in book.bigness.unique():
+        tmap = book.bigness == bigness
+        book.loc[tmap, "left_margin"] = (
+            book[tmap].groupby("page_no").left.transform("min")
+        )
+
+    if args.debug:
+        write_pickle(book, args.output, "culled")
 
     # Merge drop caps (Allende)
-    drop_cap_tmap = (book.height == "l") & (book.text.str.len() == 1)
+    drop_cap_tmap = (book.bigness == "l") & (book.text.str.len() == 1)
     for loc in book.index[drop_cap_tmap]:
         drop = book.loc[loc]
         line = book.loc[loc + 1]
         book.loc[loc + 1, "text"] = f"{drop.text}{line.text}"
-        book.loc[
-            (
-                book.page_number == drop.page_number
-            ) & (
-                book.top.between(drop.top, drop.bottom)
-            ),
-            "left"
-        ] = line.left_margin
+        overlap = (
+            book.query(f"page_no == {drop.page_no}")
+            .query(
+                f"top.between({drop.top}, {drop.bottom})",
+            )
+            .index
+        )
+        book.loc[overlap, "left"] = line.left_margin
     book.drop(book.index[drop_cap_tmap], inplace=True)
 
     # Remove empty lines
@@ -99,13 +124,23 @@ def main():
 
     # Allende-specific
     book.drop(book.index[book.text.str.contains("\n")], inplace=True)
-    book.drop(book.index[book.height == "l"], inplace=True)
+    book.drop(book.index[book.bigness == "l"], inplace=True)
 
-    book["from_prev"] = book.groupby("page_number").bottom.diff()
+    book["from_prev"] = book.groupby("page_no").bottom.diff()
+
+    common_first_bottom = most_common(book.groupby("page_no").bottom.min())
+    common_last_bottom = most_common(book.groupby("page_no").bottom.max())
+    book["from_first_bottom"] = book.bottom - common_first_bottom
+    book["from_last_bottom"] = common_last_bottom - book.bottom
+
+    book["first_in_page"] = first_tmap = book.from_prev.isna()
+    book.loc[first_tmap, "from_prev"] = book[first_tmap].bottom - common_first_bottom
+    if args.debug:
+        write_pickle(book, args.output, "pre-merge")
 
     # Dehyphenate some more
     while True:
-        curr_tmap = book.text.str[-1].isin(["\xad", "\u20a0", "\u2011"])
+        curr_tmap = book.text.str[-1].isin(["\xad", "\u20a0", "\u2011", "-"])
         if curr_tmap.sum() == 0:
             break
         next_tmap = curr_tmap.shift(1, fill_value=False)
@@ -113,8 +148,9 @@ def main():
             book.loc[next_tmap].set_index(book.index[curr_tmap]),
             rsuffix="_n",
         )
-        mrg["text"] = mrg[["text", "text_n"]].astype(str).agg("".join, axis=1)
-        same_tmap = mrg.page_number == mrg.page_number_n
+        mrg["text_c"] = mrg.text.str[:-1]
+        mrg["text"] = mrg[["text_c", "text_n"]].astype(str).agg("".join, axis=1)
+        same_tmap = mrg.page_no == mrg.page_no_n
         mrg.loc[same_tmap, "left"] = mrg[["left", "left_n"]].min(axis=1)
         mrg.loc[same_tmap, "top"] = mrg[["top", "top_n"]].min(axis=1)
         mrg.loc[same_tmap, "right"] = mrg[["right", "right_n"]].max(axis=1)
@@ -124,13 +160,15 @@ def main():
         book.loc[curr_tmap, merge_cols] = mrg[merge_cols]
         book.drop(labels=book.index[next_tmap], inplace=True)
 
-    book.drop(book.index[book.height == "l"], inplace=True)  # Allende
+    book.drop(book.index[book.bigness == "l"], inplace=True)  # Allende
     book.drop(book.index[book.left_margin > 190], inplace=True)  # Allende
     book["from_left"] = book.left - book.left_margin
 
     book["pause"] = 0
-    book.loc[book.from_left > 15, "pause"] = 1
-    book.loc[book.from_prev > 30, "pause"] = 2
+    book.loc[book.from_left > 15, "pause"] = 1  # Allende
+    book.loc[book.from_prev > 30, "pause"] = 2  # Allende
+    book.loc[book.first_in_page & book.text.str.fullmatch(HEADER_RE), "pause"] = 2  # Allende(-ish)
+    book.at[book.index[0], "pause"] = 2  # Always start with a bang
     para_tmap = book.pause > 0
 
     book.loc[para_tmap, "para"] = np.arange(1, para_tmap.sum() + 1)
@@ -139,7 +177,7 @@ def main():
     paras = book.groupby("para").text.apply(" ".join).to_frame("text")
     paras["pause"] = book[para_tmap].pause.shift(-1, fill_value=0).to_numpy()
     if args.debug:
-        write_pickle(book, args.output.with_name("paras.pickle"))
+        write_pickle(book, args.output, "paras")
 
     print(f"Writing {args.output}")
     with open(args.output, "w", encoding="UTF-8") as fobj:
@@ -179,19 +217,25 @@ def main():
 def macos_tts(voice: str, text: str, pause: int, path: Path):
     """TTS using MacOS's `say (1)` and `sox`."""
     aiff = path.with_suffix(".aiff")
-    subprocess.run([
-        "say",
-        "-v", voice,
-        "-o", str(aiff),
-        f"[[slnc 600]] "
-        f"{text} "
-        f"[[slnc {PAUSE_TO_GAP_MS[pause] - 600}]]",
-    ], check=True)
-    subprocess.run([
-        "sox",
-        str(aiff),
-        str(path),
-    ], check=True)
+    subprocess.run(
+        [
+            "say",
+            "-v",
+            voice,
+            "-o",
+            str(aiff),
+            f"[[slnc 600]] " f"{text} " f"[[slnc {PAUSE_TO_GAP_MS[pause] - 600}]]",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "sox",
+            str(aiff),
+            str(path),
+        ],
+        check=True,
+    )
     aiff.unlink()
 
 
@@ -216,6 +260,7 @@ def list_google_voices(prefix: str):
 def google_tts(name: str, text: str, pause: int, path: Path):
     """TTS using Google cloud."""
     from google.cloud import texttospeech as tts
+
     PRE_GAP_MS = 0
 
     if "client" not in gstate:
@@ -228,26 +273,37 @@ def google_tts(name: str, text: str, pause: int, path: Path):
     parts = []
     if PRE_GAP_MS > 0:
         parts.append(f"""<break time="{PRE_GAP_MS}ms"/>""")
-    parts.extend([
-        "<speak>",
-        html.escape(text),
-        "</speak>",
-        f"""<break time="{PAUSE_TO_GAP_MS[pause] - PRE_GAP_MS}ms"/>""",
-    ])
+    parts.extend(
+        [
+            "<speak>",
+            html.escape(text),
+            "</speak>",
+            f"""<break time="{PAUSE_TO_GAP_MS[pause] - PRE_GAP_MS}ms"/>""",
+        ]
+    )
 
-    response = gstate["client"].synthesize_speech(request={
-        "voice": gstate["voice"],
-        "audio_config": tts.AudioConfig(audio_encoding=tts.AudioEncoding.MP3),
-        "input": tts.SynthesisInput(ssml="".join(parts))
-    })
+    response = gstate["client"].synthesize_speech(
+        request={
+            "voice": gstate["voice"],
+            "audio_config": tts.AudioConfig(audio_encoding=tts.AudioEncoding.MP3),
+            "input": tts.SynthesisInput(ssml="".join(parts)),
+        }
+    )
 
     with open(path, "wb") as ofo:
         ofo.write(response.audio_content)
 
 
-def write_pickle(obj, path):
+def write_pickle(obj, near, name):
+    path = near.parent / f"{THIS}-{name}.pickle"
+    print(f"(debug) Writing {path}")
     with open(path, "wb") as fobj:
         pickle.dump(obj, fobj)
+
+
+def most_common(series) -> float:
+    """An approximation"""
+    return float(series.round(1).mode())
 
 
 if __name__ == "__main__":
