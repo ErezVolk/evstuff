@@ -57,7 +57,11 @@ def main():
         if width != height:
             length = max(width, height)
             square = Image.new(cover.mode, (length, length))
-            square.paste(cover, ((length - width) // 2, (length - height) // 2))
+            square.paste(
+                cover,
+                ((length - width) // 2,
+                 (length - height) // 2),
+            )
             cover = square
     else:
         cover = None
@@ -94,7 +98,8 @@ def main():
                 if args.artist:
                     set_tag(id3, TPE1(encoding=3, text=args.artist))
                 if cover:
-                    if (rem := re.search(r"\D(\d+[-_ ]\d+)$", path.stem)) is not None:
+                    rem = re.search(r"\D((\d+)?[-_ ]\d+)$", path.stem)
+                    if rem is not None:
                         image = cover.copy()
                         ImageDraw.Draw(image).text(
                             xy=(0, 0),
@@ -109,7 +114,10 @@ def main():
                     with BytesIO() as bio:
                         image.save(bio, "JPEG")
                         apic = APIC(
-                            encoding=3, mime="image/jpeg", type=3, data=bio.getvalue()
+                            encoding=3,
+                            mime="image/jpeg",
+                            type=3,
+                            data=bio.getvalue(),
                         )
                     set_tag(id3, apic)
                 id3.save(path)

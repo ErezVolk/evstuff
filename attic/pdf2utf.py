@@ -56,7 +56,9 @@ def main():
     )
     for height in book.height.unique():
         tmap = book.height == height
-        book.loc[tmap, "left_margin"] = book[tmap].groupby("page_number").left.transform("min")
+        book.loc[tmap, "left_margin"] = book[tmap].groupby(
+            "page_number"
+        ).left.transform("min")
 
     if args.debug:
         write_pickle(book, args.output.with_name("raw.pickle"))
@@ -68,7 +70,11 @@ def main():
         line = book.loc[loc + 1]
         book.loc[loc + 1, "text"] = f"{drop.text}{line.text}"
         book.loc[
-            (book.page_number == drop.page_number) & (book.top.between(drop.top, drop.bottom)),
+            (
+                book.page_number == drop.page_number
+            ) & (
+                book.top.between(drop.top, drop.bottom)
+            ),
             "left"
         ] = line.left_margin
     book.drop(book.index[drop_cap_tmap], inplace=True)
@@ -95,7 +101,7 @@ def main():
             book.loc[next_tmap].set_index(book.index[curr_tmap]),
             rsuffix="_next",
         )
-        merged["text"] = merged[["text", "text_next"]].astype("string").agg("".join, axis=1)
+        merged["text"] = merged[["text", "text_next"]].astype(str).agg("".join, axis=1)
         same_tmap = merged.page_number == merged.page_number_next
         merged.loc[same_tmap, "left"] = merged[["left", "left_next"]].min(axis=1)
         merged.loc[same_tmap, "top"] = merged[["top", "top_next"]].min(axis=1)
@@ -136,7 +142,7 @@ def main():
         print(f"Generating audio (number of paragraphs: {len(paras)})")
         stem = args.stem or args.output.stem
         aiff = args.output.with_suffix(".aiff")
-        pause_to_gap = {2: 3.0, 1: 1.0, 0: 0.0}
+        pause_to_gap = {2: 2400, 1: 400, 0: 0}
         for para, row in paras.iterrows():
             if args.first and para < args.first:
                 continue
@@ -147,14 +153,12 @@ def main():
                 "say",
                 "-v", args.voice,
                 "-o", str(aiff),
-                row.text,
+                f"[[slnc 600]] {row.text} [[slnc {pause_to_gap[row.pause]}]]",
             ], check=True)
             subprocess.run([
                 "sox",
                 str(aiff),
                 str(path),
-                "pad", "0",
-                f"{pause_to_gap[row.pause]:.01f}",
             ], check=True)
             aiff.unlink()
 
