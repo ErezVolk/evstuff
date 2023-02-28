@@ -13,7 +13,7 @@ import pandas as pd
 import fitz
 
 
-PAUSE_TO_GAP_MS = {2: 3000, 1: 1000}
+PAUSE_TO_GAP_MS = {2: 3000, 1: 1000, 0: 0}
 THIS = Path(__file__).stem
 NON_LOWER_RE = r"[^a-z\xDF-\xF6\xF8-\xFF]"
 HEADER_RE = f"{NON_LOWER_RE}*[A-Z]{NON_LOWER_RE}*"
