@@ -3,6 +3,7 @@
 import argparse
 from functools import partial
 import html
+from itertools import pairwise
 from pathlib import Path
 import pickle
 import re
@@ -17,6 +18,7 @@ PAUSE_TO_GAP_MS = {2: 3000, 1: 1000, 0: 0}
 THIS = Path(__file__).stem
 NON_LOWER_RE = r"[^a-z\xDF-\xF6\xF8-\xFF]"
 HEADER_RE = f"{NON_LOWER_RE}*[A-Z]{NON_LOWER_RE}*"
+HYPHENS = ["\xad", "\u20a0", "\u2011", "-"]
 
 
 def main():
@@ -170,26 +172,25 @@ def main():
         write_pickle(book, args.output, "pre-merge")
 
     # Dehyphenate some more
-    while True:
-        curr_tmap = book.text.str[-1].isin(["\xad", "\u20a0", "\u2011", "-"])
-        if curr_tmap.sum() == 0:
-            break
-        next_tmap = curr_tmap.shift(1, fill_value=False)
-        mrg = book.loc[curr_tmap].join(
-            book.loc[next_tmap].set_index(book.index[curr_tmap]),
-            rsuffix="_n",
-        )
-        mrg["text_c"] = mrg.text.str[:-1]
-        mrg["text"] = mrg[["text_c", "text_n"]].astype(str).agg("".join, axis=1)
-        same_tmap = mrg.page_no == mrg.page_no_n
-        mrg.loc[same_tmap, "left"] = mrg[["left", "left_n"]].min(axis=1)
-        mrg.loc[same_tmap, "top"] = mrg[["top", "top_n"]].min(axis=1)
-        mrg.loc[same_tmap, "right"] = mrg[["right", "right_n"]].max(axis=1)
-        mrg.loc[same_tmap, "bottom"] = mrg[["bottom", "bottom_n"]].max(axis=1)
+    hyphen_tmap = book.text.str[-1].isin(HYPHENS)
+    hyphen_labels = book.index[hyphen_tmap][::-1]
+    joinee_labels = book.index[hyphen_tmap.shift(1, fill_value=False)][::-1]
+    drop_labels = []
+    for hyphen_label, joinee_label in zip(hyphen_labels, joinee_labels):
+        hyphen_row = book.loc[hyphen_label]
+        joinee_row = book.loc[joinee_label]
+        both = book.loc[hyphen_label : joinee_label + 1]
+        book.at[hyphen_label, "text"] = hyphen_row.text[:-1] + joinee_row.text
+        if hyphen_row.page_no == joinee_row.page_no:
+            book.at[hyphen_label, "top"] = both.top.min()
+            book.at[hyphen_label, "left"] = both.left.min()
+            book.at[hyphen_label, "right"] = both.right.max()
+            book.at[hyphen_label, "bottom"] = both.bottom.max()
+        drop_labels.append(joinee_label)
+    book.drop(drop_labels, inplace=True)
 
-        merge_cols = ["text", "left", "top", "right", "bottom"]
-        book.loc[curr_tmap, merge_cols] = mrg[merge_cols]
-        book.drop(labels=book.index[next_tmap], inplace=True)
+    if args.debug:
+        write_pickle(book, args.output, "dehyphenated")
 
     book.drop(book.index[book.bigness == "l"], inplace=True)  # Allende
     book.drop(book.index[book.left_margin > 190], inplace=True)  # Allende
