@@ -29,6 +29,7 @@ def main():
     parser.add_argument("-P", "--no-pic", action="store_true")
     parser.add_argument("-f", "--font", type=str, default="Arial Bold.ttf")
     parser.add_argument("-F", "--font-size", type=int, default=36)
+    parser.add_argument("-s", "--suffix", default="mp3")
     args = parser.parse_args()
 
     if not args.output:
@@ -44,9 +45,9 @@ def main():
     if args.output.is_dir():
         shutil.rmtree(args.output)
 
-    mp3s = list(args.input.rglob("*.mp3"))
-    if not mp3s:
-        parser.error(f"No MP3 files in {args.input}")
+    files = list(args.input.rglob(f"*.{args.suffix}"))
+    if not files:
+        parser.error(f"No *.{args.suffix} files in {args.input}")
 
     jpgs = list(args.input.glob("*.jpg"))
     if len(jpgs) == 1 and not args.no_pic:
@@ -71,12 +72,12 @@ def main():
     except OSError:
         font = None
 
-    name_to_path = {p.name: p for p in mp3s}
-    if len(name_to_path) != len(mp3s):
+    name_to_path = {p.name: p for p in files}
+    if len(name_to_path) != len(files):
         dupes = [
             name
             for name in sorted(name_to_path)
-            if sum(1 for p in mp3s if p.name == name) > 1
+            if sum(1 for p in files if p.name == name) > 1
         ]
         parser.error(f"Duplicate file names! {dupes}")
 
@@ -84,43 +85,44 @@ def main():
 
     m3ufn = args.output / f"{args.playlist_name or args.output.name}.m3u"
 
-    print(f"Writing {len(mp3s)} files to {m3ufn}")
+    print(f"Writing {len(files)} files to {m3ufn}")
     with open(m3ufn, "w", encoding="utf-8", newline="\r\n") as m3u:
         m3u.write("#EXTM3U\n")
         for track, (name, path) in enumerate(sorted(name_to_path.items()), 1):
-            if args.album or args.artist or cover:
-                id3 = ID3()
-                set_tag(id3, TRCK(encoding=3, text=str(track)))
-                set_tag(id3, TIT2(encoding=3, text=path.stem))
+            if args.suffix.lower() == ".mp3":
+                if args.album or args.artist or cover:
+                    id3 = ID3()
+                    set_tag(id3, TRCK(encoding=3, text=str(track)))
+                    set_tag(id3, TIT2(encoding=3, text=path.stem))
 
-                if args.album:
-                    set_tag(id3, TALB(encoding=3, text=args.album))
-                if args.artist:
-                    set_tag(id3, TPE1(encoding=3, text=args.artist))
-                if cover:
-                    rem = re.search(r"\D((\d+[-_ ])?\d+)$", path.stem)
-                    if rem is not None:
-                        image = cover.copy()
-                        ImageDraw.Draw(image).text(
-                            xy=(0, 0),
-                            text=rem.group(1),
-                            fill=(255, 255, 0),
-                            stroke_width=3,
-                            stroke_fill=(0, 0, 255),
-                            font=font,
-                        )
-                    else:
-                        image = cover
-                    with BytesIO() as bio:
-                        image.save(bio, "JPEG")
-                        apic = APIC(
-                            encoding=3,
-                            mime="image/jpeg",
-                            type=3,
-                            data=bio.getvalue(),
-                        )
-                    set_tag(id3, apic)
-                id3.save(path)
+                    if args.album:
+                        set_tag(id3, TALB(encoding=3, text=args.album))
+                    if args.artist:
+                        set_tag(id3, TPE1(encoding=3, text=args.artist))
+                    if cover:
+                        rem = re.search(r"\D((\d+[-_ ])?\d+)$", path.stem)
+                        if rem is not None:
+                            image = cover.copy()
+                            ImageDraw.Draw(image).text(
+                                xy=(0, 0),
+                                text=rem.group(1),
+                                fill=(255, 255, 0),
+                                stroke_width=3,
+                                stroke_fill=(0, 0, 255),
+                                font=font,
+                            )
+                        else:
+                            image = cover
+                        with BytesIO() as bio:
+                            image.save(bio, "JPEG")
+                            apic = APIC(
+                                encoding=3,
+                                mime="image/jpeg",
+                                type=3,
+                                data=bio.getvalue(),
+                            )
+                        set_tag(id3, apic)
+                    id3.save(path)
 
             (args.output / name).hardlink_to(path)
             m3u.write("#EXTINF:0,")

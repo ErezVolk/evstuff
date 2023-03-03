@@ -47,6 +47,7 @@ class Pdf2Utf():
 
         parser.add_argument("--force", action="store_true", help="Generate audio even if file exists")
         parser.add_argument("-u", "--unit", choices=["word", "block"], default="word")
+        parser.add_argument("-S", "--suffix", default="flac")
         self.args = parser.parse_args()
 
         if not self.args.input:
@@ -255,7 +256,7 @@ class Pdf2Utf():
             print(f"TTS (paragraphs: {len(tosay)})")
         stem = self.args.stem or self.args.output.stem
         for para, row in tosay.iterrows():
-            path = self.args.output.with_name(f"{stem}-{para:04d}.mp3")
+            path = self.args.output.with_name(f"{stem}-{para:04d}.{self.args.suffix}")
             if self.args.force or not path.is_file():
                 tts(text=row.text, pause=row.pause, path=path)
 
@@ -273,15 +274,13 @@ class Pdf2Utf():
             ],
             check=True,
         )
-        subprocess.run(
-            [
-                "sox",
-                str(aiff),
-                str(path),
-            ],
-            check=True,
-        )
-        aiff.unlink()
+        self.sox_and_rm(aiff, path)
+
+    def sox_and_rm(self, curr, path):
+        if curr == path:
+            return
+        subprocess.run(["sox", str(curr), str(path)], check=True)
+        curr.unlink()
 
     def list_google_voices(self):
         """List Google cloud voices"""
@@ -317,16 +316,19 @@ class Pdf2Utf():
             f"""<break time="{PAUSE_TO_GAP_MS[pause]}ms"/>""",
         ]
 
+        ogg = path.with_suffix(".ogg")
         response = self.gstate["client"].synthesize_speech(
             request={
                 "voice": self.gstate["voice"],
-                "audio_config": tts.AudioConfig(audio_encoding=tts.AudioEncoding.MP3),
+                "audio_config": tts.AudioConfig(audio_encoding=tts.AudioEncoding.OGG_OPUS),
                 "input": tts.SynthesisInput(ssml="".join(parts)),
             }
         )
 
-        with open(path, "wb") as ofo:
+        with open(ogg, "wb") as ofo:
             ofo.write(response.audio_content)
+
+        self.sox_and_rm(ogg, path)
 
     def ddump(self, obj, name):
         if not self.args.debug:
