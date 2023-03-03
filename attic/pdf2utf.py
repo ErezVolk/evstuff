@@ -35,8 +35,15 @@ class Pdf2Utf():
         group.add_argument("-g", "--google-voice", help="Generate audiobook using Google")
 
         parser.add_argument("-s", "--stem", help="Audio filename prefix")
-        parser.add_argument("-F", "--first-paragraph", type=int, help="First audio paragraph")
-        parser.add_argument("-L", "--last-paragraph", type=int, help="Last audio paragraph")
+
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("--first-paragraph", type=int, help="First audio paragraph number")
+        group.add_argument("--first-prefix", type=str, help="First audio paragraph prefix")
+
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("--last-paragraph", type=int, help="Last audio paragraph number")
+        group.add_argument("--last-prefix", type=str, help="Last audio paragraph prefix")
+
         parser.add_argument("-u", "--unit", choices=["word", "block"], default="word")
         self.args = parser.parse_args()
 
@@ -205,8 +212,9 @@ class Pdf2Utf():
         self.ddump(book, "pre-paras")
 
         paras = book.groupby("para").text.apply(" ".join).to_frame("text")
+        paras.set_index(np.arange(1, len(paras) + 1), inplace=True)
         paras["pause"] = book[para_tmap].pause.shift(-1, fill_value=0).to_numpy()
-        self.ddump(book, "paras")
+        self.ddump(paras, "paras")
 
         print(f"Writing {self.args.output}")
         with open(self.args.output, "w", encoding="UTF-8") as fobj:
@@ -217,29 +225,35 @@ class Pdf2Utf():
                 elif row.pause == 1:
                     fobj.write("\n\n")
 
-        tts = None
         if self.args.macos_voice:
-            tts = self.macos_tts
+            self.convert(paras, self.macos_tts)
         elif self.args.google_voice:
-            tts = self.google_tts
+            self.convert(paras, self.google_tts)
+        elif self.args.debug:
+            print("Not creating audiobook")
 
-        if tts is not None:
-            tosay = paras
-            if self.args.first_paragraph:
-                tosay = tosay.loc[tosay.index >= self.args.first_paragraph]
-            if self.args.last_paragraph:
-                tosay = tosay.loc[tosay.index <= self.args.last_paragraph]
-            if len(tosay) < len(paras):
-                print(f"TTS (paragraphs: {len(tosay)} of {len(paras)})")
-            else:
-                print(f"TTS (paragraphs: {len(tosay)})")
-            stem = self.args.stem or self.args.output.stem
-            for para, row in tosay.iterrows():
-                tts(
-                    text=row.text,
-                    pause=row.pause,
-                    path=self.args.output.with_name(f"{stem}-{para:04d}.mp3"),
-                )
+    def convert(self, paras, tts):
+        tosay = paras
+        if self.args.first_prefix:
+            self.args.first_paragraph = paras.index[paras.text.str.startswith(self.args.first_prefix)][0]
+        if self.args.first_paragraph:
+            tosay = tosay.loc[tosay.index >= self.args.first_paragraph]
+
+        if self.args.last_prefix:
+            self.args.last_paragraph = paras.index[paras.text.str.startswith(self.args.last_prefix)][0]
+        if self.args.last_paragraph:
+            tosay = tosay.loc[tosay.index <= self.args.last_paragraph]
+        if len(tosay) < len(paras):
+            print(f"TTS (paragraphs: {len(tosay)} of {len(paras)})")
+        else:
+            print(f"TTS (paragraphs: {len(tosay)})")
+        stem = self.args.stem or self.args.output.stem
+        for para, row in tosay.iterrows():
+            tts(
+                text=row.text,
+                pause=row.pause,
+                path=self.args.output.with_name(f"{stem}-{para:04d}.mp3"),
+            )
 
     def macos_tts(self, text: str, pause: int, path: Path):
         """TTS using MacOS's `say (1)` and `sox`."""
