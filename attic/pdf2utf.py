@@ -43,7 +43,9 @@ class Pdf2Utf():
         group = parser.add_mutually_exclusive_group()
         group.add_argument("--last-paragraph", type=int, help="Last audio paragraph number")
         group.add_argument("--last-prefix", type=str, help="Last audio paragraph prefix")
+        group.add_argument("--max-paragraphs", type=int)
 
+        parser.add_argument("--force", action="store_true", help="Generate audio even if file exists")
         parser.add_argument("-u", "--unit", choices=["word", "block"], default="word")
         self.args = parser.parse_args()
 
@@ -243,17 +245,19 @@ class Pdf2Utf():
             self.args.last_paragraph = paras.index[paras.text.str.startswith(self.args.last_prefix)][0]
         if self.args.last_paragraph:
             tosay = tosay.loc[tosay.index <= self.args.last_paragraph]
+
+        if self.args.max_paragraphs:
+            tosay = tosay.iloc[:self.args.max_paragraphs]
+
         if len(tosay) < len(paras):
             print(f"TTS (paragraphs: {len(tosay)} of {len(paras)})")
         else:
             print(f"TTS (paragraphs: {len(tosay)})")
         stem = self.args.stem or self.args.output.stem
         for para, row in tosay.iterrows():
-            tts(
-                text=row.text,
-                pause=row.pause,
-                path=self.args.output.with_name(f"{stem}-{para:04d}.mp3"),
-            )
+            path = self.args.output.with_name(f"{stem}-{para:04d}.mp3")
+            if self.args.force or not path.is_file():
+                tts(text=row.text, pause=row.pause, path=path)
 
     def macos_tts(self, text: str, pause: int, path: Path):
         """TTS using MacOS's `say (1)` and `sox`."""
@@ -298,8 +302,6 @@ class Pdf2Utf():
         """TTS using Google cloud."""
         from google.cloud import texttospeech as tts
 
-        PRE_GAP_MS = 0
-
         if "client" not in self.gstate:
             name = self.args.google_voice
             self.gstate["client"] = tts.TextToSpeechClient()
@@ -308,17 +310,12 @@ class Pdf2Utf():
                 language_code=re.sub(r"^([a-z][a-z]-[A-Z][A-Z])", r"\1", name),
             )
 
-        parts = []
-        if PRE_GAP_MS > 0:
-            parts.append(f"""<break time="{PRE_GAP_MS}ms"/>""")
-        parts.extend(
-            [
-                "<speak>",
-                html.escape(text),
-                "</speak>",
-                f"""<break time="{PAUSE_TO_GAP_MS[pause] - PRE_GAP_MS}ms"/>""",
-            ]
-        )
+        parts = [
+            "<speak>",
+            html.escape(text),
+            "</speak>",
+            f"""<break time="{PAUSE_TO_GAP_MS[pause]}ms"/>""",
+        ]
 
         response = self.gstate["client"].synthesize_speech(
             request={
