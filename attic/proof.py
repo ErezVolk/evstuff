@@ -320,7 +320,7 @@ class Proof(DocxWorker):
         )
         for tnode in self.xpath(self.root, expr):
             tnode.text = tnode.text.replace(" ", "\xA0")
-            self._count("nbsp")
+            self._count("nbsp", tnode)
 
         return self.counts["nbsp"] > 0
 
@@ -500,7 +500,7 @@ class Proof(DocxWorker):
         """Write XML comments for postracted file"""
         n_added = 0
         for message, nodes in self.comments.items():
-            comment = f"MATHICHIZE: {message}"
+            comment = f"PROOF: {message}"
             for node in nodes:
                 node.addprevious(etree.Comment(comment))
                 n_added += 1

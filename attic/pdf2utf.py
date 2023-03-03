@@ -34,6 +34,7 @@ def main():
     parser.add_argument("-s", "--stem", help="Audio filename prefix")
     parser.add_argument("-F", "--first-paragraph", type=int, help="First audio paragraph")
     parser.add_argument("-L", "--last-paragraph", type=int, help="Last audio paragraph")
+    parser.add_argument("-u", "--unit", choices=["word", "block"], default="word")
     args = parser.parse_args()
 
     if not args.input:
@@ -53,31 +54,58 @@ def main():
 
     print(f"Reading {args.input}")
     doc = fitz.Document(args.input)
-    words = pd.DataFrame.from_records(
-        [
-            [page_no, page.get_label() or str(page_no)] + list(rec)
-            for page_no, page in enumerate(doc, 1)
-            for rec in page.get_text("words", clip=page.trimbox)
-        ],
-        columns=[
-            "page_no",
-            "page_label",
-            "left",
-            "top",
-            "right",
-            "bottom",
-            "word",
-            "block_no",
-            "line_no",
-            "word_no",
-        ],
-    )
-    book = words.groupby(["page_no", "page_label", "bottom"]).apply(lambda group: pd.Series({
-        "left": group.left.min(),
-        "right": group.right.max(),
-        "top": group.top.max(),
-        "text": " ".join(group.word),
-    })).reset_index()
+    if args.unit == "word":
+        words = pd.DataFrame.from_records(
+            [
+                [page_no, page.get_label() or str(page_no)] + list(rec)
+                for page_no, page in enumerate(doc, 1)
+                for rec in page.get_text("words", clip=page.trimbox)
+            ],
+            columns=[
+                "page_no",
+                "page_label",
+                "left",
+                "top",
+                "right",
+                "bottom",
+                "word",
+                "block_no",
+                "line_no",
+                "word_no",
+            ],
+        )
+
+        if args.debug:
+            write_pickle(words, args.output, "words")
+
+        words["rounded_bottom"] = (words.bottom / 10).round() * 10  # Allende
+        book = words.groupby(
+            ["page_no", "page_label", "rounded_bottom"]
+        ).apply(lambda group: pd.Series({
+            "left": group.left.min(),
+            "right": group.right.max(),
+            "top": group.top.max(),
+            "bottom": group.bottom.min(),
+            "text": " ".join(group.word),
+        })).reset_index()
+    elif args.unit == "block":
+        book = pd.DataFrame([
+            {
+                "page_no": page_number,
+                "page_label": page.get_label() or str(page_number),
+                "block": block[5],
+                "left": block[0],
+                "top": block[1],
+                "right": block[2],
+                "bottom": block[3],
+                "text": block[4].strip(),
+            } for page_number, page in enumerate(doc, 1)
+            for block in page.get_text(
+                "blocks",
+                clip=page.trimbox,
+                flags=fitz.TEXT_DEHYPHENATE | fitz.TEXT_PRESERVE_WHITESPACE,
+            )
+        ])
 
     book["odd"] = (book.page_no % 2) == 1
     book["height"] = book.bottom - book.top
@@ -110,17 +138,13 @@ def main():
     # Merge drop caps (Allende)
     drop_cap_tmap = (book.bigness == "l") & (book.text.str.len() == 1)
     for loc in book.index[drop_cap_tmap]:
-        drop = book.loc[loc]
-        line = book.loc[loc + 1]
-        book.loc[loc + 1, "text"] = f"{drop.text}{line.text}"
-        overlap = (
-            book.query(f"page_no == {drop.page_no}")
-            .query(
-                f"top.between({drop.top}, {drop.bottom})",
-            )
-            .index
-        )
-        book.loc[overlap, "left"] = line.left_margin
+        drop_row = book.loc[loc]
+        overlap_tmap = book.page_no == drop_row.page_no
+        overlap_tmap &= book.bigness != "l"
+        overlap_tmap &= book.top.between(drop_row.top, drop_row.bottom)
+        top_idx = book[overlap_tmap].top.idxmin()
+        book.loc[overlap_tmap, "left"] = book.at[top_idx, "left_margin"]
+        book.at[top_idx, "text"] = f"{drop_row.text}{book.at[top_idx, 'text']}"
     book.drop(book.index[drop_cap_tmap], inplace=True)
 
     # Remove empty lines
