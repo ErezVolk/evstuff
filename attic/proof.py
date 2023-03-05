@@ -203,21 +203,17 @@ class Proof(DocxWorker):
     def work(self):
         """Work with the open input zip file"""
         self._copy(self.args.input, self.args.outdir / "proof-input.docx")
-
-        with self.izip.open(self.DOC_IN_ZIP) as ifo:
-            self.doc = etree.parse(ifo)
-            self.root = self.doc.getroot()
-
-        self._save_to("proof-input.xml")
+        self._save_to("input")
 
         changed = self._proof()
         if changed:
+            print(f"Writing {self.opath}")
             self.write(self.opath)
         else:
             print("Nothing changed.")
 
         self._add_comments()
-        self._save_to("proof-output.xml")
+        self._save_to("output")
 
         if changed:
             self._consider_overwrite()
@@ -225,12 +221,12 @@ class Proof(DocxWorker):
         if changed and self.args.open:
             subprocess.run(["open", str(self.opath)], check=False)
 
-    def _save_to(self, name: str):
-        """Save the XML in a nice format"""
-        output = self.args.outdir / name
-
-        print(f"Saving XML to {output}")
-        self.doc.write(output, encoding="utf-8", pretty_print=True)
+    def _save_to(self, infix: str):
+        """Save the XML files in a nice format"""
+        for name, doc in self.docs.items():
+            output = self.args.outdir / f"proof-{infix}-{name}"
+            print(f"Writing {output}")
+            doc.write(output, encoding="utf-8", pretty_print=True)
 
     def _first(self, node: etree._Entity, expr: str) -> etree._Entity | None:
         """First entity matching xpath"""
@@ -253,7 +249,7 @@ class Proof(DocxWorker):
         return False
 
     def _proof(self) -> bool:
-        """Does the heavly lifting on self.doc"""
+        """Does the heavly lifting"""
         worked = False
         if self.find_formula_style():
             worked = self._fix_rtl_formulas() or worked
@@ -275,7 +271,7 @@ class Proof(DocxWorker):
         italicable_xpath = self._ITALICABLE_XPATH_FORMAT.format(
             style_id=self.formula_style_id
         )
-        for rnode in self.xpath(self.root, italicable_xpath):
+        for rnode in self.doc_xpath(italicable_xpath):
             text = self._rnode_text(rnode)
             relevant = re.search(self.ITALICABLE_RE, text)
             assert relevant is not None  # XPath, but, you know
@@ -318,7 +314,7 @@ class Proof(DocxWorker):
             f" w:rPr[w:rStyle[@w:val='{self.formula_style_id}']]"  # Formula style
             f"]/w:t[re:test(., ' ')]"  # Contains spaces
         )
-        for tnode in self.xpath(self.root, expr):
+        for tnode in self.doc_xpath(expr):
             tnode.text = tnode.text.replace(" ", "\xA0")
             self._count("nbsp", tnode)
 
@@ -326,7 +322,7 @@ class Proof(DocxWorker):
 
     def _fix_weird_ltr_spaces(self) -> bool:
         """Find islands of LTR whitespace in RTL"""
-        for rnode in self.xpath(self.root, self.WEIRD_LTR_SPACE_XPATH):
+        for rnode in self.doc_xpath(self.WEIRD_LTR_SPACE_XPATH):
             # WEIRD_LTR_SPACE_XPATH takes care of these, but I can't read it
             assert self._rnode_text(rnode).isspace()
             assert self._is_rtl(rnode.getnext())
@@ -361,7 +357,7 @@ class Proof(DocxWorker):
             " ]"
             "]"
         )
-        for rnode in self.xpath(self.root, expr):
+        for rnode in self.doc_xpath(expr):
             self._add_rstyle(rnode, style_id)
             self._count("force rtl", rnode)
         return self.counts["force rtl"] > 0
@@ -376,7 +372,7 @@ class Proof(DocxWorker):
             f"  w:rtl"
             f"]]/w:t[re:test(., '[^ ]')]"
         )
-        for tnode in self.xpath(self.doc, expr):
+        for tnode in self.doc_xpath(expr):
             self._count("rtl formulas", tnode)
             self._count(f"rtl formula: {repr(tnode.text.strip())}")
             tnode.text = tnode.text.translate(self.FLIP)
@@ -397,7 +393,7 @@ class Proof(DocxWorker):
                 style_id=self.formula_style_id
             )
 
-        for rnode in self.xpath(self.root, suspect_xpath):
+        for rnode in self.doc_xpath(suspect_xpath):
             self._count("suspect", rnode)
             text = self._rnode_text(rnode)
             assert re.search(self.SUSPECT_RE, text)  # XPath checks, but
@@ -441,7 +437,7 @@ class Proof(DocxWorker):
 
         text = "\n".join(
             "".join(tnode.text for tnode in self.xpath(pnode, t_expr))
-            for pnode in self.xpath(self.root, "//w:p[w:r/w:t]")
+            for pnode in self.doc_xpath("//w:p[w:r/w:t]")
         )
         for match in self.antidict.finditer(text):
             self.antiwords[match.group(0)] += 1
@@ -487,9 +483,7 @@ class Proof(DocxWorker):
 
     def _scan_images(self):
         """Count images with/without alt-text"""
-        for drawing in self.xpath(
-            self.root, "//w:drawing[//a:blip[@r:embed]]"
-        ):
+        for drawing in self.doc_xpath("//w:drawing[//a:blip[@r:embed]]"):
             self._count("images")
             for prop in self.xpath(
                 drawing, "./wp:inline/wp:docPr[not(@descr)]"
@@ -527,21 +521,15 @@ class Proof(DocxWorker):
         """Add w:rStyle tag. tag"""
         props = self._find(rnode, "w:rPr")
         if props is None:
-            props = self._new_w("rPr")
-        props.append(self._new_w("rStyle", attrib={"val": style_id}))
+            props = self.make_w("rPr")
+        props.append(self.make_w("rStyle", attrib={"val": style_id}))
 
     def _add_to_rprops(self, rnode: etree._Entity, tag: str):
         """Add the italic/rtl/etc. tag"""
         props = self._find(rnode, "w:rPr")
         if props is None:
-            props = self._new_w("rPr")
-        props.append(self._new_w(tag))
-
-    def _new_w(self, tag: str, attrib: dict[str, str] | None = None) -> etree._Entity:
-        """Create <w:*> node"""
-        if attrib:
-            attrib = {self.wtag(key): val for key, val in attrib.items()}
-        return self.root.makeelement(self.wtag(tag), attrib=attrib)
+            props = self.make_w("rPr")
+        props.append(self.make_w(tag))
 
     @classmethod
     def _rnode_text(cls, rnode: etree._Entity) -> str:

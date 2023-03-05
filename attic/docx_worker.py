@@ -2,7 +2,7 @@
 import abc
 from collections import Counter
 from pathlib import Path
-from zipfile import ZipFile
+import zipfile
 
 from typing import Callable
 from typing import Iterable
@@ -17,8 +17,8 @@ __all__ = [
 class DocxWorker(abc.ABC):
     """Does stuff to .docx files"""
     LOCK_MARK = "~$"
-    DOC_IN_ZIP = "word/document.xml"
-    STYLES_IN_ZIP = "word/styles.xml"
+    MAIN_DOC = "document.xml"
+    CONTENT_DOCS = [MAIN_DOC, "footnotes.xml"]
 
     _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     _NS = {
@@ -32,10 +32,11 @@ class DocxWorker(abc.ABC):
     CounterLike = dict[str, int]
 
     counts: CounterLike = Counter()
-    doc: etree._ElementTree
-    izip: ZipFile
-    root: etree._Entity
+    doc: etree._ElementTree  # The "main" document
+    docs: dict[str, etree._ElementTree]  # Stem -> content-holding XML tree
+    izip: zipfile.ZipFile
     styles: etree._Entity | None = None
+    word_folder: zipfile.Path
 
     @classmethod
     def glob_docs(cls, folder: Path | None = None) -> list[Path]:
@@ -50,9 +51,8 @@ class DocxWorker(abc.ABC):
 
     def main(self):
         """Main structure of this script"""
-        with ZipFile(self.pre_work()) as self.izip:
-            self.doc = self.load_xml(self.DOC_IN_ZIP)
-            self.root = self.doc.getroot()
+        with zipfile.ZipFile(self.pre_work()) as self.izip:
+            self.read_content_docs()
             self.work()
         self.post_work()
 
@@ -67,15 +67,27 @@ class DocxWorker(abc.ABC):
     def post_work(self):
         """(Optional) work after closing `self.izip`"""
 
-    def load_xml(self, path_in_zip: str) -> etree._ElementTree:
+    def read_content_docs(self):
+        """Read anything we can find"""
+        self.word_folder = zipfile.Path(self.izip, "word/")
+        self.docs = {}
+        for name in self.CONTENT_DOCS:
+            path = self.word_folder / name
+            if path.exists():
+                self.docs[name] = self.load_word_xml(path)
+        self.doc = self.docs[self.MAIN_DOC]
+
+    def load_word_xml(self, path: str | zipfile.Path) -> etree._ElementTree:
         """Parse an XML doc inside the zip"""
-        with self.izip.open(path_in_zip) as ifo:
+        if not isinstance(path, zipfile.Path):
+            path = self.word_folder / path
+        with path.open() as ifo:
             return etree.parse(ifo)
 
     def find_style_id(self, name: str) -> str | None:
         """Get a style ID"""
         if self.styles is None:
-            self.styles = self.load_xml(self.STYLES_IN_ZIP).getroot()
+            self.styles = self.load_word_xml("styles.xml").getroot()
 
         expr = f"//w:style[w:name[@w:val='{name}']]"
         for node in self.xpath(self.styles, expr):
@@ -86,6 +98,11 @@ class DocxWorker(abc.ABC):
     def xpath(self, node: etree._Entity, expr: str) -> Iterable[etree._Entity]:
         """Wrapper for etree.xpath, with namespaces"""
         yield from node.xpath(expr, namespaces=self._NS)
+
+    def doc_xpath(self, expr: str) -> Iterable[etree._Entity]:
+        """xpath() for each content document"""
+        for doc in self.docs.values():
+            yield from self.xpath(doc, expr)
 
     @classmethod
     def find(cls, node: etree._Entity, expr: str) -> etree._Entity:
@@ -99,12 +116,12 @@ class DocxWorker(abc.ABC):
 
     def write(self, output_path: Path):
         """Write a copy of the open docx with modified doc"""
-        with ZipFile(output_path, "w") as ozip:
+        with zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED) as ozip:
             for info in self.izip.infolist():
                 with ozip.open(info.filename, "w") as ofo:
-                    if info.filename == self.DOC_IN_ZIP:
-                        ofo.write(etree.tostring(self.doc))
-                    else:
+                    try:
+                        ofo.write(etree.tostring(self.docs[info.filename]))
+                    except KeyError:
                         with self.izip.open(info, "r") as ifo:
                             ofo.write(ifo.read())
 
@@ -137,3 +154,9 @@ class DocxWorker(abc.ABC):
         mkw = max(len(key) for key in counter)
         for key, count in sorter(counter):
             print(f" {fmt_key(key).ljust(mkw)}  {count}")
+
+    def make_w(self, tag: str, attrib: dict[str, str] | None = None) -> etree._Entity:
+        """Create <w:*> node"""
+        if attrib:
+            attrib = {self.wtag(key): val for key, val in attrib.items()}
+        return self.doc.getroot().makeelement(self.wtag(tag), attrib=attrib)

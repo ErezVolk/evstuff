@@ -51,7 +51,8 @@ def main():
 
     jpgs = list(args.input.glob("*.jpg"))
     if len(jpgs) == 1 and not args.no_pic:
-        cover = Image.open(jpgs[0])
+        cover_path = jpgs[0]
+        cover = Image.open(cover_path)
         if any(s > args.thumbnail_size for s in cover.size):
             cover.thumbnail((args.thumbnail_size, args.thumbnail_size))
         (width, height) = cover.size
@@ -88,6 +89,15 @@ def main():
     print(f"Writing {len(files)} files to {m3ufn}")
     with open(m3ufn, "w", encoding="utf-8", newline="\r\n") as m3u:
         m3u.write("#EXTM3U\n")
+        if cover:
+            copied = (args.output / "cover").with_suffix(cover_path.suffix)
+            copied.hardlink_to(cover_path)
+            m3u.write("#EXTIMG:")
+            m3u.write(copied.name)
+            m3u.write("\n")
+            m3u.write(copied.name)
+            m3u.write("\n\n")
+
         for track, (name, path) in enumerate(sorted(name_to_path.items()), 1):
             if args.suffix.lower() == ".mp3":
                 if args.album or args.artist or cover:
