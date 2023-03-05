@@ -508,7 +508,7 @@ class Proof(DocxWorker):
         if self._is_open(self.args.input):
             return
 
-        print(f"Press Enter to overwrite {self.args.input}:")
+        input(f"Press Enter to overwrite {self.args.input}:")
         self._copy(self.opath, self.args.input)
         self.opath = self.args.input  # So we open that one now
 

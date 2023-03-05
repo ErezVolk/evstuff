@@ -2,6 +2,7 @@
 import abc
 from collections import Counter
 from pathlib import Path
+from pathlib import PurePosixPath
 import zipfile
 
 from typing import Callable
@@ -17,8 +18,9 @@ __all__ = [
 class DocxWorker(abc.ABC):
     """Does stuff to .docx files"""
     LOCK_MARK = "~$"
-    MAIN_DOC = "document.xml"
-    CONTENT_DOCS = [MAIN_DOC, "footnotes.xml"]
+    MAIN_STEM = "document"
+    CONTENT_STEMS = [MAIN_STEM, "footnotes"]
+    WORD_FOLDER = "word"
 
     _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     _NS = {
@@ -69,25 +71,29 @@ class DocxWorker(abc.ABC):
 
     def read_content_docs(self):
         """Read anything we can find"""
-        self.word_folder = zipfile.Path(self.izip, "word/")
+        self.word_folder = zipfile.Path(self.izip, self.WORD_FOLDER)
         self.docs = {}
-        for name in self.CONTENT_DOCS:
-            path = self.word_folder / name
+        for stem in self.CONTENT_STEMS:
+            path = self.in_word_folder(stem)
             if path.exists():
-                self.docs[name] = self.load_word_xml(path)
-        self.doc = self.docs[self.MAIN_DOC]
+                self.docs[stem] = self.load_word_xml(path)
+        self.doc = self.docs[self.MAIN_STEM]
 
     def load_word_xml(self, path: str | zipfile.Path) -> etree._ElementTree:
         """Parse an XML doc inside the zip"""
         if not isinstance(path, zipfile.Path):
-            path = self.word_folder / path
+            path = self.in_word_folder(path)
         with path.open() as ifo:
             return etree.parse(ifo)
+
+    def in_word_folder(self, stem: str) -> zipfile.Path:
+        """Helper to build a Path pointing to an XML inside the zip"""
+        return self.word_folder / f"{stem}.xml"
 
     def find_style_id(self, name: str) -> str | None:
         """Get a style ID"""
         if self.styles is None:
-            self.styles = self.load_word_xml("styles.xml").getroot()
+            self.styles = self.load_word_xml("styles").getroot()
 
         expr = f"//w:style[w:name[@w:val='{name}']]"
         for node in self.xpath(self.styles, expr):
@@ -119,9 +125,10 @@ class DocxWorker(abc.ABC):
         with zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED) as ozip:
             for info in self.izip.infolist():
                 with ozip.open(info.filename, "w") as ofo:
-                    try:
-                        ofo.write(etree.tostring(self.docs[info.filename]))
-                    except KeyError:
+                    path = PurePosixPath(info.filename)
+                    if str(path.parent) == self.WORD_FOLDER and path.stem in self.docs:
+                        ofo.write(etree.tostring(self.docs[path.stem]))
+                    else:
                         with self.izip.open(info, "r") as ifo:
                             ofo.write(ifo.read())
 
