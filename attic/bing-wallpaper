@@ -92,14 +92,21 @@ class BingWallpaper:
         try:
             html = lxml.etree.parse(StringIO(page_r.text), parser)
         except lxml.etree.XMLSyntaxError:
-            print(f"ERROR: Invalid HTML (length={len(page_r.text)}) returned from {url}")
+            print(
+                f"ERROR: Invalid HTML (length={len(page_r.text)}) "
+                f"returned from {url}"
+            )
             return
         for node in html.xpath('./head/link[@as="image"]'):
             if node.get("id") not in ("preloadBg", "bgLink"):
                 continue
 
             astext = lxml.etree.tostring(node).decode()
-            self.handle_href(node.get("href"), desc=astext, source=country_code)
+            self.handle_href(
+                node.get("href"),
+                desc=astext,
+                source=country_code,
+            )
 
     def handle_href(self, href, desc=None, source=None):
         """Download an image"""
@@ -118,11 +125,23 @@ class BingWallpaper:
         url = f"{self.BASE}/{href}"
         remote_name = match.group(1)
 
-        match = re.match(r"([A-Za-z0-9]+)_.+_([0-9]+x[0-9]+).*\.(jpg|webp)", remote_name)
+        match = re.match(
+            r"([A-Za-z0-9]+)_.+_([0-9]+x[0-9]+).*\.(jpg|webp)",
+            remote_name,
+        )
         if match:
-            fname = match.group(1) + "_" + match.group(2) + "." + match.group(3)
+            fname = "".join([
+                match.group(1),
+                "_",
+                match.group(2),
+                ".",
+                match.group(3),
+            ])
         else:
-            match = re.match(r"([A-Za-z0-9]*)_[^.]*\.(jpg|webp)", remote_name)
+            match = re.match(
+                r"([A-Za-z0-9]*)_[^.]*\.(jpg|webp)",
+                remote_name,
+            )
             if match:
                 fname = match.group(1) + "." + match.group(3)
 
@@ -132,7 +151,10 @@ class BingWallpaper:
         stem = match.group(1)
 
         if stem in self.stem_to_state:
-            self.debug(f"Already downloaded {fname} from {self.stem_to_state[stem]}")
+            self.debug(
+                f"Already downloaded {fname} "
+                f"from {self.stem_to_state[stem]}"
+            )
             return
 
         self.write(f"Downloading {remote_name} as {fname}")
