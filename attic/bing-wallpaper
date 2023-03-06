@@ -118,13 +118,13 @@ class BingWallpaper:
         url = f"{self.BASE}/{href}"
         remote_name = match.group(1)
 
-        match = re.match(r"([A-Za-z0-9]+)_.+_([0-9]+x[0-9]+).*\.jpg", remote_name)
+        match = re.match(r"([A-Za-z0-9]+)_.+_([0-9]+x[0-9]+).*\.(jpg|webp)", remote_name)
         if match:
-            fname = match.group(1) + "_" + match.group(2) + ".jpg"
+            fname = match.group(1) + "_" + match.group(2) + "." + match.group(3)
         else:
-            match = re.match(r"([A-Za-z0-9]*)_[^.]*\.jpg", remote_name)
+            match = re.match(r"([A-Za-z0-9]*)_[^.]*\.(jpg|webp)", remote_name)
             if match:
-                fname = match.group(1) + ".jpg"
+                fname = match.group(1) + "." + match.group(3)
 
         if not match:
             self.write(f"I don't know how to parse {remote_name} in {desc}")
