@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Currently only geared to a specific PDF"""
+"""PDF to UTF-8 and audiobook (WIP)"""
 import argparse
 import html
 from pathlib import Path
@@ -7,9 +7,17 @@ import pickle
 import re
 import subprocess
 
+from typing import Callable
+
 import numpy as np
 import pandas as pd
 import fitz
+
+try:
+    from google.cloud import texttospeech as gg_tts
+    HAVE_GOOGLE = True
+except ImportError:
+    HAVE_GOOGLE = False
 
 
 PAUSE_TO_GAP_MS = {2: 3000, 1: 1000, 0: 0}
@@ -19,41 +27,66 @@ HEADER_RE = f"{NON_LOWER_RE}*[A-Z]{NON_LOWER_RE}*"
 HYPHENS = ["\xad", "\u20a0", "\u2011", "-"]
 
 
-class Pdf2Utf():
-    gstate = {}
+class Pdf2Utf:
+    """PDF to UTF-8 and audiobook (WIP)"""
+    parser: argparse.ArgumentParser
+    args: argparse.Namespace
+    gg_client: "gg_tts.TextToSpeechClient" | None = None  # TextToSpeechClient
+    gg_voice: object  # VoiceSelectionParams
+    gg_audio: object  # AudioConfig
 
-    def main(self):
+    def parse_args(self):
+        """Command-line arguments"""
         parser = argparse.ArgumentParser()
         parser.add_argument("input", type=Path, nargs="?", help="Input PDF file")
         parser.add_argument("output", type=Path, nargs="?", help="Output text file")
-        parser.add_argument("-f", "--first-page", type=int, help="First page to convert")
+        parser.add_argument(
+            "-f", "--first-page", type=int, help="First page to convert"
+        )
         parser.add_argument("-l", "--last-page", type=int, help="Last page to convert")
         parser.add_argument("-d", "--debug", action="store_true")
 
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-v", "--macos-voice", help="Generate audiobook using MacOS")
-        group.add_argument("-g", "--google-voice", help="Generate audiobook using Google")
+        if HAVE_GOOGLE:
+            group.add_argument(
+                "-g", "--google-voice", help="Generate audiobook using Google"
+            )
 
         parser.add_argument("-s", "--stem", help="Audio filename prefix")
 
         group = parser.add_mutually_exclusive_group()
-        group.add_argument("--first-paragraph", type=int, help="First audio paragraph number")
-        group.add_argument("--first-prefix", type=str, help="First audio paragraph prefix")
+        group.add_argument(
+            "--first-paragraph", type=int, help="First audio paragraph number"
+        )
+        group.add_argument(
+            "--first-prefix", type=str, help="First audio paragraph prefix"
+        )
 
         group = parser.add_mutually_exclusive_group()
-        group.add_argument("--last-paragraph", type=int, help="Last audio paragraph number")
-        group.add_argument("--last-prefix", type=str, help="Last audio paragraph prefix")
+        group.add_argument(
+            "--last-paragraph", type=int, help="Last audio paragraph number"
+        )
+        group.add_argument(
+            "--last-prefix", type=str, help="Last audio paragraph prefix"
+        )
         group.add_argument("--max-paragraphs", type=int)
 
-        parser.add_argument("--force", action="store_true", help="Generate audio even if file exists")
-        parser.add_argument("-u", "--unit", choices=["word", "block"], default="word")
+        parser.add_argument(
+            "--force", action="store_true", help="Generate audio even if file exists"
+        )
         parser.add_argument("-S", "--suffix", default="flac")
+        self.parser = parser
         self.args = parser.parse_args()
+
+    def main(self):
+        """Do it"""
+        self.parse_args()
 
         if not self.args.input:
             candidates = list(Path.cwd().glob("*.pdf"))
             if len(candidates) != 1:
-                parser.error("Unable to guess input file name")
+                self.parser.error("Unable to guess input file name")
 
             (self.args.input,) = candidates
             input(f"Press Enter to process {repr(self.args.input.name)}...")
@@ -61,63 +94,27 @@ class Pdf2Utf():
         if not self.args.output:
             self.args.output = self.args.input.with_suffix(".utf8")
 
-        if self.args.google_voice and self.args.google_voice.endswith("?"):
-            self.list_google_voices()
-            return
+        if HAVE_GOOGLE:
+            if self.args.google_voice and self.args.google_voice.endswith("?"):
+                self.list_google_voices()
+                return
 
         print(f"Reading {self.args.input}")
-        doc = fitz.Document(self.args.input)
-        if self.args.unit == "word":
-            words = pd.DataFrame.from_records(
-                [
-                    [page_no, page.get_label() or str(page_no)] + list(rec)
-                    for page_no, page in enumerate(doc, 1)
-                    for rec in page.get_text("words", clip=page.trimbox)
-                ],
-                columns=[
-                    "page_no",
-                    "page_label",
-                    "left",
-                    "top",
-                    "right",
-                    "bottom",
-                    "word",
-                    "block_no",
-                    "line_no",
-                    "word_no",
-                ],
-            )
+        words = self.read_words()
 
-            self.ddump(words, "words")
-
-            words["rounded_bottom"] = (words.bottom / 10).round() * 10  # Allende
-            book = words.groupby(
-                ["page_no", "page_label", "rounded_bottom"]
-            ).apply(lambda group: pd.Series({
-                "left": group.left.min(),
-                "right": group.right.max(),
-                "top": group.top.max(),
-                "bottom": group.bottom.min(),
-                "text": " ".join(group.word),
-            })).reset_index()
-        elif self.args.unit == "block":
-            book = pd.DataFrame([
+        book = words.groupby(
+            ["page_no", "page_label", "rounded_bottom"]
+        ).apply(
+            lambda group: pd.Series(
                 {
-                    "page_no": page_number,
-                    "page_label": page.get_label() or str(page_number),
-                    "block": block[5],
-                    "left": block[0],
-                    "top": block[1],
-                    "right": block[2],
-                    "bottom": block[3],
-                    "text": block[4].strip(),
-                } for page_number, page in enumerate(doc, 1)
-                for block in page.get_text(
-                    "blocks",
-                    clip=page.trimbox,
-                    flags=fitz.TEXT_DEHYPHENATE | fitz.TEXT_PRESERVE_WHITESPACE,
-                )
-            ])
+                    "left": group.left.min(),
+                    "right": group.right.max(),
+                    "top": group.top.max(),
+                    "bottom": group.bottom.min(),
+                    "text": " ".join(group.word),
+                }
+            )
+        ).reset_index()
 
         book["odd"] = (book.page_no % 2) == 1
         book["height"] = book.bottom - book.top
@@ -175,7 +172,9 @@ class Pdf2Utf():
         book["from_last_bottom"] = common_last_bottom - book.bottom
 
         book["first_in_page"] = first_tmap = book.from_prev.isna()
-        book.loc[first_tmap, "from_prev"] = book[first_tmap].bottom - common_first_bottom
+        book.loc[first_tmap, "from_prev"] = (
+            book[first_tmap].bottom - common_first_bottom
+        )
         self.ddump(book, "pre-merge")
 
         # Dehyphenate some more
@@ -205,7 +204,9 @@ class Pdf2Utf():
         book["pause"] = 0
         book.loc[book.from_left > 15, "pause"] = 1  # Allende
         book.loc[book.from_prev > 30, "pause"] = 2  # Allende
-        book.loc[book.first_in_page & book.text.str.fullmatch(HEADER_RE), "pause"] = 2  # Allende(-ish)
+        book.loc[
+            book.first_in_page & book.text.str.fullmatch(HEADER_RE), "pause"
+        ] = 2  # Allende(-ish)
         book.at[book.index[0], "pause"] = 2  # Always start with a bang
         para_tmap = book.pause > 0
 
@@ -215,13 +216,14 @@ class Pdf2Utf():
         self.ddump(book, "pre-paras")
 
         paras = book.groupby("para").text.apply(" ".join).to_frame("text")
-        paras.set_index(np.arange(1, len(paras) + 1), inplace=True)
+        paras.set_index(np.arange(len(paras)) + 1, inplace=True)
         paras["pause"] = book[para_tmap].pause.shift(-1, fill_value=0).to_numpy()
+        paras["n_words"] = book.text.str.split(r"\s", regex=True).str.len()
         self.ddump(paras, "paras")
 
         print(f"Writing {self.args.output}")
         with open(self.args.output, "w", encoding="UTF-8") as fobj:
-            for para, row in paras.iterrows():
+            for _, row in paras.iterrows():
                 fobj.write(row.text)
                 if row.pause == 2:
                     fobj.write("\n\n\n\n")
@@ -230,25 +232,57 @@ class Pdf2Utf():
 
         if self.args.macos_voice:
             self.convert(paras, self.macos_tts)
-        elif self.args.google_voice:
+        elif HAVE_GOOGLE and self.args.google_voice:
             self.convert(paras, self.google_tts)
         elif self.args.debug:
             print("Not creating audiobook")
 
-    def convert(self, paras, tts):
+    def read_words(self) -> pd.DataFrame:
+        """Read the words"""
+        doc = fitz.Document(self.args.input)
+        words = pd.DataFrame.from_records(
+            [
+                [page_no, page.get_label() or str(page_no)] + list(rec)
+                for page_no, page in enumerate(doc, 1)
+                for rec in page.get_text("words", clip=page.trimbox)
+            ],
+            columns=[
+                "page_no",
+                "page_label",
+                "left",
+                "top",
+                "right",
+                "bottom",
+                "word",
+                "block_no",
+                "line_no",
+                "word_no",
+            ],
+        )
+        words["rounded_bottom"] = (words.bottom / 10).round() * 10  # Allende
+
+        self.ddump(words, "words")
+        return words
+
+    def convert(self, paras: pd.DataFrame, tts: Callable):
+        """Convert text to audio"""
         tosay = paras
         if self.args.first_prefix:
-            self.args.first_paragraph = paras.index[paras.text.str.startswith(self.args.first_prefix)][0]
+            self.args.first_paragraph = paras.index[
+                paras.text.str.startswith(self.args.first_prefix)
+            ][0]
         if self.args.first_paragraph:
             tosay = tosay.loc[tosay.index >= self.args.first_paragraph]
 
         if self.args.last_prefix:
-            self.args.last_paragraph = paras.index[paras.text.str.startswith(self.args.last_prefix)][0]
+            self.args.last_paragraph = paras.index[
+                paras.text.str.startswith(self.args.last_prefix)
+            ][0]
         if self.args.last_paragraph:
             tosay = tosay.loc[tosay.index <= self.args.last_paragraph]
 
         if self.args.max_paragraphs:
-            tosay = tosay.iloc[:self.args.max_paragraphs]
+            tosay = tosay.iloc[: self.args.max_paragraphs]
 
         if len(tosay) < len(paras):
             print(f"TTS (paragraphs: {len(tosay)} of {len(paras)})")
@@ -277,6 +311,7 @@ class Pdf2Utf():
         self.sox_and_rm(aiff, path)
 
     def sox_and_rm(self, curr, path):
+        """Run sox to convert an audio file and delete the original"""
         if curr == path:
             return
         subprocess.run(["sox", str(curr), str(path)], check=True)
@@ -284,11 +319,9 @@ class Pdf2Utf():
 
     def list_google_voices(self):
         """List Google cloud voices"""
-        from google.cloud import texttospeech as tts
-
         prefix = self.args.google_voice[:-1]
         print(f"Asking Google for voices starting with {repr(prefix)}...")
-        client = tts.TextToSpeechClient()
+        client = gg_tts.TextToSpeechClient()
         for voice in client.list_voices().voices:
             if any(lang.startswith(prefix) for lang in voice.language_codes):
                 print(
@@ -299,14 +332,15 @@ class Pdf2Utf():
 
     def google_tts(self, text: str, pause: int, path: Path):
         """TTS using Google cloud."""
-        from google.cloud import texttospeech as tts
-
-        if "client" not in self.gstate:
+        if self.gg_client is None:
             name = self.args.google_voice
-            self.gstate["client"] = tts.TextToSpeechClient()
-            self.gstate["voice"] = tts.VoiceSelectionParams(
+            self.gg_client = gg_tts.TextToSpeechClient()
+            self.gg_voice = gg_tts.VoiceSelectionParams(
                 name=name,
                 language_code=re.sub(r"^([a-z][a-z]-[A-Z][A-Z])", r"\1", name),
+            )
+            self.gg_audio = (
+                gg_tts.AudioConfig(audio_encoding=gg_tts.AudioEncoding.OGG_OPUS),
             )
 
         parts = [
@@ -317,11 +351,11 @@ class Pdf2Utf():
         ]
 
         ogg = path.with_suffix(".ogg")
-        response = self.gstate["client"].synthesize_speech(
+        response = self.gg_client.synthesize_speech(
             request={
-                "voice": self.gstate["voice"],
-                "audio_config": tts.AudioConfig(audio_encoding=tts.AudioEncoding.OGG_OPUS),
-                "input": tts.SynthesisInput(ssml="".join(parts)),
+                "voice": self.gg_voice,
+                "audio_config": self.gg_audio,
+                "input": gg_tts.SynthesisInput(ssml="".join(parts)),
             }
         )
 
@@ -330,13 +364,21 @@ class Pdf2Utf():
 
         self.sox_and_rm(ogg, path)
 
-    def ddump(self, obj, name):
+    def ddump(self, obj, name: str):
+        """Debug dump of an object"""
         if not self.args.debug:
             return
-        path = self.args.output.parent / f"{THIS}-{name}.pickle"
-        print(f"(debug) Writing {path}")
-        with open(path, "wb") as fobj:
-            pickle.dump(obj, fobj)
+
+        path = self.args.output.parent / f"{THIS}-{name}"
+        if isinstance(obj, pd.DataFrame):
+            path = path.with_suffix(".parquet")
+            print(f"(debug) Writing {path}")
+            obj.to_parquet(path)
+        else:
+            path = path.with_suffix(".pickle")
+            print(f"(debug) Writing {path}")
+            with open(path, "wb") as fobj:
+                pickle.dump(obj, fobj)
 
     @classmethod
     def most_common(cls, series) -> float:
