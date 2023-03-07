@@ -21,7 +21,7 @@ except ImportError:
 
 
 PAUSE_TO_GAP_MS = {2: 3000, 1: 1000}
-PAUSE_TO_MIN_WORDS = {2: 5, 1: 10}
+PAUSE_TO_MIN_WORDS = {2: 5, 1: 20}
 THIS = Path(__file__).stem
 NON_LOWER_RE = r"[^a-z\xDF-\xF6\xF8-\xFF]"
 HEADER_RE = f"{NON_LOWER_RE}*[A-Z]{NON_LOWER_RE}*"
@@ -222,13 +222,13 @@ class Pdf2Utf:
         paras["n_words"] = paras.text.str.split(r"\s", regex=True).str.len()
 
         # Trivial section splitting
-        curr_sect = 1
+        curr_sect = 1  # TODO: para
         curr_n_words = 0
         sects = []
         for para, row in paras.iterrows():
             curr_n_words += row.n_words
             if curr_n_words >= PAUSE_TO_MIN_WORDS[row.pause]:
-                curr_sect += 1
+                curr_sect += 1  # TODO: PARA!!!
                 curr_n_words = 0
             sects.append(curr_sect)
         paras["sect"] = sects
