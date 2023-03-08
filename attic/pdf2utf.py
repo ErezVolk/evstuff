@@ -78,6 +78,8 @@ class Pdf2Utf:
             "--force", action="store_true", help="Generate audio even if file exists"
         )
         parser.add_argument("-S", "--suffix", default="mp3")
+        parser.add_argument("--small-delta", default=0.55)
+        parser.add_argument("--big-delta", default=5)
         self.parser = parser
         self.args = parser.parse_args()
 
@@ -133,9 +135,11 @@ class Pdf2Utf:
         book.drop(book.index[book.text == book.page_label], inplace=True)
 
         common_height = book.height - self.most_common(book.height)
-        book["bigness"] = common_height.map(
-            lambda h: "s" if h < -1 else "n" if h < 5 else "l"  # Allende
-        )
+        book["bigness"] = common_height.map(lambda h: (
+            "s" if h < self.args.small_delta
+            else "n" if h < self.args.big_delta
+            else "l"  # Allende
+        ))
         for bigness in book.bigness.unique():
             tmap = book.bigness == bigness
             book.loc[tmap, "left_margin"] = (
