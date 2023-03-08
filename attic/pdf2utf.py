@@ -136,7 +136,7 @@ class Pdf2Utf:
 
         common_height = book.height - self.most_common(book.height)
         book["bigness"] = common_height.map(lambda h: (
-            "s" if h < self.args.small_delta
+            "s" if h < -self.args.small_delta
             else "n" if h < self.args.big_delta
             else "l"  # Allende
         ))
