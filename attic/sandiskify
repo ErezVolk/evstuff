@@ -85,7 +85,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
 
     m3ufn = args.output / f"{args.playlist_name or args.output.name}.m3u"
-    coverable = args.suffix.lower() == ".mp3"
+    coverable = args.suffix.lower() == "mp3"
 
     print(f"Writing {len(files)} files to {m3ufn}")
     with open(m3ufn, "w", encoding="utf-8", newline="\r\n") as m3u:
