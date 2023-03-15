@@ -155,6 +155,8 @@ class Pdf2Utf:
             overlap_tmap = book.page_no == drop_row.page_no
             overlap_tmap &= book.bigness != "l"
             overlap_tmap &= book.top.between(drop_row.top, drop_row.bottom)
+            if overlap_tmap.sum() == 0:
+                continue
             top_idx = book[overlap_tmap].top.idxmin()
             book.loc[overlap_tmap, "left"] = book.at[top_idx, "left_margin"]
             book.at[top_idx, "text"] = f"{drop_row.text}{book.at[top_idx, 'text']}"
@@ -377,7 +379,7 @@ class Pdf2Utf:
             return
 
         self.ddump_no += 1
-        path = self.args.output.parent / f"{THIS}-{self.ddump_no:02d}-{name}"
+        path = self.args.output.parent / f"debug-{THIS}-{self.ddump_no:02d}-{name}"
         if isinstance(obj, pd.DataFrame):
             path = path.with_suffix(".parquet")
             print(f"(debug) Writing {path}")
