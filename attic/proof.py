@@ -24,7 +24,7 @@ class Proof(DocxWorker):
     def parse_args(self):
         """Command line"""
         parser = argparse.ArgumentParser(description=self.__class__.__doc__)
-        parser.add_argument("-i", "--input", type=Path, help="Input .docx")
+        parser.add_argument("input", type=Path, nargs="?", help="Input .docx")
         parser.add_argument(
             "-o", "--outdir", type=Path, help="Output directory"
         )
@@ -186,7 +186,7 @@ class Proof(DocxWorker):
 
             if len(docxs) != 1:
                 parser.error(
-                    f"Please specify --input; "
+                    f"Please specify an input file; "
                     f"I can only guess it if there's exactly 1 .docx file "
                     f"(found {len(docxs)})"
                 )
