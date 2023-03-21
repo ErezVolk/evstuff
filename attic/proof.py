@@ -224,7 +224,7 @@ class Proof(DocxWorker):
     def _save_to(self, infix: str):
         """Save the XML files in a nice format"""
         for name, doc in self.docs.items():
-            output = self.args.outdir / f"proof-{infix}-{name}"
+            output = self.args.outdir / f"proof-{infix}-{name}.xml"
             print(f"Writing {output}")
             doc.write(output, encoding="utf-8", pretty_print=True)
 

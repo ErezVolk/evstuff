@@ -167,3 +167,8 @@ class DocxWorker(abc.ABC):
         if attrib:
             attrib = {self.wtag(key): val for key, val in attrib.items()}
         return self.doc.getroot().makeelement(self.wtag(tag), attrib=attrib)
+
+    def pnode_tnodes(self, pnode: etree._Entity) -> Iterable[etree._Entity]:
+        """Yield every w:r/w:t node in a w:p node"""
+        for tnode in self.xpath(pnode, "./w:r/w:t | ./w:ins/w:r/w:t"):
+            yield tnode
