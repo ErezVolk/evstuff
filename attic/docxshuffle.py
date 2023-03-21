@@ -60,9 +60,10 @@ class DocxShuffle(DocxWorker):
             if text:
                 l2ps[text].append(pnode)
                 num_pnodes += 1
-            body.remove(pnode)
 
         print(f"Number of unique lines: {len(l2ps)} of {num_pnodes}")
+        for pnode in old_pnodes:
+            body.remove(pnode)
         new_pnodes = [
             random.choice(pnodes)
             for pnodes in l2ps.values()
