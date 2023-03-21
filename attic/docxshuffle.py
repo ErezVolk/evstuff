@@ -18,12 +18,7 @@ class DocxShuffle(DocxWorker):
         )
         parser.add_argument(
             "-s",
-            "--shuffled",
-            type=Path,
-        )
-        parser.add_argument(
-            "-S",
-            "--sorted",
+            "--stem",
             type=Path,
         )
         self.args = parser.parse_args()
@@ -38,10 +33,8 @@ class DocxShuffle(DocxWorker):
             print(f"Working on the only .docx here, {self.args.input}")
 
         inpath = self.args.input
-        if not self.args.shuffled:
-            self.args.shuffled = inpath.with_stem(inpath.stem + "-shuffled")
-        if not self.args.sorted:
-            self.args.sorted = inpath.with_stem(inpath.stem + "-sorted")
+        if not self.args.stem:
+            self.args.stem = inpath.stem
 
     def pre_work(self) -> Path:
         self.parse_args()
@@ -56,7 +49,7 @@ class DocxShuffle(DocxWorker):
         l2ps = defaultdict(list)
         for pnode in old_pnodes:
             text = "".join(tnode.text for tnode in self.pnode_tnodes(pnode))
-            text = re.sub(r"^[^א-תa-zA-Z]+", "", text)
+            text = re.sub(r"[^א-תa-zA-Z]", "", text)
             if text:
                 l2ps[text].append(pnode)
                 num_pnodes += 1
@@ -70,9 +63,7 @@ class DocxShuffle(DocxWorker):
         ]
         random.shuffle(new_pnodes)
         body.extend(new_pnodes)
-
-        print(f"Writing {self.args.shuffled}")
-        self.write(self.args.shuffled)
+        self.write_as("shuffled")
 
         for pnode in new_pnodes:
             body.remove(pnode)
@@ -82,8 +73,25 @@ class DocxShuffle(DocxWorker):
             for pnode in pnodes
         ]
         body.extend(new_pnodes)
-        print(f"Writing {self.args.sorted}")
-        self.write(self.args.sorted)
+        self.write_as("sorted")
+
+        for pnode in new_pnodes:
+            body.remove(pnode)
+        new_pnodes = [
+            pnode
+            for line, pnodes in sorted(
+                l2ps.items(),
+                key=lambda item: "".join(reversed(item[0]))
+            )
+            for pnode in pnodes
+        ]
+        body.extend(new_pnodes)
+        self.write_as("detros")
+
+    def write_as(self, suffix: str):
+        path = self.args.input.with_stem(f"{self.args.stem}-{suffix}")
+        print(f"Writing {path}")
+        self.write(path)
 
 
 if __name__ == "__main__":
