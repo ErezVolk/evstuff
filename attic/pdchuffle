@@ -37,6 +37,7 @@ def parse_command_line() -> Namespace:
         help="Throw away chapters with more than MAX pages",
     )
     group = parser.add_mutually_exclusive_group()
+    group.add_argument("-r", "--reverse", action="store_true", help="Reverse order")
     group.add_argument("-s", "--seed", type=int, help="Set random seed")
     group.add_argument(
         "-S",
@@ -60,8 +61,6 @@ def main():
         args.output = args.input.with_stem(f"{args.input.stem}-shuffled")
 
     print(f"{args.input} -> {args.output}")
-
-    rng = randomize(args)
 
     indoc = fitz.Document(args.input)
     n_pages = indoc.page_count
@@ -108,8 +107,12 @@ def main():
     if args.max:
         chaps = chaps.loc[chaps.length <= args.max]
 
-    if rng is not None:
-        # Shuffle
+    if args.no_shuffle:
+        pass  # Leave as-is
+    elif args.reverse:
+        chaps = chaps[::-1]
+    else:
+        rng = randomize(args)
         chaps = chaps.sample(frac=1, random_state=rng.bit_generator)
 
     outdoc = fitz.Document()
@@ -133,9 +136,6 @@ def main():
 
 def randomize(args: Namespace) -> npr.Generator | None:
     """Set random seed"""
-    if args.no_shuffle:
-        return None
-
     generator = npr.default_rng(seed=args.seed)
 
     if args.seed_file is True:

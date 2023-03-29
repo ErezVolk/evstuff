@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """PDF to UTF-8 and audiobook (WIP)"""
+# TODO: U+2011 NON-BREAKING-HYPHEN should consume all preceding whitespace (Jorge)
+# TODO: repeating header/footer (Jorge)
 import argparse
 import html
 from pathlib import Path
