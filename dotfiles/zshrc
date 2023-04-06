@@ -151,6 +151,10 @@ export PATH="$PATH:/usr/local/opt/qt/bin"
 
 export PYRIGHT_PYTHON_FORCE_VERSION="latest"
 
+if [ -f ~/.dircolors ]; then
+	eval `dircolors ~/.dircolors`
+fi
+
 autoload -U zmv
 
 function pman() { groff -Tpdf -mandoc -c `man -w "$@"` | open -f -a "Preview" ;}
