@@ -26,7 +26,7 @@ Function loadConfig() as Object
     Title: "Channel 14"
     streamFormat: "hls"
     Logo: "https://erezvolk.github.io/iltv/images/posters/now14.png"
-    Stream: "https://ch14-channel14.akamaized.net/hls/live/2097589/CH14_CHANNEL14/0/streamPlaylist.m3u8"
+    Stream: "https://ch14-channel14eur.akamaized.net/hls/live/2099700/CH14_CHANNEL14/master.m3u8"
 }
 '{
 '    Title: "Channel 24"
