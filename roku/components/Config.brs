@@ -17,11 +17,11 @@ Function loadConfig() as Object
     Logo: "https://erezvolk.github.io/iltv/images/posters/ipbc_tv_11.png"
     Stream: "https://kan11.media.kan.org.il/hls/live/2024514/2024514/source1_2.5k/chunklist.m3u8"
 }
-{
-    Title: "Channel 13"
-    streamFormat: "hls"
-    Stream: "https://d18b0e6mopany4.cloudfront.net/out/v1/08bc71cf0a0f4712b6b03c732b0e6d25/index_3.m3u8"
-}
+'{
+'    Title: "Channel 13"
+'    streamFormat: "hls"
+'    Stream: "https://d18b0e6mopany4.cloudfront.net/out/v1/08bc71cf0a0f4712b6b03c732b0e6d25/index_3.m3u8"
+'}
 {
     Title: "Channel 14"
     streamFormat: "hls"
