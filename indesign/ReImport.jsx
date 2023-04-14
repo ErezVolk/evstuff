@@ -625,6 +625,8 @@ function ri_groom_resize_tables(ri) {
     var frame = ri_main_frame(ri, pages[i]);
     if (frame == null)
       continue;
+    if (!frame.tables.isValid())
+      continue;
 
     var max_width = frame.geometricBounds[3] - frame.geometricBounds[1];
     var tables = frame.tables.everyItem().getElements();
