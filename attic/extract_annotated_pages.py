@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 import fitz
+HALF = fitz.Matrix(.5, .5)
 
 
 def extract_annotations():
@@ -14,6 +15,12 @@ def extract_annotations():
         type=Path,
         nargs="?",
         help="Input PDF file",
+    )
+    parser.add_argument(
+        "-m",
+        "--model",
+        type=Path,
+        help="Extract changed pages",
     )
     parser.add_argument(
         "output",
@@ -40,15 +47,40 @@ def extract_annotations():
 
     print(f"Reading {args.input}")
     indoc = fitz.Document(args.input)
+    modoc = None
+    if args.model is not None:
+        print(f"Reading model {args.model}")
+        modoc = fitz.Document(args.model)
+        if len(indoc) != len(modoc):
+            print(
+                f"Cannot use {args.model} as the model, as the number of pages"
+                f" is {len(modoc)} != {len(indoc)}"
+            )
+            modoc = None
+
     outdoc = fitz.Document()
-    for page in indoc:
-        if page.annot_names():
-            outdoc.insert_pdf(indoc, page.number, page.number, final=False)
+    for inpage in indoc:
+        if should_copy(inpage, modoc):
+            outdoc.insert_pdf(indoc, inpage.number, inpage.number, final=False)
+
     if (npages := len(outdoc)) == 0:
         print("No annotations found, doing nothing")
         return
     print(f"Writing {args.output} (n = {npages})")
     outdoc.ez_save(args.output)
+
+
+def should_copy(inpage, modoc) -> bool:
+    if inpage.annot_names():
+        return True
+    if modoc is None:
+        return False
+    mopage = modoc[inpage.number]
+    inpix = inpage.get_pixmap(matrix=HALF)
+    mopix = mopage.get_pixmap(matrix=HALF)
+    if inpix.digest != mopix.digest:
+        return True
+    return False
 
 
 if __name__ == "__main__":
