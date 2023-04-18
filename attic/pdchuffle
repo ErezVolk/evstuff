@@ -16,10 +16,11 @@ TOP_OF_PAGE = fitz.Point(0, 0)
 def parse_command_line() -> Namespace:
     """Command-line arguments"""
     parser = ArgumentParser(description="Shuffle chapters in a PDF file")
-    parser.add_argument("input", type=Path, help="PDF file to shuffle")
+    parser.add_argument("input", type=Path, nargs="?", help="PDF file to shuffle")
     parser.add_argument(
         "output", type=Path, nargs="?", help="Shuffled PDF file to create"
     )
+    parser.add_argument("-p", "--shuffle-pages", action="store_true")
     parser.add_argument("-e", "--keep-empty-pages", action="store_true")
     parser.add_argument("-f", "--first-chapter", type=int, default=1)
     parser.add_argument("-l", "--last-chapter", type=int, default=-1)
@@ -56,7 +57,18 @@ def main():
     """Shuffle chapters in a PDF file"""
     args = parse_command_line()
 
-    args.input = args.input
+    if args.input is None:
+        pdfs = [
+            pdf
+            for pdf in Path.cwd().glob("*.pdf")
+            if not pdf.stem.endswith("-shuffled")
+        ]
+        if len(pdfs) != 1:
+            print("Please specify input file")
+            return
+        args.input, = pdfs
+        input(f"Press Enter to shuffle '{args.input.name}'...")
+
     if args.output is None:
         args.output = args.input.with_stem(f"{args.input.stem}-shuffled")
 
@@ -68,22 +80,34 @@ def main():
         print(f"Not enough pages ({n_pages}) in document")
         return
 
-    # In most PyMuPDF APIs, page numbers are 0-based, but in the toc they're 1-based
-    toc = [
-        {"first_1": entry[2], "title": entry[1]}
-        for entry in indoc.get_toc(simple=False)
-        if entry[3].get("to", TOP_OF_PAGE) == TOP_OF_PAGE
-    ]
-    if len(toc) < 1:
-        print("No relevant bookmarks in document")
-        return
+    if args.shuffle_pages:
+        chaps = pd.DataFrame.from_records([
+            {
+                "first_1": n_page,
+                "title": f"{args.input.name}:{n_page}",
+                "n_fonts": len(page.get_fonts()),
+            }
+            for n_page, page in enumerate(indoc, 1)
+        ])
+        if not args.keep_empty_pages:
+            chaps = chaps.query("n_fonts > 0")
+    else:
+        # In most PyMuPDF APIs, page numbers are 0-based, but in the toc they're 1-based
+        toc = [
+            {"first_1": entry[2], "title": entry[1]}
+            for entry in indoc.get_toc(simple=False)
+            if entry[3].get("to", TOP_OF_PAGE) == TOP_OF_PAGE
+        ]
+        if len(toc) < 1:
+            print("No relevant bookmarks in document")
+            return
 
-    chaps = pd.DataFrame.from_records(toc, index="first_1")
-    if 1 not in chaps.index:
-        chaps.loc[1, "title"] = f"{args.input.name}:1"
+        chaps = pd.DataFrame.from_records(toc, index="first_1")
+        if 1 not in chaps.index:
+            chaps.loc[1, "title"] = f"{args.input.name}:1"
 
-    chaps.loc[n_pages + 1, "title"] = "END"
-    chaps = chaps.sort_index().reset_index()
+        chaps.loc[n_pages + 1, "title"] = "END"
+        chaps = chaps.sort_index().reset_index()
 
     if (n_chaps := len(chaps)) < 2:
         print(f"Not enough bookmarks in {args.input}")
