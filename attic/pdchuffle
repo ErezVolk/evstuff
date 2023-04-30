@@ -15,7 +15,7 @@ TOP_OF_PAGE = fitz.Point(0, 0)
 
 class Pdchuffle:
     """Shuffle chapters in a PDF file"""
-    args = Namespace
+    args: Namespace
 
     def parse_command_line(self):
         """Command-line arguments"""
@@ -107,11 +107,11 @@ class Pdchuffle:
                 print("No relevant bookmarks in document")
                 return
 
+            toc.append({"first_1": n_pages + 1, "title": "END"})
             chaps = pd.DataFrame.from_records(toc, index="first_1")
             if 1 not in chaps.index:
                 chaps.loc[1, "title"] = f"{self.args.input.name}:1"
 
-            chaps.loc[n_pages + 1, "title"] = "END"
             chaps = chaps.sort_index().reset_index()
 
         if (n_chaps := len(chaps)) < 2:
@@ -127,7 +127,7 @@ class Pdchuffle:
 
         chaps = chaps.iloc[first_idx:last_idx].copy()
 
-        chaps["next_1"] = chaps.first_1.shift(-1, fill_value=0)
+        chaps["next_1"] = chaps.first_1.shift(-1, fill_value=n_pages + 1)
         chaps["length"] = chaps.next_1 - chaps.first_1
         chaps["first_0"] = chaps.first_1 - 1
         chaps["last_0"] = chaps.next_1 - 2
@@ -162,7 +162,7 @@ class Pdchuffle:
             print(f"Number of pages in {self.args.output}: {outdoc.page_count}")
         outdoc.ez_save(self.args.output)
 
-    def randomize(self) -> npr.Generator | None:
+    def randomize(self) -> npr.Generator:
         """Set random seed"""
         generator = npr.default_rng(seed=self.args.seed)
 
