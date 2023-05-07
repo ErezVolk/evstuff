@@ -33,6 +33,7 @@ class ConvertCV:
 
     def read_tables(self):
         self.works = self.read_tsv("works")
+        self.works.is_book = self.works.in_he == ""
         pubs = self.read_tsv("publishers")
         self.lgs = self.read_tsv("lgs").set_index("lg")
 
@@ -85,14 +86,13 @@ class ConvertCV:
             "language": self.works.lg.map(orig_map),
             "year": self.works.year,
             "author": self.works.author_lat,
+            "is_book": self.works.is_book,
         })
         try:
             author_lang = self.works[f"author_{lang}"]
             frame.loc[author_lang != "", "author"] = author_lang
         except KeyError:
             pass
-
-        # TODO: "IN X"
 
         # Make sure all works have a title in this language
         title = self.works[f"title_{lang}"]
@@ -112,13 +112,7 @@ class ConvertCV:
             axis=1
         )
 
-        # Put in quotation marks when not a whole book
-        # TODO: Add the "in" field
-        tmap = self.works.in_he != ""
-        frame.loc[tmap, "title"] = frame[tmap].apply(
-            lambda row: f'"{row.title}"',
-            axis=1
-        )
+        # TODO: "IN X"
 
         # Publisher's name
         frame["publisher"] = self.works.publisher_he.map(self.pub_lat)
@@ -156,6 +150,9 @@ class ConvertCV:
                 f"/usr/local/bin/python3 {THIS} -l {lang}\n"
             )
         rerun.chmod(0o755)
+
+        # And just for debugging
+        frame.to_csv(f"{path}.csv")
 
     def read_tsv(self, stem: str) -> pd.DataFrame:
         path = f"{stem}.tsv"
