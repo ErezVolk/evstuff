@@ -4,7 +4,11 @@ import argparse
 from pathlib import Path
 import sys
 
+from docxtpl import DocxTemplate
 import pandas as pd
+
+HERE = Path.cwd().resolve()
+THIS = Path(__file__).resolve()
 
 
 class ConvertCV:
@@ -16,7 +20,7 @@ class ConvertCV:
 
     def parse_args(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument("-l", "--langs", metavar="LANG", nargs="+", default=["en", "es"])
+        parser.add_argument("-l", "--langs", metavar="LANG", nargs="+", default=["es"])
         self.args = parser.parse_args()
         self.parser = parser
 
@@ -69,22 +73,22 @@ class ConvertCV:
         if lang == "he":
             raise NotImplementedError("Convert to Hebrew")
 
-        path = f"works-{lang}.csv"
+        path = Path(f"erez-volk-cv-{lang}.docx")
         print(f"Creating {path}...")
+        tpl = DocxTemplate(path.with_stem(path.stem + "-tpl"))
 
-        l10n = self.lgs.loc[lang]
         orig_map = {
             orig: row[f"lg_{lang}"]
             for orig, row in self.lgs.iterrows()
         }
         frame = pd.DataFrame({
-            l10n.orig: self.works.lg.map(orig_map),
-            l10n.year: self.works.year,
-            l10n.author: self.works.author_lat,
+            "language": self.works.lg.map(orig_map),
+            "year": self.works.year,
+            "author": self.works.author_lat,
         })
         try:
             author_lang = self.works[f"author_{lang}"]
-            frame.loc[author_lang != "", l10n.author] = author_lang
+            frame.loc[author_lang != "", "author"] = author_lang
         except KeyError:
             pass
 
@@ -99,11 +103,11 @@ class ConvertCV:
 
         # Add the original title when not this language
         self.works["title"] = title
-        frame[l10n.title] = title
+        frame["title"] = title
         tmap = self.works.lg != lang
         tmap &= self.works.title != self.works.title_orig
         tmap &= self.works.lg.isin(self.latin_langs)
-        frame.loc[tmap, l10n.title] = self.works[tmap].apply(
+        frame.loc[tmap, "title"] = self.works[tmap].apply(
             lambda row: f"{row.title_orig} [{row.title}]",
             axis=1
         )
@@ -111,29 +115,45 @@ class ConvertCV:
         # Put in quotation marks when not a whole book
         # TODO: Add the "in" field
         tmap = self.works.in_he != ""
-        frame.loc[tmap, l10n.title] = frame[tmap].apply(
-            lambda row: f'"{row[l10n.title]}"',
+        frame.loc[tmap, "title"] = frame[tmap].apply(
+            lambda row: f'"{row.title}"',
             axis=1
         )
 
         # Publisher's name
-        frame[l10n.pub] = self.works.publisher_he.map(self.pub_lat)
+        frame["publisher"] = self.works.publisher_he.map(self.pub_lat)
 
         # Sort and leave language only on first book of each
         frame.sort_values(
-            [l10n.orig, l10n.year],
+            ["language", "year"],
             inplace=True,
         )
-        orig = frame[l10n.orig]
-        frame.loc[orig == orig.shift(1), l10n.orig] = ""
-        frame.to_csv(path, index=False)
 
+        # Now the template:
+        tpl.render({
+            "sections": [
+                {
+                    "language": language,
+                    "works": [
+                        {
+                            col: work[col]
+                            for col in frame.columns
+                        }
+                        for _, work in group.iterrows()
+                    ]
+                }
+                for language, group in frame.groupby("language")
+            ]
+        })
+        tpl.save(path)
+
+        # And a rerun script
         rerun = Path(f"{path}.rerun")
         with open(rerun, "wt", encoding="ascii") as fobj:
             fobj.write(
                 f"#!/bin/sh\n"
-                f"cd {Path.cwd().resolve()}\n"
-                f"/usr/local/bin/python3 {Path(__file__).resolve()} -l {lang}\n"
+                f"cd {HERE}\n"
+                f"/usr/local/bin/python3 {THIS} -l {lang}\n"
             )
         rerun.chmod(0o755)
 
