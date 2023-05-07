@@ -12,6 +12,7 @@ class ConvertCV:
     args: argparse.Namespace
     works: pd.DataFrame
     pub_lat: dict[str, str]
+    latin_langs: set[str]
 
     def parse_args(self):
         parser = argparse.ArgumentParser()
@@ -32,6 +33,7 @@ class ConvertCV:
         self.lgs = self.read_tsv("lgs").set_index("lg")
 
         # Works in an unknown language
+        self.latin_langs = set(self.lgs.query("script == 'latin'").index)
         langs = set(self.lgs.index)
         bad_lgs = set(self.works.lg.unique()) - langs
         if bad_lgs:
@@ -78,11 +80,13 @@ class ConvertCV:
         frame = pd.DataFrame({
             l10n.orig: self.works.lg.map(orig_map),
             l10n.year: self.works.year,
+            l10n.author: self.works.author_lat,
         })
         try:
-            frame[l10n.author] = self.works[f"author_{lang}"].fillna(self.works.author_lat)
+            author_lang = self.works[f"author_{lang}"]
+            frame.loc[author_lang != "", l10n.author] = author_lang
         except KeyError:
-            frame[l10n.author] = self.works.author_lat
+            pass
 
         # TODO: "IN X"
 
@@ -96,7 +100,9 @@ class ConvertCV:
         # Add the original title when not this language
         self.works["title"] = title
         frame[l10n.title] = title
-        tmap = (self.works.lg != lang) & (self.works.title != self.works.title_orig)
+        tmap = self.works.lg != lang
+        tmap &= self.works.title != self.works.title_orig
+        tmap &= self.works.lg.isin(self.latin_langs)
         frame.loc[tmap, l10n.title] = self.works[tmap].apply(
             lambda row: f"{row.title_orig} [{row.title}]",
             axis=1
@@ -104,13 +110,16 @@ class ConvertCV:
 
         # Put in quotation marks when not a whole book
         # TODO: Add the "in" field
-        tmap = self.works.in_he.notna()
-        frame.loc[tmap, l10n.title] = self.works[tmap].apply(
-            lambda row: f'"{row.title}"',
+        tmap = self.works.in_he != ""
+        frame.loc[tmap, l10n.title] = frame[tmap].apply(
+            lambda row: f'"{row[l10n.title]}"',
             axis=1
         )
 
+        # Publisher's name
         frame[l10n.pub] = self.works.publisher_he.map(self.pub_lat)
+
+        # Sort and leave language only on first book of each
         frame.sort_values(
             [l10n.orig, l10n.year],
             inplace=True,
@@ -122,7 +131,7 @@ class ConvertCV:
         rerun = Path(f"{path}.rerun")
         with open(rerun, "wt", encoding="ascii") as fobj:
             fobj.write(
-                f"!#/bin/sh\n"
+                f"#!/bin/sh\n"
                 f"cd {Path.cwd().resolve()}\n"
                 f"/usr/local/bin/python3 {Path(__file__).resolve()} -l {lang}\n"
             )

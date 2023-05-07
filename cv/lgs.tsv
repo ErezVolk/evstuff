@@ -1,7 +1,7 @@
-lg	author	title	pub	year	orig	lg_es	lg_en	lg_he
-de	author	title	pub	year	Originalsprache	alemán	German	גרמנית
-en	author	title	pub	year	Language	inglés	English	אנגלית
-es	autor	título	editorial	año	idioma	español	Spanish	ספרדית
-fr	author	title	pub	year	Tradui du/de l'...	francés	French	צרפתית
-pt	author	title	pub	year	Traduzido do	portugués	Portuguese	פורטוגזית
-ru	author	title	pub	year	???	ruso	Russian	רוסית
+lg	script	author	title	pub	year	orig	lg_es	lg_en	lg_he
+de	latin	author	title	pub	year	Originalsprache	alemán	German	גרמנית
+en	latin	author	title	pub	year	Language	inglés	English	אנגלית
+es	latin	autor	título	editorial	año	idioma	español	Spanish	ספרדית
+fr	latin	author	title	pub	year	Tradui du/de l'...	francés	French	צרפתית
+pt	latin	author	title	pub	year	Traduzido do	portugués	Portuguese	פורטוגזית
+ru	cyrillic	author	title	pub	year	???	ruso	Russian	רוסית

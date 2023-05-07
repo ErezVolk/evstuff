@@ -1,47 +1,47 @@
 Language,year,author,title,pub
-English,2013,George Moore,"""The Singular Life of Albert Nobbs""",Zikit
-,2013,Niall Ferguson,"""Civilization: The West and the Rest""",Am Oved
-,2015,Claire Keegan,"""Walk the Blue Fields""",Zikit
-,2017,Jonathan Franzen,"""Purity""",Am Oved
-,2018,Jonathan Franzen,"""The Twenty-Seventh City""",Am Oved
-,2019,George Orwell,"""Nineteen Eighty-Four""",Am Oved
-,2019,A. S. Byatt,"""Possession""",Zmora-Bitan
-,2019,Henry James,"""The Diary of a Man of Fifty""",Nine Lives Press
-,2019,James W. Heisig; Erez Volk,"""Remembering the Kanji I""",MeMo
-,2021,Paul Beatty,"""The White Boy Shuffle""",Am Oved
-,2021,Joshua Cohen,"""The Netanyahus""",Hava Laor
-,2021,Ian McEwan,"""The Cockroach""",Am Oved
-,2022,Stephen Haggard,"""I'll Go to Bed at Noon""",Afarsemon
+English,2013,George Moore,The Singular Life of Albert Nobbs,Zikit
+,2013,Niall Ferguson,Civilization: The West and the Rest,Am Oved
+,2015,Claire Keegan,Walk the Blue Fields,Zikit
+,2017,Jonathan Franzen,Purity,Am Oved
+,2018,Jonathan Franzen,The Twenty-Seventh City,Am Oved
+,2019,George Orwell,Nineteen Eighty-Four,Am Oved
+,2019,A. S. Byatt,Possession,Zmora-Bitan
+,2019,Henry James,The Diary of a Man of Fifty,Nine Lives Press
+,2019,James W. Heisig; Erez Volk,Remembering the Kanji I,MeMo
+,2021,Paul Beatty,The White Boy Shuffle,Am Oved
+,2021,Joshua Cohen,The Netanyahus,Hava Laor
+,2021,Ian McEwan,The Cockroach,Am Oved
+,2022,Stephen Haggard,I'll Go to Bed at Noon,Afarsemon
 ,2022,Jack London,"""The House of Mapuhi""",Nine Lives Press
-,2022,Ronald Firbank,"""The Flower Beneath the Foot""",Afarsemon
-French,2013,Victor Hugo,"""The Hunchback of Notre Dame""",Penn
-,2017,Jean Echenoz,"""Big Blondes""",Locus
-,2018,Laurent Binet,"""The Seventh Function of Language""",Zmora-Bitan
-,2021,Ágota Kristóf,"""The Illiterate""",Nine Lives Press
-,2022,Alejandro Jodorowsky,"""Psychomagic""",Prag
-German,2011,Leonie Swann,"""Garou""",Am Oved
-,2013,Hans Keilson,"""The Death of the Adversary""",Keter
-,2013,Christopher Kloeble,"""Almost Everything Very Fast""",Keter
-,2016,Robert Walser,"""The Tanners""",Am Oved
-,2017,Benedict Wells,"""The End of Loneliness""",Hakibbutz Hameuchad
-,2018,Sibylle Berg,"""Thank You For This Life""",Am Oved
-,2018,Jean Fischer,"""Palestine Today""",Carmel
-,2019,Leonie Swann,"""Gray""",Am Oved
-,2021,Hans Robert Grimm,"""Schlump""",Afarsemon
-,2021,Benedict Wells,"""Almost Ingenius""",Hakibbutz Hameuchad
-Portuguese,2016,João Guimarães Rosa,"""Devil to Pay in the Backlands""",Hakibbutz Hameuchad
-,2019,Bruno Vieira Amaral,"""The Former Things""",Penn
-,2020,Tiago Salazar,"""The Camondo Stairs""",Zmora-Bitan
-,2022,Fernando Pessoa,"""The Word 'Reality' Is Meaningless""",Hava Laor
-Russian,2009,Anton Chekhov,"""The Seagull""",Beersheba Theater
-Spanish,2009,Daniel Gutman,"""Mussolini's Jewish Love""",Zmora-Bitan
-,2010,Joseph Gelinek,"""The Tenth Symphony""",Zmora-Bitan
-,2011,Bernardo Atxaga,"""The Lone Man""",Zmora-Bitan
-,2012,Carlos Ruíz Zafón,"""The Midnight Palace""",Zmora-Bitan
-,2013,Carlos Ruíz Zafón,"""September Lights""",Zmora-Bitan
-,2016,Felisberto Hernández,"""The Balcony""",Nine Lives Press
-,2017,Sergio Bizzio,"""Ten Days in Re""",Nine Lives Press
-,2017,Mario Levrero,"""Leave Everything to Me""",Nine Lives Press
-,2017,Mario Levrero,"""The Empty Speech""",Nine Lives Press
-,2019,Martín Kohan,"""Pending Accounts""",Nine Lives Press
-,2022,Alejandro Jodorowsky,"""Psychomagic""",Prag
+,2022,Ronald Firbank,The Flower Beneath the Foot,Afarsemon
+French,2013,Victor Hugo,Notre-Dame de Paris [The Hunchback of Notre Dame],Penn
+,2017,Jean Echenoz,Les grandes blondes [Big Blondes],Locus
+,2018,Laurent Binet,La séptima función del lenguaje [The Seventh Function of Language],Zmora-Bitan
+,2021,Ágota Kristóf,L'analphabète [The Illiterate],Nine Lives Press
+,2022,Alejandro Jodorowsky,Le théâtre de la guérison [Psychomagic],Prag
+German,2011,Leonie Swann,Garou,Am Oved
+,2013,Hans Keilson,Der Tod des Widersachers [The Death of the Adversary],Keter
+,2013,Christopher Kloeble,Meistens alles sehr schnell [Almost Everything Very Fast],Keter
+,2016,Robert Walser,Geschwister Tanner [The Tanners],Am Oved
+,2017,Benedict Wells,Vom Ende der Einsamkeit [The End of Loneliness],Hakibbutz Hameuchad
+,2018,Sibylle Berg,Vielen Dank für das Leben [Thank You For This Life],Am Oved
+,2018,Jean Fischer,Das heutige Palästina [Palestine Today],Carmel
+,2019,Leonie Swann,Gray,Am Oved
+,2021,Hans Robert Grimm,Schlump,Afarsemon
+,2021,Benedict Wells,Fast genial [Almost Ingenius],Hakibbutz Hameuchad
+Portuguese,2016,João Guimarães Rosa,Grande Sertão: Veredas [Devil to Pay in the Backlands],Hakibbutz Hameuchad
+,2019,Bruno Vieira Amaral,As primeiras coisas [The Former Things],Penn
+,2020,Tiago Salazar,A Escada de Istambul [The Camondo Stairs],Zmora-Bitan
+,2022,Fernando Pessoa,A palavra realidade não ter sentido [The Word 'Reality' Is Meaningless],Hava Laor
+Russian,2009,Anton Chekhov,Чайка [The Seagull],Beersheba Theater
+Spanish,2009,Daniel Gutman,El amor judío de Mussolini [Mussolini's Jewish Love],Zmora-Bitan
+,2010,Joseph Gelinek,La décima sinfonía [The Tenth Symphony],Zmora-Bitan
+,2011,Bernardo Atxaga,El hombre solo [The Lone Man],Zmora-Bitan
+,2012,Carlos Ruíz Zafón,El palacio de la medianoche [The Midnight Palace],Zmora-Bitan
+,2013,Carlos Ruíz Zafón,Las luces de septiembre [September Lights],Zmora-Bitan
+,2016,Felisberto Hernández,"""El balcón [The Balcony]""",Nine Lives Press
+,2017,Sergio Bizzio,Diez días en Re [Ten Days in Re],Nine Lives Press
+,2017,Mario Levrero,Dejen todo en mis manos [Leave Everything to Me],Nine Lives Press
+,2017,Mario Levrero,El discurso vacío [The Empty Speech],Nine Lives Press
+,2019,Martín Kohan,Cuentas pendientes [Pending Accounts],Nine Lives Press
+,2022,Alejandro Jodorowsky,Psicomagia [Psychomagic],Prag
