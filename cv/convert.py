@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+"""Write lists of translations"""
 import argparse
+from pathlib import Path
 import sys
 
 import pandas as pd
@@ -115,8 +117,16 @@ class ConvertCV:
         )
         orig = frame[l10n.orig]
         frame.loc[orig == orig.shift(1), l10n.orig] = ""
-
         frame.to_csv(path, index=False)
+
+        rerun = Path(f"{path}.rerun")
+        with open(rerun, "wt", encoding="ascii") as fobj:
+            fobj.write(
+                f"!#/bin/sh\n"
+                f"cd {Path.cwd().resolve()}\n"
+                f"/usr/local/bin/python3 {Path(__file__).resolve()} -l {lang}\n"
+            )
+        rerun.chmod(0o755)
 
     def read_tsv(self, stem: str) -> pd.DataFrame:
         path = f"{stem}.tsv"
@@ -126,7 +136,7 @@ class ConvertCV:
         frame.index = frame.index + 2
         for col, dtype in zip(frame.columns, frame.dtypes):
             if pd.api.types.is_string_dtype(dtype):
-                frame[col] = frame[col].str.strip()
+                frame[col] = frame[col].fillna("").str.strip()
         return frame
 
 
