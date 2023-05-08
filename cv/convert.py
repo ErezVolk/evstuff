@@ -42,7 +42,7 @@ class ConvertCV:
         langs = set(self.lgs.index)
         bad_lgs = set(self.works.lg.unique()) - langs
         if bad_lgs:
-            self.die(f"Unknown language code(s): {' '.join(map(repr(bad_lgs)))}")
+            self.die(f"Unknown language code(s): {' '.join(map(repr, bad_lgs))}")
 
         # Works with an unknown publisher
         bad_pubs = set(self.works.publisher_he.unique()) - set(pubs.publisher_he)
