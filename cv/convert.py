@@ -121,8 +121,6 @@ class ConvertCV:
             axis=1
         )
 
-        # TODO: "IN X"
-
         # Publisher's name
         frame["publisher"] = self.works.publisher_he.map(self.pub_lat)
 
