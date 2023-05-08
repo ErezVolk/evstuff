@@ -78,6 +78,8 @@ class ConvertCV:
         print(f"Creating {path}...")
         tpl = DocxTemplate(path.with_stem(path.stem + "-tpl"))
 
+        l10n = self.lgs.loc[lang]
+
         orig_map = {
             orig: row[f"lg_{lang}"]
             for orig, row in self.lgs.iterrows()
@@ -87,12 +89,19 @@ class ConvertCV:
             "year": self.works.year,
             "author": self.works.author_lat,
             "is_book": self.works.is_book,
+            "in_work": self.works.in_lat,
         })
+
         try:
             author_lang = self.works[f"author_{lang}"]
             frame.loc[author_lang != "", "author"] = author_lang
         except KeyError:
             pass
+
+        # Multi-author works
+        tmap = frame.author.str.contains(",")
+        l10n_and = f" {l10n.l10n_and} "
+        frame.loc[tmap, "author"] = frame[tmap].author.str.replace(r",\s*", l10n_and, regex=True)
 
         # Make sure all works have a title in this language
         title = self.works[f"title_{lang}"]

@@ -1,7 +1,7 @@
-lg	script	lg_es	lg_en	lg_he
-de	latin	alemán	German	גרמנית
-en	latin	inglés	English	אנגלית
-es	latin	español	Spanish	ספרדית
-fr	latin	francés	French	צרפתית
-pt	latin	portugués	Portuguese	פורטוגזית
-ru	cyrillic	ruso	Russian	רוסית
+lg	script	l10n_and	lg_es	lg_en	lg_he
+de	latin	und	alemán	German	גרמנית
+en	latin	and	inglés	English	אנגלית
+es	latin	y	español	Spanish	ספרדית
+fr	latin	et	francés	French	צרפתית
+pt	latin	e	portugués	Portuguese	פורטוגזית
+ru	cyrillic	и	ruso	Russian	רוסית
