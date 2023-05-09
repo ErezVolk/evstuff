@@ -19,8 +19,20 @@ class ConvertCV:
     latin_langs: set[str]
 
     def parse_args(self):
+        known_lgs = [
+            path.stem[-6:-4]
+            for path in HERE.glob("erez-volk-cv-??-tpl.docx")
+        ]
+
         parser = argparse.ArgumentParser()
-        parser.add_argument("-l", "--langs", metavar="LANG", nargs="+", default=["es"])
+        parser.add_argument(
+            "-l",
+            "--langs",
+            metavar="LANG",
+            nargs="+",
+            default=known_lgs,
+            help=f"Languages [{' '.join(known_lgs)}]",
+        )
         self.args = parser.parse_args()
         self.parser = parser
 
@@ -42,25 +54,38 @@ class ConvertCV:
         langs = set(self.lgs.index)
         bad_lgs = set(self.works.lg.unique()) - langs
         if bad_lgs:
-            self.die(f"Unknown language code(s): {' '.join(map(repr, bad_lgs))}")
+            self.die(
+                f"Unknown language code(s): "
+                f"{' '.join(map(repr, bad_lgs))}"
+            )
 
         # Works with an unknown publisher
-        bad_pubs = set(self.works.publisher_he.unique()) - set(pubs.publisher_he)
+        work_pubs = self.works.publisher_he.unique()
+        known_pubs = pubs.publisher_he
+        bad_pubs = set(work_pubs) - set(known_pubs)
         if bad_pubs:
             self.die(f"Unknown publisher(s): {' '.join(map(repr, bad_pubs))}")
         self.pub_lat = {
-            row.publisher_he: row.publisher_lat
-            for _, row in pubs.iterrows()
+            row.publisher_he: row.publisher_lat for _, row in pubs.iterrows()
         }
 
         # Works without the bare minimum
-        tmap = self.works[["author_he", "title_he", "author_lat", "year"]].isna().any(axis=1)
+        tmap = (
+            self.works[["author_he", "title_he", "author_lat", "year"]]
+            .isna()
+            .any(axis=1)
+        )
         if tmap.sum() > 0:
-            self.die(f"Missing Hebrew author/title on works.tsv:{',':join(map(str(self.works.index[tmap])))}")
+            self.die(
+                f"Missing Hebrew author/title on works.tsv:"
+                f"{',':join(map(str(self.works.index[tmap])))}"
+            )
 
         # Works with no title in the original language
         for lang in langs:
-            self.works.loc[self.works.lg == lang, "title_orig"] = self.works[f"title_{lang}"]
+            self.works.loc[self.works.lg == lang, "title_orig"] = self.works[
+                f"title_{lang}"
+            ]
         tmap = self.works.title_orig.isna()
         if tmap.sum() > 0:
             bad = self.works[tmap].title_he
@@ -76,7 +101,6 @@ class ConvertCV:
 
         path = Path(f"erez-volk-cv-{lang}.docx")
         print(f"Creating {path}...")
-        tpl = DocxTemplate(path.with_stem(path.stem + "-tpl"))
 
         l10n = self.lgs.loc[lang]
 
@@ -84,13 +108,15 @@ class ConvertCV:
             orig: row[f"lg_{lang}"]
             for orig, row in self.lgs.iterrows()
         }
-        frame = pd.DataFrame({
-            "language": self.works.lg.map(orig_map),
-            "year": self.works.year,
-            "author": self.works.author_lat,
-            "is_book": self.works.is_book,
-            "in_work": self.works.in_lat,
-        })
+        frame = pd.DataFrame(
+            {
+                "language": self.works.lg.map(orig_map),
+                "year": self.works.year,
+                "author": self.works.author_lat,
+                "is_book": self.works.is_book,
+                "in_work": self.works.in_lat,
+            }
+        )
 
         try:
             author_lang = self.works[f"author_{lang}"]
@@ -101,7 +127,9 @@ class ConvertCV:
         # Multi-author works
         tmap = frame.author.str.contains(",")
         l10n_and = f" {l10n.l10n_and} "
-        frame.loc[tmap, "author"] = frame[tmap].author.str.replace(r",\s*", l10n_and, regex=True)
+        frame.loc[tmap, "author"] = frame[tmap].author.str.replace(
+            r",\s*", l10n_and, regex=True
+        )
 
         # Make sure all works have a title in this language
         title = self.works[f"title_{lang}"]
@@ -117,8 +145,7 @@ class ConvertCV:
         tmap &= self.works.title != self.works.title_orig
         tmap &= self.works.lg.isin(self.latin_langs)
         frame.loc[tmap, "title"] = self.works[tmap].apply(
-            lambda row: f"{row.title_orig} [{row.title}]",
-            axis=1
+            lambda row: f"{row.title_orig} [{row.title}]", axis=1
         )
 
         # Publisher's name
@@ -129,23 +156,27 @@ class ConvertCV:
             ["language", "year"],
             inplace=True,
         )
+        frame["n"] = frame.title.notna().cumsum()
+
+        # Just for debugging
+        frame.to_csv(f"{path}.csv", index=False)
 
         # Now the template:
-        tpl.render({
-            "sections": [
-                {
-                    "language": language,
-                    "works": [
-                        {
-                            col: work[col]
-                            for col in frame.columns
-                        }
-                        for _, work in group.iterrows()
-                    ]
-                }
-                for language, group in frame.groupby("language")
-            ]
-        })
+        tpl = DocxTemplate(path.with_stem(path.stem + "-tpl"))
+        tpl.render(
+            {
+                "sections": [
+                    {
+                        "language": language,
+                        "works": [
+                            {col: work[col] for col in frame.columns}
+                            for _, work in group.iterrows()
+                        ],
+                    }
+                    for language, group in frame.groupby("language")
+                ]
+            }
+        )
         tpl.save(path)
 
         # And a rerun script
@@ -157,9 +188,6 @@ class ConvertCV:
                 f"/usr/local/bin/python3 {THIS} -l {lang}\n"
             )
         rerun.chmod(0o755)
-
-        # And just for debugging
-        frame.to_csv(f"{path}.csv")
 
     def read_tsv(self, stem: str) -> pd.DataFrame:
         path = f"{stem}.tsv"
