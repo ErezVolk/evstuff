@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Write lists of translations"""
+"""Create translation CVs"""
 import argparse
 from pathlib import Path
+import re
 import sys
 
 from docxtpl import DocxTemplate
@@ -12,16 +13,20 @@ THIS = Path(__file__).resolve()
 
 
 class ConvertCV:
+    """Create translation CVs"""
     parser: argparse.ArgumentParser
     args: argparse.Namespace
     works: pd.DataFrame
     pub_lat: dict[str, str]
+    lgs: pd.DataFrame
     latin_langs: set[str]
 
     def parse_args(self):
+        """Usage of this script"""
         known_lgs = [
-            path.stem[-6:-4]
-            for path in HERE.glob("erez-volk-cv-??-tpl.docx")
+            match.group(1)
+            for path in HERE.iterdir()
+            if (match := re.match(r"erez-volk-cv-(..)-tpl\.docx$", path.name))
         ]
 
         parser = argparse.ArgumentParser()
@@ -37,6 +42,7 @@ class ConvertCV:
         self.parser = parser
 
     def run(self):
+        """The main function"""
         self.parse_args()
         self.read_tables()
 
@@ -44,6 +50,7 @@ class ConvertCV:
             self.convert_to(lang)
 
     def read_tables(self):
+        """Read the lists of works, publishers, etc."""
         self.works = self.read_tsv("works")
         self.works.is_book = self.works.in_he == ""
         pubs = self.read_tsv("publishers")
@@ -92,10 +99,12 @@ class ConvertCV:
             self.die(f"Missing original titles(s): {' '.join(map(repr, bad))}")
 
     def die(self, msg: str):
+        """Print error message and quit"""
         print(msg)
         sys.exit(-1)
 
     def convert_to(self, lang: str):
+        """Generate CV for a single language"""
         if lang == "he":
             raise NotImplementedError("Convert to Hebrew")
 
@@ -190,6 +199,7 @@ class ConvertCV:
         rerun.chmod(0o755)
 
     def read_tsv(self, stem: str) -> pd.DataFrame:
+        """Read tab-separated values and strip whitespace"""
         path = f"{stem}.tsv"
         frame = pd.read_csv(path, sep="\t")
         print(f"Reading {path}: n = {len(frame)}")
