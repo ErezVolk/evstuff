@@ -116,9 +116,12 @@ class BingWallpaper:
         if not source:
             source = href
 
-        match = re.search(r"[.&=?]([^.&=?]*\.jpg)[.&=?]", href)
+        match = re.search(r"[.&=?]([^.&=?]*\.(jpg|webp))[.&=?]", href)
         if not match:
             self.write(f"I don't know what to do with {desc}")
+            return
+
+        if match.group(2) != "jpg":
             return
 
         self.debug(f"Considering {desc}")
