@@ -10,6 +10,8 @@ import re
 import shutil
 import subprocess
 
+import typing as t
+
 from bidi.algorithm import get_display
 from lxml import etree
 
@@ -96,6 +98,7 @@ class Proof(DocxWorker):
         self.figure_out_paths(parser)
         self._load_antidict()
 
+    BOUNDARY_RE = r"(\b|[^a-zA-Zא-ת])"
     TOTAL_ITALICIZED_KEY = "italicized (total)"
     ITALICABLE_RE = (  # Must work in XPath
         r"\b([A-Z]?[A-Z]?[a-z][A-Za-z]*|[A-Z][A-Z]?)\b"
@@ -410,11 +413,12 @@ class Proof(DocxWorker):
             return
 
         with open(self.args.antidict, encoding="utf-8") as fobj:
-            antire = "|".join(line.strip() for line in fobj if line[0] != "#")
+            antire = "|".join(self._uncommented_lines(fobj))
         if not antire:
             return
 
-        pattern = f"\\b({antire})\\b"
+        pattern = f"{self.BOUNDARY_RE}({antire}){self.BOUNDARY_RE}"
+        print(pattern)
         try:
             self.antidict = re.compile(pattern)
         except re.error as exc:
@@ -423,6 +427,15 @@ class Proof(DocxWorker):
                 context = pattern[(exc.pos - 10):(exc.pos + 10)]
                 print(f" - {exc}")
                 print(f" - Context: {repr(context)}")
+
+    def _uncommented_lines(self, fobj: t.TextIO) -> t.Iterable[str]:
+        for line in fobj:
+            if "#" in line:
+                line = line[:line.index('#')]
+            line = line.strip()
+            if line:
+                print(line)
+                yield line
 
     def _check_antidict(self):
         """Look for misspelled words"""
