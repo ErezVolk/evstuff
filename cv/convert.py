@@ -52,7 +52,7 @@ class ConvertCV:
     def read_tables(self):
         """Read the lists of works, publishers, etc."""
         self.works = self.read_tsv("works")
-        self.works.is_book = self.works.in_he == ""
+        self.works["is_book"] = self.works.in_he == ""
         pubs = self.read_tsv("publishers")
         self.lgs = self.read_tsv("lgs").set_index("lg")
 
