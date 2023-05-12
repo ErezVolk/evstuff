@@ -61,10 +61,9 @@ class ConvertCV:
         langs = set(self.lgs.index)
         bad_lgs = set(self.works.lg.unique()) - langs
         if bad_lgs:
-            self.die(
-                f"Unknown language code(s): "
-                f"{' '.join(map(repr, bad_lgs))}"
-            )
+            for _, work in self.works[self.works.lg.isin(bad_lgs)].iterrows():
+                print(f'Was "{work.title_he}" really translated from the "{work.lg}"?')
+            self.die("Unknown language code(s)")
 
         # Works with an unknown publisher
         work_pubs = self.works.publisher_he.unique()
