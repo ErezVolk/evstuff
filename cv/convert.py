@@ -105,10 +105,8 @@ class ConvertCV:
     def convert_to(self, lang: str):
         """Generate CV for a single language"""
         if lang == "he":
-            raise NotImplementedError("Convert to Hebrew")
-
-        path = Path(f"erez-volk-cv-{lang}.docx")
-        print(f"Creating {path}...")
+            self.convert_to_hebrew()
+            return
 
         l10n = self.lgs.loc[lang]
 
@@ -159,12 +157,50 @@ class ConvertCV:
         # Publisher's name
         frame["publisher"] = self.works.publisher_he.map(self.pub_lat)
 
-        # Sort and leave language only on first book of each
+        self.feed_template(lang, frame)
+
+    def convert_to_hebrew(self):
+        """Generate CV for Hebrew"""
+        orig_map = {
+            orig: row["lg_he"]
+            for orig, row in self.lgs.iterrows()
+        }
+        frame = pd.DataFrame(
+            {
+                "language": self.works.lg.map(orig_map),
+                "year": self.works.year,
+                "author": self.works.author_he,
+                "is_book": self.works.is_book,
+                "in_work": self.works.in_he,
+                "publisher": self.works.publisher_he,
+                "title": self.works.title_he,
+            }
+        )
+
+        # Multi-author works
+        tmap = frame.author.str.contains(",")
+        frame.loc[tmap, "author"] = frame[tmap].author.str.replace(
+            r",\s*", " ו", regex=True
+        )
+
+        # Make sure all works have a title in this language
+        if frame.title.isna().sum() > 0:
+            bad = self.works[tmap].title_he
+            self.die(f"Missing Hebrew titles(s): {' '.join(map(repr, bad))}")
+
+        self.feed_template("he", frame)
+
+    def feed_template(self, lang: str, frame: pd.DataFrame):
+        """Create the actual output files"""
+        # Sort and number
         frame.sort_values(
             ["language", "year"],
             inplace=True,
         )
         frame["n"] = frame.title.notna().cumsum()
+
+        path = Path(f"erez-volk-cv-{lang}.docx")
+        print(f"Creating {path}...")
 
         # Just for debugging
         frame.to_csv(f"{path}.csv", index=False)
