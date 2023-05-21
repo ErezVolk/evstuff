@@ -1,4 +1,5 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3
+"""Will I Like It?"""
 import argparse
 import logging
 from pathlib import Path
@@ -17,9 +18,13 @@ logger.setLevel(logging.INFO)
 
 
 class LikeIt:
+    """Will I Like It?"""
     NO_TITLE = "(N/A)"
 
+    args: argparse.Namespace
+
     def run(self):
+        """Main"""
         parser = argparse.ArgumentParser(
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
             description="LibraryThing 'Will You Like It?'",
@@ -59,7 +64,7 @@ class LikeIt:
         done = {}
         undone = []
         checkpoint = time.time()
-        for label, row in wishlist.iterrows():
+        for _, row in wishlist.iterrows():
             title = row.Title or self.NO_TITLE
             ltw = row.LTW
             tmap = wishlist.LTW == ltw
@@ -88,27 +93,27 @@ class LikeIt:
                 logger.warning("%s: Timeout", desc)
                 continue
 
-            if reply.status_code != requests.codes.ok:
+            if not reply:
                 undone.append(desc)
                 logger.warning("%s: HTTP %d", desc, reply.status_code)
                 continue
 
             text = reply.text
-            if not (m := re.search(r'title="([0-9.]+), uncertainty ([0-9]+)"', text)):
+            if not (match := re.search(r'title="([0-9.]+), uncertainty ([0-9]+)"', text)):
                 undone.append(desc)
                 logger.warning("%s: BAD REPLY", desc)
                 if self.args.debug:
                     logger.warning(text)
                     break
                 continue
+            (score, uncertainty) = match.groups()
 
             if title == self.NO_TITLE:
-                if (n := re.search(r"<i>([^<]+)</i> \(prediction confidence:", text)) :
-                    title = n.group(1)
+                if (match := re.search(r"<i>([^<]+)</i> \(prediction confidence:", text)) :
+                    title = match.group(1)
                     desc = f"[{ltw}] {title}"
                     wishlist.loc[tmap, "Title"] = title
 
-            (score, uncertainty) = m.groups()
             logger.info("%s: score %s, uncertainty %s", desc, score, uncertainty)
             done[ltw] = (score, uncertainty)
 
@@ -132,9 +137,11 @@ class LikeIt:
                 wishlist.to_excel(self.args.output)
 
     def read_wishlist(self) -> pd.DataFrame:
+        """Read the whole thing"""
         return pd.read_excel(self.args.input)
 
     def make_wishlist(self) -> pd.DataFrame:
+        """Create mock spreadsheet when given LTW(s) from the command line"""
         return pd.DataFrame(
             {
                 "Title": self.NO_TITLE,
