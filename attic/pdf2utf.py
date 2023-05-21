@@ -10,6 +10,7 @@ import re
 import subprocess
 
 from typing import Callable
+from typing import Iterable
 
 import numpy as np
 import pandas as pd
@@ -82,6 +83,10 @@ class Pdf2Utf:
         parser.add_argument("-S", "--suffix", default="mp3")
         parser.add_argument("--small-delta", default=0.55)
         parser.add_argument("--big-delta", default=5)
+
+        parser.add_argument("--top", type=float, default=0.0, help="Extra top margin (pt)")
+        parser.add_argument("--bottom", type=float, default=0.0, help="Extra bottom margin (pt)")
+
         self.parser = parser
         self.args = parser.parse_args()
 
@@ -215,6 +220,7 @@ class Pdf2Utf:
         book.loc[book.from_prev > 30, "pause"] = 2  # Allende
         book.loc[header_tmap, "pause"] = 3  # Heuristic
         para_tmap = book.pause > 0
+        para_tmap.iloc[0] = True
 
         book.loc[para_tmap, "para"] = np.arange(1, para_tmap.sum() + 1)
         book.para = book.para.fillna(method="pad").astype(int)
@@ -253,7 +259,7 @@ class Pdf2Utf:
             [
                 [page_no, page.get_label() or str(page_no)] + list(rec)
                 for page_no, page in enumerate(doc, 1)
-                for rec in page.get_text("words", clip=page.trimbox)
+                for rec in self.get_page_text(page)
             ],
             columns=[
                 "page_no",
@@ -272,6 +278,17 @@ class Pdf2Utf:
 
         self.ddump(words, "words")
         return words
+
+    def get_page_text(self, page: fitz.Page) -> Iterable[tuple]:
+        """Get text in the relevant area of the page."""
+        box = page.trimbox
+        clip = fitz.Rect(
+            box.x0,
+            box.y0 + self.args.top,
+            box.x1,
+            box.y1 - self.args.bottom,
+        )
+        return page.get_text("words", clip=clip)
 
     def convert(self, paras: pd.DataFrame, tts: Callable):
         """Convert text to audio"""
