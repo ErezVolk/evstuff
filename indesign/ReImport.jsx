@@ -194,7 +194,7 @@ function ri_get_options(ri) {
           ri.ui_post_convert_post_its =
             checkboxControls.add({
               staticLabel: "(If Tagged Text) Convert comments",
-              checkedState: true,
+              checkedState: !ri.saved_settings.unconvert_post_its,
             });
         }
       }
@@ -367,6 +367,7 @@ function ri_do_import(ri) {
     hide_import_options: !ri.ui_import_options.checkedState,
     keep_grep: !ri.ui_disable_grep.checkedState,
     keep_reflow: !ri.ui_disable_reflow.checkedState,
+    unconvert_post_its: !ri.ui_post_convert_post_its,
     unfix_justification: !ri.ui_groom_fully_justify.checkedState,
     unfix_masters: !ri.ui_groom_fix_masters,
     unfix_specific_fonts: !ri.ui_post_fix_specific_fonts,
@@ -512,8 +513,10 @@ function ri_post_convert_post_its(ri) {
   app.findGrepPreferences.appliedCharacterStyle = ugly_ref_style;
 
   var ugly_refs = app.findGrep();
-  for (var i = 0; i < ugly_refs.length; ++ i) {
+  for (var i = ugly_refs.length - 1; i >= 0; -- i) {
     var ugly_ref = ugly_refs[i].footnotes[0];
+    if (!ugly_ref.isValid)
+      continue;
 
     var nice_frame = ri.doc.textFrames.add();
 
