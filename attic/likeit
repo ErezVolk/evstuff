@@ -47,7 +47,6 @@ class LikeIt:
         parser.add_argument(
             "ltws",
             metavar="WORK_ID",
-            type=int,
             nargs="*",
             help="Query specific LibraryThing works instead of spreadsheet",
         )
