@@ -2,6 +2,7 @@
 """Download latest wallpapers from bing"""
 import argparse
 from io import StringIO
+import json
 import re
 from pathlib import Path
 
@@ -76,16 +77,20 @@ class BingWallpaper:
             f"{self.BASE}HPImageArchive.aspx?format=js&n={self.args.archive}",
             timeout=self.args.timeout,
         )
-        if reply.status_code != requests.codes.ok:
+        if not reply:
             return
-        for image in reply.json()["images"]:
+        try:
+            images = reply.json()["images"]
+        except json.JSONDecodeError:
+            return
+        for image in images:
             self.handle_href(image["url"])
 
     def download(self, country_code):
         """Download today's image from a specific country code."""
         url = f"{self.BASE}?cc={country_code}"
         page_r = requests.get(url, timeout=self.args.timeout)
-        if page_r.status_code != requests.codes.ok:
+        if not page_r:
             return
 
         parser = lxml.etree.HTMLParser()
