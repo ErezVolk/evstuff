@@ -83,6 +83,7 @@ class Utf2Tts:
             print("Not creating audiobook")
             return
 
+        print(f"Number of paragraphs: {len(tosay)}")
         stem = self.args.stem or self.args.input.stem
         for chap, group in tosay.groupby("chap"):
             path = self.args.input.with_name(f"{stem}-{chap:04d}.{self.args.suffix}")
@@ -116,8 +117,9 @@ class Utf2Tts:
             curr.unlink()
 
         print(f"... {path} {path.stat().st_size:,} Bytes")
+
+        self.n_files += 1
         if self.args.max_files:
-            self.n_files += 1
             if self.n_files >= self.args.max_files:
                 print("Reached maximum number of files.")
                 sys.exit(0)
