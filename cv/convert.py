@@ -51,8 +51,7 @@ class ConvertCV:
 
     def read_tables(self):
         """Read the lists of works, publishers, etc."""
-        self.works = self.read_tsv("works")
-        self.works["is_book"] = self.works.in_he == ""
+        self.read_works()
         pubs = self.read_tsv("publishers")
         self.lgs = self.read_tsv("lgs").set_index("lg")
 
@@ -96,6 +95,20 @@ class ConvertCV:
         if tmap.sum() > 0:
             bad = self.works[tmap].title_he
             self.die(f"Missing original titles(s): {' '.join(map(repr, bad))}")
+
+    def read_works(self):
+        """Read works table and remove unwanted things"""
+        self.works = self.read_tsv("works")
+        n_all = len(self.works)
+
+        # Remove unpublished works
+        self.works = self.works.query("year.notna()")
+        self.works.year = self.works.year.astype(int)
+        n_out = len(self.works)
+        if n_out < n_all:
+            print(f"Published: {n_out} of {n_all}")
+
+        self.works["is_book"] = self.works.in_he == ""
 
     def die(self, msg: str):
         """Print error message and quit"""
