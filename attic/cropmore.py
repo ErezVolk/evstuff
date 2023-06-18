@@ -19,16 +19,22 @@ class CropMore:
         parser.add_argument("output", type=Path, nargs="?", help="Output PDF")
         parser.add_argument("-f", "--first-page", type=int, help="First page")
         parser.add_argument("-l", "--last-page", type=int, help="Last page")
-        parser.add_argument("-T", "--top", type=int, default=0, help="Top crop")
-        parser.add_argument("-B", "--bottom", type=int, default=0, help="Bottom crop")
-        parser.add_argument("-L", "--left", type=int, default=0, help="Left crop")
-        parser.add_argument("-R", "--right", type=int, default=0, help="Right crop")
+        parser.add_argument("-M", "--media", action="store_true", help="Use mediabox as basis for cropping")
+        parser.add_argument("-A", "--all", type=int, default=0, help="Crop on all sides (--top etc. override this)")
+        parser.add_argument("-T", "--top", type=int, help="Top crop")
+        parser.add_argument("-B", "--bottom", type=int, help="Bottom crop")
+        parser.add_argument("-L", "--left", type=int, help="Left crop")
+        parser.add_argument("-R", "--right", type=int, help="Right crop")
         parser.add_argument("-p", "--pixmap", action="store_true", help="Convert to graphics")
         parser.add_argument("-D", "--dpi", type=int, default=600, help="Used when --pixmap")
 
         args = parser.parse_args()
 
-        self.cropping = any([args.top, args.bottom, args.left, args.right])
+        for item in ["top", "bottom", "left", "right"]:
+            if getattr(args, item) is None:
+                setattr(args, item, args.all)
+
+        self.cropping = any([args.top, args.bottom, args.left, args.right, args.media])
         if not any([args.first_page, args.last_page, self.cropping]):
             parser.error("You must specify something to trim")
 
@@ -65,7 +71,7 @@ class CropMore:
 
         if self.cropping:
             for page in odoc:
-                box = page.cropbox
+                box = page.mediabox if self.args.media else page.cropbox
                 page.set_cropbox(fitz.Rect(
                     box.x0 + self.args.left,
                     box.y0 + self.args.top,
