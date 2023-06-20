@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Shuffle paragraphs in a Word document"""
 import argparse
 from collections import defaultdict
 from pathlib import Path
@@ -6,13 +7,20 @@ import pickle
 import random
 import re
 
+from lxml import etree
 import numpy as np
 
 from docx_worker import DocxWorker
 
 
 class DocxShuffle(DocxWorker):
+    """Shuffle paragraphs in a Word document"""
+    args: argparse.Namespace
+    body: etree._Entity
+    rng: np.random.Generator
+
     def parse_args(self):
+        """Command-line options"""
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "input",
@@ -56,6 +64,8 @@ class DocxShuffle(DocxWorker):
         self.body = self.find(self.doc, "./w:body")
         pnodes = list(self.xpath(self.body, "./w:p"))
         meat_pnodes = []
+
+        self.color_background()
 
         l2ps = defaultdict(list)
         for pnode in pnodes:
@@ -102,8 +112,8 @@ class DocxShuffle(DocxWorker):
                 if line and not line.startswith("#"):
                     line = re.sub(r"[^a-z ]", "", line.lower())
                     model_lines.append(line)
-        if len(model_lines) != len(meat_pnodes):
-            print(f"Cannot use model (n={len(model_lines)}) to sort text (n={len(meat_pnodes)})")
+        if (n_model := len(model_lines)) != (n_meat := len(meat_pnodes)):
+            print(f"Cannot use model (n={n_model}) to sort text (n={n_meat})")
             return
 
         self.reorder([
@@ -111,6 +121,18 @@ class DocxShuffle(DocxWorker):
             for idx in np.argsort(model_lines)
         ])
         self.write_as("msort")
+
+    def color_background(self):
+        """Change paper color in the shuffled files"""
+        if self.find(self.body, "./w:background") is None:
+            self.body.append(self.make_w(
+                "background",
+                attrib={
+                    "color": "FF2CC",
+                    "themeColor": "accent4",
+                    "themeTint": "33",
+                },
+            ))
 
     def randomize(self):
         """Read/Write random seed file"""
@@ -130,11 +152,13 @@ class DocxShuffle(DocxWorker):
                 pickle.dump(self.rng, fobj)
 
     def reorder(self, pnodes):
+        """Replace paragraphs with new order"""
         for pnode in list(self.xpath(self.body, "./w:p")):
             self.body.remove(pnode)
         self.body.extend(pnodes)
 
     def write_as(self, suffix: str):
+        """Write a version of the file"""
         path = self.args.input.with_stem(f"{self.args.stem}-{suffix}")
         print(f"Writing {path}")
         self.write(path)
