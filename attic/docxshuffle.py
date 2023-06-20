@@ -48,9 +48,8 @@ class DocxShuffle(DocxWorker):
             self.args.input, = docs
             print(f"Working on the only .docx here, {self.args.input}")
 
-        inpath = self.args.input
         if not self.args.stem:
-            self.args.stem = inpath.stem
+            self.args.stem = self.args.input.stem
 
     def pre_work(self) -> Path:
         self.parse_args()
