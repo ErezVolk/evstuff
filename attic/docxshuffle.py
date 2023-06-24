@@ -37,6 +37,16 @@ class DocxShuffle(DocxWorker):
             "--stem",
             type=Path,
         )
+        parser.add_argument(
+            "-S",
+            "--one-time-seed",
+            action="store_true",
+        )
+        parser.add_argument(
+            "-c",
+            "--contains",
+            metavar="REGEX",
+        )
         self.args = parser.parse_args()
         if self.args.input is None:
             docs = self.glob_docs()
@@ -69,9 +79,12 @@ class DocxShuffle(DocxWorker):
         l2ps = defaultdict(list)
         for pnode in pnodes:
             text = "".join(tnode.text for tnode in self.pnode_tnodes(pnode))
-            text = re.sub(r"[^א-תa-zA-Z]", "", text)
-            if text:
-                l2ps[text].append(pnode)
+            if self.args.contains:
+                if not re.search(self.args.contains, text):
+                    continue
+            meat = re.sub(r"[^א-תa-zA-Z]", "", text)
+            if meat:
+                l2ps[meat].append(pnode)
                 meat_pnodes.append(pnode)
                 num_pnodes += 1
 
@@ -136,6 +149,9 @@ class DocxShuffle(DocxWorker):
     def randomize(self):
         """Read/Write random seed file"""
         self.rng = np.random.default_rng()
+        if self.args.one_time_seed:
+            return
+
         seed_path = self.args.input.with_suffix(".seed")
         try:
             with open(seed_path, "rb") as fobj:
@@ -144,6 +160,7 @@ class DocxShuffle(DocxWorker):
                     print(f"Incompatible {seed_path}, regenerating")
                     raise TypeError()
             print(f"Random state loaded from {seed_path}")
+
             self.rng = loaded
         except (FileNotFoundError, TypeError, pickle.UnpicklingError):
             print(f"Saving random state to {seed_path}")
