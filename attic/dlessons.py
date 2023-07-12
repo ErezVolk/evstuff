@@ -47,59 +47,59 @@ class DownloadLessons:
             # Just fill in things
             got = lessons[(lessons.Done == 1) & lessons.File.isna()]
             for label, row in got.iterrows():
-                desc = self.desc(row)
-                names = self.get_names(desc)
-                if len(names) != 1:
-                    continue
-                (name,) = names
-                print(f'{desc} ({row.VideoID}) -> "{name}"')
-                lessons.at[label, "File"] = name
+                mnem = self.mnem(row)
+                if (name := self.get_name(mnem)):
+                    print(f'{mnem} ({row.VideoID}) -> "{name}"')
+                    lessons.at[label, "File"] = name
             self.write(lessons)
             return
 
-        toget = lessons[lessons.Done != 1].iloc[: self.args.number]
-        if len(toget) == 0:
+        undone = lessons[lessons.Done != 1]
+        if len(undone) == 0:
             print("Nothing to download")
             return
         if self.args.reverse:
-            toget = toget.iloc[::-1]
+            undone = undone.iloc[::-1]
+        toget = undone.iloc[: self.args.number]
 
         with open(self.args.config, "rb") as fobj:
             cfg = tomllib.load(fobj)
             account_id = cfg["account_id"]
             embed_id = cfg.get("embed_id", "default")
 
-        descs = [self.desc(row) for _, row in toget.iterrows()]
+        mnems = [self.mnem(row) for _, row in toget.iterrows()]
 
-        for desc, (label, row) in zip(descs, toget.iterrows()):
+        for mnem, (label, row) in zip(mnems, toget.iterrows()):
             subprocess.run(
                 [
                     "yt-dlp",
                     f"http://players.brightcove.net/{account_id}/"
                     f"{embed_id}_default/index.html?videoId={row.VideoID}",
                     "-o",
-                    f"{desc} %(title)s.%(ext)s",
+                    f"{mnem} %(title)s.%(ext)s",
                 ],
                 check=True,
             )
             lessons.at[label, "Done"] = 1
-            names = self.get_names(desc)
-            if len(names) == 1:
-                lessons.at[label, "File"] = names[0]
+            if (name := self.get_name(mnem)):
+                lessons.at[label, "File"] = name
             self.write(lessons)
-            if desc != descs[-1]:
+            if mnem != mnems[-1]:
                 if self.args.max_sleep:
                     seconds = random.random() * self.args.max_sleep
                     print(f"Sleeping for {seconds:.02f} Sec...")
                     time.sleep(seconds)
 
-    def desc(self, row) -> str:
+    def mnem(self, row) -> str:
         """A lesson's mnemonic"""
         return f"{int(row.Part)}.{int(row.Lesson):02d}"
 
-    def get_names(self, desc) -> list[str]:
-        """Find files matching a lesson"""
-        return [path.name for path in Path.cwd().glob(f"{desc} *.mp4")]
+    def get_name(self, mnem) -> str | None:
+        """Find video file matching a lesson"""
+        names = [path.name for path in Path.cwd().glob(f"{mnem} *.mp4")]
+        if len(names) == 1:
+            return names[0]
+        return None
 
     def write(self, lessons: pd.DataFrame):
         """Write back the csv"""
