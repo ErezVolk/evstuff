@@ -3,6 +3,8 @@
 import argparse
 from pathlib import Path
 import subprocess
+import time
+import random
 import tomllib
 
 import pandas as pd
@@ -10,6 +12,7 @@ import pandas as pd
 
 class DownloadLessons:
     """Download a bunch of lessons"""
+
     args: argparse.Namespace
 
     def parse_args(self):
@@ -17,8 +20,9 @@ class DownloadLessons:
         parser = argparse.ArgumentParser()
         parser.add_argument("--table", "-t", type=Path, default="lessons.csv")
         parser.add_argument("--number", "-n", type=int, default=1)
+        parser.add_argument("--max-sleep", "-m", metavar="SECONDS", type=int, default=5)
         parser.add_argument(
-            "--config", "-c", type=Path, default=Path(__file__).with_suffix(".toml")
+            "--config", "-c", type=Path, default=f"{Path(__file__).stem}.toml"
         )
         self.args = parser.parse_args()
 
@@ -27,6 +31,12 @@ class DownloadLessons:
         self.parse_args()
 
         lessons = pd.read_csv(self.args.table)
+
+        if not lessons.VideoID.is_unique:
+            lines = lessons.index[lessons.VideoID.duplicated(keep=False)] + 2
+            print("Duplicated VideoID in lines", ", ".join(map(str, lines)))
+            return
+
         lessons.Done = lessons.Done.fillna(0).astype(int)
         lessons.Part = lessons.Part.ffill().astype(int)
         deltas = lessons.groupby(lessons.Lesson.notna().cumsum()).cumcount()
@@ -74,6 +84,11 @@ class DownloadLessons:
             if len(names) == 1:
                 lessons.at[label, "File"] = names[0]
             self.write(lessons)
+            if self.args.max_sleep:
+                if desc != descs[-1]:
+                    seconds = random.random() * self.args.max_sleep
+                    print(f"Sleeping for {seconds:.02f} Sec...")
+                    time.sleep(seconds)
 
     def desc(self, row) -> str:
         """A lesson's mnemonic"""
