@@ -21,6 +21,7 @@ class DownloadLessons:
         parser.add_argument("--table", "-t", type=Path, default="lessons.csv")
         parser.add_argument("--number", "-n", type=int, default=1)
         parser.add_argument("--max-sleep", "-m", metavar="SECONDS", type=int, default=5)
+        parser.add_argument("--reverse", "-r", action="store_true")
         parser.add_argument(
             "--config", "-c", type=Path, default=f"{Path(__file__).stem}.toml"
         )
@@ -60,6 +61,8 @@ class DownloadLessons:
         if len(toget) == 0:
             print("Nothing to download")
             return
+        if self.args.reverse:
+            toget = toget.iloc[::-1]
 
         with open(self.args.config, "rb") as fobj:
             cfg = tomllib.load(fobj)
@@ -84,8 +87,8 @@ class DownloadLessons:
             if len(names) == 1:
                 lessons.at[label, "File"] = names[0]
             self.write(lessons)
-            if self.args.max_sleep:
-                if desc != descs[-1]:
+            if desc != descs[-1]:
+                if self.args.max_sleep:
                     seconds = random.random() * self.args.max_sleep
                     print(f"Sleeping for {seconds:.02f} Sec...")
                     time.sleep(seconds)
