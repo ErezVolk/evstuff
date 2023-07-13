@@ -15,6 +15,7 @@ class DownloadLessons:
     """Download a bunch of lessons"""
 
     args: argparse.Namespace
+    df: pd.DataFrame
     saves: int = 0
 
     def parse_args(self):
@@ -33,42 +34,57 @@ class DownloadLessons:
         """Entry point"""
         self.parse_args()
 
-        lessons = pd.read_csv(self.args.table)
-        print(f"{self.args.table}: {len(lessons)} lines")
-
-        if not lessons.VideoID.is_unique:
-            lines = lessons.index[lessons.VideoID.duplicated(keep=False)] + 2
-            print("Duplicated VideoID in lines", ", ".join(map(str, lines)))
+        self.load_table()
+        if not self.check_sanity():
             return
-
-        if lessons.iloc[0].isna().Part:
-            print("You must provide the first Part")
-            return
-        lessons.Part = lessons.Part.ffill().fillna(0).astype(int)
-
-        tmap = (lessons.Part != lessons.Part.shift(1)) & lessons.Lesson.isna()
-        if tmap.sum() > 0:
-            lines = lessons.index[tmap] + 2
-            print("Missing first Lesson in Part in line(s)", ", ".join(map(str, lines)))
-            return
-        return
-        deltas = lessons.groupby(lessons.Lesson.notna().cumsum()).cumcount()
-        lessons.Lesson = (lessons.Lesson.ffill() + deltas).astype(int)
-
-        lessons.Done = lessons.Done.fillna(0).astype(int)
-
         if self.args.number == 0:
-            # Just fill in things
-            got = lessons[(lessons.Done == 1) & lessons.File.isna()]
-            for label, row in got.iterrows():
-                mnem = self.mnem(row)
-                if (name := self.get_name(mnem)):
-                    print(f'{mnem} ({row.VideoID}) -> "{name}"')
-                    lessons.at[label, "File"] = name
-            self.write(lessons)
-            return
+            self.just_fill_in_things()
+        else:
+            self.download_lessons()
 
-        undone = lessons[lessons.Done != 1]
+    def load_table(self):
+        """Read the CSV"""
+        self.df = pd.read_csv(self.args.table)
+        self.df.index = pd.RangeIndex(2, len(self.df) + 2)
+        print(f"{self.args.table}: {len(self.df)} lines")
+
+    def check_sanity(self) -> bool:
+        """Fill in some missing values and check some things"""
+        if not self.df.VideoID.is_unique:
+            lines = self.df.index[self.df.VideoID.duplicated(keep=False)]
+            print("Duplicated VideoID in lines", ", ".join(map(str, lines)))
+            return False
+
+        if self.df.iloc[0].isna().Part:
+            print("You must provide the first Part")
+            return False
+        self.df.Part = self.df.Part.ffill().fillna(0).astype(int)
+
+        tmap = (self.df.Part != self.df.Part.shift(1)) & self.df.Lesson.isna()
+        if tmap.sum() > 0:
+            lines = self.df.index[tmap]
+            print("Missing first Lesson in Part in line(s)", ", ".join(map(str, lines)))
+            return False
+
+        deltas = self.df.groupby(self.df.Lesson.notna().cumsum()).cumcount()
+        self.df.Lesson = (self.df.Lesson.ffill() + deltas).astype(int)
+
+        self.df.Done = self.df.Done.fillna(0).astype(int)
+        return True
+
+    def just_fill_in_things(self):
+        """Nothing to download, look for unlisted downloaded files"""
+        got = self.df[(self.df.Done == 1) & self.df.File.isna()]
+        for label, row in got.iterrows():
+            mnem = self.mnem(row)
+            if (name := self.get_name(mnem)):
+                print(f'{mnem} ({row.VideoID}) -> "{name}"')
+                self.df.at[label, "File"] = name
+        self.write()
+
+    def download_lessons(self):
+        """What we came here for"""
+        undone = self.df[self.df.Done != 1]
         if len(undone) == 0:
             print("Nothing to download")
             return
@@ -96,10 +112,10 @@ class DownloadLessons:
                 ],
                 check=True,
             )
-            lessons.at[label, "Done"] = 1
+            self.df.at[label, "Done"] = 1
             if (name := self.get_name(mnem)):
-                lessons.at[label, "File"] = name
-            self.write(lessons)
+                self.df.at[label, "File"] = name
+            self.write()
             if mnem != mnems[-1]:
                 if self.args.max_sleep:
                     seconds = random.random() * self.args.max_sleep
@@ -117,7 +133,7 @@ class DownloadLessons:
             return names[0]
         return None
 
-    def write(self, lessons: pd.DataFrame):
+    def write(self):
         """Write back the csv"""
         if self.saves == 0:
             backup = self.args.table.with_suffix(".bak")
@@ -125,7 +141,7 @@ class DownloadLessons:
             shutil.copy(self.args.table, backup)
 
         print(f"Writing {self.args.table}")
-        lessons.to_csv(self.args.table, index=False)
+        self.df.to_csv(self.args.table, index=False)
         self.saves = self.saves + 1
 
 
