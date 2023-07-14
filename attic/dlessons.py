@@ -24,7 +24,9 @@ class DownloadLessons:
         parser.add_argument("--table", "-t", type=Path, default="lessons.csv")
         parser.add_argument("--number", "-n", type=int, default=1)
         parser.add_argument("--max-sleep", "-m", metavar="SECONDS", type=int)
-        parser.add_argument("--reverse", "-r", action="store_true")
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("--reverse", "-r", action="store_true")
+        group.add_argument("--random", "-R", action="store_true")
         parser.add_argument(
             "--config", "-c", type=Path, default=f"{Path(__file__).stem}.toml"
         )
@@ -90,7 +92,10 @@ class DownloadLessons:
             return
         if self.args.reverse:
             undone = undone.iloc[::-1]
-        toget = undone.iloc[: self.args.number]
+        if self.args.random:
+            toget = undone.sample(min(self.args.number, len(undone))
+        else:
+            toget = undone.iloc[: self.args.number]
 
         with open(self.args.config, "rb") as fobj:
             cfg = tomllib.load(fobj)
