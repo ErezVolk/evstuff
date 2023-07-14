@@ -127,11 +127,11 @@ class DownloadLessons:
                     print(f"Sleeping for {seconds:.02f} Sec...")
                     time.sleep(seconds)
 
-    def mnem(self, row) -> str:
+    def mnem(self, row: pd.Series) -> str:
         """A lesson's mnemonic"""
         return f"{int(row.Part)}.{int(row.Lesson):02d}"
 
-    def get_name(self, mnem) -> str | None:
+    def get_name(self, mnem: str) -> str | None:
         """Find video file matching a lesson"""
         names = [path.name for path in Path.cwd().glob(f"{mnem} *.mp4")]
         if len(names) == 1:
@@ -145,7 +145,9 @@ class DownloadLessons:
             print(f"{self.args.table} -> {backup}")
             shutil.copy(self.args.table, backup)
 
-        print(f"Writing {self.args.table}")
+        n_done = self.df.Done.sum()
+        n_all = len(self.df)
+        print(f"Writing {self.args.table} (done: {n_done} of {n_all})")
         self.df.to_csv(self.args.table, index=False)
         self.saves = self.saves + 1
 
