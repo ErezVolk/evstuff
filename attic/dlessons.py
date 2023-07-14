@@ -93,7 +93,7 @@ class DownloadLessons:
         if self.args.reverse:
             undone = undone.iloc[::-1]
         if self.args.random:
-            toget = undone.sample(min(self.args.number, len(undone))
+            toget = undone.sample(min(self.args.number, len(undone)))
         else:
             toget = undone.iloc[: self.args.number]
 
