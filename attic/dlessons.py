@@ -21,12 +21,15 @@ class DownloadLessons:
     def parse_args(self):
         """Command line"""
         parser = argparse.ArgumentParser()
-        parser.add_argument("--table", "-t", type=Path, default="lessons.csv")
-        parser.add_argument("--number", "-n", type=int, default=1)
-        parser.add_argument("--max-sleep", "-m", metavar="SECONDS", type=int)
-        group = parser.add_mutually_exclusive_group()
-        group.add_argument("--reverse", "-r", action="store_true")
-        group.add_argument("--random", "-R", action="store_true")
+        parser.add_argument("-t", "--table", type=Path, default="lessons.csv")
+        parser.add_argument("-n", "--number", type=int, default=1)
+        parser.add_argument("-s", "--max-sleep", metavar="SECONDS", type=int)
+        parser.add_argument(
+            "-o",
+            "--order",
+            choices=["recommended", "linear", "random"],
+            default="recommended",
+        )
         parser.add_argument(
             "--config", "-c", type=Path, default=f"{Path(__file__).stem}.toml"
         )
@@ -65,7 +68,10 @@ class DownloadLessons:
         tmap = (self.df.Part != self.df.Part.shift(1)) & self.df.Lesson.isna()
         if tmap.sum() > 0:
             lines = self.df.index[tmap]
-            print("Missing first Lesson in Part in line(s)", ", ".join(map(str, lines)))
+            print(
+                "Missing first Lesson in Part in line(s)",
+                ", ".join(map(str, lines)),
+            )
             return False
 
         deltas = self.df.groupby(self.df.Lesson.notna().cumsum()).cumcount()
@@ -90,12 +96,20 @@ class DownloadLessons:
         if len(undone) == 0:
             print("Nothing to download")
             return
-        if self.args.reverse:
-            undone = undone.iloc[::-1]
-        if self.args.random:
-            toget = undone.sample(min(self.args.number, len(undone)))
-        else:
-            toget = undone.iloc[: self.args.number]
+
+        match self.args.order:
+            case "random":
+                toget = undone.sample(min(self.args.number, len(undone)))
+
+            case "linear":
+                toget = undone.iloc[: self.args.number]
+
+            case _:
+                undone = undone.copy()
+                undone["unlast"] = self.df.Part == self.df.Part.shift(-1)
+                undone["line"] = undone.index
+                undone.sort_values(["unlast", "line"], inplace=True)
+                toget = undone.iloc[: self.args.number]
 
         with open(self.args.config, "rb") as fobj:
             cfg = tomllib.load(fobj)
