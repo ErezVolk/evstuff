@@ -106,9 +106,10 @@ class DownloadLessons:
 
             case _:
                 undone = undone.copy()
-                undone["unlast"] = self.df.Part == self.df.Part.shift(-1)
+                part = self.df.Part
+                undone["mid"] = (part == part.shift(1)) & (part == part.shift(-1))
                 undone["line"] = undone.index
-                undone.sort_values(["unlast", "line"], inplace=True)
+                undone.sort_values(["mid", "line"], inplace=True)
                 toget = undone.iloc[: self.args.number]
 
         with open(self.args.config, "rb") as fobj:
