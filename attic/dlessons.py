@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Download a bunch of lessons"""
 import argparse
+import datetime
 from pathlib import Path
 import subprocess
 import time
@@ -14,8 +15,14 @@ import pandas as pd
 class DownloadLessons:
     """Download a bunch of lessons"""
 
+    CONFIGURABLES = {
+        "account_id": None,
+        "embed_id": "default",
+        "max_sleep": 5,
+    }
+
     args: argparse.Namespace
-    df: pd.DataFrame
+    lsn: pd.DataFrame
     saves: int = 0
 
     def parse_args(self):
@@ -31,8 +38,10 @@ class DownloadLessons:
             default="recommended",
         )
         parser.add_argument(
-            "--config", "-c", type=Path, default=f"{Path(__file__).stem}.toml"
+            "-c", "--config", type=Path, default=f"{Path(__file__).stem}.toml"
         )
+        parser.add_argument("-A", "--account-id")
+        parser.add_argument("-E", "--embed-id")
         self.args = parser.parse_args()
 
     def main(self):
@@ -49,98 +58,125 @@ class DownloadLessons:
 
     def load_table(self):
         """Read the CSV"""
-        self.df = pd.read_csv(self.args.table)
-        self.df.index = pd.RangeIndex(2, len(self.df) + 2)
-        print(f"{self.args.table}: {len(self.df)} lines")
+        self.lsn = pd.read_csv(self.args.table)
+        self.lsn.index = pd.RangeIndex(2, len(self.lsn) + 2)
+        print(f"{self.args.table}: {len(self.lsn)} lines")
 
     def check_sanity(self) -> bool:
         """Fill in some missing values and check some things"""
-        if not self.df.VideoID.is_unique:
-            lines = self.df.index[self.df.VideoID.duplicated(keep=False)]
+        if not self.lsn.VideoID.is_unique:
+            lines = self.lsn.index[self.lsn.VideoID.duplicated(keep=False)]
             print("Duplicated VideoID in lines", ", ".join(map(str, lines)))
             return False
 
-        if self.df.iloc[0].isna().Part:
+        if self.lsn.iloc[0].isna().Part:
             print("You must provide the first Part")
             return False
-        self.df.Part = self.df.Part.ffill().fillna(0).astype(int)
+        # Fill in missing Part fields
+        self.lsn.Part = self.lsn.Part.ffill().fillna(0).astype(int)
 
-        tmap = (self.df.Part != self.df.Part.shift(1)) & self.df.Lesson.isna()
+        # Make sure first Lesson in each Part is given
+        parts = self.lsn.Part
+        tmap = (parts != parts.shift(1)) & self.lsn.Lesson.isna()
         if tmap.sum() > 0:
-            lines = self.df.index[tmap]
+            lines = self.lsn.index[tmap]
             print(
                 "Missing first Lesson in Part in line(s)",
                 ", ".join(map(str, lines)),
             )
             return False
 
-        deltas = self.df.groupby(self.df.Lesson.notna().cumsum()).cumcount()
-        self.df.Lesson = (self.df.Lesson.ffill() + deltas).astype(int)
+        # Fill in missing Lesson fields
+        deltas = self.lsn.groupby(self.lsn.Lesson.notna().cumsum()).cumcount()
+        self.lsn.Lesson = (self.lsn.Lesson.ffill() + deltas).astype(int)
 
-        self.df.Done = self.df.Done.fillna(0).astype(int)
+        # Fill in missing Done fields
+        self.lsn.Done = self.lsn.Done.fillna(0).astype(int)
         return True
 
     def just_fill_in_things(self):
         """Nothing to download, look for unlisted downloaded files"""
-        got = self.df[(self.df.Done == 1) & self.df.File.isna()]
+        got = self.lsn[(self.lsn.Done == 1) & self.lsn.File.isna()]
         for label, row in got.iterrows():
             mnem = self.mnem(row)
             if (name := self.get_name(mnem)):
                 print(f'{mnem} ({row.VideoID}) -> "{name}"')
-                self.df.at[label, "File"] = name
+                self.lsn.at[label, "File"] = name
         self.write()
 
     def download_lessons(self):
         """What we came here for"""
-        undone = self.df[self.df.Done != 1]
-        if len(undone) == 0:
+        toget = self.select()
+        if len(toget) == 0:
             print("Nothing to download")
             return
 
-        match self.args.order:
-            case "random":
-                toget = undone.sample(min(self.args.number, len(undone)))
+        self.read_config()
 
-            case "linear":
-                toget = undone.iloc[: self.args.number]
+        for label, row in toget.iloc[:-1].iterrows():
+            self.download_lesson(label, row)
+            self.sleep()
+        self.download_lesson(toget.index[-1], toget.iloc[-1])
 
-            case _:
-                undone = undone.copy()
-                part = self.df.Part
-                undone["mid"] = (part == part.shift(1)) & (part == part.shift(-1))
-                undone["line"] = undone.index
-                undone.sort_values(["mid", "line"], inplace=True)
-                toget = undone.iloc[: self.args.number]
+    def read_config(self):
+        """Fill in settings from config file"""
+        cfg = None
 
-        with open(self.args.config, "rb") as fobj:
-            cfg = tomllib.load(fobj)
-            account_id = cfg["account_id"]
-            embed_id = cfg.get("embed_id", "default")
-            if self.args.max_sleep is None:
-                self.args.max_sleep = cfg.get("max_sleep", 5)
+        for key, default in self.CONFIGURABLES.items():
+            if getattr(self.args, key):
+                continue
 
-        mnems = [self.mnem(row) for _, row in toget.iterrows()]
+            if cfg is None:
+                with open(self.args.config, "rb") as fobj:
+                    cfg = tomllib.load(fobj)
 
-        for mnem, (label, row) in zip(mnems, toget.iterrows()):
-            subprocess.run(
-                [
-                    "yt-dlp",
-                    f"http://players.brightcove.net/{account_id}/"
-                    f"{embed_id}_default/index.html?videoId={row.VideoID}",
-                    "-o",
-                    f"{mnem} %(title)s.%(ext)s",
-                ],
-                check=True,
-            )
-            self.df.at[label, "Done"] = 1
-            if (name := self.get_name(mnem)):
-                self.df.at[label, "File"] = name
-            self.write()
-            if mnem != mnems[-1]:
-                if self.args.max_sleep:
-                    seconds = random.random() * self.args.max_sleep
-                    print(f"Sleeping for {seconds:.02f} Sec...")
-                    time.sleep(seconds)
+            if default is None:
+                setattr(self.args, key, cfg[key])
+            else:
+                setattr(self.args, key, cfg.get(key, default))
+
+    def download_lesson(self, label, row):
+        """Download a single lesson"""
+        mnem = self.mnem(row)
+        cli = [
+            "yt-dlp",
+            f"http://players.brightcove.net/{self.args.account_id}/"
+            f"{self.args.embed_id}_default/index.html?videoId={row.VideoID}",
+            "-o",
+            f"{mnem} %(title)s.%(ext)s",
+        ]
+        subprocess.run(cli, check=True)
+        self.lsn.at[label, "Done"] = 1
+        if (name := self.get_name(mnem)):
+            self.lsn.at[label, "File"] = name
+        self.write()
+
+    def sleep(self):
+        """Sleep as configured"""
+        if not self.args.max_sleep:
+            return
+        seconds = random.random() * self.args.max_sleep
+        print(f"[{self.now()}] Sleeping for {seconds:.02f} Sec...")
+        time.sleep(seconds)
+
+    def select(self) -> pd.DataFrame:
+        """Figure out what to download"""
+        undone = self.lsn[self.lsn.Done != 1]
+        if len(undone) == 0:
+            return undone
+
+        if self.args.order == "random":
+            return undone.sample(min(self.args.number, len(undone)))
+
+        if self.args.order == "linear":
+            return undone.iloc[: self.args.number]
+
+        undone = undone.copy()
+        part = self.lsn.Part
+        undone["mid"] = (part == part.shift(1)) & (part == part.shift(-1))
+        undone["line"] = undone.index
+        undone.sort_values(["mid", "line"], inplace=True)
+        return undone.iloc[: self.args.number]
 
     def mnem(self, row: pd.Series) -> str:
         """A lesson's mnemonic"""
@@ -160,11 +196,15 @@ class DownloadLessons:
             print(f"{self.args.table} -> {backup}")
             shutil.copy(self.args.table, backup)
 
-        n_done = self.df.Done.sum()
-        n_all = len(self.df)
+        n_done = self.lsn.Done.sum()
+        n_all = len(self.lsn)
         print(f"Writing {self.args.table} (done: {n_done} of {n_all})")
-        self.df.to_csv(self.args.table, index=False)
+        self.lsn.to_csv(self.args.table, index=False)
         self.saves = self.saves + 1
+
+    def now(self):
+        """The time"""
+        return datetime.datetime.now().strftime("%H:%M:%S")
 
 
 if __name__ == "__main__":
