@@ -29,7 +29,11 @@ class DownloadLessons:
         """Command line"""
         parser = argparse.ArgumentParser()
         parser.add_argument("-t", "--table", type=Path, default="lessons.csv")
-        parser.add_argument("-n", "--number", type=int, default=1)
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("-n", "--number", type=int, default=1)
+        group.add_argument("-a", "--all", action="store_true")
+        group.add_argument("-N", "--nop", action="store_true")
+
         parser.add_argument("-s", "--max-sleep", metavar="SECONDS", type=int)
         parser.add_argument(
             "-o",
@@ -51,7 +55,7 @@ class DownloadLessons:
         self.load_table()
         if not self.check_sanity():
             return
-        if self.args.number == 0:
+        if self.args.nop:
             self.just_fill_in_things()
         else:
             self.download_lessons()
@@ -163,6 +167,9 @@ class DownloadLessons:
         """Figure out what to download"""
         undone = self.lsn[self.lsn.Done != 1]
         if len(undone) == 0:
+            return undone
+
+        if self.args.all:
             return undone
 
         if self.args.order == "random":
