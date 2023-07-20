@@ -135,9 +135,10 @@ class DownloadLessons:
                     cfg = tomllib.load(fobj)
 
             if default is None:
-                setattr(self.args, key, cfg[key])
+                value = cfg[key]
             else:
-                setattr(self.args, key, cfg.get(key, default))
+                value = cfg.get(key, default)
+            setattr(self.args, key, value)
 
     def download_lesson(self, label, row):
         """Download a single lesson"""
