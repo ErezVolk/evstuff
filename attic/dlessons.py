@@ -12,6 +12,7 @@ import tomllib
 import pandas as pd
 
 HERE = Path.cwd()
+THIS = Path(__file__)
 
 
 class DownloadLessons:
@@ -52,7 +53,7 @@ class DownloadLessons:
             default="recommended",
         )
         parser.add_argument(
-            "-c", "--config", type=Path, default=f"{Path(__file__).stem}.toml"
+            "-c", "--config", type=Path, default=f"{THIS.stem}.toml"
         )
         parser.add_argument("-A", "--account-id")
         parser.add_argument("-E", "--embed-id")
