@@ -77,7 +77,7 @@ class DownloadLessons:
         """Read the CSV"""
         self.lsn = pd.read_csv(self.args.table)
         self.lsn.index = pd.RangeIndex(2, len(self.lsn) + 2)
-        print(f"{self.args.table}: {len(self.lsn)} lines")
+        print(f"{self.args.table}: {self.desc()}")
 
     def check_sanity(self) -> bool:
         """Fill in some missing values and check some things"""
@@ -255,11 +255,15 @@ class DownloadLessons:
             print(f"{self.args.table} -> {backup}")
             shutil.copy(self.args.table, backup)
 
-        n_done = self.lsn.Done.sum()
-        n_all = len(self.lsn)
-        print(f"Writing {self.args.table} (done: {n_done} of {n_all})")
+        print(f"Writing {self.args.table} ({self.desc()})")
         self.lsn.to_csv(self.args.table, index=False)
         self.saves = self.saves + 1
+
+    def desc(self) -> str:
+        """Description of number of lines and number done"""
+        n_done = self.lsn.Done.sum()
+        n_all = len(self.lsn)
+        return f"{n_all} line(s), {n_done} done"
 
     def now(self):
         """The time"""
