@@ -11,6 +11,8 @@ import tomllib
 
 import pandas as pd
 
+HERE = Path.cwd()
+
 
 class DownloadLessons:
     """Download a bunch of lessons"""
@@ -33,6 +35,14 @@ class DownloadLessons:
         group.add_argument("-n", "--number", type=int, default=1)
         group.add_argument("-a", "--all", action="store_true")
         group.add_argument("-N", "--nop", action="store_true")
+        group.add_argument(
+            "-p",
+            "--push",
+            nargs=3,
+            type=int,
+            metavar=("PART", "LESSON", "VIDEO_ID"),
+            help="Rename, insert lines, and all that (interactive)",
+        )
 
         parser.add_argument("-s", "--max-sleep", metavar="SECONDS", type=int)
         parser.add_argument(
@@ -55,7 +65,9 @@ class DownloadLessons:
         self.load_table()
         if not self.check_sanity():
             return
-        if self.args.nop:
+        if self.args.push:
+            self.push()
+        elif self.args.nop:
             self.just_fill_in_things()
         else:
             self.download_lessons()
@@ -102,7 +114,7 @@ class DownloadLessons:
         """Nothing to download, look for unlisted downloaded files"""
         got = self.lsn[(self.lsn.Done == 1) & self.lsn.File.isna()]
         for label, row in got.iterrows():
-            mnem = self.mnem(row)
+            mnem = self.row_mnem(row)
             if (name := self.get_name(mnem)):
                 print(f'{mnem} ({row.VideoID}) -> "{name}"')
                 self.lsn.at[label, "File"] = name
@@ -142,7 +154,7 @@ class DownloadLessons:
 
     def download_lesson(self, label, row):
         """Download a single lesson"""
-        mnem = self.mnem(row)
+        mnem = self.row_mnem(row)
         cli = [
             "yt-dlp",
             f"http://players.brightcove.net/{self.args.account_id}/"
@@ -154,6 +166,40 @@ class DownloadLessons:
         self.lsn.at[label, "Done"] = 1
         if (name := self.get_name(mnem)):
             self.lsn.at[label, "File"] = name
+        self.write()
+
+    def push(self):
+        """Insert lines, rename, etc."""
+        (part, lesson, video_id) = self.args.push
+        pushees = self.lsn.query(f"Part == {part} and Lesson >= {lesson}")
+        if len(pushees) > 0:
+            renames = {}
+            for label, row in pushees[::-1].iterrows():
+                old_mnem = self.mnem(part=row.Part, lesson=row.Lesson)
+                new_mnem = self.mnem(part=row.Part, lesson=row.Lesson + 1)
+                for src in HERE.glob(f"{old_mnem}*"):
+                    renames[src] = dst = src.with_stem(
+                        new_mnem + src.stem.removeprefix(old_mnem)
+                    )
+                    if row.File == src.name:
+                        self.lsn.at[label, "File"] = dst.name
+                self.lsn.at[label, "Lesson"] = row.Lesson + 1
+            print(f"About to rename {len(renames)} file(s):")
+            for src, dst in sorted(renames.items()):
+                print(f"  '{src.name}' -> '{dst.name}'")
+            input("Press Enter to continue...")
+            for src, dst in sorted(renames.items(), reverse=True):
+                src.rename(dst)
+
+        self.lsn = pd.concat([
+            self.lsn,
+            pd.DataFrame({
+                "VideoID": video_id,
+                "Part": part,
+                "Lesson": lesson,
+                "Done": 0,
+            }, index=[len(self.lsn)])
+        ]).sort_values(["Part", "Lesson"])
         self.write()
 
     def sleep(self):
@@ -186,13 +232,17 @@ class DownloadLessons:
         undone.sort_values(["mid", "line"], inplace=True)
         return undone.iloc[: self.args.number]
 
-    def mnem(self, row: pd.Series) -> str:
+    def row_mnem(self, row: pd.Series) -> str:
         """A lesson's mnemonic"""
-        return f"{int(row.Part)}.{int(row.Lesson):02d}"
+        return self.mnem(row.Part, row.Lesson)
+
+    def mnem(self, part, lesson) -> str:
+        """A lesson's mnemonic"""
+        return f"{int(part)}.{int(lesson):02d}"
 
     def get_name(self, mnem: str) -> str | None:
         """Find video file matching a lesson"""
-        names = [path.name for path in Path.cwd().glob(f"{mnem} *.mp4")]
+        names = [path.name for path in HERE.glob(f"{mnem} *.mp4")]
         if len(names) == 1:
             return names[0]
         return None
