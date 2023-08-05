@@ -31,18 +31,40 @@ class DownloadLessons:
     def parse_args(self):
         """Command line"""
         parser = argparse.ArgumentParser()
-        parser.add_argument("-t", "--table", type=Path, default="lessons.csv")
+        parser.add_argument(
+            "-t",
+            "--table",
+            type=Path,
+            default="lessons.csv",
+            help="where lesson IDs are stored",
+        )
         group = parser.add_mutually_exclusive_group()
-        group.add_argument("-n", "--number", type=int, default=1)
-        group.add_argument("-a", "--all", action="store_true")
-        group.add_argument("-N", "--nop", action="store_true")
+        group.add_argument(
+            "-n",
+            "--number",
+            type=int,
+            default=1,
+            help="number of lessons to download",
+        )
+        group.add_argument(
+            "-a",
+            "--all",
+            action="store_true",
+            help="download all missing lessons",
+        )
+        group.add_argument(
+            "-N",
+            "--nop",
+            action="store_true",
+            help="just fill in missing file names in the CSV",
+        )
         group.add_argument(
             "-p",
             "--push",
             nargs=3,
             type=int,
             metavar=("PART", "LESSON", "VIDEO_ID"),
-            help="Rename, insert lines, and all that (interactive)",
+            help="rename, insert lines, and all that (interactive)",
         )
 
         parser.add_argument("-s", "--max-sleep", metavar="SECONDS", type=int)
@@ -51,9 +73,14 @@ class DownloadLessons:
             "--order",
             choices=["recommended", "linear", "random"],
             default="recommended",
+            help="how to choose which lessons to get",
         )
         parser.add_argument(
-            "-c", "--config", type=Path, default=f"{THIS.stem}.toml"
+            "-c",
+            "--config",
+            type=Path,
+            default=f"{THIS.stem}.toml",
+            help="config file",
         )
         parser.add_argument("-A", "--account-id")
         parser.add_argument("-E", "--embed-id")
@@ -116,7 +143,7 @@ class DownloadLessons:
         got = self.lsn[(self.lsn.Done == 1) & self.lsn.File.isna()]
         for label, row in got.iterrows():
             mnem = self.row_mnem(row)
-            if (name := self.get_name(mnem)):
+            if name := self.get_name(mnem):
                 print(f'{mnem} ({row.VideoID}) -> "{name}"')
                 self.lsn.at[label, "File"] = name
         self.write()
@@ -165,7 +192,7 @@ class DownloadLessons:
         ]
         subprocess.run(cli, check=True)
         self.lsn.at[label, "Done"] = 1
-        if (name := self.get_name(mnem)):
+        if name := self.get_name(mnem):
             self.lsn.at[label, "File"] = name
         self.write()
 
@@ -192,15 +219,12 @@ class DownloadLessons:
             for src, dst in sorted(renames.items(), reverse=True):
                 src.rename(dst)
 
-        self.lsn = pd.concat([
-            self.lsn,
-            pd.DataFrame({
-                "VideoID": video_id,
-                "Part": part,
-                "Lesson": lesson,
-                "Done": 0,
-            }, index=[len(self.lsn)])
-        ]).sort_values(["Part", "Lesson"])
+        addend = pd.DataFrame(
+            columns=["VideoID", "Part", "Lesson", "Done"],
+            data=[[video_id, part, lesson, 0]],
+        )
+        self.lsn = pd.concat([self.lsn, addend], ignore_index=True)
+        self.lsn.sort_values(["Part", "Lesson"], inplace=True)
         self.write()
 
     def sleep(self):
