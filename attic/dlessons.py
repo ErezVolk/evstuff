@@ -287,7 +287,7 @@ class DownloadLessons:
         """Description of number of lines and number done"""
         n_done = self.lsn.Done.sum()
         n_all = len(self.lsn)
-        return f"{n_all} line(s), {n_done} done"
+        return f"{n_all} line(s), {int(n_done)} done"
 
     def now(self):
         """The time"""
