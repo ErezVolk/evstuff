@@ -66,6 +66,13 @@ class DownloadLessons:
             metavar=("PART", "LESSON", "VIDEO_ID"),
             help="rename, insert lines, and all that (interactive)",
         )
+        group.add_argument(
+            "-v",
+            "--video-id",
+            nargs="+",
+            type=int,
+            help="Download specific VideoID(s) from the CSV",
+        )
 
         parser.add_argument("-s", "--max-sleep", metavar="SECONDS", type=int)
         parser.add_argument(
@@ -97,8 +104,10 @@ class DownloadLessons:
             self.push()
         elif self.args.nop:
             self.just_fill_in_things()
+        elif self.args.video_id:
+            self.download_specific_lessons()
         else:
-            self.download_lessons()
+            self.download_next_lessons()
 
     def load_table(self):
         """Read the CSV"""
@@ -148,13 +157,41 @@ class DownloadLessons:
                 self.lsn.at[label, "File"] = name
         self.write()
 
-    def download_lessons(self):
+    def download_specific_lessons(self):
+        """CLI-provided VideoIDs"""
+        wanted = self.args.video_id
+        toget = self.lsn[self.lsn.VideoID.isin(wanted)]
+        if len(toget) == 0:
+            print(
+                f"Not in {self.args.table}: "
+                f"{' '.join(str(vid) for vid in wanted)}"
+            )
+            return
+
+        if len(toget) < len(wanted):
+            found = toget.VideoID
+            missing = set(found) - set(wanted)
+            print(
+                f"Not in {self.args.table}: "
+                f"{' '.join(str(vid) for vid in missing)}, "
+                f"downloading only "
+                f"{' '.join(str(vid) for vid in found)}, "
+            )
+            return
+
+        self.download_lessons(toget)
+
+    def download_next_lessons(self):
         """What we came here for"""
         toget = self.select()
         if len(toget) == 0:
             print("Nothing to download")
             return
 
+        self.download_lessons(toget)
+
+    def download_lessons(self, toget: pd.DataFrame):
+        """Having figured out what to download, do it"""
         self.read_config()
 
         for label, row in toget.iloc[:-1].iterrows():
