@@ -19,6 +19,7 @@ THIS = Path(__file__)
 
 @dataclass
 class Renamable:
+    """Information about a file to be renamed"""
     label: int
     mp4: Path
     jpg: Path
@@ -113,27 +114,27 @@ class DownloadLessons:
         """Entry point"""
         self.parse_args()
 
-        self.load_table()
-        if not self.check_sanity():
+        self._load_table()
+        if not self._check_sanity():
             return
         if self.args.push:
-            self.push()
+            self._push()
         elif self.args.main_lesson:
-            self.fix_main_lesson()
+            self._fix_main_lesson()
         elif self.args.nop:
-            self.just_fill_in_things()
+            self._just_fill_in_things()
         elif self.args.video_id:
-            self.download_specific_lessons()
+            self._download_specific_lessons()
         else:
-            self.download_next_lessons()
+            self._download_next_lessons()
 
-    def load_table(self):
+    def _load_table(self):
         """Read the CSV"""
         self.lsn = pd.read_csv(self.args.table)
         self.lsn.index = pd.RangeIndex(2, len(self.lsn) + 2)
-        print(f"{self.args.table}: {self.desc()}")
+        print(f"{self.args.table}: {self._desc()}")
 
-    def check_sanity(self) -> bool:
+    def _check_sanity(self) -> bool:
         """Fill in some missing values and check some things"""
         if not self.lsn.VideoID.is_unique:
             lines = self.lsn.index[self.lsn.VideoID.duplicated(keep=False)]
@@ -165,17 +166,17 @@ class DownloadLessons:
         self.lsn.Done = self.lsn.Done.fillna(0).astype(int)
         return True
 
-    def just_fill_in_things(self):
+    def _just_fill_in_things(self):
         """Nothing to download, look for unlisted downloaded files"""
         got = self.lsn[(self.lsn.Done == 1) & self.lsn.File.isna()]
         for label, row in got.iterrows():
-            mnem = self.row_mnem(row)
-            if name := self.get_name(mnem):
+            mnem = self._row_mnem(row)
+            if name := self._get_name(mnem):
                 print(f'{mnem} ({row.VideoID}) -> "{name}"')
                 self.lsn.at[label, "File"] = name
-        self.write()
+        self._write()
 
-    def download_specific_lessons(self):
+    def _download_specific_lessons(self):
         """CLI-provided VideoIDs"""
         wanted = self.args.video_id
         toget = self.lsn[self.lsn.VideoID.isin(wanted)]
@@ -197,27 +198,27 @@ class DownloadLessons:
             )
             return
 
-        self.download_lessons(toget)
+        self._download_lessons(toget)
 
-    def download_next_lessons(self):
+    def _download_next_lessons(self):
         """What we came here for"""
-        toget = self.select()
+        toget = self._select()
         if len(toget) == 0:
             print("Nothing to download")
             return
 
-        self.download_lessons(toget)
+        self._download_lessons(toget)
 
-    def download_lessons(self, toget: pd.DataFrame):
+    def _download_lessons(self, toget: pd.DataFrame):
         """Having figured out what to download, do it"""
-        self.read_config()
+        self._read_config()
 
         for label, row in toget.iloc[:-1].iterrows():
-            self.download_lesson(label, row)
-            self.sleep()
-        self.download_lesson(toget.index[-1], toget.iloc[-1])
+            self._download_lesson(label, row)
+            self._sleep()
+        self._download_lesson(toget.index[-1], toget.iloc[-1])
 
-    def read_config(self):
+    def _read_config(self):
         """Fill in settings from config file"""
         cfg = None
 
@@ -235,32 +236,33 @@ class DownloadLessons:
                 value = cfg.get(key, default)
             setattr(self.args, key, value)
 
-    def download_lesson(self, label, row):
+    def _download_lesson(self, label, row):
         """Download a single lesson"""
-        mnem = self.row_mnem(row)
-        self.run_cli(
+        mnem = self._row_mnem(row)
+        self._run_cli(
             "yt-dlp",
             f"http://players.brightcove.net/{self.args.account_id}/"
             f"{self.args.embed_id}_default/index.html?videoId={row.VideoID}",
             "-o", f"{mnem} %(title)s.%(ext)s",
         )
         self.lsn.at[label, "Done"] = 1
-        if name := self.get_name(mnem):
+        if name := self._get_name(mnem):
             self.lsn.at[label, "File"] = name
-        self.write()
+        self._write()
 
-    def run_cli(self, *cli):
+    def _run_cli(self, *cli):
+        """Convenience wrapper around `subprocess.run`."""
         subprocess.run([str(part) for part in cli], check=True)
 
-    def push(self):
+    def _push(self):
         """Insert lines, rename, etc."""
         (part, lesson, video_id) = self.args.push
         pushees = self.lsn.query(f"Part == {part} and Lesson >= {lesson}")
         if len(pushees) > 0:
             renames = {}
             for label, row in pushees[::-1].iterrows():
-                old_mnem = self.mnem(part=row.Part, lesson=row.Lesson)
-                new_mnem = self.mnem(part=row.Part, lesson=row.Lesson + 1)
+                old_mnem = self._mnem(part=row.Part, lesson=row.Lesson)
+                new_mnem = self._mnem(part=row.Part, lesson=row.Lesson + 1)
                 for src in HERE.glob(f"{old_mnem}*"):
                     renames[src] = dst = src.with_stem(
                         new_mnem + src.stem.removeprefix(old_mnem)
@@ -281,11 +283,11 @@ class DownloadLessons:
         )
         self.lsn = pd.concat([self.lsn, addend], ignore_index=True)
         self.lsn.sort_values(["Part", "Lesson"], inplace=True)
-        self.write()
+        self._write()
 
-    def fix_main_lesson(self):
+    def _fix_main_lesson(self):
         """Look for lessons called 'Main Lesson'"""
-        probs = self.lsn[self.rnmbl_tmap()]
+        probs = self.lsn[self._rnmbl_tmap()]
         if len(probs) == 0:
             print("There are no 'Main Lesson's.")
             return
@@ -299,7 +301,7 @@ class DownloadLessons:
                     print(f"{mp4} does not exist, cannot open")
                     continue
                 jpg = tdir / f"{mp4.stem}.jpg"
-                self.run_cli(
+                self._run_cli(
                     "ffmpeg",
                     "-y", "-loglevel", "error",
                     "-ss", "00:00:01",
@@ -308,7 +310,7 @@ class DownloadLessons:
                     jpg,
                 )
                 rnmbls.append(Renamable(label, mp4, jpg))
-            self.run_cli("open", *[rnmbl.jpg for rnmbl in rnmbls])
+            self._run_cli("open", *[rnmbl.jpg for rnmbl in rnmbls])
             for rnmbl in rnmbls:
                 new_name = input(f"New name for '{rnmbl.mp4}'? ").strip()
                 if not new_name:
@@ -330,17 +332,17 @@ class DownloadLessons:
             assert rnmbl.new_mp4 is not None  # Appease pyright
             self.lsn.at[rnmbl.label, "File"] = str(rnmbl.new_mp4)
             rnmbl.mp4.rename(rnmbl.new_mp4)
-        self.write()
+        self._write()
 
-    def sleep(self):
+    def _sleep(self):
         """Sleep as configured"""
         if not self.args.max_sleep:
             return
         seconds = random.random() * self.args.max_sleep
-        print(f"[{self.now()}] Sleeping for {seconds:.02f} Sec...")
+        print(f"[{self._now()}] Sleeping for {seconds:.02f} Sec...")
         time.sleep(seconds)
 
-    def select(self) -> pd.DataFrame:
+    def _select(self) -> pd.DataFrame:
         """Figure out what to download"""
         undone = self.lsn[self.lsn.Done != 1]
         if len(undone) == 0:
@@ -362,47 +364,47 @@ class DownloadLessons:
         undone.sort_values(["mid", "line"], inplace=True)
         return undone.iloc[: self.args.number]
 
-    def row_mnem(self, row: pd.Series) -> str:
+    def _row_mnem(self, row: pd.Series) -> str:
         """A lesson's mnemonic"""
-        return self.mnem(row.Part, row.Lesson)
+        return self._mnem(row.Part, row.Lesson)
 
-    def mnem(self, part, lesson) -> str:
+    def _mnem(self, part, lesson) -> str:
         """A lesson's mnemonic"""
         return f"{int(part)}.{int(lesson):02d}"
 
-    def get_name(self, mnem: str) -> str | None:
+    def _get_name(self, mnem: str) -> str | None:
         """Find video file matching a lesson"""
         names = [path.name for path in HERE.glob(f"{mnem} *.mp4")]
         if len(names) == 1:
             return names[0]
         return None
 
-    def rnmbl_tmap(self) -> pd.Series:
+    def _rnmbl_tmap(self) -> pd.Series:
         """Return Truth map of files called 'Main Lesson'."""
         names = self.lsn.File.astype("string").str
         return names.fullmatch(r"\d\.\d+ Main Lesson\.mp4")
 
-    def write(self):
+    def _write(self):
         """Write back the csv"""
         if self.saves == 0:
             backup = self.args.table.with_suffix(".bak")
             print(f"{self.args.table} -> {backup}")
             shutil.copy(self.args.table, backup)
 
-        print(f"Writing {self.args.table} ({self.desc()})")
+        print(f"Writing {self.args.table} ({self._desc()})")
         self.lsn.to_csv(self.args.table, index=False)
         self.saves = self.saves + 1
 
-        if self.rnmbl_tmap().sum() > 0:
+        if self._rnmbl_tmap().sum() > 0:
             print("You may want to run with --main-lesson")
 
-    def desc(self) -> str:
+    def _desc(self) -> str:
         """Description of number of lines and number done"""
         n_done = self.lsn.Done.sum()
         n_all = len(self.lsn)
         return f"{n_all} line(s), {int(n_done)} done"
 
-    def now(self):
+    def _now(self):
         """The time"""
         return datetime.datetime.now().strftime("%H:%M:%S")
 
