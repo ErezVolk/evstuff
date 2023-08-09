@@ -287,15 +287,16 @@ class DownloadLessons:
 
     def _fix_main_lesson(self):
         """Look for lessons called 'Main Lesson'"""
-        probs = self.lsn[self._rnmbl_tmap()]
-        if len(probs) == 0:
+        suspects = self.lsn[self._rnmbl_tmap()]
+        if len(suspects) == 0:
             print("There are no 'Main Lesson's.")
             return
 
-        rnmbls: list[Renamable] = []
+        candidates = []
+        chosen = []
         with tempfile.TemporaryDirectory() as tdname:
             tdir = Path(tdname)
-            for label, row in probs.iterrows():
+            for label, row in suspects.iterrows():
                 mp4 = Path(row.File)
                 if not mp4.is_file():
                     print(f"{mp4} does not exist, cannot open")
@@ -309,26 +310,30 @@ class DownloadLessons:
                     "-frames:v", "1",
                     jpg,
                 )
-                rnmbls.append(Renamable(label, mp4, jpg))
-            self._run_cli("open", *[rnmbl.jpg for rnmbl in rnmbls])
-            for rnmbl in rnmbls:
+                candidates.append(Renamable(label, mp4, jpg))
+
+            # Show all images together
+            self._run_cli("open", *[rnmbl.jpg for rnmbl in candidates])
+
+            # Ask for new names
+            for rnmbl in candidates:
                 new_name = input(f"New name for '{rnmbl.mp4}'? ").strip()
                 if not new_name:
                     continue
                 rnmbl.new_mp4 = rnmbl.mp4.with_stem(
                     rnmbl.mp4.stem.removesuffix("Main Lesson") + new_name
                 )
+                chosen.append(rnmbl)
 
-        rnmbls = [rnmbl for rnmbl in rnmbls if rnmbl.new_mp4]
-        if not rnmbls:
+        if not chosen:
             return
 
         print("About to rename:")
-        for rnmbl in rnmbls:
+        for rnmbl in chosen:
             print(f" - {rnmbl.mp4} -> {rnmbl.new_mp4}")
         input("Press Enter to continue: ")
 
-        for rnmbl in rnmbls:
+        for rnmbl in chosen:
             assert rnmbl.new_mp4 is not None  # Appease pyright
             self.lsn.at[rnmbl.label, "File"] = str(rnmbl.new_mp4)
             rnmbl.mp4.rename(rnmbl.new_mp4)
