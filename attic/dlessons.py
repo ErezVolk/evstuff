@@ -18,7 +18,7 @@ THIS = Path(__file__)
 
 
 @dataclass
-class MainLesson:
+class Renamable:
     label: int
     mp4: Path
     jpg: Path
@@ -242,8 +242,7 @@ class DownloadLessons:
             "yt-dlp",
             f"http://players.brightcove.net/{self.args.account_id}/"
             f"{self.args.embed_id}_default/index.html?videoId={row.VideoID}",
-            "-o",
-            f"{mnem} %(title)s.%(ext)s",
+            "-o", f"{mnem} %(title)s.%(ext)s",
         )
         self.lsn.at[label, "Done"] = 1
         if name := self.get_name(mnem):
@@ -251,7 +250,7 @@ class DownloadLessons:
         self.write()
 
     def run_cli(self, *cli):
-        subprocess.run(cli, check=True)
+        subprocess.run([str(part) for part in cli], check=True)
 
     def push(self):
         """Insert lines, rename, etc."""
@@ -286,12 +285,12 @@ class DownloadLessons:
 
     def fix_main_lesson(self):
         """Look for lessons called 'Main Lesson'"""
-        probs = self.lsn[self.mlsn_tmap()]
+        probs = self.lsn[self.rnmbl_tmap()]
         if len(probs) == 0:
             print("There are no 'Main Lesson's.")
             return
 
-        mlsns: list[MainLesson] = []
+        rnmbls: list[Renamable] = []
         with tempfile.TemporaryDirectory() as tdname:
             tdir = Path(tdname)
             for label, row in probs.iterrows():
@@ -299,43 +298,38 @@ class DownloadLessons:
                 if not mp4.is_file():
                     print(f"{mp4} does not exist, cannot open")
                     continue
-                jpg = tdir / f"{mp4.name}.jpg"
+                jpg = tdir / f"{mp4.stem}.jpg"
                 self.run_cli(
                     "ffmpeg",
-                    "-y",
-                    "-loglevel",
-                    "error",
-                    "-ss",
-                    "00:00:01",
-                    "-i",
-                    str(mp4),
-                    "-frames:v",
-                    "1",
-                    str(jpg),
+                    "-y", "-loglevel", "error",
+                    "-ss", "00:00:01",
+                    "-i", mp4,
+                    "-frames:v", "1",
+                    jpg,
                 )
-                mlsns.append(MainLesson(label, mp4, jpg))
-            self.run_cli("open", *[str(mlsn.jpg) for mlsn in mlsns])
-            for mlsn in mlsns:
-                new_name = input(f"New name for '{mlsn.mp4}'? ").strip()
+                rnmbls.append(Renamable(label, mp4, jpg))
+            self.run_cli("open", *[rnmbl.jpg for rnmbl in rnmbls])
+            for rnmbl in rnmbls:
+                new_name = input(f"New name for '{rnmbl.mp4}'? ").strip()
                 if not new_name:
                     continue
-                mlsn.new_mp4 = mlsn.mp4.with_stem(
-                    mlsn.mp4.stem.removesuffix("Main Lesson") + new_name
+                rnmbl.new_mp4 = rnmbl.mp4.with_stem(
+                    rnmbl.mp4.stem.removesuffix("Main Lesson") + new_name
                 )
 
-        mlsns = [mlsn for mlsn in mlsns if mlsn.new_mp4]
-        if not mlsns:
+        rnmbls = [rnmbl for rnmbl in rnmbls if rnmbl.new_mp4]
+        if not rnmbls:
             return
 
         print("About to rename:")
-        for mlsn in mlsns:
-            print(f" - {mlsn.mp4} -> {mlsn.new_mp4}")
+        for rnmbl in rnmbls:
+            print(f" - {rnmbl.mp4} -> {rnmbl.new_mp4}")
         input("Press Enter to continue: ")
 
-        for mlsn in mlsns:
-            assert mlsn.new_mp4 is not None  # Appease pyright
-            self.lsn.at[mlsn.label, "File"] = str(mlsn.new_mp4)
-            mlsn.mp4.rename(mlsn.new_mp4)
+        for rnmbl in rnmbls:
+            assert rnmbl.new_mp4 is not None  # Appease pyright
+            self.lsn.at[rnmbl.label, "File"] = str(rnmbl.new_mp4)
+            rnmbl.mp4.rename(rnmbl.new_mp4)
         self.write()
 
     def sleep(self):
@@ -383,7 +377,7 @@ class DownloadLessons:
             return names[0]
         return None
 
-    def mlsn_tmap(self) -> pd.Series:
+    def rnmbl_tmap(self) -> pd.Series:
         """Return Truth map of files called 'Main Lesson'."""
         names = self.lsn.File.astype("string").str
         return names.fullmatch(r"\d\.\d+ Main Lesson\.mp4")
@@ -399,7 +393,7 @@ class DownloadLessons:
         self.lsn.to_csv(self.args.table, index=False)
         self.saves = self.saves + 1
 
-        if self.mlsn_tmap().sum() > 0:
+        if self.rnmbl_tmap().sum() > 0:
             print("You may want to run with --main-lesson")
 
     def desc(self) -> str:
