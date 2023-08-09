@@ -1,18 +1,28 @@
 #!/usr/bin/env python3
 """Download a bunch of lessons"""
 import argparse
+from dataclasses import dataclass
 import datetime
 from pathlib import Path
 import subprocess
 import time
 import random
 import shutil
+import tempfile
 import tomllib
 
 import pandas as pd
 
 HERE = Path.cwd()
 THIS = Path(__file__)
+
+
+@dataclass
+class MainLesson:
+    label: int
+    mp4: Path
+    jpg: Path
+    new_mp4: Path | None = None
 
 
 class DownloadLessons:
@@ -73,6 +83,12 @@ class DownloadLessons:
             type=int,
             help="Download specific VideoID(s) from the CSV",
         )
+        group.add_argument(
+            "-m",
+            "--main-lesson",
+            action="store_true",
+            help="Try to rename downloaded lessons called 'Main Lesson'",
+        )
 
         parser.add_argument("-s", "--max-sleep", metavar="SECONDS", type=int)
         parser.add_argument(
@@ -102,6 +118,8 @@ class DownloadLessons:
             return
         if self.args.push:
             self.push()
+        elif self.args.main_lesson:
+            self.fix_main_lesson()
         elif self.args.nop:
             self.just_fill_in_things()
         elif self.args.video_id:
@@ -220,18 +238,20 @@ class DownloadLessons:
     def download_lesson(self, label, row):
         """Download a single lesson"""
         mnem = self.row_mnem(row)
-        cli = [
+        self.run_cli(
             "yt-dlp",
             f"http://players.brightcove.net/{self.args.account_id}/"
             f"{self.args.embed_id}_default/index.html?videoId={row.VideoID}",
             "-o",
             f"{mnem} %(title)s.%(ext)s",
-        ]
-        subprocess.run(cli, check=True)
+        )
         self.lsn.at[label, "Done"] = 1
         if name := self.get_name(mnem):
             self.lsn.at[label, "File"] = name
         self.write()
+
+    def run_cli(self, *cli):
+        subprocess.run(cli, check=True)
 
     def push(self):
         """Insert lines, rename, etc."""
@@ -262,6 +282,61 @@ class DownloadLessons:
         )
         self.lsn = pd.concat([self.lsn, addend], ignore_index=True)
         self.lsn.sort_values(["Part", "Lesson"], inplace=True)
+        self.write()
+
+    def fix_main_lesson(self):
+        """Look for lessons called 'Main Lesson'"""
+        names = self.lsn.File.astype("string").str
+        probs = self.lsn[names.fullmatch(r"\d\.\d+ Main Lesson\.mp4")]
+        if len(probs) == 0:
+            print("There are no 'Main Lesson's.")
+            return
+
+        mlsns: list[MainLesson] = []
+        with tempfile.TemporaryDirectory() as tdname:
+            tdir = Path(tdname)
+            for label, row in probs.iterrows():
+                mp4 = Path(row.File)
+                if not mp4.is_file():
+                    print(f"{mp4} does not exist, cannot open")
+                    continue
+                jpg = tdir / f"{mp4.name}.jpg"
+                self.run_cli(
+                    "ffmpeg",
+                    "-y",
+                    "-loglevel",
+                    "error",
+                    "-ss",
+                    "00:00:01",
+                    "-i",
+                    str(mp4),
+                    "-frames:v",
+                    "1",
+                    str(jpg),
+                )
+                mlsns.append(MainLesson(label, mp4, jpg))
+            self.run_cli("open", *[str(mlsn.jpg) for mlsn in mlsns])
+            for mlsn in mlsns:
+                new_name = input(f"New name for '{mlsn.mp4}'? ").strip()
+                if not new_name:
+                    continue
+                mlsn.new_mp4 = mlsn.mp4.with_stem(
+                    mlsn.mp4.stem.removesuffix("Main Lesson") + new_name
+                )
+
+        mlsns = [mlsn for mlsn in mlsns if mlsn.new_mp4]
+        if not mlsns:
+            return
+
+        print("About to rename:")
+        for mlsn in mlsns:
+            print(f" - {mlsn.mp4} -> {mlsn.new_mp4}")
+        input("Press Enter to continue: ")
+
+        for mlsn in mlsns:
+            assert mlsn.new_mp4 is not None  # Appease pyright
+            self.lsn.at[mlsn.label, "File"] = str(mlsn.new_mp4)
+            mlsn.mp4.rename(mlsn.new_mp4)
         self.write()
 
     def sleep(self):
