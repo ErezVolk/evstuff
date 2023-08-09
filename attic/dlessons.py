@@ -286,8 +286,7 @@ class DownloadLessons:
 
     def fix_main_lesson(self):
         """Look for lessons called 'Main Lesson'"""
-        names = self.lsn.File.astype("string").str
-        probs = self.lsn[names.fullmatch(r"\d\.\d+ Main Lesson\.mp4")]
+        probs = self.lsn[self.mlsn_tmap()]
         if len(probs) == 0:
             print("There are no 'Main Lesson's.")
             return
@@ -384,6 +383,11 @@ class DownloadLessons:
             return names[0]
         return None
 
+    def mlsn_tmap(self) -> pd.Series:
+        """Return Truth map of files called 'Main Lesson'."""
+        names = self.lsn.File.astype("string").str
+        return names.fullmatch(r"\d\.\d+ Main Lesson\.mp4")
+
     def write(self):
         """Write back the csv"""
         if self.saves == 0:
@@ -394,6 +398,9 @@ class DownloadLessons:
         print(f"Writing {self.args.table} ({self.desc()})")
         self.lsn.to_csv(self.args.table, index=False)
         self.saves = self.saves + 1
+
+        if self.mlsn_tmap().sum() > 0:
+            print("You may want to run with --main-lesson")
 
     def desc(self) -> str:
         """Description of number of lines and number done"""
