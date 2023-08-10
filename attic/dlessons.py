@@ -189,7 +189,6 @@ class DownloadLessons:
                 f"Not in {self.args.table}: {self._vids_str(missing)}, "
                 f"downloading only {self._vids_str(found)}."
             )
-            return
 
         self._download_lessons(toget)
 
