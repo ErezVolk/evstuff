@@ -264,7 +264,7 @@ class DownloadLessons:
                     new_stem = new_mnem + src.stem.removeprefix(old_mnem)
                     renames[src] = dst = src.with_stem(new_stem)
                     if row.File == src.name:
-                        self.lsn.at[label, "File"] = dst.name
+                        self.lsn.at[label, "File"] = dst
                 self.lsn.at[label, "Lesson"] = row.Lesson + 1
             print(f"About to rename {len(renames)} file(s):")
             for src, dst in sorted(renames.items()):
@@ -301,7 +301,7 @@ class DownloadLessons:
 
         for rnmbl in chosen:
             assert rnmbl.new_mp4 is not None  # Appease pyright
-            self.lsn.at[rnmbl.label, "File"] = str(rnmbl.new_mp4)
+            self.lsn.at[rnmbl.label, "File"] = rnmbl.new_mp4
             rnmbl.mp4.rename(rnmbl.new_mp4)
         self._write()
 
