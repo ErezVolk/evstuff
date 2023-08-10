@@ -151,11 +151,8 @@ class DownloadLessons:
         parts = self.lsn.Part
         tmap = (parts != parts.shift(1)) & self.lsn.Lesson.isna()
         if tmap.sum() > 0:
-            lines = self.lsn.index[tmap]
-            print(
-                "Missing first Lesson in Part in line(s)",
-                ", ".join(map(str, lines)),
-            )
+            lines = ", ".join(map(str, self.lsn.index[tmap]))
+            print(f"Missing first Lesson in Part in line(s) {lines}")
             return False
 
         # Fill in missing Lesson fields
@@ -171,7 +168,8 @@ class DownloadLessons:
         got = self.lsn[(self.lsn.Done == 1) & self.lsn.File.isna()]
         for label, row in got.iterrows():
             mnem = self._row_mnem(row)
-            if name := self._get_name(mnem):
+            name = self._get_name(mnem)
+            if name:
                 print(f'{mnem} ({row.VideoID}) -> "{name}"')
                 self.lsn.at[label, "File"] = name
         self._write()
@@ -181,24 +179,23 @@ class DownloadLessons:
         wanted = self.args.video_id
         toget = self.lsn[self.lsn.VideoID.isin(wanted)]
         if len(toget) == 0:
-            print(
-                f"Not in {self.args.table}: "
-                f"{' '.join(str(vid) for vid in wanted)}"
-            )
+            print(f"Not in {self.args.table}:", self._vids_str(wanted))
             return
 
         if len(toget) < len(wanted):
             found = toget.VideoID
             missing = set(found) - set(wanted)
             print(
-                f"Not in {self.args.table}: "
-                f"{' '.join(str(vid) for vid in missing)}, "
-                f"downloading only "
-                f"{' '.join(str(vid) for vid in found)}, "
+                f"Not in {self.args.table}: {self._vids_str(missing)}, "
+                f"downloading only {self._vids_str(found)}."
             )
             return
 
         self._download_lessons(toget)
+
+    def _vids_str(self, vids) -> str:
+        """Format a list of VideoIDs"""
+        return f"{' '.join(map(str, vids))}"
 
     def _download_next_lessons(self):
         """What we came here for"""
