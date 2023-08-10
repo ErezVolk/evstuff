@@ -10,6 +10,7 @@ import random
 import shutil
 import tempfile
 import tomllib
+import typing as t
 
 import pandas as pd
 
@@ -20,7 +21,7 @@ THIS = Path(__file__)
 @dataclass
 class Renamable:
     """Information about a file to be renamed"""
-    label: int
+    label: t.Hashable
     mp4: Path
     jpg: Path
     new_mp4: Path | None = None
@@ -260,9 +261,8 @@ class DownloadLessons:
                 old_mnem = self._mnem(part=row.Part, lesson=row.Lesson)
                 new_mnem = self._mnem(part=row.Part, lesson=row.Lesson + 1)
                 for src in HERE.glob(f"{old_mnem}*"):
-                    renames[src] = dst = src.with_stem(
-                        new_mnem + src.stem.removeprefix(old_mnem)
-                    )
+                    new_stem = new_mnem + src.stem.removeprefix(old_mnem)
+                    renames[src] = dst = src.with_stem(new_stem)
                     if row.File == src.name:
                         self.lsn.at[label, "File"] = dst.name
                 self.lsn.at[label, "Lesson"] = row.Lesson + 1
@@ -283,43 +283,13 @@ class DownloadLessons:
 
     def _fix_main_lesson(self):
         """Look for lessons called 'Main Lesson'"""
-        suspects = self.lsn[self._rnmbl_tmap()]
-        if len(suspects) == 0:
+        pool = self.lsn[self._rnmbl_tmap()]
+        if len(pool) == 0:
             print("There are no 'Main Lesson's.")
             return
 
-        candidates = []
-        chosen = []
-        with tempfile.TemporaryDirectory() as tdname:
-            tdir = Path(tdname)
-            for label, row in suspects.iterrows():
-                mp4 = Path(row.File)
-                if not mp4.is_file():
-                    print(f"{mp4} does not exist, cannot open")
-                    continue
-                jpg = tdir / f"{mp4.stem}.jpg"
-                self._run_cli(
-                    "ffmpeg",
-                    "-y", "-loglevel", "error",
-                    "-ss", "00:00:01",
-                    "-i", mp4,
-                    "-frames:v", "1",
-                    jpg,
-                )
-                candidates.append(Renamable(label, mp4, jpg))
-
-            # Show all images together
-            self._run_cli("open", *[rnmbl.jpg for rnmbl in candidates])
-
-            # Ask for new names
-            for rnmbl in candidates:
-                new_name = input(f"New name for '{rnmbl.mp4}'? ").strip()
-                if not new_name:
-                    continue
-                rnmbl.new_mp4 = rnmbl.mp4.with_stem(
-                    rnmbl.mp4.stem.removesuffix("Main Lesson") + new_name
-                )
-                chosen.append(rnmbl)
+        with tempfile.TemporaryDirectory() as work_dir_name:
+            chosen = self._choose(pool, Path(work_dir_name))
 
         if not chosen:
             return
@@ -335,8 +305,43 @@ class DownloadLessons:
             rnmbl.mp4.rename(rnmbl.new_mp4)
         self._write()
 
+    def _choose(self, pool: pd.DataFrame, work_dir: Path) -> list[Renamable]:
+        """Show strategic frames, offer to rename"""
+        candidates = []
+        chosen = []
+
+        for label, row in pool.iterrows():
+            mp4 = Path(row.File)
+            if not mp4.is_file():
+                print(f"{mp4} does not exist, cannot open")
+                continue
+            jpg = work_dir / f"{mp4.stem}.jpg"
+            self._run_cli(
+                "ffmpeg",
+                "-y", "-loglevel", "error",
+                "-ss", "00:00:01",
+                "-i", mp4,
+                "-frames:v", "1",
+                jpg,
+            )
+            candidates.append(Renamable(label, mp4, jpg))
+
+        # Show all images together
+        self._run_cli("open", *[rnmbl.jpg for rnmbl in candidates])
+
+        # Ask for new names
+        for rnmbl in candidates:
+            new_name = input(f"New name for '{rnmbl.mp4}'? ").strip()
+            if not new_name:
+                continue
+            new_stem = rnmbl.mp4.stem.removesuffix("Main Lesson") + new_name
+            rnmbl.new_mp4 = rnmbl.mp4.with_stem(new_stem)
+            chosen.append(rnmbl)
+
+        return chosen
+
     def _sleep(self):
-        """Sleep as configured"""
+        """Sleep between downloads as configured"""
         if not self.args.max_sleep:
             return
         seconds = random.random() * self.args.max_sleep
