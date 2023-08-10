@@ -402,7 +402,7 @@ class DownloadLessons:
         self.saves = self.saves + 1
 
         if self._rnmbl_tmap().sum() > 0:
-            print("You may want to run with --main-lesson")
+            print("You may want to run with -m/--main-lesson")
 
     def _desc(self) -> str:
         """Description of number of lines and number done"""
