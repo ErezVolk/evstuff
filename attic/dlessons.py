@@ -92,6 +92,12 @@ class DownloadLessons:
             help="Try to rename downloaded lessons called 'Main Lesson'",
         )
 
+        parser.add_argument(
+            "-M",
+            "--main-lesson-after-download",
+            action="store_true",
+            help="Run -m/--main-lesson after downloading",
+        )
         parser.add_argument("-s", "--max-sleep", metavar="SECONDS", type=int)
         parser.add_argument(
             "-o",
@@ -214,6 +220,9 @@ class DownloadLessons:
             self._download_lesson(label, row)
             self._sleep()
         self._download_lesson(toget.index[-1], toget.iloc[-1])
+
+        if self.args.main_lesson_after_download:
+            self._fix_main_lesson()
 
     def _read_config(self):
         """Fill in settings from config file"""
@@ -390,7 +399,7 @@ class DownloadLessons:
         names = self.lsn.File.astype("string").str
         return names.fullmatch(r"\d\.\d+ Main Lesson\.mp4")
 
-    def _write(self):
+    def _write(self) -> pd.Series:
         """Write back the csv"""
         if self.saves == 0:
             backup = self.args.table.with_suffix(".bak")
