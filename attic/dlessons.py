@@ -19,7 +19,7 @@ THIS = Path(__file__)
 
 
 @dataclass
-class Renamable:
+class Renamee:
     """Information about a file to be renamed"""
     label: t.Hashable
     mp4: Path
@@ -138,7 +138,7 @@ class DownloadLessons:
     def _load_table(self):
         """Read the CSV"""
         self.lsn = pd.read_csv(self.args.table)
-        self.lsn.index = pd.RangeIndex(2, len(self.lsn) + 2)
+        self.lsn.index = pd.RangeIndex(2, len(self.lsn) + 2)  # CSV line nos
         print(f"{self.args.table}: {self._desc()}")
 
     def _check_sanity(self) -> bool:
@@ -148,11 +148,12 @@ class DownloadLessons:
             print("Duplicated VideoID in lines", ", ".join(map(str, lines)))
             return False
 
-        if self.lsn.iloc[0].isna().Part:
+        if self.lsn.iloc[0].Part.isna():
             print("You must provide the first Part")
             return False
+
         # Fill in missing Part fields
-        self.lsn.Part = self.lsn.Part.ffill().fillna(0).astype(int)
+        self.lsn.Part = self.lsn.Part.ffill().astype(int)
 
         # Make sure first Lesson in each Part is given
         parts = self.lsn.Part
@@ -292,7 +293,7 @@ class DownloadLessons:
 
     def _fix_main_lesson(self):
         """Look for lessons called 'Main Lesson'"""
-        pool = self.lsn[self._rnmbl_tmap()]
+        pool = self.lsn[self._rnme_tmap()]
         if len(pool) == 0:
             print("There are no 'Main Lesson's.")
             return
@@ -304,17 +305,17 @@ class DownloadLessons:
             return
 
         print("About to rename:")
-        for rnmbl in chosen:
-            print(f" - {rnmbl.mp4} -> {rnmbl.new_mp4}")
+        for rnme in chosen:
+            print(f" - {rnme.mp4} -> {rnme.new_mp4}")
         input("Press Enter to continue: ")
 
-        for rnmbl in chosen:
-            assert rnmbl.new_mp4 is not None  # Appease pyright
-            self.lsn.at[rnmbl.label, "File"] = rnmbl.new_mp4
-            rnmbl.mp4.rename(rnmbl.new_mp4)
+        for rnme in chosen:
+            assert rnme.new_mp4 is not None  # Appease pyright
+            self.lsn.at[rnme.label, "File"] = rnme.new_mp4
+            rnme.mp4.rename(rnme.new_mp4)
         self._write()
 
-    def _choose(self, pool: pd.DataFrame, work_dir: Path) -> list[Renamable]:
+    def _choose(self, pool: pd.DataFrame, work_dir: Path) -> list[Renamee]:
         """Show strategic frames, offer to rename"""
         candidates = []
         chosen = []
@@ -333,19 +334,19 @@ class DownloadLessons:
                 "-frames:v", "1",
                 jpg,
             )
-            candidates.append(Renamable(label, mp4, jpg))
+            candidates.append(Renamee(label, mp4, jpg))
 
         # Show all images together
-        self._run_cli("open", *[rnmbl.jpg for rnmbl in candidates])
+        self._run_cli("open", *[rnme.jpg for rnme in candidates])
 
         # Ask for new names
-        for rnmbl in candidates:
-            new_name = input(f"New name for '{rnmbl.mp4}'? ").strip()
+        for rnme in candidates:
+            new_name = input(f"New name for '{rnme.mp4}'? ").strip()
             if not new_name:
                 continue
-            new_stem = rnmbl.mp4.stem.removesuffix("Main Lesson") + new_name
-            rnmbl.new_mp4 = rnmbl.mp4.with_stem(new_stem)
-            chosen.append(rnmbl)
+            new_stem = rnme.mp4.stem.removesuffix("Main Lesson") + new_name
+            rnme.new_mp4 = rnme.mp4.with_stem(new_stem)
+            chosen.append(rnme)
 
         return chosen
 
@@ -394,7 +395,7 @@ class DownloadLessons:
             return names[0]
         return None
 
-    def _rnmbl_tmap(self) -> pd.Series:
+    def _rnme_tmap(self) -> pd.Series:
         """Return Truth map of files called 'Main Lesson'."""
         names = self.lsn.File.astype("string").str
         return names.fullmatch(r"\d\.\d+ Main Lesson\.mp4")
@@ -410,7 +411,7 @@ class DownloadLessons:
         self.lsn.to_csv(self.args.table, index=False)
         self.saves = self.saves + 1
 
-        if self._rnmbl_tmap().sum() > 0:
+        if self._rnme_tmap().sum() > 0:
             print("You may want to run with -m/--main-lesson")
 
     def _desc(self) -> str:
