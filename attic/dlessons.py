@@ -148,7 +148,7 @@ class DownloadLessons:
             print("Duplicated VideoID in lines", ", ".join(map(str, lines)))
             return False
 
-        if self.lsn.iloc[0].Part.isna():
+        if pd.isna(self.lsn.iloc[0].Part):
             print("You must provide the first Part")
             return False
 
@@ -412,7 +412,7 @@ class DownloadLessons:
         self.saves = self.saves + 1
 
         if self._rnme_tmap().sum() > 0:
-            print("You may want to run with -m/--main-lesson")
+            print("You may want to run with -m or -M")
 
     def _desc(self) -> str:
         """Description of number of lines and number done"""
