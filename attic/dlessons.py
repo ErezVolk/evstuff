@@ -223,7 +223,7 @@ class DownloadLessons:
         self._download_lesson(toget.index[-1], toget.iloc[-1])
 
         if self.args.main_lesson_after_download:
-            self._fix_main_lesson()
+            self._fix_main_lesson(or_warn=False)
 
     def _read_config(self):
         """Fill in settings from config file"""
@@ -291,11 +291,12 @@ class DownloadLessons:
         self.lsn.sort_values(["Part", "Lesson"], inplace=True)
         self._write()
 
-    def _fix_main_lesson(self):
+    def _fix_main_lesson(self, or_warn=True):
         """Look for lessons called 'Main Lesson'"""
         pool = self.lsn[self._rnme_tmap()]
         if len(pool) == 0:
-            print("There are no 'Main Lesson's.")
+            if or_warn:
+                print("There are no 'Main Lesson's.")
             return
 
         with tempfile.TemporaryDirectory() as work_dir_name:
