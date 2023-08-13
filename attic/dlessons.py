@@ -27,6 +27,21 @@ class Renamee:
     new_mp4: Path | None = None
 
 
+class FullHelp(argparse._HelpAction):
+    """--help including subparsers."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser.print_help()
+
+        for action in parser._actions:
+            if isinstance(action, argparse._SubParsersAction):
+                for choice, subparser in action.choices.items():
+                    print("\n")
+                    print(subparser.format_help())
+
+        parser.exit()
+
+
 class DownloadLessons:
     """Download a bunch of lessons"""
 
@@ -42,7 +57,13 @@ class DownloadLessons:
 
     def parse_args(self):
         """Command line"""
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument(
+            "-H",
+            "--full-help",
+            action=FullHelp,
+            help="show full help message and exit",
+        )
         parser.add_argument(
             "-t",
             "--table",
@@ -50,33 +71,34 @@ class DownloadLessons:
             default="lessons.csv",
             help="where lesson IDs are stored",
         )
-        group = parser.add_mutually_exclusive_group()
+        parser.add_argument(
+            "-c",
+            "--config",
+            type=Path,
+            default=f"{THIS.stem}.toml",
+            help="config file",
+        )
+        parser.add_argument(
+            "-m",
+            "--main-lesson",
+            action="store_true",
+            help="try to rename downloaded lessons called 'Main Lesson'",
+        )
+
+        parser.add_argument("-s", "--max-sleep", metavar="SECONDS", type=int)
+        parser.add_argument("-A", "--account-id")
+        parser.add_argument("-E", "--embed-id")
+
+        subps = parser.add_subparsers(dest="command")
+
+        subp_dl = subps.add_parser("download")
+        group = subp_dl.add_mutually_exclusive_group()
         group.add_argument(
             "-n",
             "--number",
             type=int,
             default=1,
             help="number of lessons to download",
-        )
-        group.add_argument(
-            "-a",
-            "--all",
-            action="store_true",
-            help="download all missing lessons",
-        )
-        group.add_argument(
-            "-N",
-            "--nop",
-            action="store_true",
-            help="just fill in missing file names in the CSV",
-        )
-        group.add_argument(
-            "-p",
-            "--push",
-            nargs=3,
-            type=int,
-            metavar=("PART", "LESSON", "VIDEO_ID"),
-            help="rename, insert lines, and all that (interactive)",
         )
         group.add_argument(
             "-v",
@@ -86,36 +108,31 @@ class DownloadLessons:
             help="Download specific VideoID(s) from the CSV",
         )
         group.add_argument(
-            "-m",
-            "--main-lesson",
+            "-a",
+            "--all",
             action="store_true",
-            help="Try to rename downloaded lessons called 'Main Lesson'",
+            help="download all missing lessons",
         )
-
-        parser.add_argument(
-            "-M",
-            "--main-lesson-after-download",
-            action="store_true",
-            help="Run -m/--main-lesson after downloading",
-        )
-        parser.add_argument("-s", "--max-sleep", metavar="SECONDS", type=int)
-        parser.add_argument(
+        subp_dl.add_argument(
             "-o",
             "--order",
             choices=["recommended", "linear", "random"],
             default="recommended",
             help="how to choose which lessons to get",
         )
-        parser.add_argument(
-            "-c",
-            "--config",
-            type=Path,
-            default=f"{THIS.stem}.toml",
-            help="config file",
-        )
-        parser.add_argument("-A", "--account-id")
-        parser.add_argument("-E", "--embed-id")
-        self.args = parser.parse_args()
+
+        subps.add_parser("fix")
+
+        subp_push = subps.add_parser("push")
+        subp_push.add_argument("part", metavar="PART", type=int)
+        subp_push.add_argument("lesson", metavar="LESSON", type=int)
+        subp_push.add_argument("video_id", metavar="VIDEO-ID", type=int)
+
+        args, unparsed = parser.parse_known_args()
+        if args.command is None:
+            subp_dl.parse_args(unparsed, namespace=args)
+
+        self.args = args
 
     def main(self):
         """Entry point"""
@@ -124,16 +141,16 @@ class DownloadLessons:
         self._load_table()
         if not self._check_sanity():
             return
-        if self.args.push:
+
+        if self.args.command == "push":
             self._push()
-        elif self.args.main_lesson:
-            self._fix_main_lesson()
-        elif self.args.nop:
-            self._just_fill_in_things()
-        elif self.args.video_id:
-            self._download_specific_lessons()
+        elif self.args.command == "fix":
+            self._fill_in_things()
         else:
-            self._download_next_lessons()
+            if self.args.video_id:
+                self._download_specific_lessons()
+            else:
+                self._download_next_lessons()
 
     def _load_table(self):
         """Read the CSV"""
@@ -171,7 +188,7 @@ class DownloadLessons:
         self.lsn.Done = self.lsn.Done.fillna(0).astype(int)
         return True
 
-    def _just_fill_in_things(self):
+    def _fill_in_things(self):
         """Nothing to download, look for unlisted downloaded files"""
         got = self.lsn[(self.lsn.Done == 1) & self.lsn.File.isna()]
         for label, row in got.iterrows():
@@ -180,6 +197,10 @@ class DownloadLessons:
             if name:
                 print(f'{mnem} ({row.VideoID}) -> "{name}"')
                 self.lsn.at[label, "File"] = name
+
+        if self.args.main_lesson:
+            self._fix_main_lesson(or_warn=False)
+
         self._write()
 
     def _download_specific_lessons(self):
@@ -222,7 +243,7 @@ class DownloadLessons:
             self._sleep()
         self._download_lesson(toget.index[-1], toget.iloc[-1])
 
-        if self.args.main_lesson_after_download:
+        if self.args.main_lesson:
             self._fix_main_lesson(or_warn=False)
 
     def _read_config(self):
@@ -255,6 +276,7 @@ class DownloadLessons:
         self.lsn.at[label, "Done"] = 1
         if name := self._get_name(mnem):
             self.lsn.at[label, "File"] = name
+
         self._write()
 
     def _run_cli(self, *cli):
@@ -289,6 +311,7 @@ class DownloadLessons:
         )
         self.lsn = pd.concat([self.lsn, addend], ignore_index=True)
         self.lsn.sort_values(["Part", "Lesson"], inplace=True)
+
         self._write()
 
     def _fix_main_lesson(self, or_warn=True):
@@ -401,7 +424,7 @@ class DownloadLessons:
         names = self.lsn.File.astype("string").str
         return names.fullmatch(r"\d\.\d+ Main Lesson\.mp4")
 
-    def _write(self) -> pd.Series:
+    def _write(self):
         """Write back the csv"""
         if self.saves == 0:
             backup = self.args.table.with_suffix(".bak")
@@ -413,7 +436,7 @@ class DownloadLessons:
         self.saves = self.saves + 1
 
         if self._rnme_tmap().sum() > 0:
-            print("You may want to run with -m or -M")
+            print("You may want to run with -m/--main-lesson")
 
     def _desc(self) -> str:
         """Description of number of lines and number done"""
