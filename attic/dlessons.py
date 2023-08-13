@@ -27,15 +27,23 @@ class Renamee:
     new_mp4: Path | None = None
 
 
-class FullHelp(argparse._HelpAction):
+class FullHelp(argparse.Action):
     """--help including subparsers."""
+
+    def __init__(self, option_strings, dest, **kwargs):
+        super().__init__(
+            option_strings=option_strings,
+            dest=dest,
+            nargs=0,  # The point
+            **kwargs,
+        )
 
     def __call__(self, parser, namespace, values, option_string=None):
         parser.print_help()
 
         for action in parser._actions:
             if isinstance(action, argparse._SubParsersAction):
-                for choice, subparser in action.choices.items():
+                for subparser in action.choices.values():
                     print("\n")
                     print(subparser.format_help())
 
