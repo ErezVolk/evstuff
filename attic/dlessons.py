@@ -65,7 +65,7 @@ class DownloadLessons:
 
     def parse_args(self):
         """Command line"""
-        parser = argparse.ArgumentParser(add_help=False)
+        parser = argparse.ArgumentParser()
         parser.add_argument(
             "-H",
             "--full-help",
