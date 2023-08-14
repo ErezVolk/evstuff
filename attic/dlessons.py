@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import time
 import random
+import re
 import shutil
 import tempfile
 import tomllib
@@ -52,6 +53,8 @@ class FullHelp(argparse.Action):
 
 class DownloadLessons:
     """Download a bunch of lessons"""
+
+    MAIN_LESSON_RE = r"Main Lessons?"
 
     CONFIGURABLES = {
         "account_id": None,
@@ -206,9 +209,7 @@ class DownloadLessons:
                 print(f'{mnem} ({row.VideoID}) -> "{name}"')
                 self.lsn.at[label, "File"] = name
 
-        if self.args.main_lesson:
-            self._fix_main_lesson(or_warn=False)
-
+        self._fix_main_lesson(or_warn=False)
         self._write()
 
     def _download_specific_lessons(self):
@@ -385,7 +386,7 @@ class DownloadLessons:
             new_name = input(f"New name for '{rnme.mp4}'? ").strip()
             if not new_name:
                 continue
-            new_stem = rnme.mp4.stem.removesuffix("Main Lesson") + new_name
+            new_stem = re.sub(self.MAIN_LESSON_RE, new_name, rnme.mp4.stem)
             rnme.new_mp4 = rnme.mp4.with_stem(new_stem)
             chosen.append(rnme)
 
@@ -439,7 +440,7 @@ class DownloadLessons:
     def _rnme_tmap(self) -> pd.Series:
         """Return Truth map of files called 'Main Lesson'."""
         names = self.lsn.File.astype("string").str
-        return names.fullmatch(r"\d\.\d+ Main Lesson\.mp4")
+        return names.fullmatch(r"\d\.\d+ " + self.MAIN_LESSON_RE + r"\.mp4")
 
     def _write(self):
         """Write back the csv"""
@@ -452,7 +453,7 @@ class DownloadLessons:
         self.lsn.to_csv(self.args.table, index=False)
         self.saves = self.saves + 1
 
-        if self._rnme_tmap().sum() > 0:
+        if self._rnme_tmap().any():
             if not self.args.main_lesson:
                 print("You may want to run with -m/--main-lesson")
 
