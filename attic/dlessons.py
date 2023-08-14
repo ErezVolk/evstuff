@@ -298,9 +298,9 @@ class DownloadLessons:
         video_id = self.args.video_id
 
         tmap = self.lsn.VideoID == video_id
-        if tmap.sum() > 0:
+        if tmap.any():
             lines = ','.join(str(line) for line in self.lsn.index[tmap])
-            print(f"Video {video_id} is already in {self.args.table}:{lines}")
+            print(f"Video {video_id} is already {self.args.table}:{lines}")
             return
 
         pushees = self.lsn.query(f"Part == {part} and Lesson >= {lesson}")
