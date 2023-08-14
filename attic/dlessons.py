@@ -293,7 +293,16 @@ class DownloadLessons:
 
     def _push(self):
         """Insert lines, rename, etc."""
-        (part, lesson, video_id) = self.args.push
+        part = self.args.part
+        lesson = self.args.lesson
+        video_id = self.args.video_id
+
+        tmap = self.lsn.VideoID == video_id
+        if tmap.sum() > 0:
+            lines = ','.join(str(line) for line in self.lsn.index[tmap])
+            print(f"Video {video_id} is already in {self.args.table}:{lines}")
+            return
+
         pushees = self.lsn.query(f"Part == {part} and Lesson >= {lesson}")
         if len(pushees) > 0:
             renames = {}
