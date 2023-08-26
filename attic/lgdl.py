@@ -22,6 +22,10 @@ class Hit(t.NamedTuple):
     mirrors: list[str]
 
 
+class WrongReplyError(RuntimeError):
+    """Raised when the HTML we get isn't what we expected"""
+
+
 class LibgenDownload:
     """Simple Library Genesis search + download"""
     USER_AGENT = (
@@ -77,6 +81,7 @@ class LibgenDownload:
         if not hits:
             print("Better luck searching next time!")
             return
+
         hits.sort(key=lambda hit: hit.name.lower())
 
         choices = self.choose(hits)
@@ -89,49 +94,25 @@ class LibgenDownload:
 
     def run_query(self) -> list[Hit]:
         """Search LibGen and grok the result"""
-        if self.args.reload:
-            with open("lgdl-query.html", encoding="utf-8") as fobj:
-                html = fobj.read()
-        else:
-            params = (
-                ("req", self.args.query),
-                ("columns[]", "t"),  # (search in fields) Title
-                ("columns[]", "a"),  # (search in fields) Author
-                # ("columns[]", "s"),  # (search in fields) Series
-                # ("columns[]", "y"),  # (search in fields) Year
-                ("columns[]", "i"),  # (search in fields) ISBN
-                ("objects[]", "f"),  # (search in objects): Files
-                ("topics[]", "l"),  # (search in topics): Libgen
-                ("topics[]", "f"),  # (search in topics): Fiction
-                # ("order", "year"),
-                ("order", "author"),
-                ("res", "100"),  # Results per page
-                ("gmode", "on"),  # Google mode
-                ("filesuns", "all"),
-            )
-            url = "https://libgen.gs/index.php?" + "&".join(
-                f"{urllib.parse.quote(name)}={urllib.parse.quote(value)}"
-                for name, value in params
-            )
-
-            response = self.http_get(url)
-            html = response.text
-            if self.args.debug:
-                with open("lgdl-query.html", "w", encoding="utf-8") as fobj:
-                    fobj.write(html)
+        html = self.get_query_reply()
 
         # Parse query results
-        soup = bs4.BeautifulSoup(html, "html.parser")
-        table = self.find_tag(soup, "table", id="tablelibgen")
+        try:
+            soup = bs4.BeautifulSoup(html, "html.parser")
+            table = self.find_tag(soup, "table", id="tablelibgen")
 
-        columns = [
-            next(col.strings).strip()
-            for col in self.find_tag(table, "thead").find_all("th")
-        ]
-        hits = [
-            self.parse_row(row, columns)
-            for row in self.find_tag(table, "tbody").find_all("tr")
-        ]
+            columns = [
+                next(col.strings).strip()
+                for col in self.find_tag(table, "thead").find_all("th")
+            ]
+            hits = [
+                self.parse_row(row, columns)
+                for row in self.find_tag(table, "tbody").find_all("tr")
+            ]
+        except WrongReplyError:
+            print("Unexpected HTML returned from query")
+            return []
+
         hits = [
             hit for hit in hits
             if hit.mirrors  # Only things we CAN download
@@ -142,6 +123,40 @@ class LibgenDownload:
                 if not hit.path.is_file()  # Only things we SHOULD download
             ]
         return hits
+
+    def get_query_reply(self) -> str:
+        """Run the LibGen query and return the raw HTML"""
+        if self.args.reload:
+            with open("lgdl-query.html", encoding="utf-8") as fobj:
+                return fobj.read()
+
+        params = (
+            ("req", self.args.query),
+            ("columns[]", "t"),  # (search in fields) Title
+            ("columns[]", "a"),  # (search in fields) Author
+            # ("columns[]", "s"),  # (search in fields) Series
+            # ("columns[]", "y"),  # (search in fields) Year
+            ("columns[]", "i"),  # (search in fields) ISBN
+            ("objects[]", "f"),  # (search in objects): Files
+            ("topics[]", "l"),  # (search in topics): Libgen
+            ("topics[]", "f"),  # (search in topics): Fiction
+            # ("order", "year"),
+            ("order", "author"),
+            ("res", "100"),  # Results per page
+            ("gmode", "on"),  # Google mode
+            ("filesuns", "all"),
+        )
+        url = "https://libgen.gs/index.php?" + "&".join(
+            f"{urllib.parse.quote(name)}={urllib.parse.quote(value)}"
+            for name, value in params
+        )
+
+        response = self.http_get(url)
+        html = response.text
+        if self.args.debug:
+            with open("lgdl-query.html", "w", encoding="utf-8") as fobj:
+                fobj.write(html)
+        return html
 
     def choose(self, hits: list[Hit]) -> list[int]:
         """Ask the user what to download"""
@@ -176,6 +191,8 @@ class LibgenDownload:
         progress = None
         try:
             url = self.read_mirror(mirror)
+            if not url:
+                return False
 
             # Are we continuing?
             if not self.args.overwrite and work_path.is_file():
@@ -225,8 +242,14 @@ class LibgenDownload:
             with open("lgdl-mirror.html", "w", encoding="utf-8") as fobj:
                 fobj.write(mirror_html)
         soup = bs4.BeautifulSoup(mirror_html, "html.parser")
-        href = self.find_tag(soup, "a", string="GET")["href"]
-        assert isinstance(href, str)
+        try:
+            link = self.find_tag(soup, "a", string="GET")
+            href = link["href"]
+            if not isinstance(href, str):
+                raise WrongReplyError()
+        except (WrongReplyError, KeyError):
+            return ""
+
         return urllib.parse.urljoin(mirror_url, href)
 
     def parse_row(self, row: bs4.Tag, columns: list[str]) -> Hit:
@@ -271,12 +294,11 @@ class LibgenDownload:
 
     def parse_mirrors_cell(self, cell: bs4.Tag) -> list[str]:
         """Extract links from the Mirrors cell"""
-        mirrors = []
-        for link in cell.find_all("a"):
-            href = link["href"]
-            if isinstance(href, str):
-                mirrors.append(href)
-        return mirrors
+        return [
+            href
+            for link in cell.find_all("a")
+            if isinstance(href := link["href"], str)
+        ]
 
     def parse_cell(self, cell: bs4.Tag) -> str:
         """Parse a plain cell"""
@@ -285,7 +307,8 @@ class LibgenDownload:
     def find_tag(self, tag: bs4.Tag, *args, **kwargs) -> bs4.Tag:
         """Wrapper for `Tag.find()`, mostly to appease pylint"""
         found = tag.find(*args, **kwargs)
-        assert isinstance(found, bs4.Tag)
+        if not isinstance(found, bs4.Tag):
+            raise WrongReplyError()
         return found
 
     def http_get(self, url, pos=0, stream=False) -> requests.Response:
