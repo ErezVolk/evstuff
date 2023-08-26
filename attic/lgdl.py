@@ -185,21 +185,23 @@ class LibgenDownload:
         print(msg, flush=True)
 
         for mirror in mirrors:
-            if self.download_mirror(mirror, hit.work_path):
+            if self.download_mirror(hit, mirror):
                 hit.work_path.rename(hit.path)
                 return
         print(f"{hit.name}: Could not download")
 
-    def download_mirror(self, mirror: str, work_path: Path) -> bool:
+    def download_mirror(self, hit: Hit, mirror: str) -> bool:
         """Download one file from a specific mirror"""
         progress = None
+        work_path = hit.work_path
+
         try:
             url = self.read_mirror(mirror)
             if not url:
                 return False
 
             # Are we continuing?
-            if not self.args.overwrite and work_path.is_file():
+            if hit.resume and not self.args.overwrite:
                 pos = work_path.stat().st_size
                 mode = "ab"
                 if self.args.debug:
