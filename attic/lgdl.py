@@ -17,6 +17,8 @@ class Hit(t.NamedTuple):
     """A query result"""
     name: str
     path: Path
+    work_path: Path
+    resume: bool
     language: str
     size_desc: str
     mirrors: list[str]
@@ -82,7 +84,7 @@ class LibgenDownload:
             print("Better luck searching next time!")
             return
 
-        hits.sort(key=lambda hit: hit.name.lower())
+        hits.sort(key=lambda hit: (not hit.resume, hit.name.lower()))
 
         choices = self.choose(hits)
         if not choices:
@@ -164,7 +166,8 @@ class LibgenDownload:
         """Ask the user what to download"""
         menu = TerminalMenu(
             [
-                f"{hit.name} ({hit.language}, {hit.size_desc})"
+                f"{'* ' if hit.resume else ''}{hit.name}"
+                f" ({hit.language}, {hit.size_desc})"
                 for hit in hits
             ],
             multi_select=True,
@@ -181,10 +184,9 @@ class LibgenDownload:
             msg = f"{hit.name} ({hit.size_desc})"
         print(msg, flush=True)
 
-        work_path = hit.path.with_name(f"{hit.name}.lgdl")
         for mirror in mirrors:
-            if self.download_mirror(mirror, work_path):
-                work_path.rename(hit.path)
+            if self.download_mirror(mirror, hit.work_path):
+                hit.work_path.rename(hit.path)
                 return
         print(f"{hit.name}: Could not download")
 
@@ -278,10 +280,13 @@ class LibgenDownload:
 
         language = self.parse_cell(cells["Language"])
         size_desc = self.parse_cell(cells["Size"])
+        work_path = self.args.output / f"{name}.lgdl"
 
         return Hit(
             name=name,
             path=self.args.output / name,
+            work_path=work_path,
+            resume=work_path.is_file(),
             language=language,
             size_desc=size_desc,
             mirrors=mirrors,
