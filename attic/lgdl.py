@@ -74,6 +74,7 @@ class LibgenDownload:
             self.download(hits[choice])
 
     def run_query(self) -> list[Hit]:
+        """Search LibGen and grok the result"""
         if self.args.reload:
             with open("lgdl-query.html", encoding="utf-8") as fobj:
                 html = fobj.read()
@@ -99,8 +100,7 @@ class LibgenDownload:
                 for name, value in params
             )
 
-            headers = {"User-Agent": self.USER_AGENT}
-            response = requests.get(url, headers=headers)
+            response = self.http_get(url)
             html = response.text
             if self.args.debug:
                 with open("lgdl-query.html", "w", encoding="utf-8") as fobj:
@@ -137,40 +137,39 @@ class LibgenDownload:
 
     def download(self, hit: Hit):
         """Download one file"""
-        headers = {"User-Agent": self.USER_AGENT}
-
         final_path = self.args.output / hit.name
         if final_path.is_file():
             print(f"File already exists: {final_path}")
             return
 
-        # Read the mirror
-        mirror_url = hit.mirror
-        response = requests.get(mirror_url, headers=headers)
-        mirror_html = response.text
-        if self.args.debug:
-            with open("lgdl-mirror.html", "w", encoding="utf-8") as fobj:
-                fobj.write(mirror_html)
-        soup = bs4.BeautifulSoup(mirror_html, "html.parser")
-        href = self.find_tag(soup, "a", string="GET")["href"]
-        assert isinstance(href, str)
-        url = urllib.parse.urljoin(mirror_url, href)
+        print(f"{hit.name} ({hit.size_desc})", flush=True)
+        url = self.read_mirror(hit.mirror)
 
         # Are we continuing?
         work_path = self.args.output / "f{hit.name}.lgdl"
         if work_path.is_file():
-            headers["Range"] = f"bytes={work_path.stat().st_size}-"
+            pos = work_path.stat().st_size
+            print(f"Resume download at {pos:,} B...")
             mode = "ab"
         else:
             self.args.output.mkdir(parents=True, exist_ok=True)
+            pos = 0
             mode = "wb"
 
         # Read the actual thng
-        response = requests.get(url, headers=headers, stream=True)
+        response = self.http_get(
+            url,
+            pos=pos,
+            stream=True,
+        )
         size = int(response.headers.get("content-length", 0))
 
-        print(f"{hit.name} ({hit.size_desc})")
-        progress = tqdm(total=size, unit="iB", unit_scale=True)
+        progress = tqdm(
+            initial=pos,
+            total=pos + size,
+            unit="iB",
+            unit_scale=True,
+        )
 
         with open(work_path, mode) as fobj:
             for chunk in response.iter_content():
@@ -180,8 +179,22 @@ class LibgenDownload:
 
         progress.close()
 
+    def read_mirror(self, mirror_url: str) -> str:
+        """Read LibGen mirror page, return download URL"""
+        response = self.http_get(mirror_url)
+        mirror_html = response.text
+        if self.args.debug:
+            with open("lgdl-mirror.html", "w", encoding="utf-8") as fobj:
+                fobj.write(mirror_html)
+        soup = bs4.BeautifulSoup(mirror_html, "html.parser")
+        href = self.find_tag(soup, "a", string="GET")["href"]
+        assert isinstance(href, str)
+        return urllib.parse.urljoin(mirror_url, href)
+
     def parse_row(self, row: bs4.Tag, columns: list[str]) -> Hit:
         """Convert a query table row to a dict"""
+        if self.args.debug:
+            print("Get URL...", flush=True)
         fields = {
             column: self.parse_cell(column, cell)
             for column, cell in zip(columns, row.find_all("td"))
@@ -229,6 +242,13 @@ class LibgenDownload:
         found = tag.find(*args, **kwargs)
         assert isinstance(found, bs4.Tag)
         return found
+
+    def http_get(self, url, pos=0, stream=False, timeout=60) -> requests.Response:
+        """Wrapper for `requests.get()`"""
+        headers = {"User-Agent": self.USER_AGENT}
+        if pos:
+            headers["Range"] = f"bytes={pos}-"
+        return requests.get(url, headers=headers, stream=stream, timeout=timeout)
 
 
 if __name__ == "__main__":
