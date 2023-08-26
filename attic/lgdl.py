@@ -149,8 +149,9 @@ class LibgenDownload:
         work_path = self.args.output / "f{hit.name}.lgdl"
         if work_path.is_file():
             pos = work_path.stat().st_size
-            print(f"Resume download at {pos:,} B...")
             mode = "ab"
+            if self.args.debug:
+                print(f"Resume download at {pos:,} B...")
         else:
             self.args.output.mkdir(parents=True, exist_ok=True)
             pos = 0
@@ -243,12 +244,23 @@ class LibgenDownload:
         assert isinstance(found, bs4.Tag)
         return found
 
-    def http_get(self, url, pos=0, stream=False, timeout=60) -> requests.Response:
+    def http_get(
+        self,
+        url,
+        pos=0,
+        stream=False,
+        timeout=60
+    ) -> requests.Response:
         """Wrapper for `requests.get()`"""
         headers = {"User-Agent": self.USER_AGENT}
         if pos:
             headers["Range"] = f"bytes={pos}-"
-        return requests.get(url, headers=headers, stream=stream, timeout=timeout)
+        return requests.get(
+            url,
+            headers=headers,
+            stream=stream,
+            timeout=timeout,
+        )
 
 
 if __name__ == "__main__":
