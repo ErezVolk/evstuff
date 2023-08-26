@@ -201,7 +201,7 @@ class LibgenDownload:
                 pos = work_path.stat().st_size
                 mode = "ab"
                 if self.args.debug:
-                    print(f"Resuming download at {pos:,} bytes...")
+                    print(f"Resuming download at {tqdm.format_sizeof(pos)}...")
             else:
                 self.args.output.mkdir(parents=True, exist_ok=True)
                 pos = 0
