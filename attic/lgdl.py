@@ -232,15 +232,10 @@ class LibgenDownload:
     def parse_row(self, row: bs4.Tag, columns: list[str]) -> Hit:
         """Convert a query table row to a dict"""
         cells = dict(zip(columns, row.find_all("td")))
-        if len(cells) != len(columns):
-            raise RuntimeError(
-                f"Error parsing table ({len(cells)}/{len(columns)} columns)"
-            )
-
         name = self.parse_id_cell(cells["ID"])
         author = self.parse_cell(cells["Author(s)"])
         if author == "coll.":
-            author = None
+            author = ""
         if not author and ": " in name:
             author, name = name.split(": ", 1)
         if author:
