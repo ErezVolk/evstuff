@@ -2,11 +2,13 @@
 """Search and download from libgen"""
 import argparse
 from pathlib import Path
+import random
 import typing as t
 import urllib.parse
 
 import bs4
 import requests
+import requests.exceptions
 from simple_term_menu import TerminalMenu
 from tqdm import tqdm
 
@@ -16,7 +18,7 @@ class Hit(t.NamedTuple):
     name: str
     language: str
     size_desc: str
-    mirror: str
+    mirrors: list[str]
 
 
 class LibgenDownload:
@@ -120,7 +122,7 @@ class LibgenDownload:
         ]
         return [
             hit for hit in hits
-            if hit.mirror  # Only what we can actually download
+            if hit.mirrors  # Only what we can actually download
         ]
 
     def choose(self, hits: list[Hit]) -> list[int]:
@@ -136,49 +138,71 @@ class LibgenDownload:
         return menu.show()
 
     def download(self, hit: Hit):
-        """Download one file"""
+        """Download one file, trying all mirrors"""
         final_path = self.args.output / hit.name
         if final_path.is_file():
             print(f"File already exists: {final_path}")
             return
 
-        print(f"{hit.name} ({hit.size_desc})", flush=True)
-        url = self.read_mirror(hit.mirror)
-
-        # Are we continuing?
-        work_path = self.args.output / "f{hit.name}.lgdl"
-        if work_path.is_file():
-            pos = work_path.stat().st_size
-            mode = "ab"
-            if self.args.debug:
-                print(f"Resume download at {pos:,} B...")
+        mirrors = hit.mirrors
+        if len(mirrors) > 1:
+            msg = f"{hit.name} ({hit.size_desc}) ({len(mirrors)} mirror(s))"
         else:
-            self.args.output.mkdir(parents=True, exist_ok=True)
-            pos = 0
-            mode = "wb"
+            msg = f"{hit.name} ({hit.size_desc})"
+        print(msg, flush=True)
 
-        # Read the actual thng
-        response = self.http_get(
-            url,
-            pos=pos,
-            stream=True,
-        )
-        size = int(response.headers.get("content-length", 0))
+        work_path = final_path.with_name(f"{final_path.name}.lgdl")
+        for mirror in mirrors:
+            if self.download_mirror(mirror, work_path):
+                work_path.rename(final_path)
+                return
+        print(f"{hit.name}: Could not download")
 
-        progress = tqdm(
-            initial=pos,
-            total=pos + size,
-            unit="iB",
-            unit_scale=True,
-        )
+    def download_mirror(self, mirror: str, work_path: Path) -> bool:
+        """Download one file from a specific mirror"""
+        progress = None
+        try:
+            url = self.read_mirror(mirror)
 
-        with open(work_path, mode) as fobj:
-            for chunk in response.iter_content():
-                progress.update(len(chunk))
-                fobj.write(chunk)
-        work_path.rename(final_path)
+            # Are we continuing?
+            if work_path.is_file():
+                pos = work_path.stat().st_size
+                mode = "ab"
+                if self.args.debug:
+                    print(f"Resume download at {pos:,} B...")
+            else:
+                self.args.output.mkdir(parents=True, exist_ok=True)
+                pos = 0
+                mode = "wb"
 
-        progress.close()
+            # Read the actual thing
+            response = self.http_get(
+                url,
+                pos=pos,
+                stream=True,
+            )
+
+            size = int(response.headers.get("content-length", 0))
+            progress = tqdm(
+                initial=pos,
+                total=pos + size,
+                unit="iB",
+                unit_scale=True,
+            )
+
+            with open(work_path, mode) as fobj:
+                for chunk in response.iter_content():
+                    progress.update(len(chunk))
+                    fobj.write(chunk)
+        except requests.exceptions.ReadTimeout:
+            if self.args.debug:
+                print("Timeout during HTTP GET")
+            return False
+        finally:
+            if progress is not None:
+                progress.close()
+
+        return True
 
     def read_mirror(self, mirror_url: str) -> str:
         """Read LibGen mirror page, return download URL"""
@@ -194,15 +218,14 @@ class LibgenDownload:
 
     def parse_row(self, row: bs4.Tag, columns: list[str]) -> Hit:
         """Convert a query table row to a dict"""
-        if self.args.debug:
-            print("Get URL...", flush=True)
-        fields = {
-            column: self.parse_cell(column, cell)
-            for column, cell in zip(columns, row.find_all("td"))
-        }
-        name = fields["ID"].strip(" .")
+        cells = dict(zip(columns, row.find_all("td")))
+        if len(cells) != len(columns):
+            raise RuntimeError(
+                f"Error parsing table ({len(cells)}/{len(columns)} columns)"
+            )
 
-        author = fields["Author(s)"]
+        name = self.parse_id_cell(cells["ID"])
+        author = self.parse_cell(cells["Author(s)"])
         if author == "coll.":
             author = None
         if not author and ": " in name:
@@ -213,29 +236,41 @@ class LibgenDownload:
             author = author.strip()
             name = f"{author} - {name}"
 
-        if (ext := fields["Ext."]):
+        ext = self.parse_cell(cells["Ext."])
+        if ext:
             name = f"{name}.{ext}"
+
+        mirrors = self.parse_mirrors_cell(cells["Mirrors"])
+        random.shuffle(mirrors)
+
+        language = self.parse_cell(cells["Language"])
+        size_desc = self.parse_cell(cells["Size"])
 
         return Hit(
             name=name,
-            language=fields["Language"],
-            size_desc=fields["Size"],
-            mirror=fields["Mirrors"],
+            language=language,
+            size_desc=size_desc,
+            mirrors=mirrors,
         )
 
-    def parse_cell(self, column: str, cell: bs4.Tag) -> str:
-        """Get the interesting bits"""
-        if column == "ID":  # The title and stuff
-            for link in cell.find_all("a"):
-                text = link.get_text(strip=True)
-                if text:
-                    return text
-        if column == "Mirrors":
-            for link in cell.find_all("a"):
-                href = link["href"]
-                if isinstance(href, str):
-                    return href
-            return ""
+    def parse_id_cell(self, cell: bs4.Tag) -> str:
+        """Extract the title from the ID cell"""
+        for link in cell.find_all("a"):
+            if (text := link.get_text().strip(". ")):
+                return text
+        return ""
+
+    def parse_mirrors_cell(self, cell: bs4.Tag) -> list[str]:
+        """Extract links from the Mirrors cell"""
+        mirrors = []
+        for link in cell.find_all("a"):
+            href = link["href"]
+            if isinstance(href, str):
+                mirrors.append(href)
+        return mirrors
+
+    def parse_cell(self, cell: bs4.Tag) -> str:
+        """Parse a plain cell"""
         return cell.get_text(strip=True)
 
     def find_tag(self, tag: bs4.Tag, *args, **kwargs) -> bs4.Tag:
@@ -244,23 +279,12 @@ class LibgenDownload:
         assert isinstance(found, bs4.Tag)
         return found
 
-    def http_get(
-        self,
-        url,
-        pos=0,
-        stream=False,
-        timeout=60
-    ) -> requests.Response:
+    def http_get(self, url, pos=0, stream=False) -> requests.Response:
         """Wrapper for `requests.get()`"""
         headers = {"User-Agent": self.USER_AGENT}
         if pos:
             headers["Range"] = f"bytes={pos}-"
-        return requests.get(
-            url,
-            headers=headers,
-            stream=stream,
-            timeout=timeout,
-        )
+        return requests.get(url, headers=headers, stream=stream, timeout=60)
 
 
 if __name__ == "__main__":
