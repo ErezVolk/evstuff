@@ -95,23 +95,7 @@ class LibgenDownload:
     def run_query(self) -> list[Hit]:
         """Search LibGen and grok the result"""
         html = self.get_query_reply()
-
-        # Parse query results
-        try:
-            soup = bs4.BeautifulSoup(html, "html.parser")
-            table = self.find_tag(soup, "table", id="tablelibgen")
-
-            columns = [
-                next(col.strings).strip()
-                for col in self.find_tag(table, "thead").find_all("th")
-            ]
-            hits = [
-                self.parse_row(row, columns)
-                for row in self.find_tag(table, "tbody").find_all("tr")
-            ]
-        except WrongReplyError:
-            print("Unexpected HTML returned from query")
-            return []
+        hits = self.get_raw_hits(html)
 
         hits = [
             hit for hit in hits
@@ -157,6 +141,24 @@ class LibgenDownload:
             with open("lgdl-query.html", "w", encoding="utf-8") as fobj:
                 fobj.write(html)
         return html
+
+    def get_raw_hits(self, html: str) -> list[Hit]:
+        """Parse query results and return all items, even ones we don't want"""
+        try:
+            soup = bs4.BeautifulSoup(html, "html.parser")
+            table = self.find_tag(soup, "table", id="tablelibgen")
+
+            columns = [
+                next(col.strings).strip()
+                for col in self.find_tag(table, "thead").find_all("th")
+            ]
+            return [
+                self.parse_row(row, columns)
+                for row in self.find_tag(table, "tbody").find_all("tr")
+            ]
+        except WrongReplyError:
+            print("Unexpected HTML returned from query")
+            return []
 
     def choose(self, hits: list[Hit]) -> list[int]:
         """Ask the user what to download"""
