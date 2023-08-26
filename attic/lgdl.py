@@ -16,6 +16,7 @@ from tqdm import tqdm
 class Hit(t.NamedTuple):
     """A query result"""
     name: str
+    path: Path
     language: str
     size_desc: str
     mirrors: list[str]
@@ -50,6 +51,12 @@ class LibgenDownload:
             help="where to save files",
         )
         parser.add_argument(
+            "-O",
+            "--overwrite",
+            action="store_true",
+            help="Re-download existing files",
+        )
+        parser.add_argument(
             "-d",
             "--debug",
             action="store_true",
@@ -67,11 +74,16 @@ class LibgenDownload:
         """Entry point"""
         self.parse_cli()
         hits = self.run_query()
+        if not hits:
+            print("Better luck searching next time!")
+            return
         hits.sort(key=lambda hit: hit.name.lower())
+
         choices = self.choose(hits)
         if not choices:
-            print("Better luck next time!")
+            print("Better luck picking next time!")
             return
+
         for choice in choices:
             self.download(hits[choice])
 
@@ -120,10 +132,16 @@ class LibgenDownload:
             self.parse_row(row, columns)
             for row in self.find_tag(table, "tbody").find_all("tr")
         ]
-        return [
+        hits = [
             hit for hit in hits
-            if hit.mirrors  # Only what we can actually download
+            if hit.mirrors  # Only things we CAN download
         ]
+        if self.args.overwrite:
+            hits = [
+                hit for hit in hits
+                if not hit.path.is_file()  # Only things we SHOULD download
+            ]
+        return hits
 
     def choose(self, hits: list[Hit]) -> list[int]:
         """Ask the user what to download"""
@@ -139,11 +157,6 @@ class LibgenDownload:
 
     def download(self, hit: Hit):
         """Download one file, trying all mirrors"""
-        final_path = self.args.output / hit.name
-        if final_path.is_file():
-            print(f"File already exists: {final_path}")
-            return
-
         mirrors = hit.mirrors
         if len(mirrors) > 1:
             msg = f"{hit.name} ({hit.size_desc}) ({len(mirrors)} mirror(s))"
@@ -151,10 +164,10 @@ class LibgenDownload:
             msg = f"{hit.name} ({hit.size_desc})"
         print(msg, flush=True)
 
-        work_path = final_path.with_name(f"{final_path.name}.lgdl")
+        work_path = hit.path.with_name(f"{hit.name}.lgdl")
         for mirror in mirrors:
             if self.download_mirror(mirror, work_path):
-                work_path.rename(final_path)
+                work_path.rename(hit.path)
                 return
         print(f"{hit.name}: Could not download")
 
@@ -165,11 +178,11 @@ class LibgenDownload:
             url = self.read_mirror(mirror)
 
             # Are we continuing?
-            if work_path.is_file():
+            if not self.args.overwrite and work_path.is_file():
                 pos = work_path.stat().st_size
                 mode = "ab"
                 if self.args.debug:
-                    print(f"Resume download at {pos:,} B...")
+                    print(f"Resuming download at {pos:,} bytes...")
             else:
                 self.args.output.mkdir(parents=True, exist_ok=True)
                 pos = 0
@@ -248,6 +261,7 @@ class LibgenDownload:
 
         return Hit(
             name=name,
+            path=self.args.output / name,
             language=language,
             size_desc=size_desc,
             mirrors=mirrors,
