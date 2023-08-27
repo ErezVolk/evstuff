@@ -104,6 +104,13 @@ class LibgenDownload:
             help="Re-download existing files",
         )
         parser.add_argument(
+            "-m",
+            "--max-stem",
+            type=int,
+            default=80,
+            help="truncate file names to this length",
+        )
+        parser.add_argument(
             "-d",
             "--debug",
             action="store_true",
@@ -318,6 +325,9 @@ class LibgenDownload:
             author = author.split(";", 1)[0]
             author = author.strip()
             name = f"{author} - {name}"
+
+        if self.args.max_stem:
+            name = name[:self.args.max_stem].strip()
 
         ext = self.parse_cell(cells["Ext."])
         if ext:
