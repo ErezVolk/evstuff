@@ -3,6 +3,7 @@
 import argparse
 from pathlib import Path
 import random
+import re
 import typing as t
 import urllib.parse
 
@@ -37,6 +38,7 @@ class LibgenDownload:
         "Chrome/87.0.4280.144 "
         "Safari/537.36"
     )
+    BAD_CHARS_RE = re.compile(r"""#%&{}<>*?!:@\\\\""")
     args: argparse.Namespace
 
     def parse_cli(self):
@@ -201,7 +203,7 @@ class LibgenDownload:
                 return False
 
             # Are we continuing?
-            if hit.resume and not self.args.overwrite:
+            if hit.resume:
                 pos = work_path.stat().st_size
                 mode = "ab"
                 if self.args.debug:
@@ -277,6 +279,8 @@ class LibgenDownload:
         if ext:
             name = f"{name}.{ext}"
 
+        name = self.BAD_CHARS_RE.sub("-", name)
+
         mirrors = self.parse_mirrors_cell(cells["Mirrors"])
         random.shuffle(mirrors)
 
@@ -288,7 +292,7 @@ class LibgenDownload:
             name=name,
             path=self.args.output / name,
             work_path=work_path,
-            resume=work_path.is_file(),
+            resume=not self.args.overwrite and work_path.is_file(),
             language=language,
             size_desc=size_desc,
             mirrors=mirrors,
