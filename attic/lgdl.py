@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Search and download from libgen"""
 import argparse
+from dataclasses import dataclass
 from pathlib import Path
 import random
 import re
-import typing as t
 import urllib.parse
 
 import bs4
@@ -14,14 +14,28 @@ from simple_term_menu import TerminalMenu
 from tqdm import tqdm
 
 
-class Hit(t.NamedTuple):
+@dataclass
+class IdCell:
+    """Stuff in the "ID" cell of the query table"""
+    lgid: int | None = None
+    title: str = ""
+
+
+@dataclass
+class Hit:
     """A query result"""
+    title: str
+    lgid: int | None
+    authors: str
     name: str
     path: Path
     work_path: Path
     resume: bool
     language: str
     size_desc: str
+    publisher: str
+    year: str
+    pages: str
     mirrors: list[str]
 
 
@@ -38,7 +52,9 @@ class LibgenDownload:
         "Chrome/87.0.4280.144 "
         "Safari/537.36"
     )
-    BAD_CHARS_RE = re.compile(r"""#%&{}<>*?!:@\\\\""")
+    BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@\\]")
+    ANSI_BOLD = "\033[1m"
+    ANSI_CLEAR = "\033[0m"
     args: argparse.Namespace
 
     def parse_cli(self):
@@ -105,7 +121,7 @@ class LibgenDownload:
             hit for hit in hits
             if hit.mirrors  # Only things we CAN download
         ]
-        if self.args.overwrite:
+        if not self.args.overwrite:
             hits = [
                 hit for hit in hits
                 if not hit.path.is_file()  # Only things we SHOULD download
@@ -166,14 +182,40 @@ class LibgenDownload:
 
     def choose(self, hits: list[Hit]) -> list[int]:
         """Ask the user what to download"""
+        def preview(nhit: str) -> str:
+            hit = hits[int(nhit)]
+            vals = {
+                "LibGen ID": hit.lgid,
+                "Title": hit.title,
+                "Author(s)": hit.authors,
+                "Publisher": hit.publisher,
+                "Year": hit.year,
+                "Language": hit.language,
+                "Pages": hit.pages,
+                "Size": hit.size_desc,
+                "Mirrors": len(hit.mirrors),
+            }
+            lines = [
+                f"{key}: {self.ANSI_BOLD}{value}{self.ANSI_CLEAR}"
+                for key, value in vals.items()
+                if value
+            ]
+            if hit.resume:
+                lines.append("* Will resume partial download")
+            return "\n".join(lines)
+
         menu = TerminalMenu(
             [
-                f"{'* ' if hit.resume else ''}{hit.name}"
-                f" ({hit.language}, {hit.size_desc})"
-                for hit in hits
+                f"{'* ' if hit.resume else ''}{hit.name} "
+                f"({hit.language}, {hit.size_desc})"
+                f"|{nhit}"
+                for nhit, hit in enumerate(hits)
             ],
+            title="Select LibGen item(s)",
             multi_select=True,
             show_multi_select_hint=True,
+            preview_command=preview,
+            preview_title="File",
         )
         return menu.show()
 
@@ -263,8 +305,9 @@ class LibgenDownload:
     def parse_row(self, row: bs4.Tag, columns: list[str]) -> Hit:
         """Convert a query table row to a dict"""
         cells = dict(zip(columns, row.find_all("td")))
-        name = self.parse_id_cell(cells["ID"])
-        author = self.parse_cell(cells["Author(s)"])
+        id_cell = self.parse_id_cell(cells["ID"])
+        name = id_cell.title
+        author = authors = self.parse_cell(cells["Author(s)"])
         if author == "coll.":
             author = ""
         if not author and ": " in name:
@@ -284,26 +327,37 @@ class LibgenDownload:
         mirrors = self.parse_mirrors_cell(cells["Mirrors"])
         random.shuffle(mirrors)
 
-        language = self.parse_cell(cells["Language"])
-        size_desc = self.parse_cell(cells["Size"])
+        path = self.args.output / f"{name}"
         work_path = self.args.output / f"{name}.lgdl"
 
         return Hit(
+            title=id_cell.title,
+            lgid=id_cell.lgid,
+            authors=authors,
             name=name,
-            path=self.args.output / name,
+            path=path,
             work_path=work_path,
             resume=not self.args.overwrite and work_path.is_file(),
-            language=language,
-            size_desc=size_desc,
             mirrors=mirrors,
+            language=self.parse_cell(cells["Language"]),
+            size_desc=self.parse_cell(cells["Size"]),
+            publisher=self.parse_cell(cells["Publisher"]),
+            year=self.parse_cell(cells["Year"]),
+            pages=self.parse_cell(cells["Pages"]),
         )
 
-    def parse_id_cell(self, cell: bs4.Tag) -> str:
-        """Extract the title from the ID cell"""
+    def parse_id_cell(self, cell: bs4.Tag) -> IdCell:
+        """Extract the information from the ID cell"""
+        id_cell = IdCell()
         for link in cell.find_all("a"):
-            if (text := link.get_text().strip(". ")):
-                return text
-        return ""
+            if (title := link.get_text().strip(". ")):
+                id_cell.title = title
+                break
+        for span in cell.find_all("span", class_="badge-secondary"):
+            text = span.get_text(strip=True)
+            if (match := re.fullmatch(r"[a-z] ([\d]+)", text)):
+                id_cell.lgid = int(match.group(1))
+        return id_cell
 
     def parse_mirrors_cell(self, cell: bs4.Tag) -> list[str]:
         """Extract links from the Mirrors cell"""
