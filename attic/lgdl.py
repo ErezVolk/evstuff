@@ -13,6 +13,9 @@ import requests.exceptions
 from simple_term_menu import TerminalMenu
 from tqdm import tqdm
 
+ANSI_BOLD = "\033[1m"
+ANSI_CLEAR = "\033[0m"
+
 
 @dataclass
 class IdCell:
@@ -22,7 +25,7 @@ class IdCell:
 
 
 @dataclass
-class Hit:
+class Hit:  # pylint: disable=too-many-instance-attributes
     """A query result"""
     title: str
     lgid: int | None
@@ -37,6 +40,28 @@ class Hit:
     year: str
     pages: str
     mirrors: list[str]
+
+    def preview(self) -> str:
+        """Preview for the selection menu"""
+        vals = {
+            "LibGen ID": self.lgid,
+            "Title": self.title,
+            "Author(s)": self.authors,
+            "Publisher": self.publisher,
+            "Year": self.year,
+            "Language": self.language,
+            "Pages": self.pages if self.pages != "0" else "",
+            "Size": self.size_desc,
+            "Mirrors": len(self.mirrors),
+        }
+        lines = [
+            f"{key}: {ANSI_BOLD}{value}{ANSI_CLEAR}"
+            for key, value in vals.items()
+            if value
+        ]
+        if self.resume:
+            lines.append("* Will resume partial download")
+        return "\n".join(lines)
 
 
 class WrongReplyError(RuntimeError):
@@ -53,8 +78,6 @@ class LibgenDownload:
         "Safari/537.36"
     )
     BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@\\]")
-    ANSI_BOLD = "\033[1m"
-    ANSI_CLEAR = "\033[0m"
     args: argparse.Namespace
 
     def parse_cli(self):
@@ -182,28 +205,6 @@ class LibgenDownload:
 
     def choose(self, hits: list[Hit]) -> list[int]:
         """Ask the user what to download"""
-        def preview(nhit: str) -> str:
-            hit = hits[int(nhit)]
-            vals = {
-                "LibGen ID": hit.lgid,
-                "Title": hit.title,
-                "Author(s)": hit.authors,
-                "Publisher": hit.publisher,
-                "Year": hit.year,
-                "Language": hit.language,
-                "Pages": hit.pages,
-                "Size": hit.size_desc,
-                "Mirrors": len(hit.mirrors),
-            }
-            lines = [
-                f"{key}: {self.ANSI_BOLD}{value}{self.ANSI_CLEAR}"
-                for key, value in vals.items()
-                if value
-            ]
-            if hit.resume:
-                lines.append("* Will resume partial download")
-            return "\n".join(lines)
-
         menu = TerminalMenu(
             [
                 f"{'* ' if hit.resume else ''}{hit.name} "
@@ -214,7 +215,7 @@ class LibgenDownload:
             title="Select LibGen item(s)",
             multi_select=True,
             show_multi_select_hint=True,
-            preview_command=preview,
+            preview_command=lambda nhit: hits[int(nhit)].preview(),
             preview_title="File",
         )
         return menu.show()
