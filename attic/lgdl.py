@@ -2,6 +2,7 @@
 """Search and download from libgen"""
 import argparse
 from dataclasses import dataclass
+import logging
 from pathlib import Path
 import random
 import re
@@ -127,16 +128,21 @@ class LibgenDownload:
     def run(self):
         """Entry point"""
         self.args = self.parse_cli()
+        logging.basicConfig(
+            format="%(asctime)s %(message)s",
+            level=logging.DEBUG if self.args.debug else logging.INFO,
+        )
+
         hits = self.run_query()
         if not hits:
-            print("Better luck searching next time!")
+            logging.info("No hits; better luck next time!")
             return
 
         hits.sort(key=lambda hit: (not hit.resume, hit.name.lower()))
 
         choices = self.choose(hits)
         if not choices:
-            print("Better luck picking next time!")
+            logging.info("Nothing selected; better luck next time!")
             return
 
         for nhit in choices:
@@ -152,7 +158,7 @@ class LibgenDownload:
 
         if not self.args.overwrite:
             # Only files we SHOULD download
-            hits = list(filter(lambda hit: hit.path.is_file(), hits))
+            hits = list(filter(lambda hit: not hit.path.is_file(), hits))
 
         return hits
 
@@ -200,8 +206,8 @@ class LibgenDownload:
                 self.parse_row(row, columns)
                 for row in self.find_tag(table, "tbody").find_all("tr")
             ]
-        except WrongReplyError:
-            print("Unexpected HTML returned from query")
+        except WrongReplyError as wre:
+            logging.debug("Unexpected HTML returned from query: %s", wre)
             return []
 
     def choose(self, hits: list[Hit]) -> list[int]:
@@ -225,16 +231,20 @@ class LibgenDownload:
         """Download one file, trying all mirrors"""
         mirrors = hit.mirrors
         if len(mirrors) > 1:
-            msg = f"{hit.name} ({hit.size_desc}) ({len(mirrors)} mirror(s))"
+            logging.info(
+                "%s (%s) (%s mirror(s))",
+                hit.name,
+                hit.size_desc,
+                len(mirrors),
+            )
         else:
-            msg = f"{hit.name} ({hit.size_desc})"
-        print(msg, flush=True)
+            logging.info("%s (%s)", hit.name, hit.size_desc)
 
         for mirror in mirrors:
             if self.download_mirror(hit, mirror):
                 hit.work_path.rename(hit.path)
                 return
-        print(f"{hit.name}: Could not download")
+        logging.info("%s: Could not download", hit.name)
 
     def download_mirror(self, hit: Hit, mirror: str) -> bool:
         """Download one file from a specific mirror"""
@@ -249,8 +259,7 @@ class LibgenDownload:
             if hit.resume:
                 pos = work_path.stat().st_size
                 mode = "ab"
-                if self.args.debug:
-                    print(f"Resuming download at {tqdm.format_sizeof(pos)}...")
+                logging.debug("Resuming at %s", tqdm.format_sizeof(pos))
             else:
                 self.args.output.mkdir(parents=True, exist_ok=True)
                 pos = 0
@@ -278,26 +287,27 @@ class LibgenDownload:
                         fobj.write(chunk)
             finally:
                 progress.close()
-        except requests.exceptions.ReadTimeout:
-            if self.args.debug:
-                print("Timeout during HTTP GET")
+        except requests.exceptions.RequestException as exc:
+            logging.debug("Error in HTTP GET: %s", exc)
             return False
 
         return True
 
-    def read_mirror(self, mirror_url: str) -> str:
+    def read_mirror(self, url: str) -> str:
         """Read LibGen mirror page, return download URL"""
-        response = self.http_get(mirror_url)
+        logging.debug("Mirror: %s", urllib.parse.urlsplit(url).netloc)
+        response = self.http_get(url)
         soup = self.parse_html(response.text, "mirror")
         try:
             link = self.find_tag(soup, "a", string="GET")
-            href = link["href"]
+            href = link.get("href")
             if not isinstance(href, str):
-                raise WrongReplyError()
-        except (WrongReplyError, KeyError):
+                raise WrongReplyError("No GET hyperlink")
+        except WrongReplyError as wre:
+            logging.debug("Unexpected HTML returned from query: %s", wre)
             return ""
 
-        return urllib.parse.urljoin(mirror_url, href)
+        return urllib.parse.urljoin(url, href)
 
     def parse_row(self, row: bs4.Tag, columns: list[str]) -> Hit:
         """Convert a query table row to a dict"""
@@ -375,7 +385,7 @@ class LibgenDownload:
         """Wrapper for `Tag.find()`, mostly to appease pylint"""
         found = tag.find(*args, **kwargs)
         if not isinstance(found, bs4.Tag):
-            raise WrongReplyError()
+            raise WrongReplyError(f"No <{tag}> in reply")
         return found
 
     def http_get(self, url, pos=0, stream=False) -> requests.Response:
@@ -383,7 +393,9 @@ class LibgenDownload:
         headers = {"User-Agent": self.USER_AGENT}
         if pos:
             headers["Range"] = f"bytes={pos}-"
-        return requests.get(url, headers=headers, stream=stream, timeout=60)
+        resp = requests.get(url, headers=headers, stream=stream, timeout=60)
+        resp.raise_for_status()
+        return resp
 
     def parse_html(self, html: str, infix=None) -> bs4.BeautifulSoup:
         """Wrapper around BeautifulSoup"""
