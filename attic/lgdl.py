@@ -77,7 +77,7 @@ class LibgenDownload:
         "Chrome/87.0.4280.144 "
         "Safari/537.36"
     )
-    BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@\\]")
+    BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\]")
     args: argparse.Namespace
 
     def parse_cli(self):
