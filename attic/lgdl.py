@@ -165,7 +165,7 @@ class LibgenDownload:
     def get_query_reply(self) -> str:
         """Run the LibGen query and return the raw HTML"""
         if self.args.reload:
-            with open(self.dump_name("query"), encoding="utf-8") as fobj:
+            with self.open_dump("query", "html", "r") as fobj:
                 return fobj.read()
 
         params = (
@@ -374,7 +374,7 @@ class LibgenDownload:
         return [
             href
             for link in cell.find_all("a")
-            if isinstance(href := link["href"], str)
+            if isinstance(href := link.get("href"), str)
         ]
 
     def parse_cell(self, cell: bs4.Tag) -> str:
@@ -400,14 +400,13 @@ class LibgenDownload:
     def parse_html(self, html: str, infix=None) -> bs4.BeautifulSoup:
         """Wrapper around BeautifulSoup"""
         if self.args.debug and infix:
-            name = self.dump_name(infix, "html")
-            with open(name, "w", encoding="utf-8") as fobj:
+            with self.open_dump(infix, "html", "w") as fobj:
                 fobj.write(html)
         return bs4.BeautifulSoup(html, "html.parser")
 
-    def dump_name(self, infix: str, suffix: str = "html") -> str:
-        """Name for debug dump file"""
-        return f"lgdl-{infix}.{suffix}"
+    def open_dump(self, infix: str, suffix: str, mode: str):
+        """Open a textual dump file"""
+        return open(f"lgdl-{infix}.{suffix}", mode, encoding="utf-8")
 
 
 if __name__ == "__main__":
