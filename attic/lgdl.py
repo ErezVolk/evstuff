@@ -70,17 +70,7 @@ class WrongReplyError(RuntimeError):
 
 class LibgenDownload:
     """Simple Library Genesis search + download"""
-    USER_AGENT = (
-        "Mozilla/5.0 (X11; Linux x86_64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "QtWebEngine/5.15.5 "
-        "Chrome/87.0.4280.144 "
-        "Safari/537.36"
-    )
-    BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\]")
-    args: argparse.Namespace
-
-    def parse_cli(self):
+    def parse_cli(self) -> argparse.Namespace:
         """Usage"""
         parser = argparse.ArgumentParser(
             description="Search and download from libgen"
@@ -122,11 +112,21 @@ class LibgenDownload:
             action="store_true",
             help="don't query, read the results file from a previous -d run",
         )
-        self.args = parser.parse_args()
+        return parser.parse_args()
+
+    USER_AGENT = (
+        "Mozilla/5.0 (X11; Linux x86_64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "QtWebEngine/5.15.5 "
+        "Chrome/87.0.4280.144 "
+        "Safari/537.36"
+    )
+    BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\]")
+    args: argparse.Namespace
 
     def run(self):
         """Entry point"""
-        self.parse_cli()
+        self.args = self.parse_cli()
         hits = self.run_query()
         if not hits:
             print("Better luck searching next time!")
@@ -139,29 +139,27 @@ class LibgenDownload:
             print("Better luck picking next time!")
             return
 
-        for choice in choices:
-            self.download(hits[choice])
+        for nhit in choices:
+            self.download(hits[nhit])
 
     def run_query(self) -> list[Hit]:
         """Search LibGen and grok the result"""
         html = self.get_query_reply()
         hits = self.get_raw_hits(html)
 
-        hits = [
-            hit for hit in hits
-            if hit.mirrors  # Only things we CAN download
-        ]
+        # Only files we CAN download
+        hits = list(filter(lambda hit: hit.mirrors, hits))
+
         if not self.args.overwrite:
-            hits = [
-                hit for hit in hits
-                if not hit.path.is_file()  # Only things we SHOULD download
-            ]
+            # Only files we SHOULD download
+            hits = list(filter(lambda hit: hit.path.is_file(), hits))
+
         return hits
 
     def get_query_reply(self) -> str:
         """Run the LibGen query and return the raw HTML"""
         if self.args.reload:
-            with open("lgdl-query.html", encoding="utf-8") as fobj:
+            with open(self.dump_name("query"), encoding="utf-8") as fobj:
                 return fobj.read()
 
         params = (
@@ -186,16 +184,12 @@ class LibgenDownload:
         )
 
         response = self.http_get(url)
-        html = response.text
-        if self.args.debug:
-            with open("lgdl-query.html", "w", encoding="utf-8") as fobj:
-                fobj.write(html)
-        return html
+        return response.text
 
     def get_raw_hits(self, html: str) -> list[Hit]:
         """Parse query results and return all items, even ones we don't want"""
         try:
-            soup = bs4.BeautifulSoup(html, "html.parser")
+            soup = self.parse_html(html, "query")
             table = self.find_tag(soup, "table", id="tablelibgen")
 
             columns = [
@@ -244,7 +238,6 @@ class LibgenDownload:
 
     def download_mirror(self, hit: Hit, mirror: str) -> bool:
         """Download one file from a specific mirror"""
-        progress = None
         work_path = hit.work_path
 
         try:
@@ -252,7 +245,7 @@ class LibgenDownload:
             if not url:
                 return False
 
-            # Are we continuing?
+            # Are we resuming a partial download?
             if hit.resume:
                 pos = work_path.stat().st_size
                 mode = "ab"
@@ -278,28 +271,24 @@ class LibgenDownload:
                 unit_scale=True,
             )
 
-            with open(work_path, mode) as fobj:
-                for chunk in response.iter_content():
-                    progress.update(len(chunk))
-                    fobj.write(chunk)
+            try:
+                with open(work_path, mode) as fobj:
+                    for chunk in response.iter_content():
+                        progress.update(len(chunk))
+                        fobj.write(chunk)
+            finally:
+                progress.close()
         except requests.exceptions.ReadTimeout:
             if self.args.debug:
                 print("Timeout during HTTP GET")
             return False
-        finally:
-            if progress is not None:
-                progress.close()
 
         return True
 
     def read_mirror(self, mirror_url: str) -> str:
         """Read LibGen mirror page, return download URL"""
         response = self.http_get(mirror_url)
-        mirror_html = response.text
-        if self.args.debug:
-            with open("lgdl-mirror.html", "w", encoding="utf-8") as fobj:
-                fobj.write(mirror_html)
-        soup = bs4.BeautifulSoup(mirror_html, "html.parser")
+        soup = self.parse_html(response.text, "mirror")
         try:
             link = self.find_tag(soup, "a", string="GET")
             href = link["href"]
@@ -395,6 +384,18 @@ class LibgenDownload:
         if pos:
             headers["Range"] = f"bytes={pos}-"
         return requests.get(url, headers=headers, stream=stream, timeout=60)
+
+    def parse_html(self, html: str, infix=None) -> bs4.BeautifulSoup:
+        """Wrapper around BeautifulSoup"""
+        if self.args.debug and infix:
+            name = self.dump_name(infix, "html")
+            with open(name, "w", encoding="utf-8") as fobj:
+                fobj.write(html)
+        return bs4.BeautifulSoup(html, "html.parser")
+
+    def dump_name(self, infix: str, suffix: str = "html") -> str:
+        """Name for debug dump file"""
+        return f"lgdl-{infix}.{suffix}"
 
 
 if __name__ == "__main__":
