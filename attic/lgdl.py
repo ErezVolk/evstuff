@@ -279,11 +279,10 @@ class LibgenDownload:
                 mode = "ab"
                 logging.debug("Resuming at %s", tqdm.format_sizeof(pos))
             else:
-                self.args.output.mkdir(parents=True, exist_ok=True)
                 pos = 0
                 mode = "wb"
+                self.args.output.mkdir(parents=True, exist_ok=True)
 
-            # Read the actual thing
             response = self.http_get(
                 url,
                 pos=pos,
@@ -312,11 +311,11 @@ class LibgenDownload:
 
         if got < size:
             logging.error(
-                "File terminated before end (%s < %s)",
+                "File terminated prematurely (%s < %s)",
                 tqdm.format_sizeof(got),
                 tqdm.format_sizeof(size),
             )
-            hit.resume = True  # In case there's another mirror
+            hit.resume = True  # There may be another mirror
             return False
 
         return True
