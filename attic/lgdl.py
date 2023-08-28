@@ -325,13 +325,11 @@ class LibgenDownload:
         """Read LibGen mirror page, return download URL"""
         response = self.http_get(url)
         soup = self.parse_html(response.text, "mirror")
-        try:
-            href = self.find_tag(soup, "a", string="GET").get("href")
-            if not isinstance(href, str):
-                raise WrongReplyError("No GET hyperlink")
-        except WrongReplyError as wre:
-            logging.debug("Unexpected HTML returned from query: %s", wre)
-            return ""
+        atag = self.find_tag(soup, "a", string="GET")
+        href = atag.get("href")
+
+        if not isinstance(href, str):
+            raise WrongReplyError("No GET hyperlink")
 
         return urlparse.urljoin(url, href)
 
