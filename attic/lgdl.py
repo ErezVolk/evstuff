@@ -79,6 +79,7 @@ class LibgenDownload:
         parser.add_argument(
             "query",
             metavar="QUERY",
+            nargs="+",
             help="what to search for",
         )
         parser.add_argument(
@@ -124,10 +125,12 @@ class LibgenDownload:
     )
     BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\]")
     args: argparse.Namespace
+    query: str
 
     def run(self):
         """Entry point"""
         self.args = self.parse_cli()
+        self.query = " ".join(self.args.query)
         logging.basicConfig(
             format="%(asctime)s %(message)s",
             level=logging.DEBUG if self.args.debug else logging.INFO,
@@ -169,7 +172,7 @@ class LibgenDownload:
                 return fobj.read()
 
         params = (
-            ("req", self.args.query),
+            ("req", self.query),
             ("columns[]", "t"),  # (search in fields) Title
             ("columns[]", "a"),  # (search in fields) Author
             # ("columns[]", "s"),  # (search in fields) Series
@@ -219,7 +222,7 @@ class LibgenDownload:
                 f"|{nhit}"
                 for nhit, hit in enumerate(hits)
             ],
-            title="Select LibGen item(s)",
+            title=f"LibGen query: {self.query}",
             multi_select=True,
             show_multi_select_hint=True,
             preview_command=lambda nhit: hits[int(nhit)].preview(),
