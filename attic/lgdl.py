@@ -275,10 +275,10 @@ class LibgenDownload:
                 stream=True,
             )
 
-            size = int(response.headers.get("content-length", 0))
+            size = pos + int(response.headers.get("content-length", 0))
             progress = tqdm(
                 initial=pos,
-                total=pos + size,
+                total=size,
                 unit="iB",
                 unit_scale=True,
             )
@@ -288,6 +288,12 @@ class LibgenDownload:
                     for chunk in response.iter_content():
                         progress.update(len(chunk))
                         fobj.write(chunk)
+                    if (got := fobj.tell()) < size:
+                        logging.warn(
+                            "File terminated before end (%s < %s)",
+                            tqdm.format_sizeof(got),
+                            tqdm.format_sizeof(size),
+                        )
             finally:
                 progress.close()
         except requests.exceptions.RequestException as exc:
