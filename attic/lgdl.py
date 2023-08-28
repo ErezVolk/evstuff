@@ -265,8 +265,8 @@ class LibgenDownload:
             if self.download_mirror(hit, mirror):
                 hit.work_path.rename(hit.path)
                 if self.args.view:
-                    logging.debug("Opening %s", hit.path)
-                    subprocess.run(["open", str(hit.path)])
+                    logging.debug("Trying to open %s", hit.path)
+                    subprocess.run(["open", str(hit.path)], check=False)
                 return
         logging.info("%s: Could not download", hit.name)
 
@@ -322,6 +322,7 @@ class LibgenDownload:
                 tqdm.format_sizeof(got),
                 tqdm.format_sizeof(size),
             )
+            hit.resume = True  # In case there's another mirror
             return False
 
         return True
