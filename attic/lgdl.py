@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Search and download from libgen"""
 import argparse
+import contextlib
 from dataclasses import dataclass
 import logging
 from pathlib import Path
@@ -155,6 +156,7 @@ class LibgenDownload:
             logging.info("Nothing selected; better luck next time!")
             return
 
+        self.args.output.mkdir(parents=True, exist_ok=True)
         for nhit in choices:
             self.download(hits[nhit])
 
@@ -267,59 +269,18 @@ class LibgenDownload:
     def download_mirror(self, hit: Hit, mirror: str) -> bool:
         """Download one file from a specific mirror"""
         logging.debug("Mirror: %s", urlparse.urlsplit(mirror).netloc)
-        work_path = hit.work_path
 
         try:
-            url = self.read_mirror(mirror)
-            if not url:
-                return False
-
-            # Are we resuming a partial download?
-            if hit.resume:
-                pos = work_path.stat().st_size
-                mode = "ab"
-                logging.debug("Resuming at %s", tqdm.format_sizeof(pos))
-            else:
-                pos = 0
-                mode = "wb"
-                self.args.output.mkdir(parents=True, exist_ok=True)
-
-            response = self.http_get(
-                url,
-                pos=pos,
-                stream=True,
-            )
-
-            size = pos + int(response.headers.get("content-length", 0))
-            progress = tqdm(
-                initial=pos,
-                total=size,
-                unit="iB",
-                unit_scale=True,
-            )
-
-            try:
-                with open(work_path, mode) as fobj:
-                    for chunk in response.iter_content():
-                        progress.update(len(chunk))
-                        fobj.write(chunk)
-                    got = fobj.tell()
-            finally:
-                progress.close()
-        except requests.exceptions.RequestException as exc:
-            logging.debug("Error in HTTP GET: %s", exc)
+            with Getter() as getter:
+                getter.get(
+                    url=self.read_mirror(mirror),
+                    path=hit.work_path,
+                    overwrite=self.args.overwrite,
+                )
+            return True
+        except (requests.exceptions.RequestException, WrongReplyError) as exc:
+            logging.debug("Error downloading: %s", exc)
             return False
-
-        if got < size:
-            logging.error(
-                "File terminated prematurely (%s < %s)",
-                tqdm.format_sizeof(got),
-                tqdm.format_sizeof(size),
-            )
-            hit.resume = True  # There may be another mirror
-            return False
-
-        return True
 
     def read_mirror(self, url: str) -> str:
         """Read LibGen mirror page, return download URL"""
@@ -415,9 +376,10 @@ class LibgenDownload:
             raise WrongReplyError(f"No <{tag}> in reply")
         return found
 
-    def http_get(self, url, pos=0, stream=False) -> requests.Response:
+    @classmethod
+    def http_get(cls, url, pos=0, stream=False) -> requests.Response:
         """Convenience wrapper for `requests.get()`"""
-        headers = {"User-Agent": self.USER_AGENT}
+        headers = {"User-Agent": cls.USER_AGENT}
         if pos:
             headers["Range"] = f"bytes={pos}-"
         resp = requests.get(url, headers=headers, stream=stream, timeout=60)
@@ -434,6 +396,40 @@ class LibgenDownload:
     def open_dump(self, infix: str, suffix: str, mode: str):
         """Open a dump file created by `parse_html()`"""
         return open(f"lgdl-{infix}.{suffix}", mode, encoding="utf-8")
+
+
+class Getter(contextlib.ExitStack):
+    """Downloads a file with some extras"""
+    def get(self, url: str, path: Path, overwrite: bool):
+        """Download a file"""
+        mode = "wb" if overwrite else "ab"
+        with open(path, mode) as fobj:
+            pos = fobj.tell()
+            if pos > 0:
+                logging.debug("Resuming at %s", tqdm.format_sizeof(pos))
+
+            response = LibgenDownload.http_get(url, pos=pos, stream=True)
+            size = pos + int(response.headers.get("content-length", 0))
+            progress = tqdm(
+                initial=pos,
+                total=size,
+                unit="iB",
+                unit_scale=True,
+            )
+            self.callback(progress.close)
+
+            for chunk in response.iter_content():
+                progress.update(len(chunk))
+                fobj.write(chunk)
+
+            got = fobj.tell()
+
+        if got < size:
+            raise WrongReplyError(
+                f"File terminated prematurely ("
+                f"{tqdm.format_sizeof(got)} < "
+                f"{tqdm.format_sizeof(size)}"
+            )
 
 
 if __name__ == "__main__":
