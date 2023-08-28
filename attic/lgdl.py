@@ -7,8 +7,9 @@ from pathlib import Path
 import random
 import re
 import subprocess
-import typing as t
 import urllib.parse as urlparse
+
+from collections.abc import Sequence
 
 import bs4
 import requests
@@ -229,7 +230,7 @@ class LibgenDownload:
             logging.debug("Unexpected HTML returned from query: %s", wre)
             return []
 
-    def choose(self, hits: list[Hit]) -> t.Sequence[int]:
+    def choose(self, hits: list[Hit]) -> Sequence[int]:
         """Ask the user what to download"""
         menu = TerminalMenu(
             [
@@ -245,7 +246,7 @@ class LibgenDownload:
             preview_title="File",
         )
         choices = menu.show()
-        if not isinstance(choices, t.Sequence):
+        if not isinstance(choices, Sequence):
             return []
         return choices
 
