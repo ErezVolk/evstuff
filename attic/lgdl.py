@@ -6,6 +6,8 @@ import logging
 from pathlib import Path
 import random
 import re
+import subprocess
+import typing as t
 import urllib.parse
 
 import bs4
@@ -103,10 +105,16 @@ class LibgenDownload:
             help="truncate file names to this length",
         )
         parser.add_argument(
+            "-v",
+            "--view",
+            action="store_true",
+            help="open files after downloading",
+        )
+        parser.add_argument(
             "-d",
             "--debug",
             action="store_true",
-            help="write some messages and debugging files",
+            help="print more info, create more files",
         )
         parser.add_argument(
             "-D",
@@ -220,7 +228,7 @@ class LibgenDownload:
             logging.debug("Unexpected HTML returned from query: %s", wre)
             return []
 
-    def choose(self, hits: list[Hit]) -> list[int]:
+    def choose(self, hits: list[Hit]) -> t.Sequence[int]:
         """Ask the user what to download"""
         menu = TerminalMenu(
             [
@@ -236,7 +244,9 @@ class LibgenDownload:
             preview_title="File",
         )
         choices = menu.show()
-        return choices if isinstance(choices, list) else []
+        if not isinstance(choices, t.Sequence):
+            return []
+        return choices
 
     def download(self, hit: Hit):
         """Download one file, trying all mirrors"""
@@ -254,6 +264,9 @@ class LibgenDownload:
         for mirror in mirrors:
             if self.download_mirror(hit, mirror):
                 hit.work_path.rename(hit.path)
+                if self.args.view:
+                    logging.debug("Opening %s", hit.path)
+                    subprocess.run(["open", str(hit.path)])
                 return
         logging.info("%s: Could not download", hit.name)
 
