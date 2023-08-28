@@ -8,7 +8,7 @@ import random
 import re
 import subprocess
 import typing as t
-import urllib.parse
+import urllib.parse as urlparse
 
 import bs4
 import requests
@@ -146,6 +146,7 @@ class LibgenDownload:
             logging.info("No hits; better luck next time!")
             return
 
+        # Resumables first, then alphabetically
         hits.sort(key=lambda hit: (not hit.resume, hit.name.lower()))
 
         choices = self.choose(hits)
@@ -183,6 +184,7 @@ class LibgenDownload:
     def get_query_reply(self) -> str:
         """Run the LibGen query and return the raw HTML"""
         if self.args.reload:
+            # Don't really search (useful for debugging)
             with self.open_dump("query", "html", "r") as fobj:
                 return fobj.read()
 
@@ -196,14 +198,13 @@ class LibgenDownload:
             ("objects[]", "f"),  # (search in objects): Files
             ("topics[]", "l"),  # (search in topics): Libgen
             ("topics[]", "f"),  # (search in topics): Fiction
-            # ("order", "year"),
             ("order", "author"),
             ("res", "100"),  # Results per page
             ("gmode", "on"),  # Google mode
             ("filesuns", "all"),
         )
         url = "https://libgen.gs/index.php?" + "&".join(
-            f"{urllib.parse.quote(name)}={urllib.parse.quote(value)}"
+            f"{urlparse.quote(name)}={urlparse.quote(value)}"
             for name, value in params
         )
 
@@ -240,7 +241,7 @@ class LibgenDownload:
             title=f"LibGen query: {self.query}",
             multi_select=True,
             show_multi_select_hint=True,
-            preview_command=lambda nhit: hits[int(nhit)].preview(),
+            preview_command=lambda nhit_str: hits[int(nhit_str)].preview(),
             preview_title="File",
         )
         choices = menu.show()
@@ -250,28 +251,21 @@ class LibgenDownload:
 
     def download(self, hit: Hit):
         """Download one file, trying all mirrors"""
-        mirrors = hit.mirrors
-        if len(mirrors) > 1:
-            logging.info(
-                "%s (%s) (%s mirror(s))",
-                hit.name,
-                hit.size_desc,
-                len(mirrors),
-            )
-        else:
-            logging.info("%s (%s)", hit.name, hit.size_desc)
+        logging.info("%s (%s)", hit.name, hit.size_desc)
 
-        for mirror in mirrors:
-            if self.download_mirror(hit, mirror):
+        for mirror in hit.mirrors:
+            if not self.download_mirror(hit, mirror):
                 hit.work_path.rename(hit.path)
                 if self.args.view:
                     logging.debug("Trying to open %s", hit.path)
                     subprocess.run(["open", str(hit.path)], check=False)
                 return
+
         logging.info("%s: Could not download", hit.name)
 
     def download_mirror(self, hit: Hit, mirror: str) -> bool:
         """Download one file from a specific mirror"""
+        logging.debug("Mirror: %s", urlparse.urlsplit(mirror).netloc)
         work_path = hit.work_path
 
         try:
@@ -329,19 +323,17 @@ class LibgenDownload:
 
     def read_mirror(self, url: str) -> str:
         """Read LibGen mirror page, return download URL"""
-        logging.debug("Mirror: %s", urllib.parse.urlsplit(url).netloc)
         response = self.http_get(url)
         soup = self.parse_html(response.text, "mirror")
         try:
-            link = self.find_tag(soup, "a", string="GET")
-            href = link.get("href")
+            href = self.find_tag(soup, "a", string="GET").get("href")
             if not isinstance(href, str):
                 raise WrongReplyError("No GET hyperlink")
         except WrongReplyError as wre:
             logging.debug("Unexpected HTML returned from query: %s", wre)
             return ""
 
-        return urllib.parse.urljoin(url, href)
+        return urlparse.urljoin(url, href)
 
     def parse_row(self, row: bs4.Tag, columns: list[str]) -> Hit:
         """Convert a query table row to a dict"""
@@ -391,16 +383,19 @@ class LibgenDownload:
         )
 
     def parse_id_cell(self, cell: bs4.Tag) -> IdCell:
-        """Extract the information from the ID cell"""
+        """Extract the information we want from the ID cell"""
         id_cell = IdCell()
+
         for link in cell.find_all("a"):
             if (title := link.get_text().strip(". ")):
                 id_cell.title = title
                 break
+
         for span in cell.find_all("span", class_="badge-secondary"):
             text = span.get_text(strip=True)
             if (match := re.fullmatch(r"[a-z] ([\d]+)", text)):
                 id_cell.lgid = int(match.group(1))
+
         return id_cell
 
     def parse_mirrors_cell(self, cell: bs4.Tag) -> list[str]:
@@ -412,18 +407,18 @@ class LibgenDownload:
         ]
 
     def parse_cell(self, cell: bs4.Tag) -> str:
-        """Parse a plain cell"""
+        """'Parse' a plain cell"""
         return cell.get_text(strip=True)
 
     def find_tag(self, tag: bs4.Tag, *args, **kwargs) -> bs4.Tag:
-        """Wrapper for `Tag.find()`, mostly to appease pylint"""
+        """Sanity-checking wrapper for `Tag.find()`"""
         found = tag.find(*args, **kwargs)
         if not isinstance(found, bs4.Tag):
             raise WrongReplyError(f"No <{tag}> in reply")
         return found
 
     def http_get(self, url, pos=0, stream=False) -> requests.Response:
-        """Wrapper for `requests.get()`"""
+        """Convenience wrapper for `requests.get()`"""
         headers = {"User-Agent": self.USER_AGENT}
         if pos:
             headers["Range"] = f"bytes={pos}-"
@@ -432,14 +427,14 @@ class LibgenDownload:
         return resp
 
     def parse_html(self, html: str, infix=None) -> bs4.BeautifulSoup:
-        """Wrapper around BeautifulSoup"""
+        """Debug-dumping wrapper around BeautifulSoup"""
         if self.args.debug and infix:
             with self.open_dump(infix, "html", "w") as fobj:
                 fobj.write(html)
         return bs4.BeautifulSoup(html, "html.parser")
 
     def open_dump(self, infix: str, suffix: str, mode: str):
-        """Open a textual dump file"""
+        """Open a dump file created by `parse_html()`"""
         return open(f"lgdl-{infix}.{suffix}", mode, encoding="utf-8")
 
 
