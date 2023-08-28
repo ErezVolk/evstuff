@@ -254,7 +254,7 @@ class LibgenDownload:
         logging.info("%s (%s)", hit.name, hit.size_desc)
 
         for mirror in hit.mirrors:
-            if not self.download_mirror(hit, mirror):
+            if self.download_mirror(hit, mirror):
                 hit.work_path.rename(hit.path)
                 if self.args.view:
                     logging.debug("Trying to open %s", hit.path)
