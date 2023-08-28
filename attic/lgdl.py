@@ -130,11 +130,8 @@ class LibgenDownload:
     def run(self):
         """Entry point"""
         self.args = self.parse_cli()
+        self.configure_logging()
         self.query = " ".join(self.args.query)
-        logging.basicConfig(
-            format="%(asctime)s %(message)s",
-            level=logging.DEBUG if self.args.debug else logging.INFO,
-        )
 
         hits = self.run_query()
         if not hits:
@@ -150,6 +147,16 @@ class LibgenDownload:
 
         for nhit in choices:
             self.download(hits[nhit])
+
+    def configure_logging(self):
+        """Set logging format and level"""
+        if self.args.debug:
+            fmt = "%(asctime)s %(message)s"
+            level = logging.DEBUG
+        else:
+            fmt = "%(message)s"
+            level = logging.INFO
+        logging.basicConfig(format=fmt, level=level)
 
     def run_query(self) -> list[Hit]:
         """Search LibGen and grok the result"""
@@ -228,7 +235,8 @@ class LibgenDownload:
             preview_command=lambda nhit: hits[int(nhit)].preview(),
             preview_title="File",
         )
-        return menu.show()
+        choices = menu.show()
+        return choices if isinstance(choices, list) else []
 
     def download(self, hit: Hit):
         """Download one file, trying all mirrors"""
@@ -288,16 +296,19 @@ class LibgenDownload:
                     for chunk in response.iter_content():
                         progress.update(len(chunk))
                         fobj.write(chunk)
-                    if (got := fobj.tell()) < size:
-                        logging.warn(
-                            "File terminated before end (%s < %s)",
-                            tqdm.format_sizeof(got),
-                            tqdm.format_sizeof(size),
-                        )
+                    got = fobj.tell()
             finally:
                 progress.close()
         except requests.exceptions.RequestException as exc:
             logging.debug("Error in HTTP GET: %s", exc)
+            return False
+
+        if got < size:
+            logging.error(
+                "File terminated before end (%s < %s)",
+                tqdm.format_sizeof(got),
+                tqdm.format_sizeof(size),
+            )
             return False
 
         return True
