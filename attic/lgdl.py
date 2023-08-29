@@ -126,15 +126,9 @@ class LibgenDownload:
         )
         return parser.parse_args()
 
-    USER_AGENT = (
-        "Mozilla/5.0 (X11; Linux x86_64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "QtWebEngine/5.15.5 "
-        "Chrome/87.0.4280.144 "
-        "Safari/537.36"
-    )
     BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\]")
     args: argparse.Namespace
+    http: "Http"
     query: str
 
     def run(self):
@@ -143,6 +137,7 @@ class LibgenDownload:
         self.configure_logging()
         self.query = " ".join(self.args.query)
 
+        self.http = Http()
         hits = self.run_query()
         if not hits:
             logging.info("No hits; better luck next time!")
@@ -211,7 +206,7 @@ class LibgenDownload:
             for name, value in params
         )
 
-        response = self.http_get(url)
+        response = self.http.get(url)
         return response.text
 
     def get_raw_hits(self, html: str) -> list[Hit]:
@@ -271,12 +266,11 @@ class LibgenDownload:
         logging.debug("Mirror: %s", urlparse.urlsplit(mirror).netloc)
 
         try:
-            with Getter() as getter:
-                getter.get(
-                    url=self.read_mirror(mirror),
-                    path=hit.work_path,
-                    overwrite=self.args.overwrite,
-                )
+            self.http.download(
+                url=self.read_mirror(mirror),
+                path=hit.work_path,
+                overwrite=self.args.overwrite,
+            )
             return True
         except (requests.exceptions.RequestException, WrongReplyError) as exc:
             logging.debug("Error downloading: %s", exc)
@@ -284,7 +278,7 @@ class LibgenDownload:
 
     def read_mirror(self, url: str) -> str:
         """Read LibGen mirror page, return download URL"""
-        response = self.http_get(url)
+        response = self.http.get(url)
         soup = self.parse_html(response.text, "mirror")
         atag = self.find_tag(soup, "a", string="GET")
         href = atag.get("href")
@@ -376,16 +370,6 @@ class LibgenDownload:
             raise WrongReplyError(f"No <{tag}> in reply")
         return found
 
-    @classmethod
-    def http_get(cls, url, pos=0, stream=False) -> requests.Response:
-        """Convenience wrapper for `requests.get()`"""
-        headers = {"User-Agent": cls.USER_AGENT}
-        if pos:
-            headers["Range"] = f"bytes={pos}-"
-        resp = requests.get(url, headers=headers, stream=stream, timeout=60)
-        resp.raise_for_status()
-        return resp
-
     def parse_html(self, html: str, infix=None) -> bs4.BeautifulSoup:
         """Debug-dumping wrapper around BeautifulSoup"""
         if self.args.debug and infix:
@@ -398,29 +382,39 @@ class LibgenDownload:
         return open(f"lgdl-{infix}.{suffix}", mode, encoding="utf-8")
 
 
-class Getter(contextlib.ExitStack):
-    """Downloads a file with some extras"""
-    def get(self, url: str, path: Path, overwrite: bool):
+class Http:
+    """Wrapper+ for `requests.get()`"""
+    USER_AGENT = (
+        "Mozilla/5.0 (X11; Linux x86_64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "QtWebEngine/5.15.5 "
+        "Chrome/87.0.4280.144 "
+        "Safari/537.36"
+    )
+
+    def get(self, url, pos=0, stream=False) -> requests.Response:
+        """Wrapper for `requests.get()`"""
+        headers = {"User-Agent": self.USER_AGENT}
+        if pos:
+            headers["Range"] = f"bytes={pos}-"
+        resp = requests.get(url, headers=headers, stream=stream, timeout=60)
+        resp.raise_for_status()
+        return resp
+
+    def download(self, url: str, path: Path, overwrite: bool):
         """Download a file"""
         mode = "wb" if overwrite else "ab"
         with open(path, mode) as fobj:
-            pos = fobj.tell()
-            if pos > 0:
-                logging.debug("Resuming at %s", tqdm.format_sizeof(pos))
+            got = fobj.tell()
+            if got > 0:
+                logging.debug("Resuming at %s", tqdm.format_sizeof(got))
 
-            response = LibgenDownload.http_get(url, pos=pos, stream=True)
-            size = pos + int(response.headers.get("content-length", 0))
-            progress = tqdm(
-                initial=pos,
-                total=size,
-                unit="iB",
-                unit_scale=True,
-            )
-            self.callback(progress.close)
-
-            for chunk in response.iter_content():
-                progress.update(len(chunk))
-                fobj.write(chunk)
+            response = self.get(url, pos=got, stream=True)
+            size = got + int(response.headers.get("content-length", 0))
+            with ProgressBar(initial=got, total=size) as progress:
+                for chunk in response.iter_content():
+                    progress.update(len(chunk))
+                    fobj.write(chunk)
 
             got = fobj.tell()
 
@@ -430,6 +424,23 @@ class Getter(contextlib.ExitStack):
                 f"{tqdm.format_sizeof(got)} < "
                 f"{tqdm.format_sizeof(size)}"
             )
+
+
+class ProgressBar(contextlib.ExitStack):
+    """Self-closing wrapper around `tqdm`."""
+    def __init__(self, initial: int, total: int, unit="iB", unit_scale=True):
+        super().__init__()
+        self._tqdm = tqdm(
+            initial=initial,
+            total=total,
+            unit=unit,
+            unit_scale=unit_scale,
+        )
+        self.callback(self._tqdm.close)
+
+    def update(self, amount: int):
+        """Just a wrapper"""
+        self._tqdm.update(amount)
 
 
 if __name__ == "__main__":
