@@ -8,9 +8,11 @@ from pathlib import Path
 import random
 import re
 import subprocess
+import tomllib
 import urllib.parse as urlparse
 
 from collections.abc import Sequence
+from os import PathLike
 
 import bs4
 import requests
@@ -75,7 +77,12 @@ class WrongReplyError(RuntimeError):
 
 class LibgenDownload:
     """Simple Library Genesis search + download"""
-    def parse_cli(self) -> argparse.Namespace:
+    DEFAULTS_TOML = """
+    output = "libgen"
+    max_stem = 80
+    """
+
+    def parse_args(self):
         """Usage"""
         parser = argparse.ArgumentParser(
             description="Search and download from libgen"
@@ -90,7 +97,6 @@ class LibgenDownload:
             "-o",
             "--output",
             type=Path,
-            default=Path("libgen"),
             help="where to save files",
         )
         parser.add_argument(
@@ -103,7 +109,6 @@ class LibgenDownload:
             "-m",
             "--max-stem",
             type=int,
-            default=80,
             help="truncate file names to this length",
         )
         parser.add_argument(
@@ -124,16 +129,22 @@ class LibgenDownload:
             action="store_true",
             help="don't query, read the results file from a previous -d run",
         )
-        return parser.parse_args()
+        self.args = parser.parse_args()
+        self.parser = parser
 
     BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\]")
+    parser: argparse.ArgumentParser
     args: argparse.Namespace
     http: "Http"
     query: str
 
     def run(self):
         """Entry point"""
-        self.args = self.parse_cli()
+        self.parse_args()
+        self.supplement_args_from_file(".lgdlrc")
+        self.supplement_args_from_file(Path.home() / ".lgdlrc")
+        self.supplement_args_from_buffer(self.DEFAULTS_TOML)
+
         self.configure_logging()
         self.query = " ".join(self.args.query)
 
@@ -154,6 +165,28 @@ class LibgenDownload:
         self.args.output.mkdir(parents=True, exist_ok=True)
         for nhit in choices:
             self.download(hits[nhit])
+
+    def supplement_args_from_buffer(self, buffer: str):
+        """Try to read any unspecified arguments from a config buffer"""
+        self.supplement_args(tomllib.loads(buffer))
+
+    def supplement_args_from_file(self, path: str | PathLike):
+        """Try to read any unspecified arguments from a config file"""
+        try:
+            with open(path, "rb") as fobj:
+                self.supplement_args(tomllib.load(fobj))
+        except (FileNotFoundError, tomllib.TOMLDecodeError):
+            pass
+
+    def supplement_args(self, config: dict):
+        """Try to read any unspecified arguments from a parsed config"""
+        types = {"output": Path}  # TODO: pydantic-argparse? argdantic?
+        for key, value in vars(self.args).items():
+            if value is None and key in config:
+                value = config[key]
+                if key in types:
+                    value = types[key](value)
+                setattr(self.args, key, value)
 
     def configure_logging(self):
         """Set logging format and level"""
@@ -316,7 +349,7 @@ class LibgenDownload:
         mirrors = self.parse_mirrors_cell(cells["Mirrors"])
         random.shuffle(mirrors)
 
-        path = self.args.output / f"{name}"
+        path = self.args.output / name
         work_path = self.args.output / f"{name}.lgdl"
 
         return Hit(
