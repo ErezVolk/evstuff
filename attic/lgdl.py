@@ -283,6 +283,7 @@ class LibgenDownload:
     def download(self, hit: Hit):
         """Download one file, trying all mirrors"""
         logging.info("%s (%s)", hit.name, hit.size_desc)
+        logging.debug("%s (%d mirror(s))", hit.work_path, len(hit.mirrors))
 
         for mirror in hit.mirrors:
             if self.download_mirror(hit, mirror):
@@ -350,7 +351,10 @@ class LibgenDownload:
         random.shuffle(mirrors)
 
         path = self.args.output / name
-        work_path = self.args.output / f"{name}.lgdl"
+        if id_cell.lgid:
+            work_path = self.args.output / f"libgen-{id_cell.lgid}.lgdl"
+        else:
+            work_path = self.args.output / f"{name}.lgdl"
 
         return Hit(
             title=id_cell.title,
@@ -376,11 +380,16 @@ class LibgenDownload:
             if (title := link.get_text().strip(". ")):
                 id_cell.title = title
                 break
+        else:
+            logging.debug("Hm, no title: %s", cell)
 
         for span in cell.find_all("span", class_="badge-secondary"):
             text = span.get_text(strip=True)
             if (match := re.fullmatch(r"[a-z] ([\d]+)", text)):
                 id_cell.lgid = int(match.group(1))
+                break
+        else:
+            logging.debug("Hm, no LibGen ID: %s", cell)
 
         return id_cell
 
