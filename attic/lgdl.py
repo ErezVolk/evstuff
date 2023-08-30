@@ -397,11 +397,11 @@ class LibgenDownload:
             return ""
         return cell.get_text(strip=True)
 
-    def find_tag(self, tag: bs4.Tag, *args, **kwargs) -> bs4.Tag:
+    def find_tag(self, tag: bs4.Tag, name:str, *args, **kwargs) -> bs4.Tag:
         """Sanity-checking wrapper for `Tag.find()`"""
         found = tag.find(*args, **kwargs)
         if not isinstance(found, bs4.Tag):
-            raise WrongReplyError(f"No <{tag}> in reply")
+            raise WrongReplyError(f"No <{name}> in reply")
         return found
 
     def parse_html(self, html: str, infix=None) -> bs4.BeautifulSoup:
@@ -429,6 +429,7 @@ class Http:
 
     def __init__(self, user_agent: str | None = None):
         self.user_agent = user_agent or self.DEFAULT_USER_AGENT
+        logging.debug("User-Agent: %s", self.user_agent)
 
     def get(self, url, pos=0, stream=False) -> requests.Response:
         """Wrapper for `requests.get()`"""
