@@ -76,10 +76,6 @@ class WrongReplyError(RuntimeError):
 
 class LibgenDownload:
     """Simple Library Genesis search + download"""
-    DEFAULTS_TOML = """
-    output = "libgen"
-    max_stem = 80
-    """
 
     def parse_args(self):
         """Usage"""
@@ -117,6 +113,11 @@ class LibgenDownload:
             help="open files after downloading",
         )
         parser.add_argument(
+            "-u",
+            "--user-agent",
+            help="User-Agent string for HTTP requests",
+        )
+        parser.add_argument(
             "-d",
             "--debug",
             action="store_true",
@@ -129,14 +130,10 @@ class LibgenDownload:
             help="don't query, read the results file from a previous -d run",
         )
 
-        defaults = {
-            "output": "libgen",
-            "max_stem": 80
-        }
-
-        for loc in [Path.home(), Path.cwd()]:
+        defaults = {"output": "libgen", "max_stem": 80}
+        for folder in [Path.home(), Path.cwd()]:
             try:
-                with open(loc / ".lgdlrc", "rb") as fobj:
+                with open(folder / ".lgdlrc", "rb") as fobj:
                     defaults.update(tomllib.load(fobj))
             except (FileNotFoundError, tomllib.TOMLDecodeError):
                 pass
@@ -155,7 +152,7 @@ class LibgenDownload:
         self.parse_args()
         self.configure_logging()
 
-        self.http = Http()
+        self.http = Http(self.args.user_agent)
         hits = self.run_query()
         if not hits:
             logging.info("No hits; better luck next time!")
@@ -356,11 +353,11 @@ class LibgenDownload:
             work_path=work_path,
             resume=not self.args.overwrite and work_path.is_file(),
             mirrors=mirrors,
-            language=self.parse_cell(cells["Language"]),
-            size_desc=self.parse_cell(cells["Size"]),
-            publisher=self.parse_cell(cells["Publisher"]),
-            year=self.parse_cell(cells["Year"]),
-            pages=self.parse_cell(cells["Pages"]),
+            language=self.parse_cell(cells.get("Language")),
+            size_desc=self.parse_cell(cells.get("Size")),
+            publisher=self.parse_cell(cells.get("Publisher")),
+            year=self.parse_cell(cells.get("Year")),
+            pages=self.parse_cell(cells.get("Pages")),
         )
 
     def parse_id_cell(self, cell: bs4.Tag) -> IdCell:
@@ -368,7 +365,8 @@ class LibgenDownload:
         id_cell = IdCell()
 
         for link in cell.find_all("a"):
-            if (title := link.get_text().strip(". ")):
+            title = link.get_text().strip(". ")
+            if title:
                 id_cell.title = title
                 break
         else:
@@ -376,8 +374,9 @@ class LibgenDownload:
 
         for span in cell.find_all("span", class_="badge-secondary"):
             text = span.get_text(strip=True)
-            if (match := re.fullmatch(r"[a-z] ([\d]+)", text)):
-                id_cell.lgid = int(match.group(1))
+            mobj = re.fullmatch(r"[a-z] ([\d]+)", text)
+            if mobj:
+                id_cell.lgid = int(mobj.group(1))
                 break
         else:
             logging.debug("Hm, no LibGen ID: %s", cell)
@@ -392,8 +391,10 @@ class LibgenDownload:
             if isinstance(href := link.get("href"), str)
         ]
 
-    def parse_cell(self, cell: bs4.Tag) -> str:
+    def parse_cell(self, cell: bs4.Tag | None) -> str:
         """'Parse' a plain cell"""
+        if cell is None:  # Optional cell wasn't there
+            return ""
         return cell.get_text(strip=True)
 
     def find_tag(self, tag: bs4.Tag, *args, **kwargs) -> bs4.Tag:
@@ -417,7 +418,8 @@ class LibgenDownload:
 
 class Http:
     """Wrapper+ for `requests.get()`"""
-    USER_AGENT = (
+
+    DEFAULT_USER_AGENT = (
         "Mozilla/5.0 (X11; Linux x86_64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "QtWebEngine/5.15.5 "
@@ -425,9 +427,12 @@ class Http:
         "Safari/537.36"
     )
 
+    def __init__(self, user_agent: str | None = None):
+        self.user_agent = user_agent or self.DEFAULT_USER_AGENT
+
     def get(self, url, pos=0, stream=False) -> requests.Response:
         """Wrapper for `requests.get()`"""
-        headers = {"User-Agent": self.USER_AGENT}
+        headers = {"User-Agent": self.user_agent}
         if pos:
             headers["Range"] = f"bytes={pos}-"
         resp = requests.get(url, headers=headers, stream=stream, timeout=60)
@@ -436,8 +441,7 @@ class Http:
 
     def download(self, url: str, path: Path, overwrite: bool):
         """Download a file"""
-        mode = "wb" if overwrite else "ab"
-        with open(path, mode) as fobj:
+        with open(path, "wb" if overwrite else "ab") as fobj:
             got = fobj.tell()
             if got > 0:
                 logging.debug("Resuming at %s", tqdm.format_sizeof(got))
@@ -461,6 +465,7 @@ class Http:
 
 class ProgressBar(contextlib.ExitStack):
     """Self-closing wrapper around `tqdm`."""
+
     def __init__(self, initial: int, total: int, unit="iB", unit_scale=True):
         super().__init__()
         self._tqdm = tqdm(
