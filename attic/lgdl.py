@@ -143,6 +143,7 @@ class LibgenDownload:
         parser.set_defaults(**defaults)
 
         self.args = parser.parse_args()
+        self.query = " ".join(self.args.query)
 
     BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\]")
     args: argparse.Namespace
@@ -152,9 +153,7 @@ class LibgenDownload:
     def run(self):
         """Entry point"""
         self.parse_args()
-
         self.configure_logging()
-        self.query = " ".join(self.args.query)
 
         self.http = Http()
         hits = self.run_query()
@@ -238,6 +237,9 @@ class LibgenDownload:
                 next(col.strings).strip()
                 for col in self.find_tag(table, "thead").find_all("th")
             ]
+            for column in ["ID", "Author(s)", "Ext." "Mirrors"]:
+                if column not in columns:
+                    raise WrongReplyError("Table missing expected columns")
             return [
                 self.parse_row(row, columns)
                 for row in self.find_tag(table, "tbody").find_all("tr")
@@ -334,7 +336,7 @@ class LibgenDownload:
         name = self.BAD_CHARS_RE.sub("-", name)
 
         mirrors = self.parse_mirrors_cell(cells["Mirrors"])
-        random.shuffle(mirrors)
+        random.shuffle(mirrors)  # Keep them on their toes
 
         path = self.args.output / name
         if id_cell.lgid:
