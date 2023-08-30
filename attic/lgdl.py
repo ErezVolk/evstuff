@@ -12,7 +12,6 @@ import tomllib
 import urllib.parse as urlparse
 
 from collections.abc import Sequence
-from os import PathLike
 
 import bs4
 import requests
@@ -129,11 +128,23 @@ class LibgenDownload:
             action="store_true",
             help="don't query, read the results file from a previous -d run",
         )
+
+        defaults = {
+            "output": "libgen",
+            "max_stem": 80
+        }
+
+        for loc in [Path.home(), Path.cwd()]:
+            try:
+                with open(loc / ".lgdlrc", "rb") as fobj:
+                    defaults.update(tomllib.load(fobj))
+            except (FileNotFoundError, tomllib.TOMLDecodeError):
+                pass
+        parser.set_defaults(**defaults)
+
         self.args = parser.parse_args()
-        self.parser = parser
 
     BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\]")
-    parser: argparse.ArgumentParser
     args: argparse.Namespace
     http: "Http"
     query: str
@@ -141,9 +152,6 @@ class LibgenDownload:
     def run(self):
         """Entry point"""
         self.parse_args()
-        self.supplement_args_from_file(".lgdlrc")
-        self.supplement_args_from_file(Path.home() / ".lgdlrc")
-        self.supplement_args_from_buffer(self.DEFAULTS_TOML)
 
         self.configure_logging()
         self.query = " ".join(self.args.query)
@@ -165,28 +173,6 @@ class LibgenDownload:
         self.args.output.mkdir(parents=True, exist_ok=True)
         for nhit in choices:
             self.download(hits[nhit])
-
-    def supplement_args_from_buffer(self, buffer: str):
-        """Try to read any unspecified arguments from a config buffer"""
-        self.supplement_args(tomllib.loads(buffer))
-
-    def supplement_args_from_file(self, path: str | PathLike):
-        """Try to read any unspecified arguments from a config file"""
-        try:
-            with open(path, "rb") as fobj:
-                self.supplement_args(tomllib.load(fobj))
-        except (FileNotFoundError, tomllib.TOMLDecodeError):
-            pass
-
-    def supplement_args(self, config: dict):
-        """Try to read any unspecified arguments from a parsed config"""
-        types = {"output": Path}  # TODO: pydantic-argparse? argdantic?
-        for key, value in vars(self.args).items():
-            if value is None and key in config:
-                value = config[key]
-                if key in types:
-                    value = types[key](value)
-                setattr(self.args, key, value)
 
     def configure_logging(self):
         """Set logging format and level"""
