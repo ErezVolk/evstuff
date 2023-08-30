@@ -237,9 +237,12 @@ class LibgenDownload:
                 next(col.strings).strip()
                 for col in self.find_tag(table, "thead").find_all("th")
             ]
-            for column in ["ID", "Author(s)", "Ext." "Mirrors"]:
-                if column not in columns:
-                    raise WrongReplyError("Table missing expected columns")
+            missing = {"ID", "Author(s)", "Ext.", "Mirrors"} - set(columns)
+            if missing:
+                logging.debug("Columns are %s", columns)
+                logging.debug("Missing: %s", list(missing))
+                raise WrongReplyError("Incorrect table columns")
+
             return [
                 self.parse_row(row, columns)
                 for row in self.find_tag(table, "tbody").find_all("tr")
