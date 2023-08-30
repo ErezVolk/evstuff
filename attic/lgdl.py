@@ -142,7 +142,7 @@ class LibgenDownload:
         self.args = parser.parse_args()
         self.query = " ".join(self.args.query)
 
-    BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\]")
+    BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\|]")
     args: argparse.Namespace
     http: "Http"
     query: str
