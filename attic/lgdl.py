@@ -226,8 +226,9 @@ class LibgenDownload:
 
     def get_raw_hits(self, html: str) -> list[Hit]:
         """Parse query results and return all items, even ones we don't want"""
+        soup = self.parse_html(html, "query")
+
         try:
-            soup = self.parse_html(html, "query")
             table = self.find_tag(soup, "table", id="tablelibgen")
 
             columns = [
@@ -245,7 +246,11 @@ class LibgenDownload:
                 for row in self.find_tag(table, "tbody").find_all("tr")
             ]
         except WrongReplyError as wre:
-            logging.debug("Unexpected HTML returned from query: %s", wre)
+            for atag in soup.find_all("a", class_="nav-link"):
+                if atag.get_text(strip=True) == "Files 0":
+                    break  # Special case: Simply no hits
+            else:
+                logging.debug("Unexpected HTML returned from query: %s", wre)
             return []
 
     def choose(self, hits: list[Hit]) -> Sequence[int]:
