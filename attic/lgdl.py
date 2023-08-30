@@ -397,9 +397,9 @@ class LibgenDownload:
             return ""
         return cell.get_text(strip=True)
 
-    def find_tag(self, tag: bs4.Tag, name:str, *args, **kwargs) -> bs4.Tag:
+    def find_tag(self, tag: bs4.Tag, name: str, *args, **kwargs) -> bs4.Tag:
         """Sanity-checking wrapper for `Tag.find()`"""
-        found = tag.find(*args, **kwargs)
+        found = tag.find(name, *args, **kwargs)
         if not isinstance(found, bs4.Tag):
             raise WrongReplyError(f"No <{name}> in reply")
         return found
