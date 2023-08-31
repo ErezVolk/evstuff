@@ -129,14 +129,29 @@ class LibgenDownload:
             action="store_true",
             help="don't query, read the results file from a previous -d run",
         )
+        parser.add_argument(
+            "-t",
+            "--topics",
+            type=str,
+            help=(
+                "LibGen topics (*l*ibgen, *f*iction, *c*omics, *m*agazines, "
+                "*s*tandards)"
+            ),
+        )
 
-        defaults = {"output": "libgen", "max_stem": 80}
+        defaults = {
+            "output": "libgen",
+            "max_stem": 80,
+            "topics": "fl",
+        }
         for folder in [Path.home(), Path.cwd()]:
             try:
-                with open(folder / ".lgdlrc", "rb") as fobj:
+                with open(path := (folder / ".lgdlrc"), "rb") as fobj:
                     defaults.update(tomllib.load(fobj))
-            except (FileNotFoundError, tomllib.TOMLDecodeError):
+            except FileNotFoundError:
                 pass
+            except tomllib.TOMLDecodeError as ex:
+                print(f"{path}: {ex}")
         parser.set_defaults(**defaults)
 
         self.args = parser.parse_args()
@@ -201,7 +216,7 @@ class LibgenDownload:
             with self.open_dump("query", "html", "r") as fobj:
                 return fobj.read()
 
-        params = (
+        params = [
             ("req", self.query),
             ("columns[]", "t"),  # (search in fields) Title
             ("columns[]", "a"),  # (search in fields) Author
@@ -209,13 +224,14 @@ class LibgenDownload:
             # ("columns[]", "y"),  # (search in fields) Year
             ("columns[]", "i"),  # (search in fields) ISBN
             ("objects[]", "f"),  # (search in objects): Files
-            ("topics[]", "l"),  # (search in topics): Libgen
-            ("topics[]", "f"),  # (search in topics): Fiction
             ("order", "author"),
             ("res", "100"),  # Results per page
             ("gmode", "on"),  # Google mode
             ("filesuns", "all"),
-        )
+        ] + [
+            ("topics[]", topic)
+            for topic in self.args.topics
+        ]
         url = "https://libgen.gs/index.php?" + "&".join(
             f"{urlparse.quote(name)}={urlparse.quote(value)}"
             for name, value in params
