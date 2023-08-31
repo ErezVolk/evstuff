@@ -130,9 +130,15 @@ class LibgenDownload:
             help="don't query, read the results file from a previous -d run",
         )
         parser.add_argument(
+            "-f",
+            "--fields",
+            type=one_of("tasyi"),
+            help="LibGen fields (*t*itle, *a*uthor, *s*eries, *y*ear, *i*sbn)",
+        )
+        parser.add_argument(
             "-t",
             "--topics",
-            type=str,
+            type=one_of("lfcms"),
             help=(
                 "LibGen topics (*l*ibgen, *f*iction, *c*omics, *m*agazines, "
                 "*s*tandards)"
@@ -142,6 +148,7 @@ class LibgenDownload:
         defaults = {
             "output": "libgen",
             "max_stem": 80,
+            "fields": "tai",
             "topics": "fl",
         }
         for folder in [Path.home(), Path.cwd()]:
@@ -218,16 +225,14 @@ class LibgenDownload:
 
         params = [
             ("req", self.query),
-            ("columns[]", "t"),  # (search in fields) Title
-            ("columns[]", "a"),  # (search in fields) Author
-            # ("columns[]", "s"),  # (search in fields) Series
-            # ("columns[]", "y"),  # (search in fields) Year
-            ("columns[]", "i"),  # (search in fields) ISBN
             ("objects[]", "f"),  # (search in objects): Files
             ("order", "author"),
             ("res", "100"),  # Results per page
             ("gmode", "on"),  # Google mode
             ("filesuns", "all"),
+        ] + [
+            ("fields[]", field)
+            for field in self.args.fields
         ] + [
             ("topics[]", topic)
             for topic in self.args.topics
@@ -435,6 +440,16 @@ class LibgenDownload:
     def open_dump(self, infix: str, suffix: str, mode: str):
         """Open a dump file created by `parse_html()`"""
         return open(f"lgdl-{infix}.{suffix}", mode, encoding="utf-8")
+
+
+def one_of(alphabet: str):
+    """Validator for argument that takes a collection of letters"""
+    def validate(value: str) -> str:
+        if not re.fullmatch(f"[{alphabet}]+", value):
+            raise ValueError()
+        return value
+
+    return validate
 
 
 class Http:
