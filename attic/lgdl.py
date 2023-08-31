@@ -165,11 +165,12 @@ class LibgenDownload:
             "contents": "f",
         }
         for folder in [Path.home(), Path.cwd()]:
+            path = folder / ".lgdlrc"
             try:
-                with open(path := (folder / ".lgdlrc"), "rb") as fobj:
+                with open(path, "rb") as fobj:
                     defaults.update(tomllib.load(fobj))
             except FileNotFoundError:
-                pass
+                continue
             except tomllib.TOMLDecodeError as ex:
                 print(f"{path}: {ex}")
         parser.set_defaults(**defaults)
