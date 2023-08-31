@@ -132,16 +132,28 @@ class LibgenDownload:
         parser.add_argument(
             "-f",
             "--fields",
-            type=one_of("tasyi"),
-            help="LibGen fields (*t*itle, *a*uthor, *s*eries, *y*ear, *i*sbn)",
+            type=FullMatch("[tasyi]+"),
+            help=(
+                "One or more LibGen fields (*t*itle, *a*uthor, *s*eries, "
+                "*y*ear, *i*sbn)"
+            ),
         )
         parser.add_argument(
             "-t",
             "--topics",
-            type=one_of("lfcms"),
+            type=FullMatch("[lfcms]+"),
             help=(
-                "LibGen topics (*l*ibgen, *f*iction, *c*omics, *m*agazines, "
-                "*s*tandards)"
+                "One or more LibGen topics (*l*ibgen, *f*iction, *c*omics, "
+                "*m*agazines, *s*tandards)"
+            ),
+        )
+        parser.add_argument(
+            "-c",
+            "--contents",
+            type=FullMatch("[f]*"),
+            help=(
+                "Zero or more LibGen objects (*l*ibgen, *f*iction, *c*omics, "
+                "*m*agazines, *s*tandards)"
             ),
         )
 
@@ -150,6 +162,7 @@ class LibgenDownload:
             "max_stem": 80,
             "fields": "tai",
             "topics": "fl",
+            "contents": "f",
         }
         for folder in [Path.home(), Path.cwd()]:
             try:
@@ -225,7 +238,6 @@ class LibgenDownload:
 
         params = [
             ("req", self.query),
-            ("objects[]", "f"),  # (search in objects): Files
             ("order", "author"),
             ("res", "100"),  # Results per page
             ("gmode", "on"),  # Google mode
@@ -236,6 +248,9 @@ class LibgenDownload:
         ] + [
             ("topics[]", topic)
             for topic in self.args.topics
+        ] + [
+            ("objects[]", content)
+            for content in self.args.contents
         ]
         url = "https://libgen.gs/index.php?" + "&".join(
             f"{urlparse.quote(name)}={urlparse.quote(value)}"
@@ -442,14 +457,16 @@ class LibgenDownload:
         return open(f"lgdl-{infix}.{suffix}", mode, encoding="utf-8")
 
 
-def one_of(alphabet: str):
-    """Validator for argument that takes a collection of letters"""
-    def validate(value: str) -> str:
-        if not re.fullmatch(f"[{alphabet}]+", value):
+class FullMatch:
+    """Validator for argument that takes a regular expression"""
+    def __init__(self, expr: str):
+        self.expr = expr
+
+    def __call__(self, value) -> str:
+        """Validate"""
+        if not re.fullmatch(self.expr, value):
             raise ValueError()
         return value
-
-    return validate
 
 
 class Http:
