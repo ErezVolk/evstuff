@@ -499,7 +499,7 @@ class Http:
         with open(path, "wb" if overwrite else "ab") as fobj:
             got = fobj.tell()
             if got > 0:
-                logging.debug("Resuming at %s", tqdm.format_sizeof(got))
+                logging.debug("Resuming at %s", self.kbmbgb(got))
 
             response = self.get(url, pos=got, stream=True)
             size = got + int(response.headers.get("content-length", 0))
@@ -513,9 +513,22 @@ class Http:
         if got < size:
             raise WrongReplyError(
                 f"File terminated prematurely ("
-                f"{tqdm.format_sizeof(got)} < "
-                f"{tqdm.format_sizeof(size)}"
+                f"{self.kbmbgb(got)} < "
+                f"{self.kbmbgb(size)}"
             )
+
+    @staticmethod
+    def kbmbgb(num: int | float) -> str:
+        """Format a number as "932K", etc."""
+        for prefix in ["", "K", "M", "G", "T"]:
+            if abs(num) < 9.995:
+                return f"{num:,.2f}{prefix}"
+            if abs(num) < 99.95:
+                return f"{num:,.1f}{prefix}"
+            if abs(num) < 999.5:
+                return f"{num:,.0f}{prefix}"
+            num = num / 1000
+        return f"{num:,.1f}{prefix}"
 
 
 class ProgressBar(contextlib.ExitStack):
