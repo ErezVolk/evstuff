@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Search and download from libgen"""
 import argparse
-import contextlib
 from dataclasses import dataclass
 import logging
 from pathlib import Path
@@ -17,7 +16,8 @@ import bs4
 import requests
 import requests.exceptions
 from simple_term_menu import TerminalMenu
-from tqdm import tqdm
+import rich.logging
+import rich.progress
 
 ANSI_BOLD = "\033[1m"
 ANSI_CLEAR = "\033[0m"
@@ -171,8 +171,8 @@ class LibgenDownload:
                     defaults.update(tomllib.load(fobj))
             except FileNotFoundError:
                 continue
-            except tomllib.TOMLDecodeError as ex:
-                print(f"{path}: {ex}")
+            except tomllib.TOMLDecodeError:
+                self.log.exception(path)
         parser.set_defaults(**defaults)
 
         self.args = parser.parse_args()
@@ -180,18 +180,20 @@ class LibgenDownload:
 
     BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\|]")
     args: argparse.Namespace
+    log: logging.Logger
     http: "Http"
     query: str
+    progress: rich.progress.Progress
 
     def run(self):
         """Entry point"""
         self.parse_args()
         self.configure_logging()
 
-        self.http = Http(self.args.user_agent)
+        self.http = Http(self.args.user_agent, log=self.log)
         hits = self.run_query()
         if not hits:
-            logging.info("No hits; better luck next time!")
+            self.log.info("No hits; better luck next time!")
             return
 
         # Resumables first, then alphabetically
@@ -199,22 +201,27 @@ class LibgenDownload:
 
         choices = self.choose(hits)
         if not choices:
-            logging.info("Nothing selected; better luck next time!")
+            self.log.info("Nothing selected; better luck next time!")
             return
 
         self.args.output.mkdir(parents=True, exist_ok=True)
-        for nhit in choices:
-            self.download(hits[nhit])
+        with self.make_progress() as self.progress:
+            for nhit in choices:
+                self.download(hits[nhit])
 
     def configure_logging(self):
         """Set logging format and level"""
         if self.args.debug:
-            fmt = "%(asctime)s %(message)s"
             level = logging.DEBUG
         else:
-            fmt = "%(message)s"
             level = logging.INFO
-        logging.basicConfig(format=fmt, level=level)
+        logging.basicConfig(
+            format="%(message)s",
+            datefmt="[%X]",
+            level=level,
+            handlers=[rich.logging.RichHandler()],
+        )
+        self.log = logging.getLogger("lgdl")
 
     def run_query(self) -> list[Hit]:
         """Search LibGen and grok the result"""
@@ -274,8 +281,8 @@ class LibgenDownload:
             ]
             missing = {"ID", "Author(s)", "Ext.", "Mirrors"} - set(columns)
             if missing:
-                logging.debug("Columns are %s", columns)
-                logging.debug("Missing: %s", list(missing))
+                self.log.debug("Columns are %s", columns)
+                self.log.debug("Missing: %s", list(missing))
                 raise WrongReplyError("Incorrect table columns")
 
             return [
@@ -287,7 +294,7 @@ class LibgenDownload:
                 if atag.get_text(strip=True) == "Files 0":
                     break  # Special case: Simply no hits
             else:
-                logging.debug("Unexpected HTML returned from query: %s", wre)
+                self.log.debug("Unexpected HTML returned from query: %s", wre)
             return []
 
     def choose(self, hits: list[Hit]) -> Sequence[int]:
@@ -310,34 +317,53 @@ class LibgenDownload:
             return []
         return choices
 
+    def make_progress(self) -> rich.progress.Progress:
+        """Create nice progress bar object (from the Rich example)"""
+        return rich.progress.Progress(
+            rich.progress.TextColumn(
+                "[bold]{task.description}",
+                justify="right"
+            ),
+            rich.progress.BarColumn(bar_width=None),
+            "[progress.percentage]{task.percentage:>3.1f}%",
+            "•",
+            rich.progress.DownloadColumn(),
+            "•",
+            rich.progress.TransferSpeedColumn(),
+            "•",
+            rich.progress.TimeRemainingColumn(),
+        )
+
     def download(self, hit: Hit):
         """Download one file, trying all mirrors"""
-        logging.info("%s (%s)", hit.name, hit.size_desc)
-        logging.debug("%s (%d mirror(s))", hit.work_path, len(hit.mirrors))
+        self.log.info("%s (%s)", hit.name, hit.size_desc)
+        self.log.debug("%s (%d mirror(s))", hit.work_path, len(hit.mirrors))
 
         for mirror in hit.mirrors:
             if self.download_mirror(hit, mirror):
                 hit.work_path.rename(hit.path)
                 if self.args.view:
-                    logging.debug("Trying to open %s", hit.path)
+                    self.log.debug("Trying to open %s", hit.path)
                     subprocess.run(["open", str(hit.path)], check=False)
                 return
 
-        logging.info("%s: Could not download", hit.name)
+        self.log.info("%s: Could not download", hit.name)
 
     def download_mirror(self, hit: Hit, mirror: str) -> bool:
         """Download one file from a specific mirror"""
-        logging.debug("Mirror: %s", urlparse.urlsplit(mirror).netloc)
+        self.log.debug("Mirror: %s", urlparse.urlsplit(mirror).netloc)
 
         try:
             self.http.download(
+                progress=self.progress,
+                name=hit.name,
                 url=self.read_mirror(mirror),
                 path=hit.work_path,
                 overwrite=self.args.overwrite,
             )
             return True
         except (requests.exceptions.RequestException, WrongReplyError) as exc:
-            logging.debug("Error downloading: %s", exc)
+            self.log.debug("Error downloading: %s", exc)
             return False
 
     def read_mirror(self, url: str) -> str:
@@ -412,7 +438,7 @@ class LibgenDownload:
                 id_cell.title = title
                 break
         else:
-            logging.debug("Hm, no title: %s", cell)
+            self.log.debug("Hm, no title: %s", cell)
 
         for span in cell.find_all("span", class_="badge-secondary"):
             text = span.get_text(strip=True)
@@ -421,7 +447,7 @@ class LibgenDownload:
                 id_cell.lgid = int(mobj.group(1))
                 break
         else:
-            logging.debug("Hm, no LibGen ID: %s", cell)
+            self.log.debug("Hm, no LibGen ID: %s", cell)
 
         return id_cell
 
@@ -458,7 +484,7 @@ class LibgenDownload:
         return open(f"lgdl-{infix}.{suffix}", mode, encoding="utf-8")
 
 
-class FullMatch:
+class FullMatch:  # pylint: disable=too-few-public-methods
     """Validator for argument that takes a regular expression"""
     def __init__(self, expr: str):
         self.expr = expr
@@ -480,10 +506,16 @@ class Http:
         "Chrome/87.0.4280.144 "
         "Safari/537.36"
     )
+    log: logging.Logger
 
-    def __init__(self, user_agent: str | None = None):
+    def __init__(
+            self,
+            user_agent: str | None = None,
+            log: logging.Logger | None = None
+    ):
+        self.log = log or logging.getLogger()
         self.user_agent = user_agent or self.DEFAULT_USER_AGENT
-        logging.debug("User-Agent: %s", self.user_agent)
+        self.log.debug("User-Agent: %s", self.user_agent)
 
     def get(self, url, pos=0, stream=False) -> requests.Response:
         """Wrapper for `requests.get()`"""
@@ -494,19 +526,33 @@ class Http:
         resp.raise_for_status()
         return resp
 
-    def download(self, url: str, path: Path, overwrite: bool):
+    def download(
+        self,
+        url: str,
+        path: Path,
+        overwrite: bool,
+        progress: rich.progress.Progress,
+        name: str,
+    ):
         """Download a file"""
+        if len(name) <= 16:
+            description = name
+        else:
+            description = f"{name[:13]}..."
+        task_id = progress.add_task(description)
+        progress.console.log(name)
+
         with open(path, "wb" if overwrite else "ab") as fobj:
             got = fobj.tell()
             if got > 0:
-                logging.debug("Resuming at %s", self.kbmbgb(got))
+                self.log.debug("Resuming at %s", self.kbmbgb(got))
 
             response = self.get(url, pos=got, stream=True)
             size = got + int(response.headers.get("content-length", 0))
-            with ProgressBar(initial=got, total=size) as progress:
-                for chunk in response.iter_content():
-                    progress.update(len(chunk))
-                    fobj.write(chunk)
+            progress.update(task_id, total=size)
+            for chunk in response.iter_content():
+                progress.update(task_id, advance=len(chunk))
+                fobj.write(chunk)
 
             got = fobj.tell()
 
@@ -520,7 +566,8 @@ class Http:
     @staticmethod
     def kbmbgb(num: int | float) -> str:
         """Format a number as "932K", etc."""
-        for prefix in ["", "K", "M", "G", "T"]:
+        prefixes = ["", "K", "M", "G", "T"]
+        for prefix in prefixes:
             if abs(num) < 9.995:
                 return f"{num:,.2f}{prefix}"
             if abs(num) < 99.95:
@@ -528,25 +575,7 @@ class Http:
             if abs(num) < 999.5:
                 return f"{num:,.0f}{prefix}"
             num = num / 1000
-        return f"{num:,.1f}{prefix}"
-
-
-class ProgressBar(contextlib.ExitStack):
-    """Self-closing wrapper around `tqdm`."""
-
-    def __init__(self, initial: int, total: int, unit="iB", unit_scale=True):
-        super().__init__()
-        self._tqdm = tqdm(
-            initial=initial,
-            total=total,
-            unit=unit,
-            unit_scale=unit_scale,
-        )
-        self.callback(self._tqdm.close)
-
-    def update(self, amount: int):
-        """Just a wrapper"""
-        self._tqdm.update(amount)
+        return f"{num:,.1f}{prefixes[-1]}"
 
 
 if __name__ == "__main__":
