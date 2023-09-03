@@ -205,7 +205,7 @@ class LibgenDownload:
             return
 
         self.args.output.mkdir(parents=True, exist_ok=True)
-        with self.make_progress() as self.progress:
+        with DownloadProgress() as self.progress:
             for nhit in choices:
                 self.download(hits[nhit])
 
@@ -317,23 +317,6 @@ class LibgenDownload:
             return []
         return choices
 
-    def make_progress(self) -> rich.progress.Progress:
-        """Create nice progress bar object (from the Rich example)"""
-        return rich.progress.Progress(
-            rich.progress.TextColumn(
-                "[bold]{task.description}",
-                justify="right"
-            ),
-            rich.progress.BarColumn(bar_width=None),
-            "[progress.percentage]{task.percentage:>3.1f}%",
-            "•",
-            rich.progress.DownloadColumn(),
-            "•",
-            rich.progress.TransferSpeedColumn(),
-            "•",
-            rich.progress.TimeRemainingColumn(),
-        )
-
     def download(self, hit: Hit):
         """Download one file, trying all mirrors"""
         self.log.info("%s (%s)", hit.name, hit.size_desc)
@@ -356,7 +339,7 @@ class LibgenDownload:
         try:
             self.http.download(
                 progress=self.progress,
-                name=hit.name,
+                description=hit.name,
                 url=self.read_mirror(mirror),
                 path=hit.work_path,
                 overwrite=self.args.overwrite,
@@ -496,6 +479,73 @@ class FullMatch:  # pylint: disable=too-few-public-methods
         return value
 
 
+@dataclass
+class Marquee:
+    """A download marquee"""
+    WIDTH = 24
+
+    description: str
+    offset: int = 0
+    forward: bool = False
+
+    def step(self):
+        """Advance the marquee"""
+        if self.forward:
+            if self.offset + self.WIDTH < len(self.description):
+                self.offset = self.offset + 1
+            else:
+                self.forward = False
+        else:
+            if self.offset > 0:
+                self.offset = self.offset - 1
+            else:
+                self.forward = True
+        limit = self.offset + self.WIDTH
+        return self.description[self.offset:limit]
+
+
+class DownloadProgress(rich.progress.Progress):
+    """A marquee-displaying download progress element"""
+    marquees: dict[rich.progress.TaskID, Marquee] = {}
+
+    def __init__(self):
+        super().__init__(
+            rich.progress.TextColumn(
+                "[bold]{task.description}",
+                justify="right"
+            ),
+            rich.progress.BarColumn(bar_width=None),
+            "[progress.percentage]{task.percentage:>3.1f}%",
+            "•",
+            rich.progress.DownloadColumn(),
+            "•",
+            rich.progress.TransferSpeedColumn(),
+            "•",
+            rich.progress.TimeRemainingColumn(),
+        )
+
+    def add_task(
+        self,
+        description: str,
+        *args,
+        **kwargs
+    ) -> rich.progress.TaskID:
+        """Add a task and, if long enough, a marquee"""
+        if len(description) <= Marquee.WIDTH:
+            return super().add_task(description, *args, **kwargs)
+
+        marquee = Marquee(description)
+        task_id = super().add_task(marquee.step(), *args, **kwargs)
+        self.marquees[task_id] = marquee
+        return task_id
+
+    def get_renderable(self):
+        """Do the marquee"""
+        for task_id, marquee in self.marquees.items():
+            self.update(task_id, description=marquee.step())
+        return super().get_renderable()
+
+
 class Http:
     """Wrapper+ for `requests.get()`"""
 
@@ -526,21 +576,17 @@ class Http:
         resp.raise_for_status()
         return resp
 
-    def download(
+    def download(  # pylint: disable=too-many-arguments
         self,
         url: str,
         path: Path,
         overwrite: bool,
         progress: rich.progress.Progress,
-        name: str,
+        description: str,
     ):
         """Download a file"""
-        if len(name) <= 16:
-            description = name
-        else:
-            description = f"{name[:13]}..."
         task_id = progress.add_task(description)
-        progress.console.log(name)
+        progress.console.log(description)
 
         with open(path, "wb" if overwrite else "ab") as fobj:
             got = fobj.tell()
