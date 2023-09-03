@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 """Split spreads into pages"""
+import argparse
+
 import fitz
 
-src = fitz.open("de_balzano_spreads.pdf")
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", "--input", default="ta.pdf")
+parser.add_argument("-o", "--output", default="tb.pdf")
+parser.add_argument("-r", "--rtl", action="store_true")
+args = parser.parse_args()
+
+src = fitz.open(args.input)
 doc = fitz.open()  # empty output PDF
 
 MARGIN = 28
@@ -21,7 +29,7 @@ for spage in src:  # for each page in input
         center = (r.x0 + r.x1) / 2
         r1 = fitz.Rect(r.tl, fitz.Point(center, r.y1))
         r2 = fitz.Rect(r1.tr, r.br)
-        rect_list = [r1, r2]
+        rect_list = [r2, r1] if args.rtl else [r1, r2]
 
     for rx in rect_list:  # run thru rect list
         rx += d  # add the CropBox displacement
@@ -38,7 +46,7 @@ for spage in src:  # for each page in input
         )
 
 doc.save(
-    "ta.pdf",
+    args.output,
     garbage=3,  # eliminate duplicate objects
     deflate=True,  # compress stuff where possible
 )
