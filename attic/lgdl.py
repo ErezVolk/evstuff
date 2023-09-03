@@ -539,6 +539,10 @@ class DownloadProgress(rich.progress.Progress):
         self.marquees[task_id] = marquee
         return task_id
 
+    def stop_task(self, task_id: rich.progress.TaskID):
+        """Stop task and marquee"""
+        self.marquees.pop(task_id, None)
+
     def get_renderable(self):
         """Do the marquee"""
         for task_id, marquee in self.marquees.items():
@@ -586,28 +590,31 @@ class Http:
     ):
         """Download a file"""
         task_id = progress.add_task(description)
-        progress.console.log(description)
+        try:
+            progress.console.log(description)
 
-        with open(path, "wb" if overwrite else "ab") as fobj:
-            got = fobj.tell()
-            if got > 0:
-                self.log.debug("Resuming at %s", self.kbmbgb(got))
+            with open(path, "wb" if overwrite else "ab") as fobj:
+                got = fobj.tell()
+                if got > 0:
+                    self.log.debug("Resuming at %s", self.kbmbgb(got))
 
-            response = self.get(url, pos=got, stream=True)
-            size = got + int(response.headers.get("content-length", 0))
-            progress.update(task_id, total=size)
-            for chunk in response.iter_content():
-                progress.update(task_id, advance=len(chunk))
-                fobj.write(chunk)
+                response = self.get(url, pos=got, stream=True)
+                size = got + int(response.headers.get("content-length", 0))
+                progress.update(task_id, total=size)
+                for chunk in response.iter_content():
+                    progress.update(task_id, advance=len(chunk))
+                    fobj.write(chunk)
 
-            got = fobj.tell()
+                got = fobj.tell()
 
-        if got < size:
-            raise WrongReplyError(
-                f"File terminated prematurely ("
-                f"{self.kbmbgb(got)} < "
-                f"{self.kbmbgb(size)}"
-            )
+            if got < size:
+                raise WrongReplyError(
+                    f"File terminated prematurely ("
+                    f"{self.kbmbgb(got)} < "
+                    f"{self.kbmbgb(size)}"
+                )
+        finally:
+            progress.stop_task(task_id)
 
     @staticmethod
     def kbmbgb(num: int | float) -> str:
