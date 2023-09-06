@@ -597,10 +597,11 @@ class Http:
                 got = fobj.tell()
                 if got > 0:
                     self.log.debug("Resuming at %s", self.kbmbgb(got))
+                    progress.update(task_id, completed=got, total=got * 2)
 
                 response = self.get(url, pos=got, stream=True)
                 size = got + int(response.headers.get("content-length", 0))
-                progress.update(task_id, total=size)
+                progress.update(task_id, total=size, completed=got)
                 for chunk in response.iter_content():
                     progress.update(task_id, advance=len(chunk))
                     fobj.write(chunk)
