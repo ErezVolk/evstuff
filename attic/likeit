@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import time
 import random
+import subprocess
 
 import pandas as pd
 import browser_cookie3
@@ -44,6 +45,12 @@ class LikeIt:
             "--debug",
             action="store_true",
             help="Say more",
+        )
+        parser.add_argument(
+            "-O",
+            "--no-open",
+            action="store_true",
+            help="Even if reading a spreadsheet, don't open",
         )
         parser.add_argument(
             "ltws",
@@ -150,6 +157,13 @@ class LikeIt:
                 wishlist.to_csv(self.args.output)
             else:
                 wishlist.to_excel(self.args.output)
+
+        if self.arg.no_open or self.args.ltws:
+            subprocess.run([
+                "open",
+                str(self.args.input),
+                str(self.args.output),
+            ], check=False)
 
     def read_wishlist(self) -> pd.DataFrame:
         """Read the whole thing"""
