@@ -158,7 +158,7 @@ class LikeIt:
             else:
                 wishlist.to_excel(self.args.output)
 
-        if self.arg.no_open or self.args.ltws:
+        if not self.args.no_open and not self.args.ltws:
             subprocess.run([
                 "open",
                 str(self.args.input),
