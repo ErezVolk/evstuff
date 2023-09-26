@@ -156,6 +156,12 @@ class LibgenDownload:
                 "*m*agazines, *s*tandards)"
             ),
         )
+        parser.add_argument(
+            "-H",
+            "--host",
+            type=str,
+            help="LibGen search host",
+        )
 
         defaults = {
             "output": "libgen",
@@ -163,6 +169,7 @@ class LibgenDownload:
             "fields": "tai",
             "topics": "fl",
             "contents": "f",
+            "host": "libgen.gs",
         }
         for folder in [Path.home(), Path.cwd()]:
             path = folder / ".lgdlrc"
@@ -260,7 +267,7 @@ class LibgenDownload:
             ("objects[]", content)
             for content in self.args.contents
         ]
-        url = "https://libgen.gs/index.php?" + "&".join(
+        url = f"https://{self.args.host}/index.php?" + "&".join(
             f"{urlparse.quote(name)}={urlparse.quote(value)}"
             for name, value in params
         )
