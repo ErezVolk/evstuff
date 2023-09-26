@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+import argparse
+from pathlib import Path
+from typing import NamedTuple
+
+
+class Todo(NamedTuple):
+    mark: Path
+    source: Path
+    target: str
+
+    def go(self):
+        self.mark.unlink()
+        self.source.rename(self.target)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "source",
+        type=Path,
+        nargs="?",
+        default=Path.home() / "audible" / "aa" / "Audiobook",
+    )
+    parser.add_argument("-n", "--dry-run", action="store_true")
+    args = parser.parse_args()
+
+    todos = []
+    for mark in args.source.rglob("*.m3u"):
+        source = mark.parent
+        uncut = mark.with_suffix(".mp3")
+        if uncut.is_file():
+            print(f"{source}: Still being processed")
+            continue
+        author = source.parent
+        if author.parent != args.source:
+            continue
+        title = source.name
+        if (index := title.find(":")) > 0:
+            title = title[:index].strip()
+        target = f"{author.name} - {title}"
+        print(source, "->", target)
+        todos.append(Todo(mark, source, target))
+
+    if not todos:
+        print(f"Nothing to do in {args.source}.")
+    elif not args.dry_run:
+        input(f"Press Enter to move {len(todos)} folder(s)...")
+        for todo in todos:
+            todo.go()
+
+
+if __name__ == "__main__":
+    main()
