@@ -302,13 +302,9 @@ class LibgenDownload:
                 next(col.strings).strip()
                 for col in self.find_tag(table, "thead").find_all("th")
             ]
-            missing = {"ID", "Author(s)", "Ext.", "Mirrors"} - set(columns)
-            if missing:
-                self.log.debug("Columns are %s", columns)
-                self.log.debug("Missing: %s", list(missing))
-                raise WrongReplyError("Incorrect table columns")
-
             self.ext_col = "Ext."
+            self.check_columns(columns)
+
             return [
                 self.parse_row(row, columns)
                 for row in self.find_tag(table, "tbody").find_all("tr")
@@ -339,6 +335,7 @@ class LibgenDownload:
                         for col in row.find_all("td")
                     ]
                     self.ext_col = "Extension"
+                    self.check_columns(columns)
                 else:
                     hits.append(self.parse_row(row, columns))
             return hits
@@ -349,6 +346,14 @@ class LibgenDownload:
             else:
                 self.log.debug("Unexpected HTML returned from query: %s", wre)
             return []
+
+    def check_columns(self, columns: list[str]):
+        """Make sure the query table is well-formed"""
+        missing = {"ID", "Author(s)", self.ext_col, "Mirrors"} - set(columns)
+        if missing:
+            self.log.debug("Columns are %s", columns)
+            self.log.debug("Missing: %s", list(missing))
+            raise WrongReplyError("Incorrect table columns")
 
     def choose(self, hits: list[Hit]) -> Sequence[int]:
         """Ask the user what to download"""
