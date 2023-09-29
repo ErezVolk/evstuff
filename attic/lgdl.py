@@ -187,6 +187,7 @@ class LibgenDownload:
 
     BAD_CHARS_RE = re.compile(r"[#%&{}<>*?!:@/\\|]")
     args: argparse.Namespace
+    ext_col: str
     log: logging.Logger
     http: "Http"
     query: str
@@ -279,9 +280,24 @@ class LibgenDownload:
         """Parse query results and return all items, even ones we don't want"""
         soup = self.parse_html(html, "query")
 
-        try:
-            table = self.find_tag(soup, "table", id="tablelibgen")
+        # In v1, the table has an ID, so that's easy
+        table = soup.find("table", id="tablelibgen")
+        if isinstance(table, bs4.Tag):
+            return self.get_raw_hits_v1(soup, table)
 
+        # In v2, the table is harder to find an parse
+        for table in soup.find_all("table", attrs={"class": "c"}):
+            return self.get_raw_hits_v2(soup, table)
+
+        raise NotImplementedError()
+
+    def get_raw_hits_v1(
+        self,
+        soup: bs4.BeautifulSoup,
+        table: bs4.Tag,
+    ) -> list[Hit]:
+        """Convert v1 (libgen.gs) table to hits"""
+        try:
             columns = [
                 next(col.strings).strip()
                 for col in self.find_tag(table, "thead").find_all("th")
@@ -292,10 +308,40 @@ class LibgenDownload:
                 self.log.debug("Missing: %s", list(missing))
                 raise WrongReplyError("Incorrect table columns")
 
+            self.ext_col = "Ext."
             return [
                 self.parse_row(row, columns)
                 for row in self.find_tag(table, "tbody").find_all("tr")
             ]
+        except WrongReplyError as wre:
+            for atag in soup.find_all("a", class_="nav-link"):
+                if atag.get_text(strip=True) == "Files 0":
+                    break  # Special case: Simply no hits
+            else:
+                self.log.debug("Unexpected HTML returned from query: %s", wre)
+            return []
+
+    def get_raw_hits_v2(
+        self,
+        soup: bs4.BeautifulSoup,
+        table: bs4.Tag,
+    ) -> list[Hit]:
+        """Convert v2 (libgen.is) table to hits"""
+        try:
+            columns = None
+            hits = []
+
+            for row in table.find_all("tr"):
+                if columns is None:
+                    # First row has the column names
+                    columns = [
+                        col.get_text(strip=True)
+                        for col in row.find_all("td")
+                    ]
+                    self.ext_col = "Extension"
+                else:
+                    hits.append(self.parse_row(row, columns))
+            return hits
         except WrongReplyError as wre:
             for atag in soup.find_all("a", class_="nav-link"):
                 if atag.get_text(strip=True) == "Files 0":
@@ -371,7 +417,13 @@ class LibgenDownload:
     def parse_row(self, row: bs4.Tag, columns: list[str]) -> Hit:
         """Convert a query table row to a dict"""
         cells = dict(zip(columns, row.find_all("td")))
-        id_cell = self.parse_id_cell(cells["ID"])
+        if "Title" in cells:
+            id_cell = IdCell(
+                lgid=int(self.parse_cell(cells["ID"])),
+                title=self.parse_cell(cells["Title"]),
+            )
+        else:
+            id_cell = self.parse_id_cell(cells["ID"])
         name = id_cell.title
         author = authors = self.parse_cell(cells["Author(s)"])
         if author == "coll.":
@@ -387,7 +439,7 @@ class LibgenDownload:
         if self.args.max_stem:
             name = name[:self.args.max_stem].strip()
 
-        ext = self.parse_cell(cells["Ext."])
+        ext = self.parse_cell(cells[self.ext_col])
         if ext:
             name = f"{name}.{ext}"
 
