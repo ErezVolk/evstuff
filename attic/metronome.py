@@ -10,6 +10,8 @@ import pyaudio
 
 # TODO: Better than assert
 # TODO: Some way of packing the default clicks with the script
+#       (read from .zip? offer to download?)
+# TODO: Support non-wav
 # TODO: Handle incompatible hi/lo
 
 
