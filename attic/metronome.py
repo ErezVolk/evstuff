@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 import argparse
 from pathlib import Path
+import re
 import signal
 import time
 import wave
 
 import pyaudio
 
+# TODO: Better than assert
+# TODO: Some way of packing the default clicks with the script
 # TODO: Handle incompatible hi/lo
 
 
@@ -50,6 +53,11 @@ class Metronome:
             "--rhythm",
             choices=["quarter", "eighth", "triple", "clave", "clave2"],
         )
+        group.add_argument(
+            "-s",
+            "--subdivision",
+            type=str,
+        )
         # TODO: interactive (tempo up/down...)
         args = parser.parse_args()
 
@@ -70,7 +78,18 @@ class Metronome:
 
         print(f"Tempo: ♩ = {args.tempo}")
         los = []
-        if args.rhythm == "quarter":
+        if args.subdivision:
+            assert re.fullmatch(r"[-tT]+", args.subdivision)
+            beats_per_bar = 1
+            subs = len(args.subdivision)
+            his = []
+            los = []
+            for n, c in enumerate(args.subdivision):
+                if c == "T":
+                    his.append(n / subs)
+                elif c == "t":
+                    los.append(n / subs)
+        elif args.rhythm == "quarter":
             beats_per_bar = 1
             his = [0]
             los = []
