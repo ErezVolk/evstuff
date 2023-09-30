@@ -42,14 +42,14 @@ class Metronome:
             "-b",
             "--beat",
             type=int,
-            default=4,  # TODO: "3 2"
+            nargs="+",
+            default=[4],
         )
         group.add_argument(
             "-r",
             "--rhythm",
             choices=["quarter", "eighth", "triple", "clave", "clave2"],
         )
-        # TODO: --rhythm quarter/eigth/clave...
         # TODO: interactive (tempo up/down...)
         args = parser.parse_args()
 
@@ -92,13 +92,17 @@ class Metronome:
             los = []
         else:
             print(f"Beat: {args.beat}")
-            beats_per_bar = max(1, args.beat)
-            his = [0]
-            los = range(1, beats_per_bar)
+            assert all(beat > 0 for beat in args.beat)
+            his = []
+            beats_per_bar = 0
+            for beat in args.beat:
+                his.append(beats_per_bar)
+                beats_per_bar += beat
+            los = range(beats_per_bar)  # Will get overrun by his
 
         events = {
             pos: data
-            for data, positions in ((hi_data, his), (lo_data, los))
+            for data, positions in ((lo_data, los), (hi_data, his))
             for pos in positions
         }
 
