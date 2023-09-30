@@ -9,10 +9,15 @@ import wave
 import pyaudio
 
 # TODO: Better than assert
-# TODO: Some way of packing the default clicks with the script
-#       (read from .zip? offer to download?)
 # TODO: Support non-wav
 # TODO: Handle incompatible hi/lo
+# TODO: memory
+
+
+# Metronome sounds recorded by Ludwig Peter Müller (muellerwig@gmail.com)
+# and distribution under the Creative Commons CC0 1.0 Universal license.
+
+HERE = Path(__file__).parent
 
 
 class Metronome:
@@ -28,13 +33,13 @@ class Metronome:
             "-C",
             "--click-hi",
             type=Path,
-            default=Path("clicks") / "Perc_MetronomeQuartz_hi.wav",
+            default=HERE / "Perc_MetronomeQuartz_hi.wav",
         )
         parser.add_argument(
             "-c",
             "--click-lo",
             type=Path,
-            default=Path("clicks") / "Perc_MetronomeQuartz_lo.wav",
+            default=HERE / "Perc_MetronomeQuartz_lo.wav",
         )
         parser.add_argument(
             "-t",
@@ -60,7 +65,7 @@ class Metronome:
             "--subdivision",
             type=str,
         )
-        # TODO: interactive (tempo up/down...)
+        # TODO: interactive (tempo up/down...), maybe with Textual
         args = parser.parse_args()
 
         with wave.open(str(args.click_hi), "rb") as wfo:
