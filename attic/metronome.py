@@ -7,7 +7,6 @@ import wave
 
 import pyaudio
 
-# TODO: Trim down the click samples
 # TODO: Handle incompatible hi/lo
 
 
@@ -38,11 +37,17 @@ class Metronome:
             type=int,
             default=90,
         )
-        parser.add_argument(
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
             "-b",
             "--beat",
             type=int,
             default=4,  # TODO: "3 2"
+        )
+        group.add_argument(
+            "-r",
+            "--rhythm",
+            choices=["quarter", "eighth", "triple", "clave"],
         )
         # TODO: --rhythm quarter/eigth/clave...
         # TODO: interactive (tempo up/down...)
@@ -54,22 +59,54 @@ class Metronome:
             width = wfo.getsampwidth()
             hi_data = wfo.readframes(wfo.getnframes())
         with wave.open(str(args.click_lo), "rb") as wfo:
+            assert channels == wfo.getnchannels()
+            assert rate == wfo.getframerate()
+            assert width == wfo.getsampwidth()
             lo_data = wfo.readframes(wfo.getnframes())
 
         beat_sec = 60 / args.tempo
         bars_per_loop = 10
         self.bytes_per_frame = channels * width
-        loop_sec = bars_per_loop * args.beat * beat_sec
-        self.loop_size = int(loop_sec * rate * self.bytes_per_frame)
-        self.loop = bytearray(self.loop_size)
-        for n in range(bars_per_loop * args.beat):
-            data = hi_data if n % args.beat == 0 else lo_data
-            offset = int(n * beat_sec * rate) * self.bytes_per_frame
-            self.loop[offset:offset + len(data)] = data
-        self.offset = 0
 
         print(f"Tempo: ♩ = {args.tempo}")
-        print(f"Beat: {args.beat}")
+        los = []
+        if args.rhythm == "quarter":
+            beats_per_bar = 1
+            his = [0]
+            los = []
+        elif args.rhythm == "eighth":
+            beats_per_bar = 1
+            his = [0]
+            los = [.5]
+        elif args.rhythm == "triple":
+            beats_per_bar = 1
+            his = [0]
+            los = [1 / 3, 2 / 3]
+        elif args.rhythm == "clave":
+            beats_per_bar = 8
+            his = [0, 1.5, 3, 5, 6]
+            los = []
+        else:
+            print(f"Beat: {args.beat}")
+            beats_per_bar = max(1, args.beat)
+            his = [0]
+            los = range(1, beats_per_bar)
+
+        events = {
+            pos: data
+            for data, positions in ((hi_data, his), (lo_data, los))
+            for pos in positions
+        }
+
+        loop_sec = bars_per_loop * beats_per_bar * beat_sec
+        self.loop_size = int(loop_sec * rate * self.bytes_per_frame)
+        self.loop = bytearray(self.loop_size)
+        for n_bar in range(bars_per_loop):
+            for pos, data in events.items():
+                beat_n = (n_bar * beats_per_bar) + pos
+                offset = int(beat_n * beat_sec * rate) * self.bytes_per_frame
+                self.loop[offset:offset + len(data)] = data
+        self.offset = 0
 
         with wave.open("loop.wav", "wb") as wfo:
             wfo.setnchannels(channels)
