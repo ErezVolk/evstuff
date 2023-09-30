@@ -7,6 +7,9 @@ import wave
 
 import pyaudio
 
+# TODO: Trim down the click samples
+# TODO: Handle incompatible hi/lo
+
 
 class Metronome:
     bytes_per_frame: int
@@ -30,17 +33,19 @@ class Metronome:
             default=Path("clicks") / "Perc_MetronomeQuartz_lo.wav",
         )
         parser.add_argument(
-            "-b",
-            "--beats-per-minute",
+            "-t",
+            "--tempo",
             type=int,
             default=90,
         )
         parser.add_argument(
-            "-B",
-            "--beats-per-bar",
+            "-b",
+            "--beat",
             type=int,
-            default=4,
+            default=4,  # TODO: "3 2"
         )
+        # TODO: --rhythm quarter/eigth/clave...
+        # TODO: interactive (tempo up/down...)
         args = parser.parse_args()
 
         with wave.open(str(args.click_hi), "rb") as wfo:
@@ -51,17 +56,20 @@ class Metronome:
         with wave.open(str(args.click_lo), "rb") as wfo:
             lo_data = wfo.readframes(wfo.getnframes())
 
-        beat_sec = 60 / args.beats_per_minute
+        beat_sec = 60 / args.tempo
         bars_per_loop = 10
         self.bytes_per_frame = channels * width
-        loop_sec = bars_per_loop * args.beats_per_bar * beat_sec
+        loop_sec = bars_per_loop * args.beat * beat_sec
         self.loop_size = int(loop_sec * rate * self.bytes_per_frame)
         self.loop = bytearray(self.loop_size)
-        for n in range(bars_per_loop * args.beats_per_bar):
-            data = hi_data if n % args.beats_per_bar == 0 else lo_data
+        for n in range(bars_per_loop * args.beat):
+            data = hi_data if n % args.beat == 0 else lo_data
             offset = int(n * beat_sec * rate) * self.bytes_per_frame
             self.loop[offset:offset + len(data)] = data
         self.offset = 0
+
+        print(f"Tempo: ♩ = {args.tempo}")
+        print(f"Beat: {args.beat}")
 
         with wave.open("loop.wav", "wb") as wfo:
             wfo.setnchannels(channels)
