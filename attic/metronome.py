@@ -47,7 +47,7 @@ class Metronome:
         group.add_argument(
             "-r",
             "--rhythm",
-            choices=["quarter", "eighth", "triple", "clave"],
+            choices=["quarter", "eighth", "triple", "clave", "clave2"],
         )
         # TODO: --rhythm quarter/eigth/clave...
         # TODO: interactive (tempo up/down...)
@@ -83,8 +83,12 @@ class Metronome:
             his = [0]
             los = [1 / 3, 2 / 3]
         elif args.rhythm == "clave":
-            beats_per_bar = 8
-            his = [0, 1.5, 3, 5, 6]
+            beats_per_bar = 4
+            his = [0, .75, 1.5, 2.5, 3]
+            los = []
+        elif args.rhythm == "clave2":
+            beats_per_bar = 4
+            his = [.5, 1, 2, 2.75, 3.5]
             los = []
         else:
             print(f"Beat: {args.beat}")
