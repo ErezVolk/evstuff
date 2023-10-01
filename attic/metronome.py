@@ -17,7 +17,7 @@ import pyaudio
 # Metronome sounds recorded by Ludwig Peter Müller (muellerwig@gmail.com)
 # and distribution under the Creative Commons CC0 1.0 Universal license.
 
-HERE = Path(__file__).parent
+HERE = Path(__file__).resolve().parent
 
 
 class Metronome:
