@@ -65,6 +65,11 @@ class Metronome:
             "--subdivision",
             type=str,
         )
+        parser.add_argument(
+            "-d",
+            "--debug",
+            action="store_true",
+        )
         # TODO: interactive (tempo up/down...), maybe with Textual
         args = parser.parse_args()
 
@@ -142,11 +147,12 @@ class Metronome:
                 self.loop[offset:offset + len(data)] = data
         self.offset = 0
 
-        with wave.open("loop.wav", "wb") as wfo:
-            wfo.setnchannels(channels)
-            wfo.setframerate(rate)
-            wfo.setsampwidth(width)
-            wfo.writeframes(self.loop)
+        if args.debug:
+            with wave.open("loop.wav", "wb") as wfo:
+                wfo.setnchannels(channels)
+                wfo.setframerate(rate)
+                wfo.setsampwidth(width)
+                wfo.writeframes(self.loop)
 
         signal.signal(signal.SIGINT, self.stop)
 
