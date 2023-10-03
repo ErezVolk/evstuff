@@ -30,6 +30,12 @@ class Metronome:
     def run(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
+            "tempo",
+            type=int,
+            nargs="?",
+            default=90,
+        )
+        parser.add_argument(
             "-C",
             "--click-hi",
             type=Path,
@@ -40,12 +46,6 @@ class Metronome:
             "--click-lo",
             type=Path,
             default=HERE / "Perc_MetronomeQuartz_lo.wav",
-        )
-        parser.add_argument(
-            "-t",
-            "--tempo",
-            type=int,
-            default=90,
         )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
