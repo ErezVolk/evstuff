@@ -19,7 +19,9 @@ import rich.logging
 
 
 # Metronome sounds recorded by Ludwig Peter Müller (muellerwig@gmail.com)
-# and distribution under the Creative Commons CC0 1.0 Universal license.
+# and distributed under the Creative Commons CC0 1.0 Universal license.
+# Original post: https://www.reddit.com/r/audioengineering/comments/kg8gth/free_click_track_sound_archive/?rdt=48837
+# Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 
 THIS = Path(__file__).resolve()
 HERE = THIS.parent
