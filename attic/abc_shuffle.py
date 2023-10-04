@@ -40,7 +40,8 @@ def main():
         for names in random.sample(NOTES, len(NOTES))
     ]
     if args.what == "scales":
-        scales = random.choices(["maj", "min"], k=len(things))
+        scales = list(KEY_FIX) * (len(things) // len(KEY_FIX))
+        random.shuffle(scales)
         things = [
             KEY_FIX[scale].get(thing, thing) + scale
             for thing, scale in zip(things, scales)
