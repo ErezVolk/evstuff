@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import logging
 from pathlib import Path
 import re
 import signal
@@ -7,27 +8,33 @@ import time
 import wave
 
 import pyaudio
+import rich.logging
 
 # TODO: Better than assert
-# TODO: Support non-wav
+# TODO: Support non-wav clicks
 # TODO: Handle incompatible hi/lo
 # TODO: memory
+# TODO: interactive (tempo up/down...), maybe with Textual
+# TODO: tempo=500
 
 
 # Metronome sounds recorded by Ludwig Peter Müller (muellerwig@gmail.com)
 # and distribution under the Creative Commons CC0 1.0 Universal license.
 
-HERE = Path(__file__).resolve().parent
+THIS = Path(__file__).resolve()
+HERE = THIS.parent
 
 
 class Metronome:
+    args: argparse.Namespace
+    log: logging.Logger
     bytes_per_frame: int
     loop_size: int
     loop: bytearray
     offset: int
     stopping: bool = False
 
-    def run(self):
+    def parse_args(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "tempo",
@@ -70,62 +77,81 @@ class Metronome:
             "--debug",
             action="store_true",
         )
-        # TODO: interactive (tempo up/down...), maybe with Textual
-        args = parser.parse_args()
+        self.args = parser.parse_args()
 
-        with wave.open(str(args.click_hi), "rb") as wfo:
+        assert self.args.tempo > 0
+
+    def configure_logging(self):
+        """Set logging format and level"""
+        if self.args.debug:
+            level = logging.DEBUG
+        else:
+            level = logging.INFO
+        logging.basicConfig(
+            format="%(message)s",
+            datefmt="[%X]",
+            level=level,
+            handlers=[rich.logging.RichHandler()],
+        )
+        self.log = logging.getLogger(THIS.stem)
+
+    def run(self):
+        self.parse_args()
+        self.configure_logging()
+
+        with wave.open(str(self.args.click_hi), "rb") as wfo:
             channels = wfo.getnchannels()
             rate = wfo.getframerate()
             width = wfo.getsampwidth()
             hi_data = wfo.readframes(wfo.getnframes())
-        with wave.open(str(args.click_lo), "rb") as wfo:
+        with wave.open(str(self.args.click_lo), "rb") as wfo:
             assert channels == wfo.getnchannels()
             assert rate == wfo.getframerate()
             assert width == wfo.getsampwidth()
             lo_data = wfo.readframes(wfo.getnframes())
 
-        beat_sec = 60 / args.tempo
+        beat_sec = 60 / self.args.tempo
         self.bytes_per_frame = channels * width
 
-        print(f"Tempo: ♩ = {args.tempo}")
+        self.log.info(f"Tempo: ♩ = {self.args.tempo}")
         los = []
-        if args.subdivision:
-            assert re.fullmatch(r"[-tT]+", args.subdivision)
+        if self.args.subdivision:
+            assert re.fullmatch(r"[-tT]+", self.args.subdivision)
             beats_per_bar = 1
-            subs = len(args.subdivision)
+            subs = len(self.args.subdivision)
             his = []
             los = []
-            for n, c in enumerate(args.subdivision):
+            for n, c in enumerate(self.args.subdivision):
                 if c == "T":
                     his.append(n / subs)
                 elif c == "t":
                     los.append(n / subs)
-        elif args.rhythm == "quarter":
+        elif self.args.rhythm == "quarter":
             beats_per_bar = 1
             his = [0]
             los = []
-        elif args.rhythm == "eighth":
+        elif self.args.rhythm == "eighth":
             beats_per_bar = 1
             his = [0]
             los = [.5]
-        elif args.rhythm == "triple":
+        elif self.args.rhythm == "triple":
             beats_per_bar = 1
             his = [0]
             los = [1 / 3, 2 / 3]
-        elif args.rhythm == "clave":
+        elif self.args.rhythm == "clave":
             beats_per_bar = 4
             his = [0, .75, 1.5, 2.5, 3]
             los = []
-        elif args.rhythm == "clave2":
+        elif self.args.rhythm == "clave2":
             beats_per_bar = 4
             his = [.5, 1, 2, 2.75, 3.5]
             los = []
         else:
-            print(f"Beat: {args.beat}")
-            assert all(beat > 0 for beat in args.beat)
+            self.log.info(f"Beat: {self.args.beat}")
+            assert all(beat > 0 for beat in self.args.beat)
             his = []
             beats_per_bar = 0
-            for beat in args.beat:
+            for beat in self.args.beat:
                 his.append(beats_per_bar)
                 beats_per_bar += beat
             los = range(beats_per_bar)  # Will get overrun by his
@@ -136,9 +162,9 @@ class Metronome:
             for pos in positions
         }
 
-        ideal_bar_bytes = beats_per_bar * beat_sec * rate * self.bytes_per_frame
-        bars_per_loop = 1  # TODO: Make tempo=500 work
-        rounded_frames = round(ideal_bar_bytes / self.bytes_per_frame)
+        ideal_bar = beats_per_bar * beat_sec * rate * self.bytes_per_frame
+        bars_per_loop = 1
+        rounded_frames = round(ideal_bar / self.bytes_per_frame)
         self.loop_size = rounded_frames * self.bytes_per_frame
 
         self.loop = bytearray(self.loop_size)
@@ -149,7 +175,7 @@ class Metronome:
                 self.loop[offset:offset + len(data)] = data
         self.offset = 0
 
-        if args.debug:
+        if self.args.debug:
             with wave.open("loop.wav", "wb") as wfo:
                 wfo.setnchannels(channels)
                 wfo.setframerate(rate)
@@ -190,7 +216,7 @@ class Metronome:
         return (data, pyaudio.paContinue)
 
     def stop(self, sig, frame):
-        print("\nAborting...")
+        self.log.info("Aborting...")
         self.stopping = True
 
 
