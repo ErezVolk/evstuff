@@ -85,7 +85,6 @@ class Metronome:
             lo_data = wfo.readframes(wfo.getnframes())
 
         beat_sec = 60 / args.tempo
-        bars_per_loop = 10
         self.bytes_per_frame = channels * width
 
         print(f"Tempo: ♩ = {args.tempo}")
@@ -137,13 +136,16 @@ class Metronome:
             for pos in positions
         }
 
-        loop_sec = bars_per_loop * beats_per_bar * beat_sec
-        self.loop_size = int(loop_sec * rate * self.bytes_per_frame)
+        ideal_bar_bytes = beats_per_bar * beat_sec * rate * self.bytes_per_frame
+        bars_per_loop = 1  # TODO: Make tempo=500 work
+        rounded_frames = round(ideal_bar_bytes / self.bytes_per_frame)
+        self.loop_size = rounded_frames * self.bytes_per_frame
+
         self.loop = bytearray(self.loop_size)
         for n_bar in range(bars_per_loop):
             for pos, data in events.items():
                 beat_n = (n_bar * beats_per_bar) + pos
-                offset = int(beat_n * beat_sec * rate) * self.bytes_per_frame
+                offset = round(beat_n * beat_sec * rate) * self.bytes_per_frame
                 self.loop[offset:offset + len(data)] = data
         self.offset = 0
 
