@@ -91,70 +91,10 @@ class Metronome:
         self.parse_args()
 
         self.read_clicks()
+        self.figure_pattern()
 
-        beat_sec = 60 / self.args.tempo
-
-        print(f"Tempo: ♩ = {self.args.tempo}")
-        los = []
-        if self.args.subdivision:
-            assert re.fullmatch(r"[-tT]+", self.args.subdivision)
-            beats_per_bar = 1
-            subs = len(self.args.subdivision)
-            his = []
-            los = []
-            for n, c in enumerate(self.args.subdivision):
-                if c == "T":
-                    his.append(n / subs)
-                elif c == "t":
-                    los.append(n / subs)
-        elif self.args.rhythm == "quarter":
-            beats_per_bar = 1
-            his = [0]
-            los = []
-        elif self.args.rhythm == "eighth":
-            beats_per_bar = 1
-            his = [0]
-            los = [.5]
-        elif self.args.rhythm == "triple":
-            beats_per_bar = 1
-            his = [0]
-            los = [1 / 3, 2 / 3]
-        elif self.args.rhythm == "clave":
-            beats_per_bar = 4
-            his = [0, .75, 1.5, 2.5, 3]
-            los = []
-        elif self.args.rhythm == "clave2":
-            beats_per_bar = 4
-            his = [.5, 1, 2, 2.75, 3.5]
-            los = []
-        else:
-            print(f"Beat: {self.args.beat}")
-            assert all(beat > 0 for beat in self.args.beat)
-            his = []
-            beats_per_bar = 0
-            for beat in self.args.beat:
-                his.append(beats_per_bar)
-                beats_per_bar += beat
-            los = range(beats_per_bar)  # Will get overrun by his
-
-        events = {
-            pos: data
-            for data, positions in ((self.lo_data, los), (self.hi_data, his))
-            for pos in positions
-        }
-
-        ideal_bar = beats_per_bar * beat_sec * self.rate * self.bytes_per_frame
-        bars_per_loop = 1
-        rounded_frames = round(ideal_bar / self.bytes_per_frame)
-        self.loop_size = rounded_frames * self.bytes_per_frame
-
-        self.loop = bytearray(self.loop_size)
-        for n_bar in range(bars_per_loop):
-            for pos, data in events.items():
-                beat_n = (n_bar * beats_per_bar) + pos
-                offset = round(beat_n * beat_sec * self.rate) * self.bytes_per_frame
-                self.loop[offset:offset + len(data)] = data
-        self.offset = 0
+        self.tempo = self.args.tempo
+        self.make_loop()
 
         if self.args.debug:
             with wave.open("loop.wav", "wb") as wfo:
@@ -205,6 +145,55 @@ class Metronome:
             self.lo_data = wfo.readframes(wfo.getnframes())
         self.bytes_per_frame = self.channels * self.width
 
+    def figure_pattern(self):
+        los = []
+        if self.args.subdivision:
+            assert re.fullmatch(r"[-tT]+", self.args.subdivision)
+            self.beats_per_bar = 1
+            subs = len(self.args.subdivision)
+            his = []
+            los = []
+            for n, c in enumerate(self.args.subdivision):
+                if c == "T":
+                    his.append(n / subs)
+                elif c == "t":
+                    los.append(n / subs)
+        elif self.args.rhythm == "quarter":
+            self.beats_per_bar = 1
+            his = [0]
+            los = []
+        elif self.args.rhythm == "eighth":
+            self.beats_per_bar = 1
+            his = [0]
+            los = [.5]
+        elif self.args.rhythm == "triple":
+            self.beats_per_bar = 1
+            his = [0]
+            los = [1 / 3, 2 / 3]
+        elif self.args.rhythm == "clave":
+            self.beats_per_bar = 4
+            his = [0, .75, 1.5, 2.5, 3]
+            los = []
+        elif self.args.rhythm == "clave2":
+            self.beats_per_bar = 4
+            his = [.5, 1, 2, 2.75, 3.5]
+            los = []
+        else:
+            print(f"Beat: {self.args.beat}")
+            assert all(beat > 0 for beat in self.args.beat)
+            his = []
+            self.beats_per_bar = 0
+            for beat in self.args.beat:
+                his.append(self.beats_per_bar)
+                self.beats_per_bar += beat
+            los = range(self.beats_per_bar)  # Will get overrun by his
+
+        self.pattern = {
+            pos: data
+            for data, positions in ((self.lo_data, los), (self.hi_data, his))
+            for pos in positions
+        }
+
     def read_more(self, in_data, frame_count, time_info, status):
         if self.aborting or self.paused:
             return (b'', pyaudio.paAbort)
@@ -220,6 +209,24 @@ class Metronome:
 
         data = b''.join(chunks)
         return (data, pyaudio.paContinue)
+
+    def make_loop(self):
+        print(f"Tempo: ♩ = {self.tempo}")
+        beat_sec = 60 / self.tempo
+        ideal_bar_frames = self.beats_per_bar * beat_sec * self.rate
+        ideal_bar = ideal_bar_frames * self.bytes_per_frame
+        bars_per_loop = 1
+        rounded_frames = round(ideal_bar / self.bytes_per_frame)
+        self.loop_size = rounded_frames * self.bytes_per_frame
+
+        self.loop = bytearray(self.loop_size)
+        for n_bar in range(bars_per_loop):
+            for pos, data in self.pattern.items():
+                beat_n = (n_bar * self.beats_per_bar) + pos
+                frame_n = beat_n * beat_sec * self.rate
+                offset = round(frame_n) * self.bytes_per_frame
+                self.loop[offset:offset + len(data)] = data
+        self.offset = 0
 
     def handle_ctrl_c(self, sig, frame):
         """Handle Ctrl-C"""
