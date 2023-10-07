@@ -275,6 +275,7 @@ class Metronome:
         with self.loop_lock:
             if self.paused:
                 self.loop = loop
+                self.offset = 0
             else:
                 self.next_loop = loop
             self.locked_show_tempo()
