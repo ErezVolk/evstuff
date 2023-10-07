@@ -124,7 +124,8 @@ class Metronome:
             help=(
                 "roll your own sub-beat rhythms with a string. "
                 "e.g., 't-t' is a first- and third triplet "
-                "beat, and '-t' clicks on the second eighth."
+                "beat, and '-t' clicks on the second eighth. "
+                "'T' = high click; 't' = low click; '-' = rest."
             )
         )
         self.args = parser.parse_args()
