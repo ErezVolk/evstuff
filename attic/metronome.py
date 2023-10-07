@@ -201,7 +201,6 @@ class Metronome:
             self.beats_per_bar = 1
             subs = len(self.args.subdivision)
             his = []
-            los = []
             for where, mnem in enumerate(self.args.subdivision):
                 if mnem == "T":
                     his.append(where / subs)
@@ -210,7 +209,6 @@ class Metronome:
         elif self.args.rhythm == "quarter":
             self.beats_per_bar = 1
             his = [0]
-            los = []
         elif self.args.rhythm == "eighth":
             self.beats_per_bar = 1
             his = [0]
@@ -222,7 +220,6 @@ class Metronome:
         elif self.args.rhythm == "clave":
             self.beats_per_bar = 4
             his = [0, .75, 1.5, 2.5, 3]
-            los = []
         else:
             assert all(beat > 0 for beat in self.args.beat)
             his = []
