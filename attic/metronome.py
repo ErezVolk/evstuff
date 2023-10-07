@@ -6,6 +6,7 @@ import re
 import signal
 import time
 import typing as t
+import threading
 import wave
 
 import pyaudio
@@ -24,8 +25,7 @@ except ImportError:
     WITH_MEDIA_KEYS = False
 
 # TODO: Test, don't assert
-# TODO: Support non-wav clicks
-# TODO: Handle incompatible hi/lo
+# TODO: Handle incompatible and non-wav hi/lo
 # TODO: memory
 # TODO: support tempo=500
 
@@ -50,11 +50,11 @@ class Metronome:
     """A simple metronome"""
     args: argparse.Namespace
     bytes_per_frame: int
-    loop_size: int
     loop: bytearray
-    offset: int
+    next_loop: bytearray | None = None
+    offset: int = 0
     aborting: bool = False
-    paused: bool = False
+    paused: bool = True
     media_keys: dict[int, t.Callable]
     channels: int
     rate: int
@@ -64,6 +64,7 @@ class Metronome:
     beats_per_bar: int
     pattern: dict[int, bytes]
     tempo: int
+    loop_lock = threading.Lock()
 
     def parse_args(self):
         """Usage"""
@@ -120,13 +121,6 @@ class Metronome:
 
         self.set_tempo(self.args.tempo)
 
-        if self.args.debug:
-            with wave.open("loop.wav", "wb") as wfo:
-                wfo.setnchannels(self.channels)
-                wfo.setframerate(self.rate)
-                wfo.setsampwidth(self.width)
-                wfo.writeframes(self.loop)
-
         # Exit cleanly on Ctrl-C
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
 
@@ -142,6 +136,7 @@ class Metronome:
             listener.start()
 
         player = pyaudio.PyAudio()
+        self.paused = False
 
         while not self.aborting:
             stream = player.open(
@@ -241,32 +236,42 @@ class Metronome:
             self.offset = (self.offset + chunk_nbytes) % len(self.loop)
             nbytes -= chunk_nbytes
 
+            if self.offset == 0 and self.next_loop is not None:
+                with self.loop_lock:
+                    self.loop = self.next_loop
+                    self.next_loop = None
+
         data = b''.join(chunks)
         return (data, pyaudio.paContinue)
 
-    def set_tempo(self, tempo):
+    def set_tempo(self, tempo, first_time=False):
         """Set (with limits) a new tempo"""
         self.tempo = min(200, max(20, tempo))
         self.make_loop()
 
     def make_loop(self):
         """Rebuild the audio loop"""
-        print(f"Tempo: ♩ = {self.tempo}")
         beat_sec = 60 / self.tempo
         ideal_bar_frames = self.beats_per_bar * beat_sec * self.rate
         ideal_bar = ideal_bar_frames * self.bytes_per_frame
         bars_per_loop = 1
         rounded_frames = round(ideal_bar / self.bytes_per_frame)
-        self.loop_size = rounded_frames * self.bytes_per_frame
+        loop_size = rounded_frames * self.bytes_per_frame
 
-        self.loop = bytearray(self.loop_size)
+        loop = bytearray(loop_size)
         for n_bar in range(bars_per_loop):
             for pos, data in self.pattern.items():
                 beat_n = (n_bar * self.beats_per_bar) + pos
                 frame_n = beat_n * beat_sec * self.rate
                 offset = round(frame_n) * self.bytes_per_frame
-                self.loop[offset:offset + len(data)] = data
-        self.offset = 0
+                loop[offset:offset + len(data)] = data
+
+        with self.loop_lock:
+            if self.paused:
+                self.loop = loop
+            else:
+                self.next_loop = loop
+        print(f"Tempo: ♩ = {self.tempo} (pending)")
 
     # pylint: disable-next=unused-argument
     def handle_ctrl_c(self, sig, frame):
@@ -302,8 +307,9 @@ class Metronome:
 
     def handle_play_pause(self):
         """On ⏯"""
-        self.paused = not self.paused
-        print(f"To {'restart' if self.paused else 'pause'}, press ⏯")
+        with self.loop_lock:
+            self.paused = not self.paused
+            print(f"To {'restart' if self.paused else 'pause'}, press ⏯")
 
     def handle_fast_forward(self):
         """On ⏩"""
@@ -315,10 +321,6 @@ class Metronome:
 
     def change_tempo(self, direction):
         """Increase/decrease tempo"""
-        if not self.paused:
-            print("Cannot change tempo while playing")
-            return
-
         self.set_tempo(((self.tempo // 10) + direction) * 10)
 
 
