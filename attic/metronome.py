@@ -12,12 +12,14 @@ import wave
 import pyaudio
 try:
     import pynput.keyboard
-    import Quartz
+    from Quartz import CGEventMaskBit
+    from Quartz import NSEvent
+    from Quartz import NSSystemDefined
 
     # pylint: disable-next=too-few-public-methods
     class MiniListener(pynput.keyboard.Listener):
         """A Listener that only cares about media keys"""
-        _EVENTS = Quartz.CGEventMaskBit(Quartz.NSSystemDefined)
+        _EVENTS = CGEventMaskBit(NSSystemDefined)
 
     WITH_MEDIA_KEYS = True
 except ImportError:
@@ -244,7 +246,7 @@ class Metronome:
         data = b''.join(chunks)
         return (data, pyaudio.paContinue)
 
-    def set_tempo(self, tempo, first_time=False):
+    def set_tempo(self, tempo):
         """Set (with limits) a new tempo"""
         self.tempo = min(200, max(20, tempo))
         self.make_loop()
@@ -286,7 +288,7 @@ class Metronome:
     # pylint: disable-next=unused-argument
     def intercept(self, event_type, event_ref):
         """Handle media key event"""
-        event = Quartz.NSEvent.eventWithCGEvent_(event_ref)
+        event = NSEvent.eventWithCGEvent_(event_ref)
 
         bitmap = event.data1()
         key = (bitmap & 0xffff0000) >> 16
