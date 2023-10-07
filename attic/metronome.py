@@ -114,7 +114,7 @@ class Metronome:
         group.add_argument(
             "-r",
             "--rhythm",
-            choices=["quarter", "eighth", "triple", "clave", "clave2"],
+            choices=["quarter", "eighth", "triple", "clave"],
             help="common rhythms",
         )
         group.add_argument(
@@ -219,10 +219,6 @@ class Metronome:
         elif self.args.rhythm == "clave":
             self.beats_per_bar = 4
             his = [0, .75, 1.5, 2.5, 3]
-            los = []
-        elif self.args.rhythm == "clave2":
-            self.beats_per_bar = 4
-            his = [.5, 1, 2, 2.75, 3.5]
             los = []
         else:
             assert all(beat > 0 for beat in self.args.beat)
