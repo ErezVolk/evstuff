@@ -7,8 +7,8 @@ import signal
 import time
 import typing as t
 import threading
-import wave
 
+from soundfile import SoundFile
 import pyaudio
 import rich.live
 
@@ -29,7 +29,7 @@ except ImportError:
     WITH_MEDIA_KEYS = False
 
 # TODO: Test, don't assert
-# TODO: Handle incompatible and non-wav hi/lo
+# TODO: Handle incompatible hi-lo
 # TODO: memory
 # TODO: support tempo=500
 
@@ -166,16 +166,15 @@ class Metronome:
 
     def read_clicks(self):
         """Read click sounds"""
-        with wave.open(str(self.args.click_hi), "rb") as wfo:
-            self.channels = wfo.getnchannels()
-            self.rate = wfo.getframerate()
-            self.width = wfo.getsampwidth()
-            self.hi_data = wfo.readframes(wfo.getnframes())
-        with wave.open(str(self.args.click_lo), "rb") as wfo:
-            assert self.channels == wfo.getnchannels()
-            assert self.rate == wfo.getframerate()
-            assert self.width == wfo.getsampwidth()
-            self.lo_data = wfo.readframes(wfo.getnframes())
+        with SoundFile(str(self.args.click_hi)) as sfo:
+            self.channels = sfo.channels
+            self.rate = sfo.samplerate
+            self.width = 2
+            self.hi_data = sfo.buffer_read(dtype='int16')
+        with SoundFile(str(self.args.click_lo)) as sfo:
+            assert sfo.channels == self.channels
+            assert sfo.samplerate == self.rate
+            self.lo_data = sfo.buffer_read(dtype='int16')
         self.bytes_per_frame = self.channels * self.width
 
     def figure_pattern(self):
@@ -339,7 +338,7 @@ class Metronome:
 
     def change_tempo(self, direction):
         """Increase/decrease tempo"""
-        self.set_tempo(((self.tempo // 10) + direction) * 10)
+        self.set_tempo(((self.tempo // 5) + direction) * 5)
 
 
 if __name__ == "__main__":
