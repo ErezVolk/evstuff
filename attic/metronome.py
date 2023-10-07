@@ -79,6 +79,7 @@ class Metronome:
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "tempo",
+            metavar="BPM",
             type=int,
             nargs="?",
             default=90,
