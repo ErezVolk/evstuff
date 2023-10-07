@@ -10,6 +10,8 @@ import threading
 import wave
 
 import pyaudio
+import rich.live
+
 try:
     import pynput.keyboard
     from Quartz import CGEventMaskBit
@@ -115,9 +117,12 @@ class Metronome:
         self.args = parser.parse_args()
 
     def run(self):
-        """The main event"""
         self.parse_args()
 
+        with rich.live.Live("Loading...") as self.status:
+            self.do_run()
+
+    def do_run(self):
         self.read_clicks()
         self.figure_pattern()
 
@@ -138,7 +143,7 @@ class Metronome:
             listener.start()
 
         player = pyaudio.PyAudio()
-        self.paused = False
+        self.handle_play_pause()
 
         while not self.aborting:
             stream = player.open(
@@ -208,7 +213,6 @@ class Metronome:
             his = [.5, 1, 2, 2.75, 3.5]
             los = []
         else:
-            print(f"Beat: {self.args.beat}")
             assert all(beat > 0 for beat in self.args.beat)
             his = []
             self.beats_per_bar = 0
@@ -273,7 +277,7 @@ class Metronome:
                 self.loop = loop
             else:
                 self.next_loop = loop
-        print(f"Tempo: ♩ = {self.tempo} (pending)")
+            self.locked_show_tempo()
 
     # pylint: disable-next=unused-argument
     def handle_ctrl_c(self, sig, frame):
@@ -282,7 +286,7 @@ class Metronome:
 
     def abort(self):
         """Tell the player to stop"""
-        print("Aborting...")
+        self.status.update("Aborting...")
         self.aborting = True
 
     # pylint: disable-next=unused-argument
@@ -309,9 +313,20 @@ class Metronome:
 
     def handle_play_pause(self):
         """On ⏯"""
+        self.pause_unpause()
+
+    def pause_unpause(self):
+        """Toggle play/pause status"""
         with self.loop_lock:
             self.paused = not self.paused
-            print(f"To {'restart' if self.paused else 'pause'}, press ⏯")
+            self.locked_show_tempo()
+
+    def locked_show_tempo(self):
+        if self.paused:
+            suffix = " (PAUSED)"
+        else:
+            suffix = ""
+        self.status.update(f"Tempo: ♩ = {self.tempo}{suffix}")
 
     def handle_fast_forward(self):
         """On ⏩"""
