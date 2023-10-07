@@ -70,6 +70,10 @@ class Metronome:
     tempo: int
     loop_lock = threading.Lock()
 
+    MIN_BPM = 20
+    MAX_BPM = 240
+    BPM_STEP = 5
+
     def parse_args(self):
         """Usage"""
         parser = argparse.ArgumentParser()
@@ -78,18 +82,21 @@ class Metronome:
             type=int,
             nargs="?",
             default=90,
+            help="beats per minute",
         )
         parser.add_argument(
             "-C",
             "--click-hi",
             type=Path,
             default=HERE / "Perc_MetronomeQuartz_hi.wav",
+            help="click at beginning of bar",
         )
         parser.add_argument(
             "-c",
             "--click-lo",
             type=Path,
             default=HERE / "Perc_MetronomeQuartz_lo.wav",
+            help="other click",
         )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
@@ -98,21 +105,26 @@ class Metronome:
             type=int,
             nargs="+",
             default=[4],
+            help=(
+                "number(s) of beats per bar. "
+                "use multiple values for compound rhythms"
+            ),
         )
         group.add_argument(
             "-r",
             "--rhythm",
             choices=["quarter", "eighth", "triple", "clave", "clave2"],
+            help="common rhythms",
         )
         group.add_argument(
             "-s",
             "--subdivision",
             type=str,
-        )
-        parser.add_argument(
-            "-d",
-            "--debug",
-            action="store_true",
+            help=(
+                "roll your own sub-beat rhythms with a string. "
+                "e.g., 't-t' is a first- and third triplet "
+                "beat, and '-t' clicks on the second eighth."
+            )
         )
         self.args = parser.parse_args()
 
@@ -251,7 +263,7 @@ class Metronome:
 
     def set_tempo(self, tempo):
         """Set (with limits) a new tempo"""
-        self.tempo = min(200, max(20, tempo))
+        self.tempo = min(self.MAX_BPM, max(self.MIN_BPM, tempo))
         self.make_loop()
 
     def make_loop(self):
@@ -338,7 +350,8 @@ class Metronome:
 
     def change_tempo(self, direction):
         """Increase/decrease tempo"""
-        self.set_tempo(((self.tempo // 5) + direction) * 5)
+        curr = self.tempo // self.BPM_STEP
+        self.set_tempo((curr + direction) * self.BPM_STEP)
 
 
 if __name__ == "__main__":
