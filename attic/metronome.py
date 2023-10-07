@@ -31,7 +31,6 @@ except ImportError:
 # TODO: Test, don't assert
 # TODO: Handle incompatible hi-lo
 # TODO: memory
-# TODO: support tempo=500
 
 
 # Metronome sounds recorded by Ludwig Peter Müller (muellerwig@gmail.com)
@@ -53,6 +52,7 @@ NX_KEYTYPE_REWIND = 20
 class Metronome:
     """A simple metronome"""
     args: argparse.Namespace
+    status: rich.live.Live
     bytes_per_frame: int
     loop: bytearray
     next_loop: bytearray | None = None
@@ -130,12 +130,14 @@ class Metronome:
         self.args = parser.parse_args()
 
     def run(self):
+        """The main event"""
         self.parse_args()
 
         with rich.live.Live("Loading...") as self.status:
             self.do_run()
 
     def do_run(self):
+        """The main event, with `self.status` initialized"""
         self.read_clicks()
         self.figure_pattern()
 
@@ -331,6 +333,7 @@ class Metronome:
             self.locked_show_tempo()
 
     def locked_show_tempo(self):
+        """Update status to show the current tempo"""
         if self.paused:
             suffix = " (PAUSED)"
         else:
