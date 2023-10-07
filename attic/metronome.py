@@ -1,16 +1,29 @@
 #!/usr/bin/env python3
+"""A simple metronome"""
 import argparse
 from pathlib import Path
 import re
 import signal
 import time
+import typing as t
 import wave
 
 import pyaudio
-import pynput.keyboard
-import Quartz
+try:
+    import pynput.keyboard
+    import Quartz
 
-# TODO: Better than assert
+    # pylint: disable-next=too-few-public-methods
+    class MiniListener(pynput.keyboard.Listener):
+        """A Listener that only cares about media keys"""
+        _EVENTS = Quartz.CGEventMaskBit(Quartz.NSSystemDefined)
+
+    WITH_MEDIA_KEYS = True
+except ImportError:
+    print("Warning: No media key support")
+    WITH_MEDIA_KEYS = False
+
+# TODO: Test, don't assert
 # TODO: Support non-wav clicks
 # TODO: Handle incompatible hi/lo
 # TODO: memory
@@ -32,7 +45,9 @@ NX_KEYTYPE_FAST = 19
 NX_KEYTYPE_REWIND = 20
 
 
+# pylint: disable-next=too-many-instance-attributes
 class Metronome:
+    """A simple metronome"""
     args: argparse.Namespace
     bytes_per_frame: int
     loop_size: int
@@ -40,8 +55,18 @@ class Metronome:
     offset: int
     aborting: bool = False
     paused: bool = False
+    media_keys: dict[int, t.Callable]
+    channels: int
+    rate: int
+    width: int
+    hi_data: bytes
+    lo_data: bytes
+    beats_per_bar: int
+    pattern: dict[int, bytes]
+    tempo: int
 
     def parse_args(self):
+        """Usage"""
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "tempo",
@@ -87,6 +112,7 @@ class Metronome:
         self.args = parser.parse_args()
 
     def run(self):
+        """The main event"""
         self.parse_args()
 
         self.read_clicks()
@@ -105,15 +131,15 @@ class Metronome:
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
 
         # Listen to Media keys
-        self.media_keys = {
-            NX_KEYTYPE_EJECT: self.handle_eject,
-            NX_KEYTYPE_PLAY: self.handle_play_pause,
-            NX_KEYTYPE_FAST: self.handle_fast_forward,
-            NX_KEYTYPE_REWIND: self.handle_rewind,
-        }
-        listener = pynput.keyboard.Listener(darwin_intercept=self.intercept)
-        listener._EVENTS = Quartz.CGEventMaskBit(Quartz.NSSystemDefined)
-        listener.start()
+        if WITH_MEDIA_KEYS:
+            self.media_keys = {
+                NX_KEYTYPE_EJECT: self.handle_eject,
+                NX_KEYTYPE_PLAY: self.handle_play_pause,
+                NX_KEYTYPE_FAST: self.handle_fast_forward,
+                NX_KEYTYPE_REWIND: self.handle_rewind,
+            }
+            listener = MiniListener(darwin_intercept=self.intercept)
+            listener.start()
 
         player = pyaudio.PyAudio()
 
@@ -137,6 +163,7 @@ class Metronome:
         player.terminate()
 
     def read_clicks(self):
+        """Read click sounds"""
         with wave.open(str(self.args.click_hi), "rb") as wfo:
             self.channels = wfo.getnchannels()
             self.rate = wfo.getframerate()
@@ -150,6 +177,7 @@ class Metronome:
         self.bytes_per_frame = self.channels * self.width
 
     def figure_pattern(self):
+        """Figure out where in the bar we need which clicks"""
         los = []
         if self.args.subdivision:
             assert re.fullmatch(r"[-tT]+", self.args.subdivision)
@@ -157,11 +185,11 @@ class Metronome:
             subs = len(self.args.subdivision)
             his = []
             los = []
-            for n, c in enumerate(self.args.subdivision):
-                if c == "T":
-                    his.append(n / subs)
-                elif c == "t":
-                    los.append(n / subs)
+            for where, mnem in enumerate(self.args.subdivision):
+                if mnem == "T":
+                    his.append(where / subs)
+                elif mnem == "t":
+                    los.append(where / subs)
         elif self.args.rhythm == "quarter":
             self.beats_per_bar = 1
             his = [0]
@@ -198,7 +226,9 @@ class Metronome:
             for pos in positions
         }
 
+    # pylint: disable-next=unused-argument
     def read_more(self, in_data, frame_count, time_info, status):
+        """Supply pyaudio with more audio"""
         if self.aborting or self.paused:
             return (b'', pyaudio.paAbort)
 
@@ -215,10 +245,12 @@ class Metronome:
         return (data, pyaudio.paContinue)
 
     def set_tempo(self, tempo):
+        """Set (with limits) a new tempo"""
         self.tempo = min(200, max(20, tempo))
         self.make_loop()
 
     def make_loop(self):
+        """Rebuild the audio loop"""
         print(f"Tempo: ♩ = {self.tempo}")
         beat_sec = 60 / self.tempo
         ideal_bar_frames = self.beats_per_bar * beat_sec * self.rate
@@ -236,14 +268,17 @@ class Metronome:
                 self.loop[offset:offset + len(data)] = data
         self.offset = 0
 
+    # pylint: disable-next=unused-argument
     def handle_ctrl_c(self, sig, frame):
         """Handle Ctrl-C"""
         self.abort()
 
     def abort(self):
+        """Tell the player to stop"""
         print("Aborting...")
         self.aborting = True
 
+    # pylint: disable-next=unused-argument
     def intercept(self, event_type, event_ref):
         """Handle media key event"""
         event = Quartz.NSEvent.eventWithCGEvent_(event_ref)
@@ -259,21 +294,27 @@ class Metronome:
         is_press = ((bitmap & 0xff00) >> 8) == 0x0a
         if not is_press:  # React when on key release
             handler()
+        return None
 
     def handle_eject(self):
+        """On ⏏"""
         self.abort()
 
     def handle_play_pause(self):
+        """On ⏯"""
         self.paused = not self.paused
         print(f"To {'restart' if self.paused else 'pause'}, press ⏯")
 
     def handle_fast_forward(self):
+        """On ⏩"""
         self.change_tempo(1)
 
     def handle_rewind(self):
+        """On ⏪"""
         self.change_tempo(-1)
 
     def change_tempo(self, direction):
+        """Increase/decrease tempo"""
         if not self.paused:
             print("Cannot change tempo while playing")
             return
