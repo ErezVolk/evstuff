@@ -14,7 +14,6 @@ import Quartz
 # TODO: Support non-wav clicks
 # TODO: Handle incompatible hi/lo
 # TODO: memory
-# TODO: interactive (tempo up/down...), maybe with Textual
 # TODO: support tempo=500
 
 
@@ -29,6 +28,8 @@ HERE = THIS.parent
 # Media keys from <hidsystem/ev_keymap.h>
 NX_KEYTYPE_EJECT = 14
 NX_KEYTYPE_PLAY = 16
+NX_KEYTYPE_FAST = 19
+NX_KEYTYPE_REWIND = 20
 
 
 class Metronome:
@@ -85,16 +86,13 @@ class Metronome:
         )
         self.args = parser.parse_args()
 
-        assert self.args.tempo > 0
-
     def run(self):
         self.parse_args()
 
         self.read_clicks()
         self.figure_pattern()
 
-        self.tempo = self.args.tempo
-        self.make_loop()
+        self.set_tempo(self.args.tempo)
 
         if self.args.debug:
             with wave.open("loop.wav", "wb") as wfo:
@@ -107,6 +105,12 @@ class Metronome:
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
 
         # Listen to Media keys
+        self.media_keys = {
+            NX_KEYTYPE_EJECT: self.handle_eject,
+            NX_KEYTYPE_PLAY: self.handle_play_pause,
+            NX_KEYTYPE_FAST: self.handle_fast_forward,
+            NX_KEYTYPE_REWIND: self.handle_rewind,
+        }
         listener = pynput.keyboard.Listener(darwin_intercept=self.intercept)
         listener._EVENTS = Quartz.CGEventMaskBit(Quartz.NSSystemDefined)
         listener.start()
@@ -210,6 +214,10 @@ class Metronome:
         data = b''.join(chunks)
         return (data, pyaudio.paContinue)
 
+    def set_tempo(self, tempo):
+        self.tempo = min(200, max(20, tempo))
+        self.make_loop()
+
     def make_loop(self):
         print(f"Tempo: ♩ = {self.tempo}")
         beat_sec = 60 / self.tempo
@@ -242,20 +250,35 @@ class Metronome:
 
         bitmap = event.data1()
         key = (bitmap & 0xffff0000) >> 16
+
+        try:
+            handler = self.media_keys[key]
+        except KeyError:
+            return event_ref
+
         is_press = ((bitmap & 0xff00) >> 8) == 0x0a
+        if not is_press:  # React when on key release
+            handler()
 
-        if key == NX_KEYTYPE_EJECT:
-            if not is_press:
-                self.abort()
-            return None
+    def handle_eject(self):
+        self.abort()
 
-        if key == NX_KEYTYPE_PLAY:
-            if not is_press:
-                self.paused = not self.paused
-                print(f"To {'restart' if self.paused else 'pause'}, press ⏯")
-            return None
+    def handle_play_pause(self):
+        self.paused = not self.paused
+        print(f"To {'restart' if self.paused else 'pause'}, press ⏯")
 
-        return event_ref
+    def handle_fast_forward(self):
+        self.change_tempo(1)
+
+    def handle_rewind(self):
+        self.change_tempo(-1)
+
+    def change_tempo(self, direction):
+        if not self.paused:
+            print("Cannot change tempo while playing")
+            return
+
+        self.set_tempo(((self.tempo // 10) + direction) * 10)
 
 
 if __name__ == "__main__":
