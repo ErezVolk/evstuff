@@ -27,7 +27,6 @@ except ImportError:
     print("Warning: No media key support")
     WITH_MEDIA_KEYS = False
 
-# TODO: Test, don't assert
 # TODO: Handle incompatible hi-lo
 # TODO: save/use named configs
 
@@ -214,17 +213,19 @@ class Metronome:
         """Read click sounds"""
         paths = self.args.click
         with SoundFile(str(paths[0])) as sfo:
-            self.channels = sfo.channels
-            self.rate = sfo.samplerate
+            self.channels = channels = sfo.channels
+            self.rate = rate = sfo.samplerate
             self.width = 2
-            self.hi_data = sfo.buffer_read(dtype='int16')
+            self.lo_data = self.hi_data = sfo.buffer_read(dtype='int16')
         if len(paths) > 1:
             with SoundFile(str(paths[1])) as sfo:
-                assert sfo.channels == self.channels
-                assert sfo.samplerate == self.rate
-                self.lo_data = sfo.buffer_read(dtype='int16')
-        else:
-            self.lo_data = self.hi_data
+                if sfo.channels == channels and sfo.samplerate == rate:
+                    self.lo_data = sfo.buffer_read(dtype='int16')
+                else:
+                    print(
+                        f"{paths[0]} and {paths[1]} are incompatible, "
+                        f"using only {paths[0]}."
+                    )
         self.bytes_per_frame = self.channels * self.width
 
     def figure_pattern(self):
@@ -254,7 +255,6 @@ class Metronome:
             self.beats_per_bar = 4
             his = [0, .75, 1.5, 2.5, 3]
         else:
-            assert all(beat > 0 for beat in self.args.beat)
             his = []
             self.beats_per_bar = 0
             for beat in self.args.beat:
