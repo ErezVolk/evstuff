@@ -29,7 +29,7 @@ except ImportError:
 
 # TODO: Test, don't assert
 # TODO: Handle incompatible hi-lo
-# TODO: memory
+# TODO: save/use named configs
 
 
 # Metronome sounds recorded by Ludwig Peter Müller (muellerwig@gmail.com)
@@ -101,28 +101,25 @@ class Metronome:
             help="beats per minute",
         )
         parser.add_argument(
-            "-C",
-            "--click-hi",
-            type=Path,
-            default=HERE / "Perc_MetronomeQuartz_hi.wav",
-            help="click at beginning of bar",
-        )
-        parser.add_argument(
             "-c",
-            "--click-lo",
+            "--click",
             type=Path,
-            default=HERE / "Perc_MetronomeQuartz_lo.wav",
-            help="other click",
+            nargs="+",
+            default=[
+                HERE / "Perc_MetronomeQuartz_hi.wav",
+                HERE / "Perc_MetronomeQuartz_lo.wav",
+            ],
+            help="click sound (one or two)",
         )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "-b",
             "--beat",
-            type=int,
+            type=self.validate_beat_arg,
             nargs="+",
             default=[4],
             help=(
-                "number(s) of beats per bar. "
+                "number of beats per bar. "
                 "use multiple values for compound rhythms"
             ),
         )
@@ -135,7 +132,7 @@ class Metronome:
         group.add_argument(
             "-s",
             "--subdivision",
-            type=str,
+            type=self.validate_subdivision_arg,
             help=(
                 "roll your own sub-beat rhythms with a string. "
                 "e.g., 't-t' is a first- and third triplet "
@@ -144,6 +141,24 @@ class Metronome:
             )
         )
         self.args = parser.parse_args()
+
+    @classmethod
+    def validate_subdivision_arg(cls, arg: str) -> str:
+        """Validate --subdivision argument"""
+        if re.fullmatch(r"[-tT]*[tT][-tT]*", arg):
+            return arg
+        raise argparse.ArgumentTypeError("may only contain 'T', 't', and '-'")
+
+    @classmethod
+    def validate_beat_arg(cls, arg: str) -> int:
+        """Validate --beat argument"""
+        try:
+            beat = int(arg)
+        except ValueError:
+            raise argparse.ArgumentTypeError("must be a positive number")
+        if beat > 0:
+            return beat
+        raise argparse.ArgumentTypeError("must be positive")
 
     def run(self):
         """The main event"""
@@ -197,22 +212,25 @@ class Metronome:
 
     def read_clicks(self):
         """Read click sounds"""
-        with SoundFile(str(self.args.click_hi)) as sfo:
+        paths = self.args.click
+        with SoundFile(str(paths[0])) as sfo:
             self.channels = sfo.channels
             self.rate = sfo.samplerate
             self.width = 2
             self.hi_data = sfo.buffer_read(dtype='int16')
-        with SoundFile(str(self.args.click_lo)) as sfo:
-            assert sfo.channels == self.channels
-            assert sfo.samplerate == self.rate
-            self.lo_data = sfo.buffer_read(dtype='int16')
+        if len(paths) > 1:
+            with SoundFile(str(paths[1])) as sfo:
+                assert sfo.channels == self.channels
+                assert sfo.samplerate == self.rate
+                self.lo_data = sfo.buffer_read(dtype='int16')
+        else:
+            self.lo_data = self.hi_data
         self.bytes_per_frame = self.channels * self.width
 
     def figure_pattern(self):
         """Figure out where in the bar we need which clicks"""
         los = []
         if self.args.subdivision:
-            assert re.fullmatch(r"[-tT]+", self.args.subdivision)
             self.beats_per_bar = 1
             subs = len(self.args.subdivision)
             his = []
