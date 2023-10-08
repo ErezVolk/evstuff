@@ -27,7 +27,6 @@ except ImportError:
     print("Warning: No media key support")
     WITH_MEDIA_KEYS = False
 
-# TODO: Handle incompatible hi-lo
 # TODO: save/use named configs
 
 
