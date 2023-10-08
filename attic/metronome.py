@@ -10,6 +10,7 @@ import typing as t
 from soundfile import SoundFile
 import pyaudio
 import rich.live
+from rich import print
 
 try:
     import pynput.keyboard
@@ -358,7 +359,7 @@ class Metronome:
     def show_tempo(self):
         """Update status to show the current tempo"""
         if self.paused:
-            suffix = " (PAUSED)"
+            suffix = " ⏾"
         else:
             suffix = ""
         self.status.update(f"Tempo: ♩ = {self.tempo}{suffix}")
