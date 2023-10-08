@@ -6,7 +6,6 @@ import re
 import signal
 import time
 import typing as t
-import threading
 
 from soundfile import SoundFile
 import pyaudio
@@ -48,15 +47,32 @@ NX_KEYTYPE_FAST = 19
 NX_KEYTYPE_REWIND = 20
 
 
+class ByteLoop:
+    """A circular buffer of bytes."""
+    def __init__(self, data: bytes | bytearray):
+        self.data = data
+        self.offset = 0
+
+    def get(self, nbytes: int) -> bytes:
+        """Get another chunk"""
+        limit = min(self.offset + nbytes, len(self.data))
+        chunk = self.data[self.offset:limit]
+        self.offset = limit % len(self.data)
+        return chunk
+
+    def may_flip(self) -> bool:
+        """Are we at a good point to flip to the next loop"""
+        return self.offset == 0
+
+
 # pylint: disable-next=too-many-instance-attributes
 class Metronome:
     """A simple metronome"""
     args: argparse.Namespace
     status: rich.live.Live
     bytes_per_frame: int
-    loop: bytearray
-    next_loop: bytearray | None = None
-    offset: int = 0
+    loop: ByteLoop | None = None
+    next_loop: ByteLoop | None = None
     aborting: bool = False
     paused: bool = True
     media_keys: dict[int, t.Callable]
@@ -68,7 +84,6 @@ class Metronome:
     beats_per_bar: int
     pattern: dict[int, bytes]
     tempo: int
-    loop_lock = threading.Lock()
 
     MIN_BPM = 20
     MAX_BPM = 240
@@ -144,7 +159,7 @@ class Metronome:
 
         self.set_tempo(self.args.tempo)
 
-        # Exit cleanly on Ctrl-C
+        # Listen to Ctrl-C
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
 
         # Listen to Media keys
@@ -159,7 +174,7 @@ class Metronome:
             listener.start()
 
         player = pyaudio.PyAudio()
-        self.handle_play_pause()
+        self.pause_unpause()  # Get ready for playing
 
         while not self.aborting:
             stream = player.open(
@@ -244,16 +259,15 @@ class Metronome:
         nbytes = frame_count * self.bytes_per_frame
         chunks = []
 
-        while nbytes > 0:
-            chunk_nbytes = min(nbytes, len(self.loop) - self.offset)
-            chunks.append(self.loop[self.offset:self.offset + chunk_nbytes])
-            self.offset = (self.offset + chunk_nbytes) % len(self.loop)
-            nbytes -= chunk_nbytes
-
-            if self.offset == 0 and self.next_loop is not None:
-                with self.loop_lock:
+        while nbytes > 0 and not self.paused:
+            if self.next_loop is not None:
+                if self.loop.may_flip():
                     self.loop = self.next_loop
                     self.next_loop = None
+
+            chunk = self.loop.get(nbytes)
+            chunks.append(chunk)
+            nbytes -= len(chunk)
 
         data = b''.join(chunks)
         return (data, pyaudio.paContinue)
@@ -280,13 +294,11 @@ class Metronome:
                 offset = round(frame_n) * self.bytes_per_frame
                 loop[offset:offset + len(data)] = data
 
-        with self.loop_lock:
-            if self.paused:
-                self.loop = loop
-                self.offset = 0
-            else:
-                self.next_loop = loop
-            self.locked_show_tempo()
+        if self.loop is None:
+            self.loop = ByteLoop(loop)
+        else:
+            self.next_loop = ByteLoop(loop)
+        self.show_tempo()
 
     # pylint: disable-next=unused-argument
     def handle_ctrl_c(self, sig, frame):
@@ -299,20 +311,17 @@ class Metronome:
         self.aborting = True
 
     # pylint: disable-next=unused-argument
-    def intercept(self, event_type, event_ref):
+    def intercept(self, event_type, event):
         """Handle media key event"""
-        event = NSEvent.eventWithCGEvent_(event_ref)
-
-        bitmap = event.data1()
+        bitmap = NSEvent.eventWithCGEvent_(event).data1()
         key = (bitmap & 0xffff0000) >> 16
 
-        try:
-            handler = self.media_keys[key]
-        except KeyError:
-            return event_ref
+        handler = self.media_keys.get(key)
+        if handler is None:
+            return event
 
         is_press = ((bitmap & 0xff00) >> 8) == 0x0a
-        if not is_press:  # React when on key release
+        if not is_press:  # React on key release
             handler()
         return None
 
@@ -326,11 +335,10 @@ class Metronome:
 
     def pause_unpause(self):
         """Toggle play/pause status"""
-        with self.loop_lock:
-            self.paused = not self.paused
-            self.locked_show_tempo()
+        self.paused = not self.paused
+        self.show_tempo()
 
-    def locked_show_tempo(self):
+    def show_tempo(self):
         """Update status to show the current tempo"""
         if self.paused:
             suffix = " (PAUSED)"
