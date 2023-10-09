@@ -48,9 +48,10 @@ NX_KEYTYPE_REWIND = 20
 
 class ByteLoop:
     """A circular buffer of bytes."""
-    def __init__(self, data: bytes | bytearray):
+    def __init__(self, data: bytes | bytearray, granularity: int):
         self.data = data
         self.offset = 0
+        self.granularity = granularity
 
     def get(self, nbytes: int) -> bytes:
         """Get another chunk"""
@@ -59,9 +60,11 @@ class ByteLoop:
         self.offset = limit % len(self.data)
         return chunk
 
-    def may_flip(self) -> bool:
-        """Are we at a good point to flip to the next loop"""
-        return self.offset == 0
+    def make_like(self, other: "ByteLoop"):
+        """Set offset to the corresponding one"""
+        if other.offset:
+            ideal = (other.offset / len(other.data)) * len(self.data)
+            self.offset = int(ideal / self.granularity) * self.granularity
 
 
 # pylint: disable-next=too-many-instance-attributes
@@ -70,7 +73,7 @@ class Metronome:
     args: argparse.Namespace
     status: rich.live.Live
     bytes_per_frame: int
-    loop: ByteLoop | None = None
+    loop: ByteLoop = ByteLoop(b'', 0)
     next_loop: ByteLoop | None = None
     aborting: bool = False
     paused: bool = True
@@ -78,8 +81,8 @@ class Metronome:
     channels: int
     rate: int
     width: int
-    hi_data: bytes
-    lo_data: bytes
+    hi_data: bytes | bytearray
+    lo_data: bytes | bytearray
     beats_per_bar: int
     pattern: dict[int, bytes]
     tempo: int
@@ -208,9 +211,6 @@ class Metronome:
             while self.paused and not self.aborting:
                 time.sleep(.1)
 
-            # If tempo was changed while paused, don't wait for may_flip()
-            self.flip()
-
         player.terminate()
 
     def read_clicks(self):
@@ -282,8 +282,11 @@ class Metronome:
         chunks = []
 
         while nbytes > 0 and not self.paused:
-            if self.loop.may_flip():
-                self.flip()
+            if self.next_loop is not None:
+                next_loop = self.next_loop
+                self.next_loop = None
+                next_loop.make_like(self.loop)
+                self.loop = next_loop
 
             chunk = self.loop.get(nbytes)
             chunks.append(chunk)
@@ -291,16 +294,6 @@ class Metronome:
 
         data = b''.join(chunks)
         return (data, pyaudio.paContinue)
-
-    def flip(self):
-        """Switch to the next loop, if available.
-
-        Called either from the main thread while paused,
-        or from the "read" thread on loop end.
-        """
-        if self.next_loop is not None:
-            self.loop = self.next_loop
-            self.next_loop = None
 
     def set_tempo(self, tempo):
         """Set (with limits) a new tempo"""
@@ -316,18 +309,16 @@ class Metronome:
         rounded_frames = round(ideal_bar / self.bytes_per_frame)
         loop_size = rounded_frames * self.bytes_per_frame
 
-        loop = bytearray(loop_size)
+        loop_data = bytearray(loop_size)
         for n_bar in range(bars_per_loop):
             for pos, data in self.pattern.items():
                 beat_n = (n_bar * self.beats_per_bar) + pos
                 frame_n = beat_n * beat_sec * self.rate
                 offset = round(frame_n) * self.bytes_per_frame
-                loop[offset:offset + len(data)] = data
+                loop_data[offset:offset + len(data)] = data
 
-        if self.loop is None:
-            self.loop = ByteLoop(loop)
-        else:
-            self.next_loop = ByteLoop(loop)
+        loop = ByteLoop(loop_data, self.bytes_per_frame)
+        self.next_loop = loop
         self.show_tempo()
 
     # pylint: disable-next=unused-argument
