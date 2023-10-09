@@ -6,6 +6,7 @@ import re
 import signal
 import time
 import typing as t
+import wave
 
 from soundfile import SoundFile
 import pyaudio
@@ -67,6 +68,32 @@ class ByteLoop:
             self.offset = int(ideal / self.granularity) * self.granularity
 
 
+class ClickFile:
+    """Helper for reading sound files"""
+    def __init__(self, path: str | Path):
+        try:
+            with wave.open(str(path), "rb") as wavo:
+                self.channels = wavo.getnchannels()
+                self.rate = wavo.getframerate()
+                self.width = wavo.getsampwidth()
+                self.data = wavo.readframes(wavo.getnframes())
+        except wave.Error:
+            with SoundFile(str(path)) as sfo:
+                self.channels = sfo.channels
+                self.rate = sfo.samplerate
+                self.width = 2
+                self.data = sfo.buffer_read(dtype='int16')
+
+    def is_like(self, other: "ClickFile") -> bool:
+        if self.channels != other.channels:
+            return False
+        if self.rate != other.rate:
+            return False
+        if self.width != other.width:
+            return False
+        return True
+
+
 # pylint: disable-next=too-many-instance-attributes
 class Metronome:
     """A simple metronome"""
@@ -81,8 +108,8 @@ class Metronome:
     channels: int
     rate: int
     width: int
-    hi_data: bytes | bytearray
-    lo_data: bytes | bytearray
+    hi_click: ClickFile
+    lo_click: ClickFile
     beats_per_bar: int
     pattern: dict[int, bytes]
     tempo: int
@@ -216,20 +243,18 @@ class Metronome:
     def read_clicks(self):
         """Read click sounds"""
         paths = self.args.click
-        with SoundFile(str(paths[0])) as sfo:
-            self.channels = channels = sfo.channels
-            self.rate = rate = sfo.samplerate
-            self.width = 2
-            self.lo_data = self.hi_data = sfo.buffer_read(dtype='int16')
+        self.lo_click = self.hi_click = ClickFile(paths[0])
         if len(paths) > 1:
-            with SoundFile(str(paths[1])) as sfo:
-                if sfo.channels == channels and sfo.samplerate == rate:
-                    self.lo_data = sfo.buffer_read(dtype='int16')
-                else:
-                    print(
-                        f"{paths[0]} and {paths[1]} are incompatible, "
-                        f"using only {paths[0]}."
-                    )
+            self.lo_click = ClickFile(paths[1])
+            if not self.lo_click.is_like(self.hi_click):
+                self.lo_click = self.hi_click
+                print(
+                    f"{paths[0]} and {paths[1]} are incompatible, "
+                    f"using only {paths[0]}."
+                )
+        self.channels = self.hi_click.channels
+        self.rate = self.hi_click.rate
+        self.width = self.hi_click.width
         self.bytes_per_frame = self.channels * self.width
 
     def figure_pattern(self):
@@ -267,9 +292,9 @@ class Metronome:
             los = range(self.beats_per_bar)  # Will get overrun by his
 
         self.pattern = {
-            pos: data
-            for data, positions in ((self.lo_data, los), (self.hi_data, his))
-            for pos in positions
+            pos: click.data
+            for click, where in ((self.lo_click, los), (self.hi_click, his))
+            for pos in where
         }
 
     # pylint: disable-next=unused-argument
