@@ -71,6 +71,11 @@ class ByteLoop:
 # pylint: disable-next=too-few-public-methods
 class ClickFile:
     """Helper for reading sound files"""
+    channels: int
+    rate: int
+    width: int
+    data: bytes
+
     def __init__(self, path: str | Path):
         try:
             with wave.open(str(path), "rb") as wavo:
@@ -83,7 +88,8 @@ class ClickFile:
                 self.channels = sfo.channels
                 self.rate = sfo.samplerate
                 self.width = 2
-                self.data = sfo.buffer_read(dtype='int16')
+                self.data = bytes(sfo.frames * self.channels * self.width)
+                sfo.buffer_read_into(self.data, dtype='int16')
 
     def is_like(self, other: "ClickFile") -> bool:
         """Are two clicks compatible"""
@@ -113,7 +119,7 @@ class Metronome:
     hi_click: ClickFile
     lo_click: ClickFile
     beats_per_bar: int
-    pattern: dict[int, bytes]
+    pattern: dict[float, bytes] = dict()
     tempo: int
 
     MIN_BPM = 20
@@ -293,11 +299,9 @@ class Metronome:
                 self.beats_per_bar += beat
             los = range(self.beats_per_bar)  # Will get overrun by his
 
-        self.pattern = {
-            pos: click.data
-            for click, where in ((self.lo_click, los), (self.hi_click, his))
-            for pos in where
-        }
+        for click, where in ((self.lo_click, los), (self.hi_click, his)):
+            for pos in where:
+                self.pattern[pos] = click.data
 
     # pylint: disable-next=unused-argument
     def read_more(self, in_data, frame_count, time_info, status):
