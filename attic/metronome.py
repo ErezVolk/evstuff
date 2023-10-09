@@ -191,6 +191,7 @@ class Metronome:
         self.pause_unpause()  # Get ready for playing
 
         while not self.aborting:
+            # Every pass through the loop is playing, then pause/abort
             stream = player.open(
                 format=player.get_format_from_width(self.width),
                 channels=self.channels,
@@ -206,6 +207,9 @@ class Metronome:
 
             while self.paused and not self.aborting:
                 time.sleep(.1)
+
+            # If tempo was changed while paused, don't wait for may_flip()
+            self.flip()
 
         player.terminate()
 
@@ -278,10 +282,8 @@ class Metronome:
         chunks = []
 
         while nbytes > 0 and not self.paused:
-            if self.next_loop is not None:
-                if self.loop.may_flip():
-                    self.loop = self.next_loop
-                    self.next_loop = None
+            if self.loop.may_flip():
+                self.flip()
 
             chunk = self.loop.get(nbytes)
             chunks.append(chunk)
@@ -289,6 +291,16 @@ class Metronome:
 
         data = b''.join(chunks)
         return (data, pyaudio.paContinue)
+
+    def flip(self):
+        """Switch to the next loop, if available.
+
+        Called either from the main thread while paused,
+        or from the "read" thread on loop end.
+        """
+        if self.next_loop is not None:
+            self.loop = self.next_loop
+            self.next_loop = None
 
     def set_tempo(self, tempo):
         """Set (with limits) a new tempo"""
