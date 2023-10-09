@@ -11,7 +11,7 @@ import wave
 from soundfile import SoundFile
 import pyaudio
 import rich.live
-from rich import print
+from rich import print  # pylint: disable=redefined-builtin
 
 try:
     import pynput.keyboard
@@ -119,7 +119,7 @@ class Metronome:
     hi_click: ClickFile
     lo_click: ClickFile
     beats_per_bar: int
-    pattern: dict[float, bytes] = dict()
+    pattern: dict[float, bytes] = {}
     tempo: int
 
     MIN_BPM = 20
@@ -191,8 +191,8 @@ class Metronome:
         """Validate --beat argument"""
         try:
             beat = int(arg)
-        except ValueError:
-            raise argparse.ArgumentTypeError("must be a positive number")
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError("must be positive") from exc
         if beat > 0:
             return beat
         raise argparse.ArgumentTypeError("must be positive")
