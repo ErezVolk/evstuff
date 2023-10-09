@@ -23,31 +23,56 @@ KEY_FIX = {
     "min": {"A♯": "B♭", "D♯": "E♭", "A♭": "G♯", "D♭": "C♯", "G♭": "F♯"},
 }
 
+DRILLS = (
+    "octaves", "fifths", "fourths", "chairs"
+)
+
 
 def main():
     """Random musical keys for practice"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "what",
-        choices=["notes", "scales"],
-        default="notes",
+        choices=["notes", "scales", "drills"],
+        default="drills",
         nargs="?",
+    )
+    parser.add_argument(
+        "-n",
+        "--count",
+        type=int,
+        default=len(NOTES),
     )
     args = parser.parse_args()
 
+    sep = " "
+
+    if args.count <= len(NOTES):
+        notes = random.sample(NOTES, max(args.count, 1))
+    else:
+        notes = random.choices(NOTES, k=args.count)
+
     things = [
         random.choice(names)
-        for names in random.sample(NOTES, len(NOTES))
+        for names in notes
     ]
-    if args.what == "scales":
-        scales = list(KEY_FIX) * (len(things) // len(KEY_FIX))
-        random.shuffle(scales)
+
+    if args.what in ["scales", "drills"]:
+        scales = random.choices(list(KEY_FIX), k=len(things))
         things = [
-            KEY_FIX[scale].get(thing, thing) + scale
+            KEY_FIX[scale].get(thing, thing) + "-" + scale
             for thing, scale in zip(things, scales)
         ]
 
-    print(" ".join(things))
+    if args.what == "drills":
+        drills = random.choices(DRILLS, k=len(things))
+        things = [
+            f"{thing} in {drill}"
+            for thing, drill in zip(things, drills)
+        ]
+        sep = "\n"
+
+    print(sep.join(things))
 
 
 if __name__ == "__main__":
