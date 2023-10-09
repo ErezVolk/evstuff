@@ -68,6 +68,7 @@ class ByteLoop:
             self.offset = int(ideal / self.granularity) * self.granularity
 
 
+# pylint: disable-next=too-few-public-methods
 class ClickFile:
     """Helper for reading sound files"""
     def __init__(self, path: str | Path):
@@ -85,6 +86,7 @@ class ClickFile:
                 self.data = sfo.buffer_read(dtype='int16')
 
     def is_like(self, other: "ClickFile") -> bool:
+        """Are two clicks compatible"""
         if self.channels != other.channels:
             return False
         if self.rate != other.rate:
