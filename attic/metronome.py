@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""A simple metronome"""
+"""A simple metronome.
+
+Metronome sounds recorded by Ludwig Peter Müller (muellerwig@gmail.com)
+and distributed under the Creative Commons CC0 1.0 Universal license.
+https://www.reddit.com/r/audioengineering/comments/kg8gth/free_click_track_sound_archive/?rdt=48837
+Zip file: https://stash.reaper.fm/40824/Metronomes.zip
+"""
+
 import argparse
 from pathlib import Path
 import re
@@ -27,13 +34,6 @@ except ImportError:
     print("Warning: No media key support")
     WITH_MEDIA_KEYS = False
 
-# TODO: save/use named configs
-
-
-# Metronome sounds recorded by Ludwig Peter Müller (muellerwig@gmail.com)
-# and distributed under the Creative Commons CC0 1.0 Universal license.
-# https://www.reddit.com/r/audioengineering/comments/kg8gth/free_click_track_sound_archive/?rdt=48837
-# Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 
 THIS = Path(__file__).resolve()
 HERE = THIS.parent
