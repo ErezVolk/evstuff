@@ -8,6 +8,7 @@ Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 """
 
 import argparse
+from dataclasses import dataclass
 from pathlib import Path
 import re
 import signal
@@ -66,7 +67,7 @@ class ByteLoop:
             self.offset = int(ideal / self.granularity) * self.granularity
 
 
-# pylint: disable-next=too-few-public-methods
+@dataclass
 class SoundShape:
     """Sound file parameters"""
     channels: int
@@ -83,27 +84,21 @@ class Click(SoundShape):
         try:
             # Try Python's `wave` first, because `SoundFile` *sets* the width
             with wave.open(str(path), "rb") as wavo:
-                self.channels = wavo.getnchannels()
-                self.rate = wavo.getframerate()
-                self.width = wavo.getsampwidth()
+                super().__init__(
+                    channels=wavo.getnchannels(),
+                    rate=wavo.getframerate(),
+                    width=wavo.getsampwidth(),
+                )
                 self.data = wavo.readframes(wavo.getnframes())
         except wave.Error:
             with SoundFile(str(path)) as sfo:
-                self.channels = sfo.channels
-                self.rate = sfo.samplerate
-                self.width = 2
+                super().__init__(
+                    channels=sfo.channels,
+                    rate=sfo.samplerate,
+                    width=2,
+                )
                 self.data = bytes(sfo.frames * self.channels * self.width)
                 sfo.buffer_read_into(self.data, dtype='int16')
-
-    def is_like(self, shape: SoundShape) -> bool:
-        """Are two clicks compatible"""
-        if self.channels != shape.channels:
-            return False
-        if self.rate != shape.rate:
-            return False
-        if self.width != shape.width:
-            return False
-        return True
 
 
 # pylint: disable-next=too-many-instance-attributes
@@ -256,7 +251,7 @@ class Metronome:
         self.lo_click = self.hi_click = Click(paths[0])
         if len(paths) > 1:
             self.lo_click = Click(paths[1])
-            if not self.lo_click.is_like(self.hi_click):
+            if self.lo_click != self.hi_click:  # Must have same shape
                 self.lo_click = self.hi_click
                 print(
                     f"{paths[0]} and {paths[1]} are incompatible, "
@@ -304,7 +299,7 @@ class Metronome:
                 self.pattern[pos] = click.data
 
     # pylint: disable-next=unused-argument
-    def read_more(self, in_data, frame_count, time_info, status):
+    def read_more(self, in_data, frame_count: int, time_info, status):
         """Supply pyaudio with more audio"""
         if self.aborting or self.paused:
             return (b'', pyaudio.paAbort)
@@ -333,8 +328,8 @@ class Metronome:
 
     def make_loop(self):
         """Rebuild the audio loop"""
-        beat_sec = 60 / self.tempo
-        ideal_bar_frames = self.beats_per_bar * beat_sec * self.shape.rate
+        frames_per_beat = (60 / self.tempo) * self.shape.rate
+        ideal_bar_frames = self.beats_per_bar * frames_per_beat
         ideal_bar = ideal_bar_frames * self.bytes_per_frame
         bars_per_loop = 1
         rounded_frames = round(ideal_bar / self.bytes_per_frame)
@@ -344,7 +339,7 @@ class Metronome:
         for n_bar in range(bars_per_loop):
             for pos, data in self.pattern.items():
                 beat_n = (n_bar * self.beats_per_bar) + pos
-                frame_n = beat_n * beat_sec * self.shape.rate
+                frame_n = beat_n * frames_per_beat
                 offset = round(frame_n) * self.bytes_per_frame
                 loop_data[offset:offset + len(data)] = data
 
