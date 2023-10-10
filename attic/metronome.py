@@ -67,15 +67,21 @@ class ByteLoop:
 
 
 # pylint: disable-next=too-few-public-methods
-class Click:
-    """Helper for reading sound files"""
+class SoundShape:
+    """Sound file parameters"""
     channels: int
     rate: int
     width: int
+
+
+# pylint: disable-next=too-few-public-methods
+class Click(SoundShape):
+    """Audio data of a click"""
     data: bytes
 
     def __init__(self, path: str | Path):
         try:
+            # Try Python's `wave` first, because `SoundFile` *sets* the width
             with wave.open(str(path), "rb") as wavo:
                 self.channels = wavo.getnchannels()
                 self.rate = wavo.getframerate()
@@ -89,13 +95,13 @@ class Click:
                 self.data = bytes(sfo.frames * self.channels * self.width)
                 sfo.buffer_read_into(self.data, dtype='int16')
 
-    def is_like(self, other: "Click") -> bool:
+    def is_like(self, shape: SoundShape) -> bool:
         """Are two clicks compatible"""
-        if self.channels != other.channels:
+        if self.channels != shape.channels:
             return False
-        if self.rate != other.rate:
+        if self.rate != shape.rate:
             return False
-        if self.width != other.width:
+        if self.width != shape.width:
             return False
         return True
 
@@ -111,9 +117,7 @@ class Metronome:
     aborting: bool = False
     paused: bool = True
     media_keys: dict[int, t.Callable]
-    channels: int
-    rate: int
-    width: int
+    shape: SoundShape
     hi_click: Click
     lo_click: Click
     beats_per_bar: int
@@ -229,9 +233,9 @@ class Metronome:
         while not self.aborting:
             # Every pass through the loop is playing, then pause/abort
             stream = player.open(
-                format=player.get_format_from_width(self.width),
-                channels=self.channels,
-                rate=self.rate,
+                format=player.get_format_from_width(self.shape.width),
+                channels=self.shape.channels,
+                rate=self.shape.rate,
                 output=True,
                 stream_callback=self.read_more,
             )
@@ -258,10 +262,8 @@ class Metronome:
                     f"{paths[0]} and {paths[1]} are incompatible, "
                     f"using only {paths[0]}."
                 )
-        self.channels = self.hi_click.channels
-        self.rate = self.hi_click.rate
-        self.width = self.hi_click.width
-        self.bytes_per_frame = self.channels * self.width
+        self.shape = self.hi_click
+        self.bytes_per_frame = self.shape.channels * self.shape.width
 
     def figure_pattern(self):
         """Figure out where in the bar we need which clicks"""
@@ -332,7 +334,7 @@ class Metronome:
     def make_loop(self):
         """Rebuild the audio loop"""
         beat_sec = 60 / self.tempo
-        ideal_bar_frames = self.beats_per_bar * beat_sec * self.rate
+        ideal_bar_frames = self.beats_per_bar * beat_sec * self.shape.rate
         ideal_bar = ideal_bar_frames * self.bytes_per_frame
         bars_per_loop = 1
         rounded_frames = round(ideal_bar / self.bytes_per_frame)
@@ -342,7 +344,7 @@ class Metronome:
         for n_bar in range(bars_per_loop):
             for pos, data in self.pattern.items():
                 beat_n = (n_bar * self.beats_per_bar) + pos
-                frame_n = beat_n * beat_sec * self.rate
+                frame_n = beat_n * beat_sec * self.shape.rate
                 offset = round(frame_n) * self.bytes_per_frame
                 loop_data[offset:offset + len(data)] = data
 
