@@ -15,7 +15,7 @@ from rich import print  # pylint: disable=redefined-builtin
 
 try:
     import pynput.keyboard
-    from Quartz import CGEventMaskBit, NSEvent, NSSystemDefined
+    from Quartz import CGEventMaskBit, NSEvent, NSSystemDefined  # type: ignore
 
     # pylint: disable-next=too-few-public-methods
     class MiniListener(pynput.keyboard.Listener):
