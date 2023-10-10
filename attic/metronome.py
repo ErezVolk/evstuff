@@ -15,9 +15,7 @@ from rich import print  # pylint: disable=redefined-builtin
 
 try:
     import pynput.keyboard
-    from Quartz import CGEventMaskBit
-    from Quartz import NSEvent
-    from Quartz import NSSystemDefined
+    from Quartz import CGEventMaskBit, NSEvent, NSSystemDefined
 
     # pylint: disable-next=too-few-public-methods
     class MiniListener(pynput.keyboard.Listener):
@@ -69,7 +67,7 @@ class ByteLoop:
 
 
 # pylint: disable-next=too-few-public-methods
-class ClickFile:
+class Click:
     """Helper for reading sound files"""
     channels: int
     rate: int
@@ -91,7 +89,7 @@ class ClickFile:
                 self.data = bytes(sfo.frames * self.channels * self.width)
                 sfo.buffer_read_into(self.data, dtype='int16')
 
-    def is_like(self, other: "ClickFile") -> bool:
+    def is_like(self, other: "Click") -> bool:
         """Are two clicks compatible"""
         if self.channels != other.channels:
             return False
@@ -116,8 +114,8 @@ class Metronome:
     channels: int
     rate: int
     width: int
-    hi_click: ClickFile
-    lo_click: ClickFile
+    hi_click: Click
+    lo_click: Click
     beats_per_bar: int
     pattern: dict[float, bytes] = {}
     tempo: int
@@ -189,13 +187,12 @@ class Metronome:
     @classmethod
     def validate_beat_arg(cls, arg: str) -> int:
         """Validate --beat argument"""
-        try:
-            beat = int(arg)
-        except ValueError as exc:
-            raise argparse.ArgumentTypeError("must be positive") from exc
-        if beat > 0:
-            return beat
-        raise argparse.ArgumentTypeError("must be positive")
+        if not str.isnumeric(arg):
+            raise argparse.ArgumentTypeError("must be a number")
+        beat = int(arg)
+        if beat <= 0:
+            raise argparse.ArgumentTypeError("must be positive")
+        return beat
 
     def run(self):
         """The main event"""
@@ -251,9 +248,9 @@ class Metronome:
     def read_clicks(self):
         """Read click sounds"""
         paths = self.args.click
-        self.lo_click = self.hi_click = ClickFile(paths[0])
+        self.lo_click = self.hi_click = Click(paths[0])
         if len(paths) > 1:
-            self.lo_click = ClickFile(paths[1])
+            self.lo_click = Click(paths[1])
             if not self.lo_click.is_like(self.hi_click):
                 self.lo_click = self.hi_click
                 print(
@@ -364,7 +361,7 @@ class Metronome:
 
     # pylint: disable-next=unused-argument
     def intercept(self, event_type, event):
-        """Handle media key event"""
+        """Handle MacOS media key event"""
         bitmap = NSEvent.eventWithCGEvent_(event).data1()
         key = (bitmap & 0xffff0000) >> 16
 
