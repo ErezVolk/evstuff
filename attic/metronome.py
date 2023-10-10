@@ -170,8 +170,8 @@ class Metronome:
             "--subdivision",
             type=self.validate_subdivision_arg,
             help=(
-                "roll your own sub-beat rhythms with a string. "
-                "'T' = high click; 't' = low click; '-' = rest. "
+                "roll your own sub-beat rhythms with a combination of "
+                "'T' = high click, 't' = low click, and '-' = rest. "
                 "E.g., 't-t' is a first- and third triplet "
                 "beat, and '-t' clicks on the second eighth. "
             )
