@@ -139,6 +139,7 @@ class Metronome:
             "-c",
             "--click",
             type=Path,
+            metavar="AUDIO_FILE",
             nargs="+",
             default=[
                 HERE / "Perc_MetronomeQuartz_hi.wav",
@@ -149,7 +150,7 @@ class Metronome:
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "-b",
-            "--beat",
+            "--beats",
             type=self.validate_beat_arg,
             nargs="+",
             default=[4],
@@ -170,9 +171,9 @@ class Metronome:
             type=self.validate_subdivision_arg,
             help=(
                 "roll your own sub-beat rhythms with a string. "
-                "e.g., 't-t' is a first- and third triplet "
+                "'T' = high click; 't' = low click; '-' = rest. "
+                "E.g., 't-t' is a first- and third triplet "
                 "beat, and '-t' clicks on the second eighth. "
-                "'T' = high click; 't' = low click; '-' = rest."
             )
         )
         self.args = parser.parse_args()
@@ -291,9 +292,9 @@ class Metronome:
         else:
             his = []
             self.beats_per_bar = 0
-            for beat in self.args.beat:
+            for beats in self.args.beats:
                 his.append(self.beats_per_bar)
-                self.beats_per_bar += beat
+                self.beats_per_bar += beats
             los = range(self.beats_per_bar)  # Will get overrun by his
 
         for click, where in ((self.lo_click, los), (self.hi_click, his)):
