@@ -100,6 +100,11 @@ class Click(SoundShape):
                 self.data = bytes(sfo.frames * self.channels * self.width)
                 sfo.buffer_read_into(self.data, dtype='int16')
 
+    def is_compatible_with(self, other: SoundShape) -> bool:
+        """We only support clicks with the same frame rate, etc.
+        so we can paste both in a bytearray."""
+        return other == self  # This is why SoundShape is a dataclass
+
 
 # pylint: disable-next=too-many-instance-attributes
 class Metronome:
@@ -207,11 +212,17 @@ class Metronome:
         self.figure_pattern()
 
         self.set_tempo(self.args.tempo)
+        self.listen_to_control_c()
+        self.listen_to_media_keys()
 
-        # Listen to Ctrl-C
+        self.main_loop()
+
+    def listen_to_control_c(self):
+        """Install signal handler, otherwise pyaudio loses it"""
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
 
-        # Listen to Media keys
+    def listen_to_media_keys(self):
+        """On MacOS, start event intercept thread for play/pause, etc."""
         if WITH_MEDIA_KEYS:
             self.media_keys = {
                 NX_KEYTYPE_EJECT: self.handle_eject,
@@ -222,6 +233,8 @@ class Metronome:
             listener = MiniListener(darwin_intercept=self.intercept)
             listener.start()
 
+    def main_loop(self):
+        """Keep playing until pause or abort"""
         player = pyaudio.PyAudio()
         self.pause_unpause()  # Get ready for playing
 
@@ -251,7 +264,7 @@ class Metronome:
         self.lo_click = self.hi_click = Click(paths[0])
         if len(paths) > 1:
             self.lo_click = Click(paths[1])
-            if self.lo_click != self.hi_click:  # Must have same shape
+            if not self.lo_click.is_compatible_with(self.hi_click):
                 self.lo_click = self.hi_click
                 print(
                     f"{paths[0]} and {paths[1]} are incompatible, "
