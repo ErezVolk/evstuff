@@ -28,6 +28,7 @@ try:
     # pylint: disable-next=too-few-public-methods
     class MiniListener(pynput.keyboard.Listener):
         """A Listener that only cares about media keys"""
+
         _EVENTS = CGEventMaskBit(NSSystemDefined)
 
     WITH_MEDIA_KEYS = True
@@ -48,6 +49,7 @@ NX_KEYTYPE_REWIND = 20
 
 class ByteLoop:
     """A circular buffer of bytes."""
+
     def __init__(self, data: bytes | bytearray, granularity: int):
         self.data = data
         self.offset = 0
@@ -70,6 +72,7 @@ class ByteLoop:
 @dataclass
 class SoundShape:
     """Sound file parameters"""
+
     channels: int
     rate: int
     width: int
@@ -78,6 +81,7 @@ class SoundShape:
 # pylint: disable-next=too-few-public-methods
 class Click(SoundShape):
     """Audio data of a click"""
+
     data: bytes
 
     def __init__(self, path: str | Path):
@@ -98,7 +102,7 @@ class Click(SoundShape):
                     width=2,
                 )
                 self.data = bytes(sfo.frames * self.channels * self.width)
-                sfo.buffer_read_into(self.data, dtype='int16')
+                sfo.buffer_read_into(self.data, dtype="int16")
 
     def is_compatible_with(self, other: SoundShape) -> bool:
         """We only support clicks with the same frame rate, etc.
@@ -109,10 +113,11 @@ class Click(SoundShape):
 # pylint: disable-next=too-many-instance-attributes
 class Metronome:
     """A simple metronome"""
+
     args: argparse.Namespace
     status: rich.live.Live
     bytes_per_frame: int
-    loop: ByteLoop = ByteLoop(b'', 0)
+    loop: ByteLoop = ByteLoop(b"", 0)
     next_loop: ByteLoop | None = None
     aborting: bool = False
     paused: bool = True
@@ -166,7 +171,15 @@ class Metronome:
         group.add_argument(
             "-r",
             "--rhythm",
-            choices=["quarter", "eighth", "triple", "clave"],
+            choices=[
+                "half",
+                "half2",
+                "quarter",
+                "eighth",
+                "triple",
+                "clave",
+                "clave2",
+            ],
             help="common rhythms",
         )
         group.add_argument(
@@ -178,7 +191,7 @@ class Metronome:
                 "'T' = high click, 't' = low click, and '-' = rest. "
                 "E.g., 't-t' is a first- and third triplet "
                 "beat, and '-t' clicks on the second eighth. "
-            )
+            ),
         )
         self.args = parser.parse_args()
 
@@ -249,12 +262,12 @@ class Metronome:
             )
 
             while stream.is_active():
-                time.sleep(.1)
+                time.sleep(0.1)
 
             stream.close()
 
             while self.paused and not self.aborting:
-                time.sleep(.1)
+                time.sleep(0.1)
 
         player.terminate()
 
@@ -285,20 +298,30 @@ class Metronome:
                     his.append(where / subs)
                 elif mnem == "t":
                     los.append(where / subs)
+        elif self.args.rhythm == "half":
+            self.beats_per_bar = 4
+            his = [0]
+            los = [2]
+        elif self.args.rhythm == "half2":
+            self.beats_per_bar = 4
+            his = [1, 3]
         elif self.args.rhythm == "quarter":
             self.beats_per_bar = 1
             his = [0]
         elif self.args.rhythm == "eighth":
             self.beats_per_bar = 1
             his = [0]
-            los = [.5]
+            los = [0.5]
         elif self.args.rhythm == "triple":
             self.beats_per_bar = 1
             his = [0]
             los = [1 / 3, 2 / 3]
         elif self.args.rhythm == "clave":
             self.beats_per_bar = 4
-            his = [0, .75, 1.5, 2.5, 3]
+            his = [0, 0.75, 1.5, 2.5, 3]
+        elif self.args.rhythm == "clave2":
+            self.beats_per_bar = 4
+            his = [0.5, 1, 2, 2.75, 3.5]
         else:
             his = []
             self.beats_per_bar = 0
@@ -315,7 +338,7 @@ class Metronome:
     def read_more(self, in_data, frame_count: int, time_info, status):
         """Supply pyaudio with more audio"""
         if self.aborting or self.paused:
-            return (b'', pyaudio.paAbort)
+            return (b"", pyaudio.paAbort)
 
         nbytes = frame_count * self.bytes_per_frame
         chunks = []
@@ -331,7 +354,7 @@ class Metronome:
             chunks.append(chunk)
             nbytes -= len(chunk)
 
-        data = b''.join(chunks)
+        data = b"".join(chunks)
         return (data, pyaudio.paContinue)
 
     def set_tempo(self, tempo):
@@ -354,7 +377,8 @@ class Metronome:
                 beat_n = (n_bar * self.beats_per_bar) + pos
                 frame_n = beat_n * frames_per_beat
                 offset = round(frame_n) * self.bytes_per_frame
-                loop_data[offset:offset + len(data)] = data
+                limit = offset + len(data)
+                loop_data[offset:limit] = data
 
         loop = ByteLoop(loop_data, self.bytes_per_frame)
         self.next_loop = loop
@@ -374,13 +398,13 @@ class Metronome:
     def intercept(self, event_type, event):
         """Handle MacOS media key event"""
         bitmap = NSEvent.eventWithCGEvent_(event).data1()
-        key = (bitmap & 0xffff0000) >> 16
+        key = (bitmap & 0xFFFF0000) >> 16
 
         handler = self.media_keys.get(key)
         if handler is None:
             return event
 
-        is_press = ((bitmap & 0xff00) >> 8) == 0x0a
+        is_press = ((bitmap & 0xFF00) >> 8) == 0x0A
         if not is_press:  # React on key release
             handler()
         return None
