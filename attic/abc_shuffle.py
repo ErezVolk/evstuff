@@ -27,13 +27,32 @@ DRILLS = (
     "octaves", "fifths", "fourths", "chairs"
 )
 
+EASY_CHORDS = {
+    "M": "maj",
+    "m": "min",
+    "M7": "maj",
+    "7": "maj",
+    "m7": "min",
+    "6": "maj",
+}
+CHORDS = EASY_CHORDS | {
+    "m7(-5)": "min",
+    "dim7": "min",
+}
+
+DEFAULT_COUNTS = {
+    "easy-chords": 3,
+    "chords": 4,
+}
+DEFAULT_COUNT = len(NOTES)
+
 
 def main():
     """Random musical keys for practice"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "what",
-        choices=["notes", "scales", "drills"],
+        choices=["notes", "scales", "drills", "easy-chords", "chords"],
         default="drills",
         nargs="?",
     )
@@ -41,38 +60,58 @@ def main():
         "-n",
         "--count",
         type=int,
-        default=len(NOTES),
     )
     args = parser.parse_args()
 
-    sep = " "
+    if args.count is None:
+        args.count = DEFAULT_COUNTS.get(args.what, DEFAULT_COUNT)
 
-    if args.count <= len(NOTES):
-        notes = random.sample(NOTES, max(args.count, 1))
-    else:
-        notes = random.choices(NOTES, k=args.count)
-
-    things = [
-        random.choice(names)
-        for names in notes
-    ]
-
-    if args.what in ["scales", "drills"]:
-        scales = random.choices(list(KEY_FIX), k=len(things))
-        things = [
-            KEY_FIX[scale].get(thing, thing) + "-" + scale
-            for thing, scale in zip(things, scales)
-        ]
-
-    if args.what == "drills":
-        drills = random.choices(DRILLS, k=len(things))
-        things = [
-            f"{thing} in {drill}"
-            for thing, drill in zip(things, drills)
-        ]
+    if "chords" in args.what:
         sep = "\n"
+        choices = CHORDS if args.what == "chords" else EASY_CHORDS
+        start = random.choice(NOTES)
+        things = [f"* start from {start}"] + choose(choices, args.count)
+    else:
+        sep = " "
+
+        things = [
+            random.choice(names)
+            for names in choose(NOTES, args.count)
+        ]
+
+        if args.what == "chords":
+            things = things + things
+            chords = choose(CHORDS, len(things))
+            things = [
+                KEY_FIX[CHORDS[chord]].get(thing, thing) + chord
+                for thing, chord in zip(things, chords)
+            ]
+
+        if args.what in ["scales", "drills"]:
+            scales = choose(KEY_FIX, len(things))
+            things = [
+                KEY_FIX[scale].get(thing, thing) + "-" + scale
+                for thing, scale in zip(things, scales)
+            ]
+
+            if args.what == "drills":
+                drills = choose(DRILLS, len(things))
+                things = [
+                    f"{thing} in {drill}"
+                    for thing, drill in zip(things, drills)
+                ]
+                sep = "\n"
 
     print(sep.join(things))
+
+
+def choose(options, n) -> list[str]:
+    if n <= len(options):
+        return random.sample(list(options), max(n, 1))
+    rounds = (n + len(options) - 1) // len(options)
+    choices = list(options) * rounds
+    random.shuffle(choices)
+    return choices[:n]
 
 
 if __name__ == "__main__":
