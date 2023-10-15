@@ -81,9 +81,10 @@ def main():
             choices = EASY_CHORDS
         else:
             choices = CHORDS
-        start = random.choice(random.choice(NOTES))
-        things = [f"* start from {start}"] + [
-            f" - {start}{chord}, etc."
+        notes = random.choice(NOTES)
+        start = random.choice(notes)
+        things = [f"* start from {'/'.join(notes)}"] + [
+            f" - {KEY_FIX[CHORDS[chord]].get(start, start)}{chord}, etc."
             for chord in choose(choices, args.count)
         ]
     else:
