@@ -30,14 +30,15 @@ DRILLS = (
 EASY_CHORDS = {
     "M": "maj",
     "m": "min",
-    "M7": "maj",
     "7": "maj",
     "m7": "min",
-    "6": "maj",
-}
-CHORDS = EASY_CHORDS | {
-    "m7(-5)": "min",
+    "M7": "maj",
     "dim7": "min",
+}
+
+CHORDS = EASY_CHORDS | {
+    "6": "maj",
+    "m7(-5)": "min",
 }
 
 DEFAULT_COUNTS = {
@@ -61,6 +62,12 @@ def main():
         "--count",
         type=int,
     )
+    parser.add_argument(
+        "-c",
+        "--chords",
+        type=str,
+        nargs="+"
+    )
     args = parser.parse_args()
 
     if args.count is None:
@@ -68,9 +75,17 @@ def main():
 
     if "chords" in args.what:
         sep = "\n"
-        choices = CHORDS if args.what == "chords" else EASY_CHORDS
-        start = random.choice(NOTES)
-        things = [f"* start from {start}"] + choose(choices, args.count)
+        if args.chords is not None:
+            choices = args.chords
+        elif args.what == "easy-chords":
+            choices = EASY_CHORDS
+        else:
+            choices = CHORDS
+        start = random.choice(random.choice(NOTES))
+        things = [f"* start from {start}"] + [
+            f" - {start}{chord}, etc."
+            for chord in choose(choices, args.count)
+        ]
     else:
         sep = " "
 
