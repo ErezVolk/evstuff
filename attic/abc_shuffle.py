@@ -32,11 +32,11 @@ EASY_CHORDS = {
     "m": "min",
     "7": "maj",
     "m7": "min",
-    "M7": "maj",
-    "dim7": "min",
 }
 
 CHORDS = EASY_CHORDS | {
+    "M7": "maj",
+    "dim7": "min",
     "6": "maj",
     "m7(-5)": "min",
 }
