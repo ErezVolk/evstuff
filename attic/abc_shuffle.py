@@ -20,7 +20,7 @@ NOTES = (
 
 KEY_FIX = {
     "maj": {"A♯": "B♭", "B♯": "E♭", "C♯": "D♭", "D♯": "E♭", "G♯": "A♭"},
-    "min": {"A♯": "B♭", "D♯": "E♭", "A♭": "G♯", "D♭": "C♯", "G♭": "F♯"},
+    "min": {"A♯": "B♭", "A♭": "G♯", "D♭": "C♯", "D♯": "E♭", "G♭": "F♯"},
 }
 
 DRILLS = (
@@ -28,17 +28,17 @@ DRILLS = (
 )
 
 EASY_CHORDS = {
-    "M": "maj",
-    "m": "min",
-    "7": "maj",
-    "m7": "min",
+    "M": KEY_FIX["maj"],
+    "m": KEY_FIX["min"],
+    "7": KEY_FIX["maj"] | {"F♯": "G♭"},
+    "m7": KEY_FIX["min"],
 }
 
 CHORDS = EASY_CHORDS | {
-    "M7": "maj",
-    "dim7": "min",
-    "6": "maj",
-    "m7(-5)": "min",
+    "M7": KEY_FIX["maj"],
+    "dim7": KEY_FIX["min"] | {"B♭": "A♯", "F": "E♯"},
+    "6": KEY_FIX["maj"],
+    "m7(-5)": KEY_FIX["min"],
 }
 
 DEFAULT_COUNTS = {
@@ -84,7 +84,7 @@ def main():
         notes = random.choice(NOTES)
         start = random.choice(notes)
         things = [f"* start from {'/'.join(notes)}"] + [
-            f" - {KEY_FIX[CHORDS[chord]].get(start, start)}{chord}, etc."
+            f" - {CHORDS[chord].get(start, start)}{chord}, etc."
             for chord in choose(choices, args.count)
         ]
     else:
@@ -94,14 +94,6 @@ def main():
             random.choice(names)
             for names in choose(NOTES, args.count)
         ]
-
-        if args.what == "chords":
-            things = things + things
-            chords = choose(CHORDS, len(things))
-            things = [
-                KEY_FIX[CHORDS[chord]].get(thing, thing) + chord
-                for thing, chord in zip(things, chords)
-            ]
 
         if args.what in ["scales", "drills"]:
             scales = choose(KEY_FIX, len(things))
