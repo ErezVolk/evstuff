@@ -18,7 +18,7 @@ def run(lookup):
     else:
         meaning = None
 
-    PlayRandomSentence(aqt.mw, expression, meaning, lookup).exec_()
+    PlayRandomSentence(aqt.mw, expression, meaning, lookup).exec()
 
 
 def onK():

@@ -21,10 +21,9 @@ try:
 except ImportError:
     requests = None
 
-try:
-    from PyQt5 import Qt
-except ImportError:
-    from PyQt4 import Qt
+from PyQt6 import QtCore
+from PyQt6 import QtGui
+from PyQt6 import QtWidgets
 
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -43,7 +42,7 @@ class Side(object):
     def __init__(self, lang, voices):
         self.lang = lang
         self.voices = list(voices)
-        self.font = Qt.QFont()
+        self.font = QtGui.QFont()
         self.human = None
         self.mp3 = None
         self.text = None
@@ -102,7 +101,7 @@ class EngMatch(object):
         ).groupdict()
 
 
-class PlayRandomSentence(Qt.QDialog):
+class PlayRandomSentence(QtWidgets.QDialog):
     JPN_VOICES = []
     ENG_VOICES = []
     HEB_VOICES = []
@@ -167,7 +166,7 @@ class PlayRandomSentence(Qt.QDialog):
             return []
 
     def create_gui(self):
-        layout = Qt.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         self.jpn.font.setPointSize(36)
         self.jpn.humanize_font()
 
@@ -183,7 +182,7 @@ class PlayRandomSentence(Qt.QDialog):
             self.hide_ans()
             layout.addWidget(self.ans_label)
 
-        button = Qt.QPushButton("More", self)
+        button = QtWidgets.QPushButton("More", self)
         layout.addWidget(button)
         button.clicked.connect(self.next_clicked)
         button.setFocus()
@@ -208,7 +207,7 @@ class PlayRandomSentence(Qt.QDialog):
         self.play_next()
 
     def mklabel(self, side):
-        label = Qt.QLabel(side.text)
+        label = QtWidgets.QLabel(side.text)
         label.setFont(side.font)
         label.setWordWrap(True)
         return label
@@ -370,7 +369,7 @@ class PlayRandomSentence(Qt.QDialog):
         self._say("/usr/local/bin/play", path)
 
     def _say(self, executable, *args):
-        self.saying = Qt.QProcess(self)
+        self.saying = QtCore.QProcess(self)
         self.saying.finished.connect(self.said)
         self.saying.start(executable, args)
         self.saying.waitForStarted()

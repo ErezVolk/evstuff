@@ -4,9 +4,12 @@ if __name__ == '__main__':
     import sys
     from play_random_sentence.play_random_sentence import PlayRandomSentence
     try:
-        from PyQt5.QtWidgets import QApplication
+        from PyQt6.QtWidgets import QApplication
     except ImportError:
-        from PyQt4.QtGui import QApplication
+        try:
+            from PyQt5.QtWidgets import QApplication
+        except ImportError:
+            from PyQt4.QtGui import QApplication
 
     application = QApplication(sys.argv)
     for expression in sys.argv[1:]:
