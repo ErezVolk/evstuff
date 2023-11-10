@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Random musical keys for practice"""
 import argparse
+import itertools
 import random
 
 NOTES = (
@@ -87,28 +88,41 @@ def main():
             f" - {CHORDS[chord].get(start, start)}{chord}, etc."
             for chord in choose(choices, args.count)
         ]
-    else:
+    elif args.what == "notes":
         sep = " "
-
         things = [
             random.choice(names)
             for names in choose(NOTES, args.count)
         ]
-
-        if args.what in ["scales", "drills"]:
-            scales = choose(KEY_FIX, len(things))
+    else:
+        sep = " "
+        if args.count <= len(NOTES):
+            # We can have one of each root
+            roots = [
+                random.choice(names)
+                for names in choose(NOTES, args.count)
+            ]
+            scales = choose(KEY_FIX, len(roots))
             things = [
-                KEY_FIX[scale].get(thing, thing) + "-" + scale
-                for thing, scale in zip(things, scales)
+                KEY_FIX[scale].get(root, root) + "-" + scale
+                for root, scale in zip(roots, scales)
+            ]
+        else:
+            sep = "\n"
+            all_rset_scales = list(itertools.product(NOTES, KEY_FIX))
+            things = [
+                KEY_FIX[scale].get(root, root) + "-" + scale
+                for rset, scale in choose(all_rset_scales, args.count)
+                for root in [random.choice(rset)]
             ]
 
-            if args.what == "drills":
-                drills = choose(DRILLS, len(things))
-                things = [
-                    f"{thing} in {drill}"
-                    for thing, drill in zip(things, drills)
-                ]
-                sep = "\n"
+        if args.what == "drills":
+            drills = choose(DRILLS, len(things))
+            things = [
+                f"{thing} in {drill}"
+                for thing, drill in zip(things, drills)
+            ]
+            sep = "\n"
 
     print(sep.join(things))
 
