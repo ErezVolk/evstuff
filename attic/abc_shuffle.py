@@ -128,12 +128,19 @@ def main():
 
 
 def choose(options, n) -> list[str]:
-    if n <= len(options):
+    """Choose so we have as many "full" repetitions and a random tail"""
+    nopts = len(options)
+
+    if n <= nopts:
         return random.sample(list(options), max(n, 1))
-    rounds = (n + len(options) - 1) // len(options)
-    choices = list(options) * rounds
+
+    ntail = n % nopts
+    n_full_rounds = (n - ntail) // nopts
+
+    choices = (list(options) * n_full_rounds) + random.sample(options, ntail)
+
     random.shuffle(choices)
-    return choices[:n]
+    return choices
 
 
 if __name__ == "__main__":
