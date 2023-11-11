@@ -95,9 +95,9 @@ def main():
             for names in choose(NOTES, args.count)
         ]
     else:
-        sep = " "
         if args.count <= len(NOTES):
             # We can have one of each root
+            sep = " "
             roots = [
                 random.choice(names)
                 for names in choose(NOTES, args.count)
@@ -129,15 +129,16 @@ def main():
 
 def choose(options, n) -> list[str]:
     """Choose so we have as many "full" repetitions and a random tail"""
-    nopts = len(options)
+    opts = list(options)
+    nopts = len(opts)
 
     if n <= nopts:
-        return random.sample(list(options), max(n, 1))
+        return random.sample(opts, max(n, 1))
 
     ntail = n % nopts
     n_full_rounds = (n - ntail) // nopts
 
-    choices = (list(options) * n_full_rounds) + random.sample(options, ntail)
+    choices = (opts * n_full_rounds) + random.sample(opts, ntail)
 
     random.shuffle(choices)
     return choices
