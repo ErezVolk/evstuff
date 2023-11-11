@@ -3,6 +3,10 @@
 import argparse
 import itertools
 import random
+from collections.abc import Iterable
+import typing
+
+T = typing.TypeVar("T")
 
 NOTES = (
     ("A"),
@@ -127,7 +131,7 @@ def main():
     print(sep.join(things))
 
 
-def choose(options, n) -> list[str]:
+def choose(options: Iterable[T], n: int) -> list[T]:
     """Choose so we have as many "full" repetitions and a random tail"""
     opts = list(options)
     nopts = len(opts)
