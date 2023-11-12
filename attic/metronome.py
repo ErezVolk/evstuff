@@ -8,8 +8,10 @@ Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 """
 
 import argparse
+import bisect
 from dataclasses import dataclass
 from pathlib import Path
+from pathlib import PurePath
 import re
 import signal
 import time
@@ -110,6 +112,39 @@ class Click(SoundShape):
         return other == self  # This is why SoundShape is a dataclass
 
 
+class PathAwareDefaultsHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
+    """Like ArgumentDefaultsHelpFormatter, but with nicer Path formatting"""
+    DEFAULTING_NARGS = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
+
+    def _get_help_string(self, action: argparse.Action) -> str | None:
+        result = action.help
+        if result is None:
+            return result
+
+        if '%(default)' in result:
+            return result
+
+        if (default := action.default) is argparse.SUPPRESS:
+            return result
+
+        if default is None:
+            return result
+
+        if action.option_strings or action.nargs in self.DEFAULTING_NARGS:
+            if isinstance(default, PurePath):
+                result += f" [.../{default.name}]"
+            elif isinstance(default, (list, tuple)):
+                if all(isinstance(elem, PurePath) for elem in default):
+                    names = ", ".join(elem.name for elem in default)
+                    result += f" [{names}]"
+                else:
+                    result += " %(default)s"  # The list has brackets
+            else:
+                result += " [%(default)s]"
+
+        return result
+
+
 # pylint: disable-next=too-many-instance-attributes
 class Metronome:
     """A simple metronome"""
@@ -129,19 +164,37 @@ class Metronome:
     pattern: dict[float, bytes] = {}
     tempo: int
 
-    MIN_BPM = 20
-    MAX_BPM = 240
+    BPMS = [
+        # Added by me
+        20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
+
+        # https://en.wikipedia.org/wiki/Metronome#Usage
+        40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60,
+        63, 66, 69, 72,
+        76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120,
+        126, 132, 138, 144,
+        152, 160, 168, 176, 184, 192, 200, 208,
+
+        # Added by me
+        216, 224, 232, 240,
+    ]
+
+    MIN_BPM = BPMS[0]
+    MAX_BPM = BPMS[-1]
     BPM_STEP = 5
 
     def parse_args(self):
         """Usage"""
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            description="A metronome",
+            formatter_class=PathAwareDefaultsHelpFormatter,
+        )
         parser.add_argument(
             "tempo",
             metavar="BPM",
             type=int,
             nargs="?",
-            default=90,
+            default=92,
             help="beats per minute",
         )
         parser.add_argument(
@@ -440,8 +493,13 @@ class Metronome:
 
     def change_tempo(self, direction):
         """Increase/decrease tempo"""
-        curr = self.tempo // self.BPM_STEP
-        self.set_tempo((curr + direction) * self.BPM_STEP)
+        if direction > 0:  # Increase tempo
+            idx = bisect.bisect_right(self.BPMS, self.tempo)
+        else:
+            idx = bisect.bisect_left(self.BPMS, self.tempo) - 1
+
+        if 0 <= idx < len(self.BPMS):
+            self.set_tempo(self.BPMS[idx])
 
 
 if __name__ == "__main__":

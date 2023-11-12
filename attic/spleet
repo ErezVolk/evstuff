@@ -26,14 +26,17 @@ class Spleet:
 
     def parse_args(self):
         """Command line"""
-        parser = argparse.ArgumentParser(description="Split audio files by silence")
+        parser = argparse.ArgumentParser(
+            description="Split audio files by silence",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        )
         parser.add_argument(
             "-m",
             "--mean",
             metavar="MM[:SS]",
             type=self.mmss_to_ms,
             default="2:00",
-            help="Aim for mean split duration [default: 2:00]",
+            help="Aim for mean split duration",
         )
         parser.add_argument(
             "--slice-ms",
