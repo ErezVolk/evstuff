@@ -58,7 +58,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "what",
-        choices=["notes", "scales", "drills", "easy-chords", "chords"],
+        choices=["notes", "scales", "arps", "drills", "easy-chords", "chords"],
         default="drills",
         nargs="?",
     )
@@ -99,6 +99,11 @@ def main():
             for names in choose(NOTES, args.count)
         ]
     else:
+        if args.what == "arps":
+            fix = EASY_CHORDS
+        else:
+            fix = KEY_FIX
+
         if args.count <= len(NOTES):
             # We can have one of each root
             sep = " "
@@ -106,16 +111,16 @@ def main():
                 random.choice(names)
                 for names in choose(NOTES, args.count)
             ]
-            scales = choose(KEY_FIX, len(roots))
+            scales = choose(fix, len(roots))
             things = [
-                KEY_FIX[scale].get(root, root) + "-" + scale
+                fix[scale].get(root, root) + scale
                 for root, scale in zip(roots, scales)
             ]
         else:
             sep = "\n"
-            all_rset_scales = list(itertools.product(NOTES, KEY_FIX))
+            all_rset_scales = list(itertools.product(NOTES, fix))
             things = [
-                KEY_FIX[scale].get(root, root) + "-" + scale
+                fix[scale].get(root, root) + scale
                 for rset, scale in choose(all_rset_scales, args.count)
                 for root in [random.choice(rset)]
             ]
