@@ -33,17 +33,17 @@ DRILLS = (
 )
 
 EASY_CHORDS = {
-    "M": KEY_FIX["maj"],
-    "m": KEY_FIX["min"],
-    "7": KEY_FIX["maj"] | {"F♯": "G♭"},
-    "m7": KEY_FIX["min"],
+    "maj": KEY_FIX["maj"],
+    "min": KEY_FIX["min"],
+    "⁷": KEY_FIX["maj"] | {"F♯": "G♭"},
+    "m⁷": KEY_FIX["min"],
+    "M⁷": KEY_FIX["maj"],
 }
 
 CHORDS = EASY_CHORDS | {
-    "M7": KEY_FIX["maj"],
-    "dim7": KEY_FIX["min"] | {"B♭": "A♯", "F": "E♯"},
-    "6": KEY_FIX["maj"],
-    "m7(-5)": KEY_FIX["min"],
+    "dim⁷": KEY_FIX["min"] | {"B♭": "A♯", "F": "E♯"},
+    "⁶": KEY_FIX["maj"],
+    "m7♭5": KEY_FIX["min"],
 }
 
 DEFAULT_COUNTS = {
