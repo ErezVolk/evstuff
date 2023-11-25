@@ -54,7 +54,10 @@ header-includes: |
 - Taught 2023-11-22
 
 ```
-| Em | G | Am | Em | Bm | Am C | G F | C | D / E C | D |
+| Em | G | Am | Em | Bm | Am C | G F | C | D D E C | D |
+
+E-based: | Im | III | IVm | Im | Vm | IVm VI | III IV | VI | VII VII I VI | VII |
+G-based: | VIm | I | IIm | VIm | IIIm | IIm IV | I VII | IV | V V VI IV | V |
 ```
 
 
