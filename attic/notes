@@ -109,7 +109,8 @@ def main():
     drill = args.drill
     if not drill:
         drill = random.choice(config.defaults)
-        print(f"[{drill} × {args.count}]")
+        if len(config.defaults) > 1:
+            print(f"[{drill} × {args.count}]")
     elif drill not in drills:
         raise ValueError(f"Unknown entity {repr(drill)}")
 
@@ -171,17 +172,18 @@ def parse_config(stream: typing.TextIO) -> Configuration:
         def match(expr):
             return re.fullmatch(expr, line)
 
-        if (mobj := match(r"(\S[^:]*):")):
-            drills[mobj.group(1).strip()] = curr = {}
-        elif (mobj := match(r"\s+([*]?)([^:]*):\s+(" + SCALE_RE + ")")):
-            if curr is None:
-                raise ValueError(f"Key without section in line {nline}")
+        if (mobj := match(r"([*]?)(\S[^:]*):")):
             name = mobj.group(2).strip()
-            if name and name[0] in ["'", '"'] and name[-1] == name[0]:
-                name = name[1:-1]
-            curr[name] = mobj.group(3).strip()
+            drills[name] = curr = {}
             if mobj.group(1) == "*":
                 defaults.append(name)
+        elif (mobj := match(r"\s+([^:]*):\s+(" + SCALE_RE + ")")):
+            if curr is None:
+                raise ValueError(f"Key without section in line {nline}")
+            name = mobj.group(1).strip()
+            if name and name[0] in ["'", '"'] and name[-1] == name[0]:
+                name = name[1:-1]
+            curr[name] = mobj.group(2).strip()
         elif not match(r""):
             raise ValueError(f"Cannot parse line {nline}")
     return Configuration(
