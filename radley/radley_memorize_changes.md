@@ -19,9 +19,6 @@ header-includes: |
 
 
 
-# You Send Me
-
-
 # Willy
 - In C (D for Karine)
 - Transcribed 2023-11-22
@@ -59,6 +56,9 @@ header-includes: |
 E-based: | Im | III | IVm | Im | Vm | IVm VI | III IV | VI | VII VII I VI | VII |
 G-based: | VIm | I | IIm | VIm | IIIm | IIm IV | I VII | IV | V V VI IV | V |
 ```
+
+
+# You Send Me
 
 
 # You Are the Sunshine of My Life

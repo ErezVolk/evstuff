@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """Random musical keys for practice"""
 import argparse
-import itertools
+import io
+from pathlib import Path
 import random
+import re
 from collections.abc import Iterable
 import typing
 
+# TODO: Modes (e.g., "dorian: major-1")
+# TODO: default-config
+# TODO: default "What" (maybe a star)
+
 T = typing.TypeVar("T")
 
-NOTES = (
-    ("A"),
-    ("A♯", "B♭"),
-    ("B"),
+NSETS = (
     ("C"),
     ("C♯", "D♭"),
     ("D"),
@@ -21,36 +24,49 @@ NOTES = (
     ("F♯", "G♭"),
     ("G"),
     ("G♯", "A♭"),
+    ("A"),
+    ("A♯", "B♭"),
+    ("B"),
 )
 
-KEY_FIX = {
-    "maj": {"A♯": "B♭", "D♯": "E♭", "C♯": "D♭", "G♯": "A♭"},
-    "min": {"A♯": "B♭", "A♭": "G♯", "D♭": "C♯", "D♯": "E♭", "G♭": "F♯"},
+SCALE_FIX = {
+    "ANY": {},
+    "major": {
+        "G♯": "A♭",
+        "D♯": "E♭",
+        "A♯": "B♭",
+    },
+    "minor": {
+        "G♭": "F♯",
+        "D♭": "C♯",
+        "A♭": "G♯",
+        # "A♯": "B♭",  (according to Wikipedia)
+    }
 }
 
 DRILLS = (
     "octaves", "fifths", "fourths", "chairs"
 )
 
-EASY_CHORDS = {
-    "maj": KEY_FIX["maj"],
-    "min": KEY_FIX["min"],
-    "⁷": KEY_FIX["maj"] | {"F♯": "G♭"},
-    "m⁷": KEY_FIX["min"],
-    "M⁷": KEY_FIX["maj"],
-}
+DEFAULT_CONFIG = """
+note:
+  : ANY
 
-CHORDS = EASY_CHORDS | {
-    "dim⁷": KEY_FIX["min"] | {"B♭": "A♯", "F": "E♯"},
-    "⁶": KEY_FIX["maj"],
-    "m7♭5": KEY_FIX["min"],
-}
+scale:
+  -major: major
+  -natural minor: minor
+  -harmonic minor: minor
+  -melodic minor: minor
 
-DEFAULT_COUNTS = {
-    "easy-chords": 3,
-    "chords": 4,
-}
-DEFAULT_COUNT = len(NOTES)
+arp:
+  M: major
+  m: minor
+  ⁷: major
+  m⁷: minor
+  M⁷: major
+  ' major pentatonic': major
+  ' minor pentatonic': minor
+"""
 
 
 def main():
@@ -58,82 +74,62 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "what",
-        choices=["notes", "scales", "arps", "drills", "easy-chords", "chords"],
-        default="drills",
         nargs="?",
     )
     parser.add_argument(
-        "-n",
-        "--count",
-        type=int,
+        "count",
+        nargs="?",
+        default=len(NSETS),
     )
     parser.add_argument(
         "-c",
-        "--chords",
-        type=str,
-        nargs="+"
+        "--config",
+        type=Path,
+        default=Path.home() / ".notesrc",
     )
     args = parser.parse_args()
 
-    if args.count is None:
-        args.count = DEFAULT_COUNTS.get(args.what, DEFAULT_COUNT)
+    try:
+        with open(args.config, "r", encoding="UTF-8") as fobj:
+            config = parse_config(fobj)
+    except (FileNotFoundError, ValueError):
+        config = parse_config(io.StringIO(DEFAULT_CONFIG))
 
-    if "chords" in args.what:
-        sep = "\n"
-        if args.chords is not None:
-            choices = args.chords
-        elif args.what == "easy-chords":
-            choices = EASY_CHORDS
-        else:
-            choices = CHORDS
-        notes = random.choice(NOTES)
-        start = random.choice(notes)
-        things = [f"* start from {'/'.join(notes)}"] + [
-            f" - {CHORDS[chord].get(start, start)}{chord}, etc."
-            for chord in choose(choices, args.count)
-        ]
-    elif args.what == "notes":
-        sep = " "
-        things = [
-            random.choice(names)
-            for names in choose(NOTES, args.count)
-        ]
+    if not args.what:
+        args.what = random.choice(list(config))
+        print(f"{args.what} × {args.count}")
+    elif args.what not in config:
+        print(f"Unknown entity {repr(args.what)}")
+        return
+
+    n = args.count
+    all_suffs = config[args.what]
+    nsets = choose(NSETS, min(n, len(NSETS)))
+    suffs = choose(all_suffs, len(nsets))
+    nset_suffs = list(zip(nsets, suffs))
+    if (n := n - len(nset_suffs)) > 0:
+        all_nset_suffs = {(nset, suff) for nset in NSETS for suff in all_suffs}
+        other_nset_suffs = all_nset_suffs - set(nset_suffs)
+        nset_suffs.extend(choose(
+            other_nset_suffs,
+            min(n, len(other_nset_suffs))
+        ))
+        if (n := n - len(nset_suffs)) > 0:
+            nset_suffs.extend(choose(all_nset_suffs, n))
+    nsuffs = [
+        "".join([choose_note(nset, all_suffs[suff]), suff])
+        for nset, suff in nset_suffs
+    ]
+    if len(one_line := " ".join(nsuffs)) < 80:
+        print(one_line)
     else:
-        if args.what == "arps":
-            fix = EASY_CHORDS
-        else:
-            fix = KEY_FIX
+        print("\n".join(nsuffs))
 
-        if args.count <= len(NOTES):
-            # We can have one of each root
-            sep = " "
-            roots = [
-                random.choice(names)
-                for names in choose(NOTES, args.count)
-            ]
-            scales = choose(fix, len(roots))
-            things = [
-                fix[scale].get(root, root) + scale
-                for root, scale in zip(roots, scales)
-            ]
-        else:
-            sep = "\n"
-            all_rset_scales = list(itertools.product(NOTES, fix))
-            things = [
-                fix[scale].get(root, root) + scale
-                for rset, scale in choose(all_rset_scales, args.count)
-                for root in [random.choice(rset)]
-            ]
 
-        if args.what == "drills":
-            drills = choose(DRILLS, len(things))
-            things = [
-                f"{thing} in {drill}"
-                for thing, drill in zip(things, drills)
-            ]
-            sep = "\n"
-
-    print(sep.join(things))
+def choose_note(nset, scale: str) -> str:
+    """Choose one way of spelling a note"""
+    note = random.choice(nset)
+    return SCALE_FIX[scale].get(note, note)
 
 
 def choose(options: Iterable[T], n: int) -> list[T]:
@@ -151,6 +147,30 @@ def choose(options: Iterable[T], n: int) -> list[T]:
 
     random.shuffle(choices)
     return choices
+
+
+def parse_config(stream: typing.TextIO) -> dict[str, dict[str, str]]:
+    SCALE_RE = "|".join(SCALE_FIX)
+    config = {}
+    curr = None
+    for nline, line in enumerate(stream, 1):
+        line = re.sub(r"\s*(#.*)?$", "", line)
+
+        def match(expr):
+            return re.fullmatch(expr, line)
+
+        if (mobj := match(r"(\S[^:]*):")):
+            config[mobj.group(1).strip()] = curr = {}
+        elif (mobj := match(r"\s+([^:]*):\s+(" + SCALE_RE + ")")):
+            if curr is None:
+                raise ValueError(f"Key without section in line {nline}")
+            name = mobj.group(1).strip()
+            if name and name[0] in ["'", '"'] and name[-1] == name[0]:
+                name = name[1:-1]
+            curr[name] = mobj.group(2).strip()
+        elif not match(r""):
+            raise ValueError(f"Cannot parse line {nline}")
+    return config
 
 
 if __name__ == "__main__":
