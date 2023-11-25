@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Random musical keys for practice"""
 import argparse
+from dataclasses import dataclass
 import io
 from pathlib import Path
 import random
@@ -9,8 +10,6 @@ from collections.abc import Iterable
 import typing
 
 # TODO: Modes (e.g., "dorian: major-1")
-# TODO: default-config
-# TODO: default "What" (maybe a star)
 
 T = typing.TypeVar("T")
 
@@ -69,16 +68,23 @@ arp:
 """
 
 
+@dataclass
+class Configuration:
+    drills: dict[str, dict[str, str]]
+    defaults: list[str]
+
+
 def main():
     """Random musical keys for practice"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "what",
+        "drill",
         nargs="?",
     )
     parser.add_argument(
-        "count",
-        nargs="?",
+        "-n",
+        "--count",
+        type=int,
         default=len(NSETS),
     )
     parser.add_argument(
@@ -89,37 +95,44 @@ def main():
     )
     args = parser.parse_args()
 
+    if args.drill == "default-config":
+        print(DEFAULT_CONFIG)
+        return
+
     try:
         with open(args.config, "r", encoding="UTF-8") as fobj:
             config = parse_config(fobj)
     except (FileNotFoundError, ValueError):
         config = parse_config(io.StringIO(DEFAULT_CONFIG))
+    drills = config.drills
 
-    if not args.what:
-        args.what = random.choice(list(config))
-        print(f"{args.what} × {args.count}")
-    elif args.what not in config:
-        print(f"Unknown entity {repr(args.what)}")
-        return
+    drill = args.drill
+    if not drill:
+        drill = random.choice(config.defaults)
+        print(f"[{drill} × {args.count}]")
+    elif drill not in drills:
+        raise ValueError(f"Unknown entity {repr(drill)}")
 
     n = args.count
-    all_suffs = config[args.what]
+    all_suffs = drills[drill]
     nsets = choose(NSETS, min(n, len(NSETS)))
     suffs = choose(all_suffs, len(nsets))
     nset_suffs = list(zip(nsets, suffs))
     if (n := n - len(nset_suffs)) > 0:
         all_nset_suffs = {(nset, suff) for nset in NSETS for suff in all_suffs}
         other_nset_suffs = all_nset_suffs - set(nset_suffs)
-        nset_suffs.extend(choose(
-            other_nset_suffs,
-            min(n, len(other_nset_suffs))
-        ))
+        if len(other_nset_suffs) > 0:
+            nset_suffs.extend(choose(
+                other_nset_suffs,
+                min(n, len(other_nset_suffs))
+            ))
         if (n := n - len(nset_suffs)) > 0:
             nset_suffs.extend(choose(all_nset_suffs, n))
     nsuffs = [
         "".join([choose_note(nset, all_suffs[suff]), suff])
         for nset, suff in nset_suffs
     ]
+    random.shuffle(nsuffs)
     if len(one_line := " ".join(nsuffs)) < 80:
         print(one_line)
     else:
@@ -144,14 +157,13 @@ def choose(options: Iterable[T], n: int) -> list[T]:
     n_full_rounds = (n - ntail) // nopts
 
     choices = (opts * n_full_rounds) + random.sample(opts, ntail)
-
-    random.shuffle(choices)
     return choices
 
 
-def parse_config(stream: typing.TextIO) -> dict[str, dict[str, str]]:
+def parse_config(stream: typing.TextIO) -> Configuration:
     SCALE_RE = "|".join(SCALE_FIX)
-    config = {}
+    drills = {}
+    defaults = []
     curr = None
     for nline, line in enumerate(stream, 1):
         line = re.sub(r"\s*(#.*)?$", "", line)
@@ -160,17 +172,22 @@ def parse_config(stream: typing.TextIO) -> dict[str, dict[str, str]]:
             return re.fullmatch(expr, line)
 
         if (mobj := match(r"(\S[^:]*):")):
-            config[mobj.group(1).strip()] = curr = {}
-        elif (mobj := match(r"\s+([^:]*):\s+(" + SCALE_RE + ")")):
+            drills[mobj.group(1).strip()] = curr = {}
+        elif (mobj := match(r"\s+([*]?)([^:]*):\s+(" + SCALE_RE + ")")):
             if curr is None:
                 raise ValueError(f"Key without section in line {nline}")
-            name = mobj.group(1).strip()
+            name = mobj.group(2).strip()
             if name and name[0] in ["'", '"'] and name[-1] == name[0]:
                 name = name[1:-1]
-            curr[name] = mobj.group(2).strip()
+            curr[name] = mobj.group(3).strip()
+            if mobj.group(1) == "*":
+                defaults.append(name)
         elif not match(r""):
             raise ValueError(f"Cannot parse line {nline}")
-    return config
+    return Configuration(
+        drills=drills,
+        defaults=defaults or list(drills),
+    )
 
 
 if __name__ == "__main__":
