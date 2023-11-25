@@ -1,0 +1,15 @@
+- [x] Every Breath You Take
+- [ ] Willy
+- [ ] Everytime You Go Away
+- [ ] Little Wing
+- [ ] You Are the Sunshine of My Life
+- [ ] Lately
+- [ ] Wake Me Up Before You Go-Go
+- [ ] You Send Me
+- [ ] Sunny
+- [ ] Octopus's Garden
+- [ ] I Got Rhythm
+- [ ] Let It Be
+- [ ] Shower the People
+- [ ] Here, There, and Everywhere
+- [ ] Have You Ever Seen the Rain
