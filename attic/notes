@@ -134,7 +134,8 @@ def main():
         for nset, suff in nset_suffs
     ]
     random.shuffle(nsuffs)
-    if len(one_line := " ".join(nsuffs)) < 80:
+    spaceless = all(" " not in nsuff for nsuff in nsuffs)
+    if spaceless and len(one_line := " ".join(nsuffs)) < 80:
         print(one_line)
     else:
         print("\n".join(nsuffs))
