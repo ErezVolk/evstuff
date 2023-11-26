@@ -77,37 +77,15 @@ E-based: | Im | III | IVm | Im | Vm | IVm VI | III IV | VI | VII VII I VI | VII 
 G-based: | VIm | I | IIm | VIm | IIIm | IIm IV | I VII | IV | V V VI IV | V |
 ```
 
-
-# You Send Me
-
-
-# You Are the Sunshine of My Life
-
-
-# Lately
-
-
-# Wake Me Up Before You Go-Go
-
-
-# Sunny
-
-
-# Octopus's Garden
-
-
-# I Got Rhythm
-
-
-# Let It Be
-
-
-# Shower the People
-
-
-# Here, There, and Everywhere
-
-
-# Have You Ever Seen the Rain
-
-
+# To Do
+- You Send Me
+- You Are the Sunshine of My Life
+- Lately
+- Wake Me Up Before You Go-Go
+- Sunny
+- Octopus's Garden
+- I Got Rhythm
+- Let It Be
+- Shower the People
+- Here, There, and Everywhere
+- Have You Ever Seen the Rain
