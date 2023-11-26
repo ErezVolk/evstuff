@@ -12,9 +12,14 @@ header-includes: |
 - Memorized 2023-11-25
 
 ```
-"Every breath..."        ||: I | % | VIm | % | IV | V | I | % :||
-"Oh, can't you see..."   | IV7 | % | I | % | IImaj(!) | % | V | % |
-"Since you gone..."      ||: VIm | % | I | % :|| x3
+
+(intro)                  | I | % | VIm | % | IV | V | I   | % |
+"Every breath..."        | I | % | VIm | % | IV | V | VIm | % |
+                         | I | % | VIm | % | IV | V |  I  | % |
+"Oh, can't you see..."   | IV | IIIb | I | % | IImaj(!) | % | V | % |
+"Every move..."          | I | % | VIm | % | IV | V | VIm | % |
+"Since you gone..."      |: VIIb | % | IV | % :| I | % |
+                         |  VIIb | % | I  | %  |
 ```
 
 
