@@ -9,8 +9,6 @@ import re
 from collections.abc import Iterable
 import typing
 
-# TODO: Modes (e.g., "dorian: major-1")
-
 T = typing.TypeVar("T")
 
 NSETS = (
@@ -49,9 +47,19 @@ note:
 
 scale:
   -major: major
+  -major: major  # Duplicate an entry to give it more weight
   -natural minor: minor
   -harmonic minor: minor
   -melodic minor: minor
+
+mode:
+  ' ionian': ionian
+  ' dorian': dorian
+  ' phrygian': phrygian
+  ' lydian': lydian
+  ' mixolydian': mixolydian
+  ' aeolian': aeolian
+  ' locrian': locrian
 
 arp:
   M: major
@@ -65,8 +73,17 @@ arp:
 
 
 @dataclass
+class DrillItem:
+    name: str
+    scale: str
+
+
+Drill: typing.TypeAlias = list[DrillItem]
+
+
+@dataclass
 class Configuration:
-    drills: dict[str, dict[str, str]]
+    drills: dict[str, Drill]
     defaults: list[str]
 
 
@@ -95,6 +112,8 @@ def main():
         print(DEFAULT_CONFIG)
         return
 
+    add_modes()
+
     try:
         with open(args.config, "r", encoding="UTF-8") as fobj:
             config = parse_config(fobj)
@@ -102,39 +121,71 @@ def main():
         config = parse_config(io.StringIO(DEFAULT_CONFIG))
     drills = config.drills
 
-    drill = args.drill
-    if not drill:
-        drill = random.choice(config.defaults)
+    drill_name = args.drill
+    if not drill_name:
+        drill_name = random.choice(config.defaults)
         if len(config.defaults) > 1:
-            print(f"[{drill} × {args.count}]")
-    elif drill not in drills:
-        raise ValueError(f"Unknown entity {repr(drill)}")
+            print(f"[{drill_name} × {args.count}]")
+    elif drill_name not in drills:
+        raise ValueError(f"Unknown entity {repr(drill_name)}")
 
     n = args.count
-    all_suffs = drills[drill]
+    all_items = drills[drill_name]
     nsets = choose(NSETS, min(n, len(NSETS)))
-    suffs = choose(all_suffs, len(nsets))
-    nset_suffs = list(zip(nsets, suffs))
-    if (n := n - len(nset_suffs)) > 0:
-        all_nset_suffs = {(nset, suff) for nset in NSETS for suff in all_suffs}
-        other_nset_suffs = all_nset_suffs - set(nset_suffs)
-        if len(other_nset_suffs) > 0:
-            nset_suffs.extend(choose(
-                other_nset_suffs,
-                min(n, len(other_nset_suffs))
+    items = choose(all_items, len(nsets))
+    nset_items = list(zip(nsets, items))
+    if (n := n - len(nset_items)) > 0:
+        all_nset_items = {(nset, item) for nset in NSETS for item in all_items}
+        other_nset_items = all_nset_items - set(nset_items)
+        if len(other_nset_items) > 0:
+            nset_items.extend(choose(
+                other_nset_items,
+                min(n, len(other_nset_items))
             ))
-        if (n := n - len(nset_suffs)) > 0:
-            nset_suffs.extend(choose(all_nset_suffs, n))
-    nsuffs = [
-        "".join([choose_note(nset, all_suffs[suff]), suff])
-        for nset, suff in nset_suffs
+        if (n := n - len(nset_items)) > 0:
+            nset_items.extend(choose(all_nset_items, n))
+    nitems = [
+        "".join([choose_note(nset, item.scale), item.name])
+        for nset, item in nset_items
     ]
-    random.shuffle(nsuffs)
-    spaceless = all(" " not in nsuff for nsuff in nsuffs)
-    if spaceless and len(one_line := " ".join(nsuffs)) < 80:
+    random.shuffle(nitems)
+    spaceless = all(" " not in nitem for nitem in nitems)
+    if spaceless and len(one_line := " ".join(nitems)) < 80:
         print(one_line)
     else:
-        print("\n".join(nsuffs))
+        print("\n".join(nitems))
+
+
+def add_modes():
+    """Add the Greek modes and their hypotheticals"""
+    NOTES = "CDEFGAB"
+    MODES = [
+        "ionian",
+        "dorian",
+        "phrygian",
+        "lydian",
+        "mixolydian",
+        "aeolian",
+        "locrian",
+    ]
+    MODEL = SCALE_FIX["major"]
+
+    for offset, mode in enumerate(MODES):
+        mapping = {
+            note: NOTES[(idx + offset) % len(NOTES)]
+            for idx, note in enumerate(NOTES)
+        }
+
+        def modify(note: str) -> str:
+            try:
+                return mapping[note[0]] + note[1:]
+            except KeyError:
+                return note
+
+        SCALE_FIX[mode] = {
+            modify(key): modify(value)
+            for key, value in MODEL.items()
+        }
 
 
 def choose_note(nset, scale: str) -> str:
@@ -162,7 +213,7 @@ def parse_config(stream: typing.TextIO) -> Configuration:
     SCALE_RE = "|".join(SCALE_FIX)
     drills = {}
     defaults = []
-    curr = None
+    curr: Drill | None = None
     for nline, line in enumerate(stream, 1):
         line = re.sub(r"\s*(#.*)?$", "", line)
 
@@ -171,7 +222,7 @@ def parse_config(stream: typing.TextIO) -> Configuration:
 
         if (mobj := match(r"([*]?)(\S[^:]*):")):
             name = mobj.group(2).strip()
-            drills[name] = curr = {}
+            drills[name] = curr = Drill([])
             if mobj.group(1) == "*":
                 defaults.append(name)
         elif (mobj := match(r"\s+([^:]*):\s+(" + SCALE_RE + ")")):
@@ -180,7 +231,10 @@ def parse_config(stream: typing.TextIO) -> Configuration:
             name = mobj.group(1).strip()
             if name and name[0] in ["'", '"'] and name[-1] == name[0]:
                 name = name[1:-1]
-            curr[name] = mobj.group(2).strip()
+            curr.append(DrillItem(
+                name=name,
+                scale=mobj.group(2).strip()
+            ))
         elif not match(r""):
             raise ValueError(f"Cannot parse line {nline}")
     return Configuration(
