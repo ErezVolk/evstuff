@@ -101,6 +101,11 @@ def main():
         default=len(NSETS),
     )
     parser.add_argument(
+        "-m",
+        "--max-items",
+        type=int,
+    )
+    parser.add_argument(
         "-c",
         "--config",
         type=Path,
@@ -129,8 +134,11 @@ def main():
     elif drill_name not in drills:
         raise ValueError(f"Unknown entity {repr(drill_name)}")
 
-    n = args.count
     all_items = drills[drill_name]
+    if args.max_items and len(all_items) > args.max_items:
+        all_items = random.sample(all_items, args.max_items)
+
+    n = args.count
     nsets = choose(NSETS, min(n, len(NSETS)))
     items = choose(all_items, len(nsets))
     nset_items = list(zip(nsets, items))
