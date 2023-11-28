@@ -3,85 +3,33 @@
 import argparse
 from dataclasses import dataclass
 import io
+import itertools
 from pathlib import Path
 import random
 import re
+import shlex
+
 from collections.abc import Iterable
 import typing
 
-# TODO: default cli value
-# TODO: --drills
+
+@dataclass
+class DrillItem:
+    """A single drill item, e.g., 'minor pentatonic'"""
+    name: str
+    scale: str
 
 
-def usage() -> argparse.Namespace:
-    """Command-line"""
-    parser = argparse.ArgumentParser(description="Practice Makes Perfect")
-    parser.add_argument(
-        "drill",
-        nargs="?",
-    )
-    parser.add_argument(
-        "-n",
-        "--count",
-        type=int,
-        default=len(NSETS),
-    )
-    parser.add_argument(
-        "-m",
-        "--max-items",
-        type=int,
-    )
-    parser.add_argument(
-        "-c",
-        "--config",
-        type=Path,
-        default=Path.home() / ".pmprc",
-    )
-    return parser.parse_args()
+Drill: typing.TypeAlias = list[DrillItem]
 
 
-T = typing.TypeVar("T")
+@dataclass
+class Configuration:
+    """The information from the config file"""
+    drills: dict[str, Drill]
+    defaults: list[str]
+    cli: str
 
-_NOTES = "CDEFGAB"
-_MODES = (
-    "ionian",
-    "dorian",
-    "phrygian",
-    "lydian",
-    "mixolydian",
-    "aeolian",
-    "locrian",
-)
-
-NSETS = (
-    ("C"),
-    ("C♯", "D♭"),
-    ("D"),
-    ("D♯", "E♭"),
-    ("E"),
-    ("F"),
-    ("F♯", "G♭"),
-    ("G"),
-    ("G♯", "A♭"),
-    ("A"),
-    ("A♯", "B♭"),
-    ("B"),
-)
-
-SCALE_FIX: dict[str, dict[str, str]] = {
-    "ANY": {},
-    "major": {
-        "G♯": "A♭",
-        "D♯": "E♭",
-        "A♯": "B♭",
-    },
-    "minor": {
-        "G♭": "F♯",
-        "D♭": "C♯",
-        "A♭": "G♯",
-        # "A♯": "B♭",  (according to Wikipedia)
-    }
-}
 
 DEFAULT_CONFIG = """
 note:
@@ -114,158 +62,238 @@ arp:
 """
 
 
-@dataclass
-class DrillItem:
-    """A single drill item, e.g., 'minor pentatonic'"""
-    name: str
-    scale: str
-
-
-Drill: typing.TypeAlias = list[DrillItem]
-
-
-@dataclass
-class Configuration:
-    """The information from the config file"""
-    drills: dict[str, Drill]
-    defaults: list[str]
-
-
-def main() -> None:
+class PracticeMakesPerfect:
     """Practice Makes Perfect"""
-    args = usage()
 
-    if args.drill == "default-config":
-        print(DEFAULT_CONFIG)
-        return
+    parser: argparse.ArgumentParser
+    args: argparse.Namespace
+    config: Configuration
 
-    add_modes()
+    def usage(self) -> None:
+        """Command-line"""
+        self.parser = argparse.ArgumentParser(
+            description="Practice Makes Perfect"
+        )
+        self.parser.add_argument(
+            "drill",
+            nargs="?",
+        )
+        self.parser.add_argument(
+            "-n",
+            "--count",
+            type=int,
+        )
+        self.parser.add_argument(
+            "-m",
+            "--max-items",
+            type=int,
+        )
+        self.parser.add_argument(
+            "-p",
+            "--pool",
+            type=str,
+            nargs="*",
+        )
+        self.parser.add_argument(
+            "-c",
+            "--config",
+            type=Path,
+            default=Path.home() / ".pmprc",
+        )
+        self.args = self.parser.parse_args()
+        print(self.args.pool)
 
-    try:
-        with open(args.config, "r", encoding="UTF-8") as fobj:
-            config = parse_config(fobj)
-    except (FileNotFoundError, ValueError):
-        config = parse_config(io.StringIO(DEFAULT_CONFIG))
-    drills = config.drills
+    T = typing.TypeVar("T")
 
-    drill_name = args.drill
-    if not drill_name:
-        drill_name = random.choice(config.defaults)
-        if len(config.defaults) > 1:
-            print(f"[{drill_name} × {args.count}]")
-    elif drill_name not in drills:
-        raise ValueError(f"Unknown entity {repr(drill_name)}")
+    _NOTES = "CDEFGAB"
+    _MODES = (
+        "ionian",
+        "dorian",
+        "phrygian",
+        "lydian",
+        "mixolydian",
+        "aeolian",
+        "locrian",
+    )
 
-    all_items = drills[drill_name]
-    if args.max_items and len(all_items) > args.max_items:
-        all_items = random.sample(all_items, args.max_items)
+    NSETS = (
+        ("C"),
+        ("C♯", "D♭"),
+        ("D"),
+        ("D♯", "E♭"),
+        ("E"),
+        ("F"),
+        ("F♯", "G♭"),
+        ("G"),
+        ("G♯", "A♭"),
+        ("A"),
+        ("A♯", "B♭"),
+        ("B"),
+    )
 
-    n = args.count
-    nsets = choose(NSETS, min(n, len(NSETS)))
-    items = choose(all_items, len(nsets))
-    nset_items = list(zip(nsets, items))
-    if (n := n - len(nset_items)) > 0:
-        all_nset_items = {(nset, item) for nset in NSETS for item in all_items}
-        other_nset_items = all_nset_items - set(nset_items)
-        if len(other_nset_items) > 0:
-            nset_items.extend(choose(
-                other_nset_items,
-                min(n, len(other_nset_items))
-            ))
+    SCALE_FIX: dict[str, dict[str, str]] = {
+        "ANY": {},
+        "major": {
+            "G♯": "A♭",
+            "D♯": "E♭",
+            "A♯": "B♭",
+        },
+        "minor": {
+            "G♭": "F♯",
+            "D♭": "C♯",
+            "A♭": "G♯",
+            # "A♯": "B♭",  (according to Wikipedia)
+        }
+    }
+
+    DEFAULT_CLI = f"--count {len(NSETS)}"
+
+    def main(self) -> None:
+        """Practice Makes Perfect"""
+        self.usage()
+
+        if self.args.drill == "default-config":
+            print(DEFAULT_CONFIG)
+            return
+
+        self.add_modes()
+        self.configure()
+
+        drills = self.config.drills
+
+        drill_name = self.args.drill
+        if not drill_name:
+            drill_name = random.choice(self.config.defaults)
+            if len(self.config.defaults) > 1:
+                print(f"[{drill_name} × {self.args.count}]")
+        elif drill_name not in drills:
+            raise ValueError(f"Unknown entity {repr(drill_name)}")
+
+        all_items = drills[drill_name]
+        if self.args.max_items and len(all_items) > self.args.max_items:
+            all_items = random.sample(all_items, self.args.max_items)
+
+        n = self.args.count
+        nsets = self.choose(self.NSETS, min(n, len(self.NSETS)))
+        items = self.choose(all_items, len(nsets))
+        nset_items = list(zip(nsets, items))
         if (n := n - len(nset_items)) > 0:
-            nset_items.extend(choose(all_nset_items, n))
-    nitems = [
-        "".join([choose_note(nset, item.scale), item.name])
-        for nset, item in nset_items
-    ]
-    random.shuffle(nitems)
-    spaceless = all(" " not in nitem for nitem in nitems)
-    if spaceless and len(one_line := " ".join(nitems)) < 80:
-        print(one_line)
-    else:
-        print("\n".join(nitems))
+            all_nset_items = set(itertools.product(self.NSETS, all_items))
+            other_nset_items = all_nset_items - set(nset_items)
+            if len(other_nset_items) > 0:
+                nset_items.extend(self.choose(
+                    other_nset_items,
+                    min(n, len(other_nset_items))
+                ))
+            if (n := n - len(nset_items)) > 0:
+                nset_items.extend(self.choose(all_nset_items, n))
+        nitems = [
+            "".join([self.choose_note(nset, item.scale), item.name])
+            for nset, item in nset_items
+        ]
+        random.shuffle(nitems)
+        spaceless = all(" " not in nitem for nitem in nitems)
+        if spaceless and len(one_line := " ".join(nitems)) < 80:
+            print(one_line)
+        else:
+            print("\n".join(nitems))
 
+    def add_modes(self) -> None:
+        """Add the Greek modes and their hypotheticals"""
+        model = self.SCALE_FIX["major"]
+        mapping: dict[str, str]
 
-def add_modes() -> None:
-    """Add the Greek modes and their hypotheticals"""
-    model = SCALE_FIX["major"]
-    mapping: dict[str, str]
+        for offset, mode in enumerate(self._MODES):
+            mapping = {
+                note: self._NOTES[(idx + offset) % len(self._NOTES)]
+                for idx, note in enumerate(self._NOTES)
+            }
 
-    for offset, mode in enumerate(_MODES):
-        mapping = {
-            note: _NOTES[(idx + offset) % len(_NOTES)]
-            for idx, note in enumerate(_NOTES)
-        }
+            def modify(note: str) -> str:
+                try:
+                    return mapping[note[0]] + note[1:]
+                except KeyError:
+                    return note
 
-        def modify(note: str) -> str:
-            try:
-                return mapping[note[0]] + note[1:]
-            except KeyError:
-                return note
+            self.SCALE_FIX[mode] = {
+                modify(key): modify(value)
+                for key, value in model.items()
+            }
 
-        SCALE_FIX[mode] = {
-            modify(key): modify(value)
-            for key, value in model.items()
-        }
+    def choose_note(self, nset, scale: str) -> str:
+        """Choose one way of spelling a note"""
+        note = random.choice(nset)
+        return self.SCALE_FIX[scale].get(note, note)
 
+    def choose(self, options: Iterable[T], n: int) -> list[T]:
+        """Choose so we have as many "full" repetitions and a random tail"""
+        opts = list(options)
+        nopts = len(opts)
 
-def choose_note(nset, scale: str) -> str:
-    """Choose one way of spelling a note"""
-    note = random.choice(nset)
-    return SCALE_FIX[scale].get(note, note)
+        if n <= nopts:
+            return random.sample(opts, max(n, 1))
 
+        ntail = n % nopts
+        n_full_rounds = (n - ntail) // nopts
 
-def choose(options: Iterable[T], n: int) -> list[T]:
-    """Choose so we have as many "full" repetitions and a random tail"""
-    opts = list(options)
-    nopts = len(opts)
+        choices = (opts * n_full_rounds) + random.sample(opts, ntail)
+        return choices
 
-    if n <= nopts:
-        return random.sample(opts, max(n, 1))
+    def configure(self) -> None:
+        """Fix configuration files, defaults, etc."""
+        try:
+            with open(self.args.config, "r", encoding="UTF-8") as fobj:
+                self.config = self.parse_config(fobj)
+        except (FileNotFoundError, ValueError):
+            self.config = self.parse_config(io.StringIO(DEFAULT_CONFIG))
+        for cli in (self.config.cli, self.DEFAULT_CLI):
+            new_args = self.parser.parse_args(shlex.split(cli))
+            for key, val in vars(self.args).items():
+                if val is None:
+                    if (new_val := getattr(new_args, key)):
+                        setattr(self.args, key, new_val)
 
-    ntail = n % nopts
-    n_full_rounds = (n - ntail) // nopts
+    def parse_config(self, stream: typing.TextIO) -> Configuration:
+        """Read configuration file"""
+        scale_re = "|".join(self.SCALE_FIX)
 
-    choices = (opts * n_full_rounds) + random.sample(opts, ntail)
-    return choices
+        drills: dict[str, Drill] = {}
+        defaults = []
+        curr: Drill | None = None
+        line: str
+        cli: str = ""
 
-
-def parse_config(stream: typing.TextIO) -> Configuration:
-    """Read configuration file"""
-    scale_re = "|".join(SCALE_FIX)
-
-    drills: dict[str, Drill] = {}
-    defaults = []
-    curr: Drill | None = None
-
-    for nline, line in enumerate(stream, 1):
-        line = re.sub(r"\s*(#.*)?$", "", line)
-
-        def match(expr):
+        def match(expr: str) -> re.Match | None:
             return re.fullmatch(expr, line)
 
-        if (mobj := match(r"([*]?)(\S[^:]*):")):
-            name = mobj.group(2).strip()
-            drills[name] = curr = Drill([])
-            if mobj.group(1) == "*":
-                defaults.append(name)
-        elif (mobj := match(r"\s+([^:]*):\s+(" + scale_re + ")")):
-            if curr is None:
-                raise ValueError(f"Key without section in line {nline}")
-            name = mobj.group(1).strip()
-            if name and name[0] in ["'", '"'] and name[-1] == name[0]:
-                name = name[1:-1]
-            curr.append(DrillItem(
-                name=name,
-                scale=mobj.group(2).strip()
-            ))
-        elif not match(r""):
-            raise ValueError(f"Cannot parse line {nline}: {repr(line)}")
-    return Configuration(
-        drills=drills,
-        defaults=defaults or list(drills),
-    )
+        for nline, line in enumerate(stream, 1):
+            line = re.sub(r"\s*(#.*)?$", "", line)
+
+            if (mobj := match(r"cli:\s+(.*)")):
+                cli = mobj.group(1).strip()
+            elif (mobj := match(r"([*]?)(\S[^:]*):")):
+                name = mobj.group(2).strip()
+                drills[name] = curr = Drill([])
+                if mobj.group(1) == "*":
+                    defaults.append(name)
+            elif (mobj := match(r"\s+([^:]*):\s+(" + scale_re + ")")):
+                if curr is None:
+                    raise ValueError(f"Key without section in line {nline}")
+                name = mobj.group(1).strip()
+                if name and name[0] in ["'", '"'] and name[-1] == name[0]:
+                    name = name[1:-1]
+                curr.append(DrillItem(
+                    name=name,
+                    scale=mobj.group(2).strip()
+                ))
+            elif not match(r""):
+                raise ValueError(f"Cannot parse line {nline}: {repr(line)}")
+        return Configuration(
+            drills=drills,
+            defaults=defaults or list(drills),
+            cli=cli,
+        )
 
 
 if __name__ == "__main__":
-    main()
+    PracticeMakesPerfect().main()
