@@ -12,6 +12,34 @@ import typing
 # TODO: default cli value
 # TODO: --drills
 
+
+def usage() -> argparse.Namespace:
+    """Command-line"""
+    parser = argparse.ArgumentParser(description="Practice Makes Perfect")
+    parser.add_argument(
+        "drill",
+        nargs="?",
+    )
+    parser.add_argument(
+        "-n",
+        "--count",
+        type=int,
+        default=len(NSETS),
+    )
+    parser.add_argument(
+        "-m",
+        "--max-items",
+        type=int,
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=Path,
+        default=Path.home() / ".pmprc",
+    )
+    return parser.parse_args()
+
+
 T = typing.TypeVar("T")
 
 _NOTES = "CDEFGAB"
@@ -54,8 +82,6 @@ SCALE_FIX: dict[str, dict[str, str]] = {
         # "A♯": "B♭",  (according to Wikipedia)
     }
 }
-
-_SCALE_RE = "|".join(SCALE_FIX)
 
 DEFAULT_CONFIG = """
 note:
@@ -107,29 +133,7 @@ class Configuration:
 
 def main() -> None:
     """Practice Makes Perfect"""
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "drill",
-        nargs="?",
-    )
-    parser.add_argument(
-        "-n",
-        "--count",
-        type=int,
-        default=len(NSETS),
-    )
-    parser.add_argument(
-        "-m",
-        "--max-items",
-        type=int,
-    )
-    parser.add_argument(
-        "-c",
-        "--config",
-        type=Path,
-        default=Path.home() / ".pmprc",
-    )
-    args = parser.parse_args()
+    args = usage()
 
     if args.drill == "default-config":
         print(DEFAULT_CONFIG)
@@ -228,6 +232,8 @@ def choose(options: Iterable[T], n: int) -> list[T]:
 
 def parse_config(stream: typing.TextIO) -> Configuration:
     """Read configuration file"""
+    scale_re = "|".join(SCALE_FIX)
+
     drills: dict[str, Drill] = {}
     defaults = []
     curr: Drill | None = None
@@ -243,7 +249,7 @@ def parse_config(stream: typing.TextIO) -> Configuration:
             drills[name] = curr = Drill([])
             if mobj.group(1) == "*":
                 defaults.append(name)
-        elif (mobj := match(r"\s+([^:]*):\s+(" + _SCALE_RE + ")")):
+        elif (mobj := match(r"\s+([^:]*):\s+(" + scale_re + ")")):
             if curr is None:
                 raise ValueError(f"Key without section in line {nline}")
             name = mobj.group(1).strip()
@@ -254,7 +260,7 @@ def parse_config(stream: typing.TextIO) -> Configuration:
                 scale=mobj.group(2).strip()
             ))
         elif not match(r""):
-            raise ValueError(f"Cannot parse line {nline}")
+            raise ValueError(f"Cannot parse line {nline}: {repr(line)}")
     return Configuration(
         drills=drills,
         defaults=defaults or list(drills),
