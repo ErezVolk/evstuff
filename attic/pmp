@@ -101,7 +101,6 @@ class PracticeMakesPerfect:
             default=Path.home() / ".pmprc",
         )
         self.args = self.parser.parse_args()
-        print(self.args.pool)
 
     T = typing.TypeVar("T")
 
