@@ -9,7 +9,21 @@ import re
 from collections.abc import Iterable
 import typing
 
+# TODO: default cli value
+# TODO: --drills
+
 T = typing.TypeVar("T")
+
+_NOTES = "CDEFGAB"
+_MODES = (
+    "ionian",
+    "dorian",
+    "phrygian",
+    "lydian",
+    "mixolydian",
+    "aeolian",
+    "locrian",
+)
 
 NSETS = (
     ("C"),
@@ -26,7 +40,7 @@ NSETS = (
     ("B"),
 )
 
-SCALE_FIX = {
+SCALE_FIX: dict[str, dict[str, str]] = {
     "ANY": {},
     "major": {
         "G♯": "A♭",
@@ -40,6 +54,8 @@ SCALE_FIX = {
         # "A♯": "B♭",  (according to Wikipedia)
     }
 }
+
+_SCALE_RE = "|".join(SCALE_FIX)
 
 DEFAULT_CONFIG = """
 note:
@@ -74,6 +90,7 @@ arp:
 
 @dataclass
 class DrillItem:
+    """A single drill item, e.g., 'minor pentatonic'"""
     name: str
     scale: str
 
@@ -83,11 +100,12 @@ Drill: typing.TypeAlias = list[DrillItem]
 
 @dataclass
 class Configuration:
+    """The information from the config file"""
     drills: dict[str, Drill]
     defaults: list[str]
 
 
-def main():
+def main() -> None:
     """Practice Makes Perfect"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -164,24 +182,15 @@ def main():
         print("\n".join(nitems))
 
 
-def add_modes():
+def add_modes() -> None:
     """Add the Greek modes and their hypotheticals"""
-    NOTES = "CDEFGAB"
-    MODES = [
-        "ionian",
-        "dorian",
-        "phrygian",
-        "lydian",
-        "mixolydian",
-        "aeolian",
-        "locrian",
-    ]
-    MODEL = SCALE_FIX["major"]
+    model = SCALE_FIX["major"]
+    mapping: dict[str, str]
 
-    for offset, mode in enumerate(MODES):
+    for offset, mode in enumerate(_MODES):
         mapping = {
-            note: NOTES[(idx + offset) % len(NOTES)]
-            for idx, note in enumerate(NOTES)
+            note: _NOTES[(idx + offset) % len(_NOTES)]
+            for idx, note in enumerate(_NOTES)
         }
 
         def modify(note: str) -> str:
@@ -192,7 +201,7 @@ def add_modes():
 
         SCALE_FIX[mode] = {
             modify(key): modify(value)
-            for key, value in MODEL.items()
+            for key, value in model.items()
         }
 
 
@@ -218,10 +227,11 @@ def choose(options: Iterable[T], n: int) -> list[T]:
 
 
 def parse_config(stream: typing.TextIO) -> Configuration:
-    SCALE_RE = "|".join(SCALE_FIX)
-    drills = {}
+    """Read configuration file"""
+    drills: dict[str, Drill] = {}
     defaults = []
     curr: Drill | None = None
+
     for nline, line in enumerate(stream, 1):
         line = re.sub(r"\s*(#.*)?$", "", line)
 
@@ -233,7 +243,7 @@ def parse_config(stream: typing.TextIO) -> Configuration:
             drills[name] = curr = Drill([])
             if mobj.group(1) == "*":
                 defaults.append(name)
-        elif (mobj := match(r"\s+([^:]*):\s+(" + SCALE_RE + ")")):
+        elif (mobj := match(r"\s+([^:]*):\s+(" + _SCALE_RE + ")")):
             if curr is None:
                 raise ValueError(f"Key without section in line {nline}")
             name = mobj.group(1).strip()
