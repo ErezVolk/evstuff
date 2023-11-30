@@ -4,3 +4,4 @@ brew upgrade
 bing-wallpaper
 if [ -x ~/bin/ooo-extra ]; then ~/bin/ooo-extra; fi
 if [ -x ~/bin/ggev ]; then ~/bin/ggev; fi
+[ -d ~/play/evstuff/radley ] && make -C ~/play/evstuff/radley
