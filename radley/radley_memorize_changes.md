@@ -69,12 +69,12 @@ header-includes: |
 # Little Wing
 - In Em
 - Taught 2023-11-22
+- Transcribed/memorized 2023-11-28
 
 ```
 | Em | G | Am | Em | Bm | Am C | G F | C | D D E C | D |
 
-E-based: | Im | III | IVm | Im | Vm | IVm VI | III IV | VI | VII VII I VI | VII |
-G-based: | VIm | I | IIm | VIm | IIIm | IIm IV | I VII | IV | V V VI IV | V |
+Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
 ```
 
 # To Do
