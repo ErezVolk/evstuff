@@ -80,17 +80,18 @@ class PracticeMakesPerfect:
         )
         self.parser.add_argument(
             "-n",
-            "--count",
+            "--max-drills",
             type=int,
         )
         self.parser.add_argument(
-            "-m",
+            "-i",
             "--max-items",
             type=int,
         )
         self.parser.add_argument(
-            "-p",
-            "--pool",
+            "-d",
+            "--drill-set",
+            metavar="DRILL",
             type=str,
             nargs="*",
         )
@@ -145,7 +146,7 @@ class PracticeMakesPerfect:
         }
     }
 
-    DEFAULT_CLI = f"--count {len(NSETS)}"
+    DEFAULT_CLI = f"--max-drills {len(NSETS)}"
 
     def main(self) -> None:
         """Practice Makes Perfect"""
@@ -159,20 +160,22 @@ class PracticeMakesPerfect:
         self.configure()
 
         drills = self.config.drills
+        n = min(self.args.max_drills, len(drills))
 
         drill_name = self.args.drill
-        if not drill_name:
-            drill_name = random.choice(self.config.defaults)
+        if drill_name:
+            if drill_name not in drills:
+                raise ValueError(f"Unknown entity {repr(drill_name)}")
+        else:
+            drill_set = self.args.drill_set or self.config.defaults
+            drill_name = random.choice(drill_set)
             if len(self.config.defaults) > 1:
-                print(f"[{drill_name} × {self.args.count}]")
-        elif drill_name not in drills:
-            raise ValueError(f"Unknown entity {repr(drill_name)}")
+                print(f"[{drill_name} × {n}]")
 
         all_items = drills[drill_name]
         if self.args.max_items and len(all_items) > self.args.max_items:
             all_items = random.sample(all_items, self.args.max_items)
 
-        n = self.args.count
         nsets = self.choose(self.NSETS, min(n, len(self.NSETS)))
         items = self.choose(all_items, len(nsets))
         nset_items = list(zip(nsets, items))
