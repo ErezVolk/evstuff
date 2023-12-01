@@ -8,7 +8,7 @@ header-includes: |
 # Every Breath You Take
 
 - _In Ab_ (?)
-- Transcribed 2023-11-18, 2023-11-26
+- Transcribed 2023-11-18, 2023-11-26, 2023-12-01
 - Memorized 2023-11-25, 2023-11-26
 
 ```
@@ -18,8 +18,8 @@ header-includes: |
                          | I | % | VIm | % | IV | V |  I  | % |
 "Oh, can't you see..."   | IV | IIIb | I | % | IImaj(!) | % | V | % |
 "Every move..."          | I | % | VIm | % | IV | V | VIm | % |
-"Since you gone..."      |: VIIb | % | IV | % :| I | % |
-                         |  VIIb | % | I  | %  |
+"Since you gone..."      |: VIb | % | VIIb | % :|
+                         |  VIb | % | I  | %  |
 ```
 
 
@@ -30,10 +30,10 @@ header-includes: |
 
 ```
 (intro)             | I | IV | V | I |
-"Daniel is..."      | I | IV | V | IIImaj(!) VI | IV V | VI | IV | V | I |
+"Daniel is..."      | I | IV | V | IIImaj(!) VIm | IV V | VIm | IV | V | I |
 (instrumental)      | V |
 "They say Spain..." (same as verse)
-"D my brother..."   | IV | I | IV | I | VI | VI VIb | I VI | IIm V |
+"D my brother..."   | IV | I | IV | I | VIm7 | IV VIb | I VI | IIm V |
 (instrumental)      (same as verse)
 ```
 
