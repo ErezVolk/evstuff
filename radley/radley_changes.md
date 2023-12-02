@@ -23,17 +23,30 @@ header-includes: |
 ```
 
 
+# Little Wing
+- In Em
+- Taught 2023-11-22
+- Transcribed/memorized 2023-11-28
+
+```
+| Em | G | Am | Em | Bm | Am C | G F | C | D D E C | D |
+
+Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
+```
+
+
 # Daniel
 
 - In A
 - Transcribed 2023-11-26
+- Memorized 2023-12-02
 
 ```
 (intro)             | I | IV | V | I |
 "Daniel is..."      | I | IV | V | IIImaj(!) VIm | IV V | VIm | IV | V | I |
 (instrumental)      | V |
 "They say Spain..." (same as verse)
-"D my brother..."   | IV | I | IV | I | VIm7 | IV VIb | I VI | IIm V |
+"D my brother..."   | IV | I | IV | I | VIm7 | IV VIb | I | IIm V |
 (instrumental)      (same as verse)
 ```
 
@@ -65,17 +78,6 @@ header-includes: |
   -> (C) -> (A) -> (B) -> (chorus) -> (C) -> (C) -> (B) -> (chorus)...
 ```
 
-
-# Little Wing
-- In Em
-- Taught 2023-11-22
-- Transcribed/memorized 2023-11-28
-
-```
-| Em | G | Am | Em | Bm | Am C | G F | C | D D E C | D |
-
-Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
-```
 
 # To Do
 - You Send Me
