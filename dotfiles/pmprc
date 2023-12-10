@@ -4,20 +4,20 @@ note:
   : ANY
 
 steve-warmup:
-  ; 8ths: ANY
-  ; 5ths: ANY
-  ; 4ths: ANY
-  ; 3rds: ANY
-  ; 10ths: ANY
-  ; 6ths: ANY
-  ; minor 6ths: ANY
+  " in 8ths": E|A
+  " in 5ths": E|A|D
+  " in 4ths": E|A|D
+  " in 3rds": E|A|D
+  " in 6ths": E|A
+  " in minor 6ths": E|A|D
+  10ths: NONE
 
 steve-hazard:
-  3rds 2-1-4-3: NONE
-  3rds 4-1-2-3: NONE
-  3rds 1-4-3-1: NONE
-  6ths 2-1-4-3: NONE
-  6ths 1-2-3-4: NONE
+  hazard 3rds 2-1-4-3: NONE
+  hazard 3rds 4-1-2-3: NONE
+  hazard 3rds 1-4-3-1: NONE
+  hazard 6ths 2-1-4-3: NONE
+  hazard 6ths 1-2-3-4: NONE
 
 steve-etude:
   4th Combination (Ex 4 on page 9): NONE

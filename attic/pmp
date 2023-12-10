@@ -17,7 +17,7 @@ import typing
 class DrillItem:
     """A single drill item, e.g., 'minor pentatonic'"""
     name: str
-    scale: str
+    field: str | list[str]
 
 
 Drill: typing.TypeAlias = list[DrillItem]
@@ -173,7 +173,7 @@ class PracticeMakesPerfect:
         report_drill = False
         if drill_name:
             if drill_name not in drills:
-                raise ValueError(f"Unknown entity {repr(drill_name)}")
+                self.fail(f"Unknown entity {repr(drill_name)}")
         else:
             drill_set = self.args.drill_set or self.config.defaults
             drill_name = random.choice(drill_set)
@@ -218,9 +218,15 @@ class PracticeMakesPerfect:
             print("\n".join(nitems))
 
     def make_nitem(self, nset, item: DrillItem) -> str:
-        if item.scale == "NONE":
+        if item.field == "NONE":
             return item.name
-        return "".join([self.choose_note(nset, item.scale), item.name])
+
+        if isinstance(item.field, list):
+            member = random.choice(item.field)
+        else:
+            member = self.choose_note(nset, item.field)
+
+        return member + item.name
 
     def add_modes(self) -> None:
         """Add the Greek modes and their hypotheticals"""
@@ -279,8 +285,6 @@ class PracticeMakesPerfect:
 
     def parse_config(self, stream: typing.TextIO) -> Configuration:
         """Read configuration file"""
-        scale_re = "|".join(self.SCALE_FIX)
-
         drills: dict[str, Drill] = {}
         defaults = []
         curr: Drill | None = None
@@ -300,21 +304,28 @@ class PracticeMakesPerfect:
                 drills[name] = curr = Drill([])
                 if mobj.group(1) == "*":
                     defaults.append(name)
-            elif (mobj := match(r"\s+([^:]*):\s+(" + scale_re + ")")):
+            elif (mobj := match(r"\s+([^:]*):\s+(.*)")):
                 if curr is None:
-                    raise ValueError(f"Key without section in line {nline}")
+                    self.fail(f"Key without section in line {nline}")
                 name = mobj.group(1).strip()
                 if name and name[0] in ["'", '"'] and name[-1] == name[0]:
                     name = name[1:-1]
-                scale = mobj.group(2).strip()
-                curr.append(DrillItem(name=name, scale=scale))
+                field = mobj.group(2).strip()
+                if field in self.SCALE_FIX:
+                    curr.append(DrillItem(name=name, field=field))
+                else:
+                    members = [member.strip() for member in field.split("|")]
+                    curr.append(DrillItem(name=name, field=members))
             elif not match(r""):
-                raise ValueError(f"Cannot parse line {nline}: {repr(line)}")
+                self.fail(f"Cannot parse line {nline}: {repr(line)}")
         return Configuration(
             drills=drills,
             defaults=defaults or list(drills),
             cli=cli,
         )
+
+    def fail(self, message: str) -> typing.NoReturn:
+        self.parser.error(message)
 
 
 if __name__ == "__main__":
