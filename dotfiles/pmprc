@@ -13,19 +13,19 @@ steve-warmup:
   10ths: NONE
 
 steve-hazard:
-  hazard 3rds 2-1-4-3: NONE
-  hazard 3rds 4-1-2-3: NONE
-  hazard 3rds 1-4-3-1: NONE
-  hazard 6ths 2-1-4-3: NONE
-  hazard 6ths 1-2-3-4: NONE
+  Hazard 3rds 2-1-4-3: NONE
+  Hazard 3rds 4-1-2-3: NONE
+  Hazard 3rds 1-4-3-1: NONE
+  Hazard 6ths 2-1-4-3: NONE
+  Hazard 6ths 1-2-3-4: NONE
 
 steve-etude:
   4th Combination (Ex 4 on page 9): NONE
-  major scale in 4ths: NONE
-  minor scale in 4ths: NONE
-  major scale in 10ths: NONE
-  major scale in 6ths: NONE
-  6ths etude (Ex 5 on page 16): NONE
+  Major scale in 4ths: NONE
+  Minor scale in 4ths: NONE
+  Major scale in 10ths: NONE
+  Major scale in 6ths: NONE
+  6ths étude (Ex 5 on page 16): NONE
 
 chops-l:
   L-1 (p4) 1345.6767|5656.4532: NONE
@@ -35,6 +35,14 @@ chops-r:
   R-2 (p29) 2121...: NONE
   R-3 (p29) 1211.2122...: NONE
   R-4 (p29) 1121.2212...: NONE
+  R-5 (p30) 1221.2112...: NONE
+  R-6 (p30) 1211.2112...: NONE
+  R-7 (p30) 2122.1221...: NONE
+  R-8 (p30) 1122.1221.2211.2112...: NONE
+  R-9 (p31) 1122.1121.2211.2212...: NONE
+  R-10 (p31) 1122.1211.2211.2122...: NONE
+  R-11 (p31) 1221.2221.2112.1112...: NONE
+  R-12 (p31) 1221.2111.2112.1222...: NONE
 
 scale:
   -major: major

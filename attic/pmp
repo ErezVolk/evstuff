@@ -21,6 +21,7 @@ class DrillItem:
 
 
 Drill: typing.TypeAlias = list[DrillItem]
+NoteSet: typing.TypeAlias = tuple[str] | tuple[str, str]
 
 
 @dataclass
@@ -69,7 +70,7 @@ class PracticeMakesPerfect:
     args: argparse.Namespace
     config: Configuration
 
-    def usage(self) -> None:
+    def parse_command_line(self) -> None:
         """Command-line"""
         parser = argparse.ArgumentParser(
             description="Practice Makes Perfect"
@@ -123,20 +124,20 @@ class PracticeMakesPerfect:
         "locrian",
     )
 
-    NSETS = (
-        ("C"),
+    NSETS: list[NoteSet] = [
+        ("C",),
         ("C♯", "D♭"),
-        ("D"),
+        ("D",),
         ("D♯", "E♭"),
-        ("E"),
-        ("F"),
+        ("E",),
+        ("F",),
         ("F♯", "G♭"),
-        ("G"),
+        ("G",),
         ("G♯", "A♭"),
-        ("A"),
+        ("A",),
         ("A♯", "B♭"),
-        ("B"),
-    )
+        ("B",),
+    ]
 
     SCALE_FIX: dict[str, dict[str, str]] = {
         "NONE": {},
@@ -158,7 +159,7 @@ class PracticeMakesPerfect:
 
     def main(self) -> None:
         """Practice Makes Perfect"""
-        self.usage()
+        self.parse_command_line()
 
         if self.args.drill == "default-config":
             print(DEFAULT_CONFIG)
@@ -178,7 +179,7 @@ class PracticeMakesPerfect:
             drill_set = self.args.drill_set or self.config.defaults
             drill_name = random.choice(drill_set)
             if len(self.config.defaults) > 1:
-                report_drill = False
+                report_drill = True
 
         all_items = drills[drill_name]
         if self.args.max_items and len(all_items) > self.args.max_items:
@@ -218,6 +219,7 @@ class PracticeMakesPerfect:
             print("\n".join(nitems))
 
     def make_nitem(self, nset, item: DrillItem) -> str:
+        """Created named item, e.g., 'C-major'."""
         if item.field == "NONE":
             return item.name
 
@@ -229,7 +231,7 @@ class PracticeMakesPerfect:
         return member + item.name
 
     def add_modes(self) -> None:
-        """Add the Greek modes and their hypotheticals"""
+        """Add the Greek modes and their hypotheticals to our known scales"""
         model = self.SCALE_FIX["major"]
         mapping: dict[str, str]
 
@@ -250,8 +252,8 @@ class PracticeMakesPerfect:
                 for key, value in model.items()
             }
 
-    def choose_note(self, nset, scale: str) -> str:
-        """Choose one way of spelling a note"""
+    def choose_note(self, nset: NoteSet, scale: str) -> str:
+        """Choose one way of spelling a note (e.g., C♯ or D♭")."""
         note = random.choice(nset)
         return self.SCALE_FIX[scale].get(note, note)
 
