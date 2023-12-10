@@ -6,3 +6,7 @@ __pycache__
 .~lock.*#
 ~$*.docx
 *.mp3
+*.xz
+*.pdf
+*.xlsx
+*.secret

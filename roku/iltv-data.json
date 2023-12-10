@@ -1,0 +1,679 @@
+{
+  "Categories": [
+    {
+      "Name": "Internet Radio",
+      "Items": [
+        {
+          "Title": "ClickFM - 1FM",
+          "ShortDescriptionLine1": "1FM",
+          "ShortDescriptionLine2": "See http://www.onefmonline.com",
+          "Poster": "1fm.png",
+          "StreamUrls": [
+            "http://listen.clickfm.co.il/1FM"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "ClickFM - HipHop",
+          "ShortDescriptionLine1": "Click HipHop",
+          "ShortDescriptionLine2": "See http://www.radioclick.fm",
+          "Poster": "clickfm_hiphop.png",
+          "StreamUrls": [
+            "http://listen.clickfm.co.il/hip.mp3"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Radio Nostalgia",
+          "ShortDescriptionLine2": "See http://www.nostal.co.il",
+          "Poster": "nostalgia_radio.png",
+          "StreamUrls": [
+            "http://194.213.4.197:8000/;"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        }
+      ]
+    },
+    {
+      "Name": "Regional Radio",
+      "Items": [
+        {
+          "Title": "Radio Lelo Hafsaka - 103fm",
+          "ShortDescriptionLine1": "Radio Lelo Hafsaka - 103fm",
+          "ShortDescriptionLine2": "See http://103fm.maariv.co.il",
+          "Poster": "103fm.png",
+          "StreamUrls": [
+            "http://acdn.streamgates.net/103fm"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Radio TelAviv - 102fm",
+          "ShortDescriptionLine1": "Radio TelAviv - 102fm",
+          "ShortDescriptionLine2": "See http://www.102fm.co.il",
+          "Poster": "telaviv102fm.png",
+          "StreamUrls": [
+            "http://102.livecdn.biz/102fm_aac"
+          ],
+          "StreamFormat": "es.aac-adts",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Radio Tishim (Radio Emtza Haderech) 90fm",
+          "ShortDescriptionLine1": "Radio Tishim - 90fm",
+          "ShortDescriptionLine2": "See http://www.90fm.co.il",
+          "Poster": "90fm.png",
+          "StreamUrls": [
+            "http://90.cdnwz.net/90fm"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Radio Lev Hamedina - 91fm",
+          "ShortDescriptionLine1": "Radio Lev Hamedina - 91fm",
+          "ShortDescriptionLine2": "See http://www.91fm.co.il",
+          "Poster": "91fm.png",
+          "StreamUrls": [
+            "http://acdn.streamgates.net/91fm"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Radio Darom - 95.8fm",
+          "ShortDescriptionLine1": "Radio Darom - 95.8fm",
+          "ShortDescriptionLine2": "See www.radiodarom.co.il",
+          "Poster": "darom_95.png",
+          "StreamUrls": [
+            "http://audio-darom.ecast.co.il/darom97fm"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Kol Rega - 96fm",
+          "ShortDescriptionLine1": "Kol Rega - 96fm",
+          "ShortDescriptionLine2": "See http://www.96fm.co.il/",
+          "Poster": "kolrega_96fm.png",
+          "StreamUrls": [
+            "http://radio.streamgates.net/stream/KOLREGA"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Radius - 100fm",
+          "ShortDescriptionLine1": "Radius - 100fm",
+          "ShortDescriptionLine2": "See http://www.100fm.co.il/",
+          "Poster": "radius_100fm.png",
+          "StreamUrls": [
+            "http://acdn.streamgates.net/100fm"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Eco - 99fm",
+          "ShortDescriptionLine1": "Eco - 99fm",
+          "ShortDescriptionLine2": "See http://eco99fm.maariv.co.il",
+          "Poster": "eco99fm.png",
+          "StreamUrls": [
+            "http://eco-live.mediacast.co.il/99fm"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Voice of the Red Sea - 102fm",
+          "ShortDescriptionLine1": "Voice of the Red Sea - 102fm Eilat",
+          "ShortDescriptionLine2": "See http://www.eilat102fm.com",
+          "Poster": "redsea_102fm.png",
+          "StreamUrls": [
+            "http://eilat.cdnwz.net/102fm"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Galil Radio - 105.3fm",
+          "ShortDescriptionLine1": "Galil Radio - 105.3fm",
+          "ShortDescriptionLine2": "See https://www.1053fm.co",
+          "Poster": "galilradio_1053.png",
+          "StreamUrls": [
+            "http://radio.streamgates.net/stream/galil"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Kol Yizrael - 106fm",
+          "ShortDescriptionLine1": "Kol Yizrael - 106fm",
+          "ShortDescriptionLine2": "See https://www.facebook.com/RadioKY106FM",
+          "Poster": "KolYizrael106.png",
+          "StreamUrls": [
+            "http://radio.streamgates.net/stream/yezreel"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Kol Ramat Hasharon - 103.6FM",
+          "ShortDescriptionLine1": "Kol Ramat Hasharon - 103.6FM",
+          "ShortDescriptionLine2": "See http://1036fm.co.il",
+          "Poster": "ramat_hasharon_106fm.png",
+          "StreamUrls": [
+            "http://krh.cdnwz.net/1036"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Radio Kol Ramla - 106fm",
+          "ShortDescriptionLine1": "Kol Ramla - 106fm",
+          "ShortDescriptionLine2": "See http://www.facebook.com/KolRamla",
+          "Poster": "kol_ramla_106fm.png",
+          "StreamUrls": [
+            "http://84.94.229.99:5693/;"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Kol Galim (Haifa) - 106fm",
+          "ShortDescriptionLine1": "Kol Galim (Haifa) - 106fm",
+          "ShortDescriptionLine2": "See http://www.kol-galim.co.il",
+          "Poster": "kolgalim_106.png",
+          "StreamUrls": [
+            "http://switch2-streaming-212-83-eu.ilcast.com:8055/;"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "IDC Radio - 106.2fm",
+          "ShortDescriptionLine1": "IDC Radio - 106.2fm",
+          "ShortDescriptionLine2": "See http://1062fm.co.il",
+          "Poster": "idc_radio.png",
+          "StreamUrls": [
+            "http://194.153.101.160:8000/idc123.mp3"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Radio Haifa - 107.5fm",
+          "ShortDescriptionLine1": "Radio Haifa - 107.5fm",
+          "ShortDescriptionLine2": "See http://www.1075.fm",
+          "Poster": "haifa_107.png",
+          "StreamUrls": [
+            "http://1075.livecdn.biz/radiohaifa"
+          ],
+          "StreamFormat": "es.aac-adts",
+          "Live": true,
+          "Audio": true
+        }
+      ]
+    },
+    {
+      "Name": "Nationwide Radio",
+      "Items": [
+        {
+          "Title": "Galatz - Army Radio",
+          "ShortDescriptionLine1": "Galatz",
+          "ShortDescriptionLine2": "See http://glz.co.il",
+          "Poster": "glz.png",
+          "StreamUrls": [
+            "http://glzwizzlv.bynetcdn.com/glz_mp3?awCollectionId=misc&awEpisodeId=glz"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Galgalatz - Army Radio (music)",
+          "ShortDescriptionLine1": "Galgalatz",
+          "ShortDescriptionLine2": "See http://glz.co.il",
+          "Poster": "galgalatz.png",
+          "StreamUrls": [
+            "http://glzwizzlv.bynetcdn.com/glglz_mp3?awCollectionId=misc&awEpisodeId=glglz"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Israeli Public Broadcasting Corporation - 88 FM",
+          "ShortDescriptionLine1": "88 FM",
+          "ShortDescriptionLine2": "See http://www.kan.org.il",
+          "Poster": "ipbc_radio_88.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/749623/749623/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Israeli Public Broadcasting Corporation - Kol HaMusica",
+          "ShortDescriptionLine1": "Kol HaMusica",
+          "ShortDescriptionLine2": "See http://www.kan.org.il",
+          "Poster": "ipbc_radio_musika.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/749627/749627/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Israeli Public Broadcasting Corporation - Tarbut",
+          "ShortDescriptionLine1": "Tarbut (Culture)",
+          "ShortDescriptionLine2": "See http://www.kan.org.il",
+          "Poster": "ipbc_radio_tarbut.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/749634/749634/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Israeli Public Broadcasting Corporation - Reshet Bet",
+          "ShortDescriptionLine1": "Reshet Bet",
+          "ShortDescriptionLine2": "See http://www.kan.org.il",
+          "Poster": "ipbc_radio_bet.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/749624/749624/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Israeli Public Broadcasting Corporation - Reshet Gimmel",
+          "ShortDescriptionLine1": "Reshet Gimmel",
+          "ShortDescriptionLine2": "See http://www.kan.org.il",
+          "Poster": "ipbc_radio_gimmel.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/749625/749625/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Israeli Public Broadcasting Corporation - Moreshet",
+          "ShortDescriptionLine1": "Reshet Moreshet",
+          "ShortDescriptionLine2": "See http://www.kan.org.il",
+          "Poster": "ipbc_radio_moreshet.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/749629/749629/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true,
+          "Audio": true
+        }
+      ]
+    },
+    {
+      "Name": "Main TV",
+      "Default": true,
+      "Items": [
+        {
+          "ecpCode": "ch1",
+          "Title": "Israeli Public Broadcasting Corporation - Kan 11",
+          "ShortDescriptionLine1": "Kan 11",
+          "ShortDescriptionLine2": "See http://www.kan.org.il",
+          "Poster": "ipbc_tv_11.png",
+          "StreamUrls": [
+            "http://kan11.media.kan.org.il/hls/live/2024514/2024514/master.m3u8",
+            "https://kanlivep2event-i.akamaihd.net/hls/live/747610/747610/source1_1.2k/chunklist.m3u8",
+            "https://kanlivep2event-i.akamaihd.net/hls/live/747610/747610/playlist.m3u8",
+            "https://stream-03.nyc.dailymotion.com/sec(RiWEtJG0nU_F5iuiUOWAlybraZwz4QZsqRi1BLTXxew)/dm/3/x7wjmog/d/live-1.m3u8"
+          ],
+          "strReplace": [
+            "Global",
+            "LVM"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "Keshet - CH12",
+          "ShortDescriptionLine1": "Keshet",
+          "ShortDescriptionLine2": "See http://www.mako.co.il",
+          "Poster": "keshet12.png",
+          "StreamUrls": [
+            "http://keshethlslive-i.akamaihd.net@@MAKO:lp=@@/hls/live/512033/CH2LIVE_HIGH/index.m3u8@@?b=100-1000&@@TICKET@@",
+            "http://keshethlslive-i.akamaihd.net@@MAKO:lp=@@/hls/live/512035/CH2LIVE_LOW/index.m3u8@@?b=100-1000&@@TICKET@@"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "ecpCode": "ch10",
+          "Title": "Reshet - Ch13",
+          "ShortDescriptionLine1": "Reshet",
+          "ShortDescriptionLine2": "See http://reshet.tv",
+          "Poster": "reshet_13.png",
+          "StreamUrls": [
+            "http://d18b0e6mopany4.cloudfront.net/out/v1/08bc71cf0a0f4712b6b03c732b0e6d25/index.m3u8"
+          ],
+          "HttpHeaders": [
+            "Referer:http://reshet.tv/"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "ecpCode": "ch14",
+          "Title": "Israel channel 14 (was 20)",
+          "ShortDescriptionLine1": "Now 14",
+          "ShortDescriptionLine2": "See https://www.now14.co.il/",
+          "Poster": "now14.png",
+          "StreamUrls": [
+            "http://dvr.ch20-cdnwiz.com/hls/live.m3u8",
+            "http://dvr.ch20-cdnwiz.com/mobilehls/dvr.m3u8"
+          ],
+          "HttpHeaders": [
+            "user-agent:Mozill/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "ecpCode": "ch2news",
+          "Title": "The news company stream",
+          "ShortDescriptionLine1": "Live only (see ch12)",
+          "ShortDescriptionLine2": "See http://reshet.tv/News_n/heb/news",
+          "Poster": "news_co.png",
+          "StreamUrls": [
+            "http://ch2live-i.akamaihd.net/hls/live/252343/252343/playlist.m3u8",
+            "http://keshethlslive-lh.akamaihd.net/i/c2n_1@195269/master.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "24 Music",
+          "ShortDescriptionLine1": "Arutz 24 - Israels music television",
+          "ShortDescriptionLine2": "See http://www.mako.co.il/music-24",
+          "Poster": "music24.png",
+          "StreamUrls": [
+            "http://keshethlslive-lh.akamaihd.net/i/24live_1@195271/index_2200_av-b.m3u8?sd=10&b=200-2500&rebase=on",
+            "http://keshethlslive-lh.akamaihd.net@@MAKO:lp=@@/i/24live_1@195271/master.m3u8@@?b=200-2500&@@TICKET@@"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "Sport 5 Radio",
+          "ShortDescriptionLine1": "Radio Arutz ha Sport (5)",
+          "ShortDescriptionLine2": "See http://radio.sport5.co.il",
+          "Poster": "sport5radio.jpg",
+          "StreamUrls": [
+            "http://sport5-lh.akamaihd.net/i/radio5_0@65353/master.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Ch23 - Educational TV",
+          "ShortDescriptionLine1": "Kan Chinuchit (23) - Israels educational television",
+          "ShortDescriptionLine2": "See https://www.kan.org.il/lists/?mainid=9",
+          "Poster": "chinuchit23.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/747600/747600/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": false
+        },
+        {
+          "Title": "Knesset",
+          "ShortDescriptionLine1": "Knesset channel",
+          "ShortDescriptionLine2": "See http://main.knesset.gov.il/News/Broadcast",
+          "Poster": "knesset.png",
+          "StreamUrls": [
+            "https://contact.gostreaming.tv/Knesset/myStream/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        }
+      ]
+    },
+    {
+      "Name": "Sometimes streams",
+      "Items": [
+        {
+          "Title": "YNet",
+          "ShortDescriptionLine1": "YNet",
+          "ShortDescriptionLine2": "See https://www.ynet.co.il",
+          "Poster": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Ynet_website_logo.svg/1200px-Ynet_website_logo.svg.png",
+          "StreamUrls": [
+            "https://ynet-lh.akamaihd.net/i/ynet_1@123290/master.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "Walla News",
+          "ShortDescriptionLine1": "Walla News",
+          "ShortDescriptionLine2": "See https://news.walla.co.il",
+          "Poster": "walla.png",
+          "StreamUrls": [
+            "http://walla-metadata-rr-d.vidnt.com/live/walla/ulpan/hls/metadata.xml"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "Israel HaYom stream",
+          "ShortDescriptionLine1": "Israel Today - Israel HaYom, OCCASIONAL live event stream",
+          "ShortDescriptionLine2": "See https://www.israelhayom.co.il",
+          "Poster": "YisHayom.png",
+          "StreamUrls": [
+            "https://live.israelhayom-cdnwiz.com/hls/live.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title":"Israels Big Brother",
+          "ShortDescriptionLine1":"Big Brother - HaAch HaGadol (Geo Blocked)",
+          "ShortDescriptionLine2":"See https://13tv.co.il/bb-livestream",
+          "Poster":"bigbro.png",
+          "StreamUrls":[
+            "https://d2lckchr9cxrss.cloudfront.net/out/v1/c73af7694cce4767888c08a7534b503c/index.m3u8"
+          ],
+          "StreamFormat":"hls",
+          "Live":true
+        }
+      ]
+    },
+    {
+      "Name": "Religious",
+      "Items": [
+        {
+          "Title": "Kabbalah TV - Arutz 66",
+          "ShortDescriptionLine1": "Kabbalah TV",
+          "ShortDescriptionLine2": "See http://kab.co.il",
+          "Poster": "kab.png",
+          "StreamUrls": [
+            "http://edge1.il.kab.tv/rtplive/tv66-heb-high.stream/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "Meir TV",
+          "ShortDescriptionLine1": "Meir TV",
+          "ShortDescriptionLine2": "See http://www.meirtv.co.il",
+          "Poster": "meir.png",
+          "StreamUrls": [
+            "http://82.80.198.100:1935/live/live1/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "Hidabrut",
+          "ShortDescriptionLine1": "Hidabrut",
+          "ShortDescriptionLine2": "See http://hidabrut.com",
+          "Poster": "hidabrut.jpg",
+          "StreamUrls": [
+            "http://stream7.shidur.net/htvlive2/_definst_/smil:live2.smil/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "JBS TV",
+          "ShortDescriptionLine1": "Jewish Broadcasting Service (US)",
+          "ShortDescriptionLine2": "See http://jbstv.org",
+          "Poster": "jbs.png",
+          "StreamUrls": [
+            "http://uni8rtmp.tulix.tv/shalomtv-pc/shalomtv.smil/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "JLTV TV",
+          "ShortDescriptionLine1": "Jewish Life TV (US)",
+          "ShortDescriptionLine2": "See http://jltv.tv",
+          "Poster": "jltv.png",
+          "StreamUrls": [
+            "http://50.112.241.187:1935/rtplive/smil:jltv.smil/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "Kol Barama - 92.1fm",
+          "ShortDescriptionLine1": "Kol Barama - 92.1fm",
+          "ShortDescriptionLine2": "See http://www.kol-barama.co.il",
+          "Poster": "kolbarama_92.png",
+          "StreamUrls": [
+            "http://server1.live1.co.il:8004/livemp3"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Kol Chai - 93fm",
+          "ShortDescriptionLine1": "Kol Chai - 93fm",
+          "ShortDescriptionLine2": "See http://www.kol-barama.co.il",
+          "Poster": "kol_chai_93fm.png",
+          "StreamUrls": [
+            "http://switch2-streaming-212-83-eu.ilcast.com:8000"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        }
+      ]
+    },
+    {
+      "Name": "Other Languages",
+      "Items": [
+        {
+          "Title": "Israeli Public Broadcasting Corporation - Kan 33",
+          "ShortDescriptionLine1": "Kan 33 (Arabic)",
+          "ShortDescriptionLine2": "See https://www.makan.org.il",
+          "Poster": "ipbc_tv_33.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/747613/747613/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "ILand",
+          "ShortDescriptionLine1": "ILand TV (Russian)",
+          "ShortDescriptionLine2": "See http://iland.tv",
+          "Poster": "iland.png",
+          "StreamUrls": [
+            "https://w1.208.gostreaming.tv/ILAND/smil:iland.smil/playlist.m3u8",
+            "https://58ceb41d8e384.streamlock.net/ILAND/smil:iland.smil/playlist.m3u8",
+            "http://58ceb41d8e384.streamlock.net:1935/live/myStream/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true
+        },
+        {
+          "Title": "The Voice of Peace - Classic",
+          "ShortDescriptionLine1": "Kol Hashalom / Voice of Peace - Classic",
+          "ShortDescriptionLine2": "See http://www.thevoiceofpeace.co.il",
+          "Poster": "vop_radio.png",
+          "StreamUrls": [
+            "http://uk3-vn.mixstream.net:8264/;"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "The Voice of Peace - Original",
+          "ShortDescriptionLine1": "Kol Hashalom / Voice of Peace - Original",
+          "ShortDescriptionLine2": "See http://www.thevoiceofpeace.co.il",
+          "Poster": "vop_radio.png",
+          "StreamUrls": [
+            "http://uk2-vn.mixstream.net:8004/;"
+          ],
+          "StreamFormat": "mp3",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Israeli Public Broadcasting Corporation - Arabic Radio",
+          "ShortDescriptionLine1": "Israeli Public Broadcasting Corporation - Arabic Radio",
+          "ShortDescriptionLine2": "See http://www.makan.org.il",
+          "Poster": "ipbc_radio_arabic.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/749628/749628/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true,
+          "Audio": true
+        },
+        {
+          "Title": "Israel Broadcast Authority - Reka",
+          "ShortDescriptionLine1": "Reka - IPBC World Service (multilingual radio)",
+          "ShortDescriptionLine2": "See http://www.kan.org.il/live/radio.aspx?stationId=10",
+          "Poster": "ipbc_radio_reka.png",
+          "StreamUrls": [
+            "https://kanlivep2event-i.akamaihd.net/hls/live/749633/749633/playlist.m3u8"
+          ],
+          "StreamFormat": "hls",
+          "Live": true,
+          "Audio": true
+        }
+      ]
+    }
+  ]
+}
