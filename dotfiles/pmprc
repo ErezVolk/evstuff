@@ -15,19 +15,22 @@ steve-warmup:
 steve-hazard:
   Hazard 3rds 2-1-4-3: NONE
   Hazard 3rds 4-1-2-3: NONE
-  Hazard 3rds 1-4-3-1: NONE
+  Hazard 3rds 1-4-3-2: NONE
   Hazard 6ths 2-1-4-3: NONE
   Hazard 6ths 1-2-3-4: NONE
+  Hazard 6ths 4-3-2-1: NONE
 
-steve-etude:
-  4th Combination (Ex 4 on page 9): NONE
+steve-drill:
   Major scale in 4ths: NONE
   Minor scale in 4ths: NONE
   Major scale in 10ths: NONE
   Major scale in 6ths: NONE
+
+steve-etude:
+  4th Combination (Ex 4 on page 9): NONE
   6ths étude (Ex 5 on page 16): NONE
   Triads 1 (Ex 1 on page 17): NONE
-  Linear Slides (Ex 3 on page 8): 1st finger|2nd finger|3rd finger|4th finger
+  ' linear Slides (Ex 3 on page 8)': 1st finger|2nd finger|3rd finger|4th finger
 
 chops-l:
   L-1 (p4) 1345.6767|5656.4532: NONE
