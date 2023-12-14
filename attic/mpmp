@@ -8,6 +8,10 @@ pmp -d chops-r -n 1
 echo
 pmp -d arp
 echo
-echo "[Feeling Steve-y?]"
+echo "[Then maybe revise]"
 pmp -d steve-drill -n 1
-pmp -d steve-etude -n 1
+pmp -d etude -n 1
+echo
+echo "[And/or continue with]"
+pmp -d book -n 1
+
