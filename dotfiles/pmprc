@@ -21,10 +21,10 @@ steve-hazard:
   Hazard 6ths 4-3-2-1: NONE
 
 steve-drill:
-  Major scale in 4ths: NONE
-  Minor scale in 4ths: NONE
-  Major scale in 10ths: NONE
-  Major scale in 6ths: NONE
+  -major in 4ths (Ex 3 on p.10): major
+  -minor in 4ths: minor
+  -major in 10ths: minor
+  -major in 6ths: major
 
 etude:
   Steve's 4th Combination (Ex 4 on page 9): NONE
@@ -36,7 +36,7 @@ book:
   Ed's Walking Bass: NONE
   # JP's Walking Bass: NONE
   JP's Melodic Études: NONE
-  " book by CK": 1st|2nd|3rd|4th|5th|0th
+  # " book by CK": 1st|2nd|3rd|5th|Howto
   Radley: NONE
 
 chops-l:

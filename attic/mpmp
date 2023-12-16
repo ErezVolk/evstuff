@@ -4,8 +4,8 @@ echo "HB's scales"
 echo
 pmp -d keep -n 3 -i 0
 echo
-pmp -d chops-l -n 1
 pmp -d chops-r -n 1
+pmp -d chops-l -n 1
 echo
 pmp -d arp
 echo
