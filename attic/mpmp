@@ -1,15 +1,15 @@
 #!/bin/sh
+pmp -d warmup -n 1
+echo
 echo "[keep]"
-echo "HB's scales"
-echo
-pmp -d keep -n 3 -i 0
-echo
 pmp -d chops-r -n 1
 pmp -d chops-l -n 1
 echo
+pmp -d keep -n 3 -i 0
+echo
 pmp -d arp
 echo
-echo "[proceed]"
+echo "[build]"
 pmp -d book -n 1
 echo
 echo "[maybe revise]"

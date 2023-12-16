@@ -3,6 +3,10 @@ cli: --count=1 --max-items=1
 keep = { steve-warmup steve-hazard steve-drill }
 revise = { steve-drill etude }
 
+warmup:
+  Harvey's Scales: NONE
+  # Hawkins' Original: NONE
+
 steve-warmup:
   " in 8ths": E|A
   " in 5ths": E|A|D
