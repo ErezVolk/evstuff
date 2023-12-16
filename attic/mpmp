@@ -1,17 +1,16 @@
 #!/bin/sh
-pmp -d steve-warmup -n 3 -i 0
+echo "[keep]"
+echo "HB's scales"
 echo
-pmp -d steve-hazard
+pmp -d keep -n 3 -i 0
 echo
 pmp -d chops-l -n 1
 pmp -d chops-r -n 1
 echo
 pmp -d arp
 echo
-echo "[Then maybe revise]"
-pmp -d steve-drill -n 1
-pmp -d etude -n 1
-echo
-echo "[And/or continue with]"
+echo "[proceed]"
 pmp -d book -n 1
-
+echo
+echo "[maybe revise]"
+pmp -d revise -n 1 -i 0

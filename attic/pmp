@@ -25,6 +25,12 @@ NoteSet: typing.TypeAlias = tuple[str] | tuple[str, str]
 
 
 @dataclass
+class MetaDrill:
+    nline: int
+    members: set[str]
+
+
+@dataclass
 class Configuration:
     """The information from the config file"""
     drills: dict[str, Drill]
@@ -181,7 +187,10 @@ class PracticeMakesPerfect:
             if len(self.config.defaults) > 1:
                 report_drill = True
 
-        all_items = drills[drill_name]
+        try:
+            all_items = drills[drill_name]
+        except KeyError:
+            self.fail(f"Unknown drill specified: {drill_name}")
         if self.args.max_items and len(all_items) > self.args.max_items:
             all_items = random.sample(all_items, self.args.max_items)
 
@@ -288,6 +297,7 @@ class PracticeMakesPerfect:
     def parse_config(self, stream: typing.TextIO) -> Configuration:
         """Read configuration file"""
         drills: dict[str, Drill] = {}
+        metas: dict[str, MetaDrill] = {}
         defaults = []
         curr: Drill | None = None
         line: str
@@ -318,8 +328,27 @@ class PracticeMakesPerfect:
                 else:
                     members = [member.strip() for member in field.split("|")]
                     curr.append(DrillItem(name=name, field=members))
+            elif (mobj := match(r"([^=]*)\s*=\s*{([^}]*)}")):
+                name = mobj.group(1).strip()
+                members = {drill.strip() for drill in mobj.group(2).split()}
+                if not members:
+                    self.fail(f"No drill in {name} (line {nline})")
+                metas[name] = MetaDrill(nline=nline, members=members)
             elif not match(r""):
                 self.fail(f"Cannot parse line {nline}: {repr(line)}")
+
+        # Now add the metas
+        known = set(drills)
+        for name, meta in metas.items():
+            unknown = meta.members - known
+            if unknown:
+                self.fail(f"Unknown drill(s) online {meta.nline}: {' '.join(unknown)} in meta {name}")
+            drills[name] = Drill([
+                item
+                for drill in meta.members
+                for item in drills[drill]
+            ])
+
         return Configuration(
             drills=drills,
             defaults=defaults or list(drills),

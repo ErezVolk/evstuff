@@ -1,7 +1,7 @@
 cli: --count=1 --max-items=1
 
-note:
-  : ANY
+keep = { steve-warmup steve-hazard steve-drill }
+revise = { steve-drill etude }
 
 steve-warmup:
   " in 8ths": E|A
@@ -34,37 +34,38 @@ etude:
 
 book:
   Ed's Walking Bass: NONE
-  Patitucci's Walking Bass: NONE
-  Patitucci's Melodic Études: NONE
-  " book by Carol Kaye": 1st|2nd|3rd|4th|5th|0th
+  # JP's Walking Bass: NONE
+  JP's Melodic Études: NONE
+  " book by CK": 1st|2nd|3rd|4th|5th|0th
+  Radley: NONE
 
 chops-l:
-  L-1 (p4) 1345.6767|5656.4532: NONE
-  L-2 (p4) 1345.6787|6756.4532: NONE
-  L-3 (p4) 1564.7587|6425.42↓67: NONE
-  L-4 (p4) 1658.7547|6538.75↓7↑2: NONE
-  L-5 (p5) 1365.2465|3565.7542: NONE
-  L-6 (p5) 1365.4265|3165.42↓67: NONE
-  L-7 (p5) 1865.5645|3823.18↓7↑2: NONE
-  L-8 (p5) 1653.4652|1875.6523: NONE
-  L-9 (p6) 1875.6758|6756.4532: NONE
-  L-10 (p6) 3123.4568|7546.5324: NONE
-  L-11 (p6) 1812.3848|5867.8765: NONE
-  L-12 (p6) 1234.7658|4325.6781: NONE
+  L-Dexterity-1 (p4) 1345.6767|5656.4532: NONE
+  L-Dexterity-2 (p4) 1345.6787|6756.4532: NONE
+  L-Dexterity-3 (p4) 1564.7587|6425.42↓67: NONE
+  L-Dexterity-4 (p4) 1658.7547|6538.75↓7↑2: NONE
+  L-Dexterity-5 (p5) 1365.2465|3565.7542: NONE
+  L-Dexterity-6 (p5) 1365.4265|3165.42↓67: NONE
+  L-Dexterity-7 (p5) 1865.5645|3823.18↓7↑2: NONE
+  L-Dexterity-8 (p5) 1653.4652|1875.6523: NONE
+  L-Dexterity-9 (p6) 1875.6758|6756.4532: NONE
+  L-Dexterity-10 (p6) 3123.4568|7546.5324: NONE
+  L-Dexterity-11 (p6) 1812.3848|5867.8765: NONE
+  L-Dexterity-12 (p6) 1234.7658|4325.6781: NONE
 
 chops-r:
-  R-1 (p29) 1212...: NONE
-  R-2 (p29) 2121...: NONE
-  R-3 (p29) 1211.2122...: NONE
-  R-4 (p29) 1121.2212...: NONE
-  R-5 (p30) 1221.2112...: NONE
-  R-6 (p30) 1211.2112...: NONE
-  R-7 (p30) 2122.1221...: NONE
-  R-8 (p30) 1122.1221.2211.2112...: NONE
-  R-9 (p31) 1122.1121.2211.2212...: NONE
-  R-10 (p31) 1122.1211.2211.2122...: NONE
-  R-11 (p31) 1221.2221.2112.1112...: NONE
-  R-12 (p31) 1221.2111.2112.1222...: NONE
+  R-16th-1 (p29) 1212...: NONE
+  R-16th-2 (p29) 2121...: NONE
+  R-16th-3 (p29) 1211.2122...: NONE
+  R-16th-4 (p29) 1121.2212...: NONE
+  R-16th-5 (p30) 1221.2112...: NONE
+  R-16th-6 (p30) 1211.2112...: NONE
+  R-16th-7 (p30) 2122.1221...: NONE
+  R-16th-8 (p30) 1122.1221.2211.2112...: NONE
+  R-16th-9 (p31) 1122.1121.2211.2212...: NONE
+  R-16th-10 (p31) 1122.1211.2211.2122...: NONE
+  R-16th-11 (p31) 1221.2221.2112.1112...: NONE
+  R-16th-12 (p31) 1221.2111.2112.1222...: NONE
 
 scale:
   -major: major
@@ -90,3 +91,4 @@ mode:
   M⁷: major
   ' major pentatonic': major
   ' minor pentatonic': minor
+
