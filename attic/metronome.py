@@ -213,7 +213,7 @@ class Metronome:
         group.add_argument(
             "-b",
             "--beats",
-            type=self.validate_beat_arg,
+            type=int,
             nargs="+",
             default=[4],
             help=(
@@ -247,6 +247,9 @@ class Metronome:
             ),
         )
         self.args = parser.parse_args()
+        if self.args.beats != [0]:
+            if not all(beats > 0 for beats in self.args.beats):
+                parser.fail("--beats must be all positive numbers or a single zero")
 
     @classmethod
     def validate_subdivision_arg(cls, arg: str) -> str:
@@ -254,16 +257,6 @@ class Metronome:
         if re.fullmatch(r"[-tT]*[tT][-tT]*", arg):
             return arg
         raise argparse.ArgumentTypeError("may only contain 'T', 't', and '-'")
-
-    @classmethod
-    def validate_beat_arg(cls, arg: str) -> int:
-        """Validate --beat argument"""
-        if not str.isnumeric(arg):
-            raise argparse.ArgumentTypeError("must be a number")
-        beat = int(arg)
-        if beat <= 0:
-            raise argparse.ArgumentTypeError("must be positive")
-        return beat
 
     def run(self):
         """The main event"""
@@ -375,6 +368,10 @@ class Metronome:
         elif self.args.rhythm == "clave2":
             self.beats_per_bar = 4
             his = [0.5, 1, 2, 2.75, 3.5]
+        elif self.args.beats == [0]:
+            self.beats_per_bar = 1
+            his = []
+            los = [0]
         else:
             his = []
             self.beats_per_bar = 0

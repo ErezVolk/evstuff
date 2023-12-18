@@ -39,9 +39,10 @@ etude:
 book:
   Ed's Walking Bass: NONE
   # JP's Walking Bass: NONE
-  JP's Melodic Études: NONE
+  # JP's Melodic Études: NONE
   # " book by CK": 1st|2nd|3rd|5th|Howto
   Radley: NONE
+  Steve: NONE
 
 chops-l:
   L-Dexterity-1 (p4) 1345.6767|5656.4532: NONE
