@@ -4,7 +4,7 @@ keep = { steve-warmup steve-hazard steve-drill }
 revise = { steve-drill etude }
 
 warmup:
-  Harvey's Scales: NONE
+  ' Harvey': Ionian|Dorian|Phrygian|Lydian|Mixolydian|Aeolian|Locrian
   # Hawkins' Original: NONE
 
 steve-warmup:
@@ -17,18 +17,13 @@ steve-warmup:
   10ths: NONE
 
 steve-hazard:
-  Hazard 3rds 2-1-4-3: NONE
-  Hazard 3rds 4-1-2-3: NONE
-  Hazard 3rds 1-4-3-2: NONE
-  Hazard 6ths 2-1-4-3: NONE
-  Hazard 6ths 1-2-3-4: NONE
-  Hazard 6ths 4-3-2-1: NONE
+  ' Hazard 3rds': 2-1-4-3|4-1-2-3
+  ' Hazard 3rds': 1-4-3-2|2-1-4-3|1-2-3-4|4-3-2-1
 
 steve-drill:
   -major in 4ths (Ex 3 on p.10): major
   -minor in 4ths: minor
   -major in 10ths: minor
-  -major in 6ths: major
 
 etude:
   Steve's 4th Combination (Ex 4 on page 9): NONE
