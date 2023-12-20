@@ -26,6 +26,7 @@ NoteSet: typing.TypeAlias = tuple[str] | tuple[str, str]
 
 @dataclass
 class MetaDrill:
+    """A drill that just an amalamation of other drills"""
     nline: int
     members: set[str]
 
@@ -195,39 +196,39 @@ class PracticeMakesPerfect:
             all_items = random.sample(all_items, self.args.max_items)
 
         if self.args.one_per_item:
-            n = len(all_items)
+            nchoices = len(all_items)
         else:
-            n = min(self.args.count, len(drills))
+            nchoices = min(self.args.count, len(drills))
 
         if report_drill:
-            print(f"[{drill_name} × {n}]")
+            print(f"[{drill_name} × {nchoices}]")
 
-        nsets = self.choose(self.NSETS, min(n, len(self.NSETS)))
+        nsets = self.choose(self.NSETS, min(nchoices, len(self.NSETS)))
         items = self.choose(all_items, len(nsets))
         nset_items = list(zip(nsets, items))
-        if (n := n - len(nset_items)) > 0:
+        if (nchoices := nchoices - len(nset_items)) > 0:
             all_nset_items = set(itertools.product(self.NSETS, all_items))
             other_nset_items = all_nset_items - set(nset_items)
             if len(other_nset_items) > 0:
                 nset_items.extend(self.choose(
                     other_nset_items,
-                    min(n, len(other_nset_items))
+                    min(nchoices, len(other_nset_items))
                 ))
-            if (n := n - len(nset_items)) > 0:
-                nset_items.extend(self.choose(all_nset_items, n))
+            if (nchoices := nchoices - len(nset_items)) > 0:
+                nset_items.extend(self.choose(all_nset_items, nchoices))
 
-        nitems = [
-            self.make_nitem(nset, item)
+        named_items = [
+            self.make_named_item(nset, item)
             for nset, item in nset_items
         ]
-        random.shuffle(nitems)
-        spaceless = all(" " not in nitem for nitem in nitems)
-        if spaceless and len(one_line := " ".join(nitems)) < 80:
+        random.shuffle(named_items)
+        spaceless = all(" " not in named_item for named_item in named_items)
+        if spaceless and len(one_line := " ".join(named_items)) < 80:
             print(one_line)
         else:
-            print("\n".join(nitems))
+            print("\n".join(named_items))
 
-    def make_nitem(self, nset, item: DrillItem) -> str:
+    def make_named_item(self, nset, item: DrillItem) -> str:
         """Created named item, e.g., 'C-major'."""
         if item.field == "NONE":
             return item.name
@@ -266,16 +267,16 @@ class PracticeMakesPerfect:
         note = random.choice(nset)
         return self.SCALE_FIX[scale].get(note, note)
 
-    def choose(self, options: Iterable[T], n: int) -> list[T]:
+    def choose(self, options: Iterable[T], nchoices: int) -> list[T]:
         """Choose so we have as many "full" repetitions and a random tail"""
         opts = list(options)
         nopts = len(opts)
 
-        if n <= nopts:
-            return random.sample(opts, max(n, 1))
+        if nchoices <= nopts:
+            return random.sample(opts, max(nchoices, 1))
 
-        ntail = n % nopts
-        n_full_rounds = (n - ntail) // nopts
+        ntail = nchoices % nopts
+        n_full_rounds = (nchoices - ntail) // nopts
 
         choices = (opts * n_full_rounds) + random.sample(opts, ntail)
         return choices
@@ -342,7 +343,11 @@ class PracticeMakesPerfect:
         for name, meta in metas.items():
             unknown = meta.members - known
             if unknown:
-                self.fail(f"Unknown drill(s) online {meta.nline}: {' '.join(unknown)} in meta {name}")
+                unks = " ".join(unknown)
+                self.fail(
+                    f"Unknown drill(s) on line {meta.nline}: "
+                    f"{unks} in meta {name}"
+                )
             drills[name] = Drill([
                 item
                 for drill in meta.members
@@ -356,6 +361,7 @@ class PracticeMakesPerfect:
         )
 
     def fail(self, message: str) -> typing.NoReturn:
+        """Handy wrapper around ArgumentParser's fail method"""
         self.parser.error(message)
 
 
