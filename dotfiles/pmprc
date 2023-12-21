@@ -4,7 +4,7 @@ keep = { steve-warmup steve-hazard steve-drill }
 revise = { steve-drill etude }
 
 warmup:
-  ' Harvey': Ionian|Dorian|Phrygian|Lydian|Mixolydian|Aeolian|Locrian
+  ' Harvey': Ionian (1)|Dorian (2)|Phrygian (3)|Lydian (4)|Mixolydian (5)|Aeolian (6)|Locrian (7)
   # Hawkins' Original: NONE
 
 steve-warmup:
@@ -32,12 +32,14 @@ etude:
   " Steve's linear Slides (Ex 3 on page 8)": 1st finger|2nd finger|3rd finger|4th finger
 
 book:
+  Radley: NONE
+  Steve: NONE
+  Baroque: NONE
+  Improviser's: NONE
   Ed's Walking Bass: NONE
   # JP's Walking Bass: NONE
   # JP's Melodic Études: NONE
   # " book by CK": 1st|2nd|3rd|5th|Howto
-  Radley: NONE
-  Steve: NONE
 
 chops-l:
   L-Dexterity-1 (p4) 1345.6767|5656.4532: NONE
