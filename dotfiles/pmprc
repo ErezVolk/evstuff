@@ -3,6 +3,16 @@ cli: --count=1 --max-items=1
 keep = { steve-warmup steve-hazard steve-drill }
 revise = { steve-drill etude }
 
+note:
+  : ANY
+
+chord:
+  : major
+  m: minor
+  ⁷: major
+  m⁷: minor
+  M⁷: major
+
 warmup:
   ' Harvey': Ionian (1)|Dorian (2)|Phrygian (3)|Lydian (4)|Mixolydian (5)|Aeolian (6)|Locrian (7)
   # Hawkins' Original: NONE
