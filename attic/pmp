@@ -120,6 +120,16 @@ class PracticeMakesPerfect:
             nargs="*",
         )
         parser.add_argument(
+            "-m",
+            "--multiline",
+            action="store_true",
+        )
+        parser.add_argument(
+            "-v",
+            "--verbose",
+            action="store_true",
+        )
+        parser.add_argument(
             "-c",
             "--config",
             type=Path,
@@ -210,7 +220,7 @@ class PracticeMakesPerfect:
         else:
             nchoices = min(self.args.count, len(drills))
 
-        if report_drill:
+        if self.args.verbose or report_drill:
             print(f"[{drill_name} × {nchoices}]")
 
         nsets = self.choose(self.NSETS, min(nchoices, len(self.NSETS)))
@@ -232,11 +242,18 @@ class PracticeMakesPerfect:
             for nset, item in nset_items
         ]
         random.shuffle(named_items)
-        spaceless = all(" " not in named_item for named_item in named_items)
-        if spaceless and len(one_line := " ".join(named_items)) < 80:
-            print(one_line)
-        else:
-            print("\n".join(named_items))
+
+        print(self.get_sep(named_items).join(named_items))
+
+    def get_sep(self, named_items: list[str]) -> str:
+        """Return space or newline separator"""
+        if self.args.multiline:
+            return "\n"
+        if any(" " not in nitem for nitem in named_items):
+            return "\n"
+        if sum(len(nitem) for nitem in named_items) + len(named_items) >= 80:
+            return "\n"
+        return " "
 
     def make_named_item(self, nset, item: DrillItem | Drill) -> str:
         """Created named item, e.g., 'C-major'."""
