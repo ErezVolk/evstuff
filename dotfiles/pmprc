@@ -1,6 +1,6 @@
 cli: --count=1 --max-items=1
 
-keep = { steve-warmup steve-hazard -steve-drill @steve-slide }
+keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths }
 revise = { etude }
 
 note:
@@ -17,25 +17,35 @@ warmup:
   ' Harvey': Ionian (1)|Dorian (2)|Phrygian (3)|Lydian (4)|Mixolydian (5)|Aeolian (6)|Locrian (7)
   # Hawkins' Original: NONE
 
-steve-warmup:
-  " in 8ths": E|A
-  " in 5ths": E|A|D
-  " in 4ths": E|A|D
-  " in 3rds": E|A|D
-  " in 6ths": E|A
-  " in minor 6ths": E|A|D
-  10ths: NONE
+steve-chromatic:
+  " chromatically in 8ths": E|A
+  " chromatically in 5ths": E|A|D
+  " chromatically in 4ths": E|A|D
+  " chromatically in 3rds": E|A|D
+  " chromatically in 6ths": E|A
+  " chromatically in minor 6ths": E|A|D
+  "Chromatically in 10ths": NONE
 
-steve-hazard:
+steve-hazard-3rds:
   ' Hazard 3rds': 2-1-4-3|4-1-2-3
   ' Hazard 3rds': 1-4-3-2|2-1-4-3|1-2-3-4|4-3-2-1
 
-steve-drill = { -steve-drill @steve-slide }
+steve-hazard-6ths:
+  ' Hazard 6ths (Ex 2 on p.14)': 2-1-4-3
+  ' Hazard 6ths (Ex 3A on p.15)': 1-2-3-4
+  ' Hazard 6ths (Ex 3B on p.15)': 4-3-2-1
 
--steve-drill:
-  -major in 4ths (Ex 3 on p.10): major
-  -minor in 4ths: minor
-  -major in 10ths: minor
+steve-scale-in-10ths:
+  -major in 10th double stops (p.13): major
+  -minor in 10th double stops (p.13): minor
+
+steve-scale-in-4ths:
+  -major in 4th double stops (Ex 5 on p.10): major
+  -minor in 4th double stops (Ex 5 on p.10): minor
+
+steve-scale-in-5ths:
+  -major in 5th double stops (Ex 6 on p.7): major
+  -minor in 5th double stops (Ex 6 on p.7): minor
 
 steve-slide:
   ' melodic minor linear slides in octaves (Ex 4A on p.19)': minor
