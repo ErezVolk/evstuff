@@ -327,8 +327,8 @@ class PracticeMakesPerfect:
                 if field in self.SCALE_FIX:
                     curr.append(DrillItem(name=name, field=field))
                 else:
-                    members = [member.strip() for member in field.split("|")]
-                    curr.append(DrillItem(name=name, field=members))
+                    choices = [choice.strip() for choice in field.split("|")]
+                    curr.append(DrillItem(name=name, field=choices))
             elif (mobj := match(r"([^=]*)\s*=\s*{([^}]*)}")):
                 name = mobj.group(1).strip()
                 members = {drill.strip() for drill in mobj.group(2).split()}
