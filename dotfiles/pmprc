@@ -1,4 +1,4 @@
-cli: --count=1 --max-items=1
+# cli: --count=1 --max-items=1
 
 keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths }
 revise = { etude }

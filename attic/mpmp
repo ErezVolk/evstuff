@@ -4,14 +4,14 @@ echo
 echo "[keep]"
 pmp -d chops-r -n 1
 echo
-pmp -d keep -n 3 -i 0
+pmp -d keep -n 3
 echo
 pmp -d chops-l -n 1
 echo
-pmp -d arp
+pmp -d arp -n 1
 echo
 echo "[build]"
-pmp --multiline -d book -n 3 -i 0
+pmp --multiline -d book -n 3
 echo
 echo "[maybe revise]"
-pmp -d revise -n 1 -i 0
+pmp -d revise -n 1
