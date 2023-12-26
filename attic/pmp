@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
+# TODO: Consistent nomenclature
 import argparse
 from dataclasses import dataclass
 import io
@@ -20,7 +21,15 @@ class DrillItem:
     field: str | list[str]
 
 
-Drill: typing.TypeAlias = list[DrillItem]
+DrillItems: typing.TypeAlias = list["DrillItem | Drill"]
+
+
+@dataclass
+class Drill:
+    """Basically a list of items"""
+    items: DrillItems
+
+
 NoteSet: typing.TypeAlias = tuple[str] | tuple[str, str]
 
 
@@ -28,7 +37,8 @@ NoteSet: typing.TypeAlias = tuple[str] | tuple[str, str]
 class MetaDrill:
     """A drill that just an amalamation of other drills"""
     nline: int
-    members: set[str]
+    allsies: set[str]
+    onesies: set[str]
 
 
 @dataclass
@@ -189,7 +199,7 @@ class PracticeMakesPerfect:
                 report_drill = True
 
         try:
-            all_items = drills[drill_name]
+            all_items = drills[drill_name].items
         except KeyError:
             self.fail(f"Unknown drill specified: {drill_name}")
         if self.args.max_items and len(all_items) > self.args.max_items:
@@ -228,8 +238,12 @@ class PracticeMakesPerfect:
         else:
             print("\n".join(named_items))
 
-    def make_named_item(self, nset, item: DrillItem) -> str:
+    def make_named_item(self, nset, item: DrillItem | Drill) -> str:
         """Created named item, e.g., 'C-major'."""
+        if isinstance(item, Drill):
+            item = random.choice(item.items)
+
+        assert isinstance(item, DrillItem)
         if item.field == "NONE":
             return item.name
 
@@ -325,34 +339,41 @@ class PracticeMakesPerfect:
                     name = name[1:-1]
                 field = mobj.group(2).strip()
                 if field in self.SCALE_FIX:
-                    curr.append(DrillItem(name=name, field=field))
+                    curr.items.append(DrillItem(name=name, field=field))
                 else:
                     choices = [choice.strip() for choice in field.split("|")]
-                    curr.append(DrillItem(name=name, field=choices))
+                    curr.items.append(DrillItem(name=name, field=choices))
             elif (mobj := match(r"([^=]*)\s*=\s*{([^}]*)}")):
                 name = mobj.group(1).strip()
                 members = {drill.strip() for drill in mobj.group(2).split()}
                 if not members:
                     self.fail(f"No drill in {name} (line {nline})")
-                metas[name] = MetaDrill(nline=nline, members=members)
+                allsies = {one for one in members if not one.startswith("@")}
+                onesies = {one[1:] for one in members - allsies}
+                metas[name] = MetaDrill(
+                    nline=nline,
+                    allsies=allsies,
+                    onesies=onesies,
+                )
             elif not match(r""):
                 self.fail(f"Cannot parse line {nline}: {repr(line)}")
 
-        # Now add the metas
+        # Now add the metas; check the names first to avoid loops
         known = set(drills)
         for name, meta in metas.items():
-            unknown = meta.members - known
+            unknown = (meta.allsies | meta.onesies) - known
             if unknown:
                 unks = " ".join(unknown)
                 self.fail(
                     f"Unknown drill(s) on line {meta.nline}: "
                     f"{unks} in meta {name}"
                 )
-            drills[name] = Drill([
-                item
-                for drill in meta.members
-                for item in drills[drill]
-            ])
+
+        for name, meta in metas.items():
+            items: DrillItems = [drills[onesie] for onesie in meta.onesies]
+            for allsie in meta.allsies:
+                items.extend(drills[allsie].items)
+            drills[name] = Drill(items)
 
         return Configuration(
             drills=drills,
