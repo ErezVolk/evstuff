@@ -386,7 +386,13 @@ class LibgenDownload:
                     subprocess.run(["open", str(hit.path)], check=False)
                 return
 
-        self.log.info("%s: Could not download", hit.name)
+        self.log.info(
+            "%s: Could not download (number of mirrors: %d)",
+            hit.name,
+            len(hit.mirrors),
+        )
+        for nmirror, mirror in enumerate(hit.mirrors, 1):
+            self.log.debug("Mirror %d: %s", nmirror, mirror)
 
     def download_mirror(self, hit: Hit, mirror: str) -> bool:
         """Download one file from a specific mirror"""
@@ -498,8 +504,9 @@ class LibgenDownload:
 
     def parse_mirrors_cell(self, cell: bs4.Tag) -> list[str]:
         """Extract links from the Mirrors cell"""
+        base = f"https://{self.args.host}/"
         return [
-            href
+            urlparse.urljoin(base, href)
             for link in cell.find_all("a")
             if isinstance(href := link.get("href"), str)
         ]
