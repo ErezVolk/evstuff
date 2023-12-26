@@ -1,7 +1,7 @@
 cli: --count=1 --max-items=1
 
 keep = { steve-warmup steve-hazard steve-drill }
-revise = { steve-drill etude }
+revise = { etude }
 
 note:
   : ANY
@@ -34,6 +34,8 @@ steve-drill:
   -major in 4ths (Ex 3 on p.10): major
   -minor in 4ths: minor
   -major in 10ths: minor
+  ' melodic minor slides (page 19)': minor
+
 
 etude:
   Steve's 4th Combination (Ex 4 on page 9): NONE
