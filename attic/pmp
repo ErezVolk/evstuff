@@ -204,7 +204,7 @@ class PracticeMakesPerfect:
         if self.args.one_per_page:
             num_pictures = len(pook_pool)
         else:
-            num_pictures = min(self.args.num_pictures, len(book_pool))
+            num_pictures = self.args.num_pictures or len(book_pool)
 
         if self.args.verbose or report:
             print(f"[{book_name} × {num_pictures}]")
@@ -229,7 +229,8 @@ class PracticeMakesPerfect:
             elif isinstance(page.palette, list):
                 color = random.choice(page.palette)
             else:
-                color = self.choose_note(pitch_class, page.palette)
+                note = random.choice(pitch_class)
+                color = self.SCALE_FIX[page.palette].get(note, note)
             picture_seq.append(f"{color}{page.name}")
 
         print(self.get_sep(picture_seq).join(picture_seq))
@@ -265,11 +266,6 @@ class PracticeMakesPerfect:
                 modify(key): modify(value)
                 for key, value in model.items()
             }
-
-    def choose_note(self, pitch_class: PitchClass, scale: str) -> str:
-        """Choose one way of spelling a note (e.g., C♯ or D♭")."""
-        note = random.choice(pitch_class)
-        return self.SCALE_FIX[scale].get(note, note)
 
     def choose(self, options: Iterable[T], num_choices: int) -> list[T]:
         """Choose so we have as many "full" repetitions and a random tail"""
