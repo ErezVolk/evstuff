@@ -3,7 +3,6 @@
 # TODO: Reader
 import argparse
 import io
-import itertools
 from pathlib import Path
 import random
 import re
