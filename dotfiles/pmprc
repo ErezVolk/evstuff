@@ -18,12 +18,12 @@ warmup:
   # Hawkins' Original: NONE
 
 steve-chromatic:
-  " chromatically in 8ths": E|A
-  " chromatically in 5ths": E|A|D
-  " chromatically in 4ths": E|A|D
-  " chromatically in 3rds": E|A|D
-  " chromatically in 6ths": E|A
-  " chromatically in minor 6ths": E|A|D
+  " string chromatically in 8ths": E|A
+  " string chromatically in 5ths": E|A|D
+  " string chromatically in 4ths": E|A|D
+  " string chromatically in 3rds": E|A|D
+  " string chromatically in 6ths": E|A
+  " string chromatically in minor 6ths": E|A|D
   "Chromatically in 10ths": NONE
 
 steve-hazard-3rds:
