@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
-# TODO: Reader
+# TODO: "daily:\n   hey: steve"
 import argparse
 import io
 from pathlib import Path
@@ -12,22 +12,25 @@ from collections.abc import Iterable
 import typing
 
 
+class Palette(typing.NamedTuple):
+    """A palette of strings"""
+    colors: typing.Sequence[str]
+
+
 class Page(typing.NamedTuple):
     """A concrete page, e.g., 'minor pentatonic'"""
     name: str
-    palette: str | list[str]
+    palette: str | Palette
 
 
 Pook: typing.TypeAlias = "Page | Book"
 TableOfContents: typing.TypeAlias = list[Pook]
+PitchClass: typing.TypeAlias = tuple[str] | tuple[str, str]
 
 
 class Book(typing.NamedTuple):
     """Basically a list of pages or cross references"""
     toc: TableOfContents
-
-
-PitchClass: typing.TypeAlias = tuple[str] | tuple[str, str]
 
 
 class MetaBook(typing.NamedTuple):
@@ -154,7 +157,7 @@ class PracticeMakesPerfect:
         ("A",),
         ("A♯", "B♭"),
         ("B",),
-    ]
+     ]
 
     SCALE_FIX: dict[str, dict[str, str]] = {
         "NONE": {},
@@ -211,11 +214,7 @@ class PracticeMakesPerfect:
 
         page_seq: list[Page] = []
         for pook in self.choose(pook_pool, num_pictures):
-            looked = set()
             while isinstance(pook, Book):
-                if pook in looked:
-                    self.fail("There is a loop")
-                looked.add(pook)
                 pook = random.choice(pook.toc)
             page_seq.append(pook)
 
@@ -224,13 +223,15 @@ class PracticeMakesPerfect:
 
         picture_seq = []
         for page, pitch_class in zip(page_seq, pitch_class_seq):
-            if page.palette == "NONE":
-                color = ""
-            elif isinstance(page.palette, list):
-                color = random.choice(page.palette)
+            if isinstance(page.palette, Palette):
+                color = random.choice(page.palette.colors)
             else:
-                note = random.choice(pitch_class)
-                color = self.SCALE_FIX[page.palette].get(note, note)
+                scale: str = page.palette
+                if page.palette == "NONE":
+                    color = ""
+                else:
+                    note = random.choice(pitch_class)
+                    color = self.SCALE_FIX[scale].get(note, note)
             picture_seq.append(f"{color}{page.name}")
 
         print(self.get_sep(picture_seq).join(picture_seq))
@@ -328,8 +329,11 @@ class PracticeMakesPerfect:
                 if field in self.SCALE_FIX:
                     curr.toc.append(Page(name=name, palette=field))
                 else:
-                    choices = [choice.strip() for choice in field.split("|")]
-                    curr.toc.append(Page(name=name, palette=choices))
+                    colors = [color.strip() for color in field.split("|")]
+                    curr.toc.append(Page(
+                        name=name,
+                        palette=Palette(colors),
+                    ))
             elif (mobj := match(r"([^=]*)\s*=\s*{([^}]*)}")):
                 name = mobj.group(1).strip()
                 members = {drill.strip() for drill in mobj.group(2).split()}

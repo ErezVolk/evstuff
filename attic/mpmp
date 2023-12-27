@@ -1,5 +1,5 @@
 #!/bin/sh
-pmp warmup --one-per-item
+pmp warmup -N
 echo
 echo "[keep]"
 pmp chops-r -n 1
