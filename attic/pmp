@@ -131,7 +131,7 @@ class PracticeMakesPerfect:
 
     T = typing.TypeVar("T")
 
-    _NOTE_LETTERS = "CDEFGAB"
+    _LETTERS = "CDEFGAB"
     _MODES = (
         "ionian",
         "dorian",
@@ -252,8 +252,8 @@ class PracticeMakesPerfect:
 
         for offset, mode in enumerate(self._MODES):
             mapping = {
-                note: self._NOTE_LETTERS[(idx + offset) % len(self._NOTE_LETTERS)]
-                for idx, note in enumerate(self._NOTE_LETTERS)
+                note: self._LETTERS[(idx + offset) % len(self._LETTERS)]
+                for idx, note in enumerate(self._LETTERS)
             }
 
             def modify(note: str) -> str:
