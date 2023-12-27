@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
-# TODO: Consistent nomenclature
+# TODO: Lecture (fr)
 import argparse
-from dataclasses import dataclass
 import io
 import itertools
 from pathlib import Path
@@ -14,37 +13,33 @@ from collections.abc import Iterable
 import typing
 
 
-@dataclass
-class DrillItem:
-    """A single drill item, e.g., 'minor pentatonic'"""
+class Page(typing.NamedTuple):
+    """A concrete page, e.g., 'minor pentatonic'"""
     name: str
-    field: str | list[str]
+    palette: str | list[str]
 
 
-DrillItems: typing.TypeAlias = list["DrillItem | Drill"]
+TableOfContents: typing.TypeAlias = list["Page | Book"]
 
 
-@dataclass
-class Drill:
-    """Basically a list of items"""
-    items: DrillItems
+class Book(typing.NamedTuple):
+    """Basically a list of pages or cross references"""
+    toc: TableOfContents
 
 
-NoteSet: typing.TypeAlias = tuple[str] | tuple[str, str]
+PitchClass: typing.TypeAlias = tuple[str] | tuple[str, str]
 
 
-@dataclass
-class MetaDrill:
-    """A drill that just an amalamation of other drills"""
-    nline: int
-    allsies: set[str]
-    onesies: set[str]
+class MetaBook(typing.NamedTuple):
+    """A book that just an amalamation of other book"""
+    line_num: int
+    allsies: set[str]  # Books swallowed in their entirety
+    onesies: set[str]  # Books from which a single page is taken
 
 
-@dataclass
-class Configuration:
+class Configuration(typing.NamedTuple):
     """The information from the config file"""
-    drills: dict[str, Drill]
+    books: dict[str, Book]
     defaults: list[str]
     cli: str
 
@@ -93,31 +88,26 @@ class PracticeMakesPerfect:
             description="Practice Makes Perfect"
         )
         parser.add_argument(
-            "drill",
-            nargs="?",
+            "books",
+            metavar="BOOK",
+            type=str,
+            nargs="*",
         )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "-n",
-            "--count",
+            "--num-pictures",
             type=int,
         )
         group.add_argument(
             "-N",
-            "--one-per-item",
+            "--one-per-page",
             action="store_true",
         )
         parser.add_argument(
             "-i",
-            "--max-items",
+            "--max-pictures",
             type=int,
-        )
-        parser.add_argument(
-            "-d",
-            "--drill-set",
-            metavar="DRILL",
-            type=str,
-            nargs="*",
         )
         parser.add_argument(
             "-m",
@@ -140,7 +130,7 @@ class PracticeMakesPerfect:
 
     T = typing.TypeVar("T")
 
-    _NOTES = "CDEFGAB"
+    _NOTE_LETTERS = "CDEFGAB"
     _MODES = (
         "ionian",
         "dorian",
@@ -151,7 +141,7 @@ class PracticeMakesPerfect:
         "locrian",
     )
 
-    NSETS: list[NoteSet] = [
+    PITCH_CLASSES: list[PitchClass] = [
         ("C",),
         ("C♯", "D♭"),
         ("D",),
@@ -182,94 +172,99 @@ class PracticeMakesPerfect:
         }
     }
 
-    DEFAULT_CLI = f"--count {len(NSETS)}"
+    DEFAULT_CLI = f"-n {len(PITCH_CLASSES)}"
 
     def main(self) -> None:
         """Practice Makes Perfect"""
         self.parse_command_line()
 
-        if self.args.drill == "default-config":
+        if self.args.books == ["default-config"]:
             print(DEFAULT_CONFIG)
             return
 
         self.add_modes()
         self.configure()
 
-        drills = self.config.drills
+        book_pool = self.config.books
+        report = False
 
-        drill_name = self.args.drill
-        report_drill = False
-        if drill_name:
-            if drill_name not in drills:
-                self.fail(f"Unknown entity {repr(drill_name)}")
-        else:
-            drill_set = self.args.drill_set or self.config.defaults
-            drill_name = random.choice(drill_set)
+        if not self.args.books:
+            self.args.books = [random.choice(self.config.defaults)]
             if len(self.config.defaults) > 1:
-                report_drill = True
+                report = True
+        if (unknown := set(self.args.books) - set(book_pool)):
+            self.fail(f"Unknown book(s): {' '.join(unknown)}")
+        book_name = random.choice(self.args.books)
 
-        try:
-            all_items = drills[drill_name].items
-        except KeyError:
-            self.fail(f"Unknown drill specified: {drill_name}")
-        if self.args.max_items and len(all_items) > self.args.max_items:
-            all_items = random.sample(all_items, self.args.max_items)
+        page_pool = book_pool[book_name].toc
+        if self.args.max_pictures:
+            if len(page_pool) > self.args.max_pictures:
+                page_pool = random.sample(page_pool, self.args.max_pictures)
 
-        if self.args.one_per_item:
-            nchoices = len(all_items)
+        if self.args.one_per_page:
+            num_pictures = len(page_pool)
         else:
-            nchoices = min(self.args.count, len(drills))
+            num_pictures = min(self.args.num_pictures, len(book_pool))
 
-        if self.args.verbose or report_drill:
-            print(f"[{drill_name} × {nchoices}]")
+        if self.args.verbose or report:
+            print(f"[{book_name} × {num_pictures}]")
 
-        nsets = self.choose(self.NSETS, min(nchoices, len(self.NSETS)))
-        items = self.choose(all_items, len(nsets))
-        nset_items = list(zip(nsets, items))
-        if (nchoices := nchoices - len(nset_items)) > 0:
-            all_nset_items = set(itertools.product(self.NSETS, all_items))
-            other_nset_items = all_nset_items - set(nset_items)
-            if len(other_nset_items) > 0:
-                nset_items.extend(self.choose(
-                    other_nset_items,
-                    min(nchoices, len(other_nset_items))
+        # TODO: page_set, then palettes, then choose...?
+        # TODO: CONTINUE RENAMING FROM HERE
+
+        pitch_class_page_pool = set(itertools.product(
+            self.PITCH_CLASSES,
+            page_pool
+        ))
+        pitch_class_seq = self.choose(
+            self.PITCH_CLASSES,
+            min(num_pictures, len(self.PITCH_CLASSES))
+        )
+        page_seq = self.choose(page_pool, len(pitch_class_seq))
+        pitch_class_page_seq = list(zip(pitch_class_seq, page_seq))
+        if (num_pictures := num_pictures - len(pitch_class_page_seq)) > 0:
+            unused_pitch_class_page_pool = pitch_class_page_pool - set(pitch_class_page_seq)
+            if len(unused_pitch_class_page_pool) > 0:
+                pitch_class_page_seq.extend(self.choose(
+                    unused_pitch_class_page_pool,
+                    min(num_pictures, len(unused_pitch_class_page_pool))
                 ))
-            if (nchoices := nchoices - len(nset_items)) > 0:
-                nset_items.extend(self.choose(all_nset_items, nchoices))
+            if (num_pictures := num_pictures - len(pitch_class_page_seq)) > 0:
+                pitch_class_page_seq.extend(self.choose(pitch_class_page_pool, num_pictures))
 
-        named_items = [
-            self.make_named_item(nset, item)
-            for nset, item in nset_items
+        pictures = [
+            self.make_picture(pitch_class, page)
+            for pitch_class, page in pitch_class_page_seq
         ]
-        random.shuffle(named_items)
+        random.shuffle(pictures)
 
-        print(self.get_sep(named_items).join(named_items))
+        print(self.get_sep(pictures).join(pictures))
 
-    def get_sep(self, named_items: list[str]) -> str:
+    def get_sep(self, pictures: list[str]) -> str:
         """Return space or newline separator"""
         if self.args.multiline:
             return "\n"
-        if any(" " not in nitem for nitem in named_items):
+        if any(" " not in pic for pic in pictures):
             return "\n"
-        if sum(len(nitem) for nitem in named_items) + len(named_items) >= 80:
+        if sum(len(pic) for pic in pictures) + len(pictures) >= 80:
             return "\n"
         return " "
 
-    def make_named_item(self, nset, item: DrillItem | Drill) -> str:
-        """Created named item, e.g., 'C-major'."""
-        if isinstance(item, Drill):
-            item = random.choice(item.items)
+    def make_picture(self, pitch_class, page: Page | Book) -> str:
+        """Created named page, e.g., 'C-major'."""
+        if isinstance(page, Book):
+            page = random.choice(page.toc)
 
-        assert isinstance(item, DrillItem)
-        if item.field == "NONE":
-            return item.name
+        assert isinstance(page, Page)
+        if page.palette == "NONE":
+            return page.name
 
-        if isinstance(item.field, list):
-            member = random.choice(item.field)
+        if isinstance(page.palette, list):
+            member = random.choice(page.palette)
         else:
-            member = self.choose_note(nset, item.field)
+            member = self.choose_note(pitch_class, page.palette)
 
-        return member + item.name
+        return member + page.name
 
     def add_modes(self) -> None:
         """Add the Greek modes and their hypotheticals to our known scales"""
@@ -278,8 +273,8 @@ class PracticeMakesPerfect:
 
         for offset, mode in enumerate(self._MODES):
             mapping = {
-                note: self._NOTES[(idx + offset) % len(self._NOTES)]
-                for idx, note in enumerate(self._NOTES)
+                note: self._NOTE_LETTERS[(idx + offset) % len(self._NOTE_LETTERS)]
+                for idx, note in enumerate(self._NOTE_LETTERS)
             }
 
             def modify(note: str) -> str:
@@ -293,21 +288,21 @@ class PracticeMakesPerfect:
                 for key, value in model.items()
             }
 
-    def choose_note(self, nset: NoteSet, scale: str) -> str:
+    def choose_note(self, pitch_class: PitchClass, scale: str) -> str:
         """Choose one way of spelling a note (e.g., C♯ or D♭")."""
-        note = random.choice(nset)
+        note = random.choice(pitch_class)
         return self.SCALE_FIX[scale].get(note, note)
 
-    def choose(self, options: Iterable[T], nchoices: int) -> list[T]:
+    def choose(self, options: Iterable[T], num_choices: int) -> list[T]:
         """Choose so we have as many "full" repetitions and a random tail"""
         opts = list(options)
         nopts = len(opts)
 
-        if nchoices <= nopts:
-            return random.sample(opts, max(nchoices, 1))
+        if num_choices <= nopts:
+            return random.sample(opts, max(num_choices, 1))
 
-        ntail = nchoices % nopts
-        n_full_rounds = (nchoices - ntail) // nopts
+        ntail = num_choices % nopts
+        n_full_rounds = (num_choices - ntail) // nopts
 
         choices = (opts * n_full_rounds) + random.sample(opts, ntail)
         return choices
@@ -328,73 +323,74 @@ class PracticeMakesPerfect:
 
     def parse_config(self, stream: typing.TextIO) -> Configuration:
         """Read configuration file"""
-        drills: dict[str, Drill] = {}
-        metas: dict[str, MetaDrill] = {}
+        books: dict[str, Book] = {}
+        metas: dict[str, MetaBook] = {}
         defaults = []
-        curr: Drill | None = None
+        curr: Book | None = None
         line: str
         cli: str = ""
 
         def match(expr: str) -> re.Match | None:
             return re.fullmatch(expr, line)
 
-        for nline, line in enumerate(stream, 1):
+        for line_num, line in enumerate(stream, 1):
             line = re.sub(r"\s*(#.*)?$", "", line)
 
             if (mobj := match(r"cli:\s+(.*)")):
                 cli = mobj.group(1).strip()
             elif (mobj := match(r"([*]?)(\S[^:]*):")):
                 name = mobj.group(2).strip()
-                drills[name] = curr = Drill([])
+                books[name] = curr = Book([])
                 if mobj.group(1) == "*":
                     defaults.append(name)
             elif (mobj := match(r"\s+([^:]*):\s+(.*)")):
                 if curr is None:
-                    self.fail(f"Key without section in line {nline}")
+                    self.fail(f"Key without section in line {line_num}")
                 name = mobj.group(1).strip()
                 if name and name[0] in ["'", '"'] and name[-1] == name[0]:
                     name = name[1:-1]
                 field = mobj.group(2).strip()
+                assert curr is not None
                 if field in self.SCALE_FIX:
-                    curr.items.append(DrillItem(name=name, field=field))
+                    curr.toc.append(Page(name=name, palette=field))
                 else:
                     choices = [choice.strip() for choice in field.split("|")]
-                    curr.items.append(DrillItem(name=name, field=choices))
+                    curr.toc.append(Page(name=name, palette=choices))
             elif (mobj := match(r"([^=]*)\s*=\s*{([^}]*)}")):
                 name = mobj.group(1).strip()
                 members = {drill.strip() for drill in mobj.group(2).split()}
                 if not members:
-                    self.fail(f"No drill in {name} (line {nline})")
+                    self.fail(f"No drill in {name} (line {line_num})")
                 allsies = {one for one in members if not one.startswith("@")}
                 onesies = {one[1:] for one in members - allsies}
-                metas[name] = MetaDrill(
-                    nline=nline,
+                metas[name] = MetaBook(
+                    line_num=line_num,
                     allsies=allsies,
                     onesies=onesies,
                 )
             elif not match(r""):
-                self.fail(f"Cannot parse line {nline}: {repr(line)}")
+                self.fail(f"Cannot parse line {line_num}: {repr(line)}")
 
         # Now add the metas; check the names first to avoid loops
-        known = set(drills)
+        known = set(books)
         for name, meta in metas.items():
             unknown = (meta.allsies | meta.onesies) - known
             if unknown:
                 unks = " ".join(unknown)
                 self.fail(
-                    f"Unknown drill(s) on line {meta.nline}: "
+                    f"Unknown drill(s) on line {meta.line_num}: "
                     f"{unks} in meta {name}"
                 )
 
         for name, meta in metas.items():
-            items: DrillItems = [drills[onesie] for onesie in meta.onesies]
+            items: TableOfContents = [books[onesie] for onesie in meta.onesies]
             for allsie in meta.allsies:
-                items.extend(drills[allsie].items)
-            drills[name] = Drill(items)
+                items.extend(books[allsie].toc)
+            books[name] = Book(items)
 
         return Configuration(
-            drills=drills,
-            defaults=defaults or list(drills),
+            books=books,
+            defaults=defaults or list(books),
             cli=cli,
         )
 
