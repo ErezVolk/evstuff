@@ -171,7 +171,6 @@ class PracticeMakesPerfect:
             "G♭": "F♯",
             "D♭": "C♯",
             "A♭": "G♯",
-            # "A♯": "B♭",  (according to Wikipedia)
         }
     }
 
@@ -218,7 +217,6 @@ class PracticeMakesPerfect:
                 pook = random.choice(pook.toc)
             page_seq.append(pook)
 
-        # TODO: All the different palettes
         pitch_class_seq = self.choose(self.PITCH_CLASSES, num_pictures)
 
         picture_seq = []
@@ -227,7 +225,7 @@ class PracticeMakesPerfect:
                 color = random.choice(page.palette.colors)
             else:
                 scale: str = page.palette
-                if page.palette == "NONE":
+                if scale == "NONE":
                     color = ""
                 else:
                     note = random.choice(pitch_class)
