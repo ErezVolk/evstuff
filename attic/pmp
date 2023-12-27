@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
-# TODO: Lecture (fr)
+# TODO: Reader
 import argparse
 import io
 import itertools
@@ -19,7 +19,8 @@ class Page(typing.NamedTuple):
     palette: str | list[str]
 
 
-TableOfContents: typing.TypeAlias = list["Page | Book"]
+Pook: typing.TypeAlias = "Page | Book"
+TableOfContents: typing.TypeAlias = list[Pook]
 
 
 class Book(typing.NamedTuple):
@@ -196,49 +197,43 @@ class PracticeMakesPerfect:
             self.fail(f"Unknown book(s): {' '.join(unknown)}")
         book_name = random.choice(self.args.books)
 
-        page_pool = book_pool[book_name].toc
+        pook_pool = book_pool[book_name].toc
         if self.args.max_pictures:
-            if len(page_pool) > self.args.max_pictures:
-                page_pool = random.sample(page_pool, self.args.max_pictures)
+            if len(pook_pool) > self.args.max_pictures:
+                pook_pool = random.sample(pook_pool, self.args.max_pictures)
 
         if self.args.one_per_page:
-            num_pictures = len(page_pool)
+            num_pictures = len(pook_pool)
         else:
             num_pictures = min(self.args.num_pictures, len(book_pool))
 
         if self.args.verbose or report:
             print(f"[{book_name} × {num_pictures}]")
 
-        # TODO: page_set, then palettes, then choose...?
-        # TODO: CONTINUE RENAMING FROM HERE
+        page_seq: list[Page] = []
+        for pook in self.choose(pook_pool, num_pictures):
+            looked = set()
+            while isinstance(pook, Book):
+                if pook in looked:
+                    self.fail("There is a loop")
+                looked.add(pook)
+                pook = random.choice(pook.toc)
+            page_seq.append(pook)
 
-        pitch_class_page_pool = set(itertools.product(
-            self.PITCH_CLASSES,
-            page_pool
-        ))
-        pitch_class_seq = self.choose(
-            self.PITCH_CLASSES,
-            min(num_pictures, len(self.PITCH_CLASSES))
-        )
-        page_seq = self.choose(page_pool, len(pitch_class_seq))
-        pitch_class_page_seq = list(zip(pitch_class_seq, page_seq))
-        if (num_pictures := num_pictures - len(pitch_class_page_seq)) > 0:
-            unused_pitch_class_page_pool = pitch_class_page_pool - set(pitch_class_page_seq)
-            if len(unused_pitch_class_page_pool) > 0:
-                pitch_class_page_seq.extend(self.choose(
-                    unused_pitch_class_page_pool,
-                    min(num_pictures, len(unused_pitch_class_page_pool))
-                ))
-            if (num_pictures := num_pictures - len(pitch_class_page_seq)) > 0:
-                pitch_class_page_seq.extend(self.choose(pitch_class_page_pool, num_pictures))
+        # TODO: All the different palettes
+        pitch_class_seq = self.choose(self.PITCH_CLASSES, num_pictures)
 
-        pictures = [
-            self.make_picture(pitch_class, page)
-            for pitch_class, page in pitch_class_page_seq
-        ]
-        random.shuffle(pictures)
+        picture_seq = []
+        for page, pitch_class in zip(page_seq, pitch_class_seq):
+            if page.palette == "NONE":
+                color = ""
+            elif isinstance(page.palette, list):
+                color = random.choice(page.palette)
+            else:
+                color = self.choose_note(pitch_class, page.palette)
+            picture_seq.append(f"{color}{page.name}")
 
-        print(self.get_sep(pictures).join(pictures))
+        print(self.get_sep(picture_seq).join(picture_seq))
 
     def get_sep(self, pictures: list[str]) -> str:
         """Return space or newline separator"""
@@ -249,22 +244,6 @@ class PracticeMakesPerfect:
         if sum(len(pic) for pic in pictures) + len(pictures) >= 80:
             return "\n"
         return " "
-
-    def make_picture(self, pitch_class, page: Page | Book) -> str:
-        """Created named page, e.g., 'C-major'."""
-        if isinstance(page, Book):
-            page = random.choice(page.toc)
-
-        assert isinstance(page, Page)
-        if page.palette == "NONE":
-            return page.name
-
-        if isinstance(page.palette, list):
-            member = random.choice(page.palette)
-        else:
-            member = self.choose_note(pitch_class, page.palette)
-
-        return member + page.name
 
     def add_modes(self) -> None:
         """Add the Greek modes and their hypotheticals to our known scales"""
