@@ -48,17 +48,17 @@ class Configuration(typing.NamedTuple):
 
 
 DEFAULT_CONFIG = """
-note:
+note:  # Just pick a note
   : ANY
 
-scale:
+scale:  # Play a scale
   -major: major
   -major: major  # Duplicate an entry to give it more weight
   -natural minor: minor
   -harmonic minor: minor
   -melodic minor: minor
 
-mode:
+mode:  # Play a mode
   ' ionian': ionian
   ' dorian': dorian
   ' phrygian': phrygian
@@ -67,7 +67,7 @@ mode:
   ' aeolian': aeolian
   ' locrian': locrian
 
-arp:
+arp:  # Play an arpeggio
   M: major
   m: minor
   ⁷: major
@@ -321,11 +321,12 @@ class PracticeMakesPerfect:
             elif (mobj := match(r"\s+([^:]*):\s+(.*)")):
                 if curr is None:
                     self.fail(f"Key without section in line {line_num}")
+                assert curr is not None
+
                 name = mobj.group(1).strip()
-                if name and name[0] in ["'", '"'] and name[-1] == name[0]:
+                if name and name[0] in "'\"" and name[-1] == name[0]:
                     name = name[1:-1]
                 field = mobj.group(2).strip()
-                assert curr is not None
                 if field in self.SCALE_FIX:
                     curr.toc.append(Page(name=name, palette=field))
                 else:
@@ -339,6 +340,7 @@ class PracticeMakesPerfect:
                 members = {drill.strip() for drill in mobj.group(2).split()}
                 if not members:
                     self.fail(f"No drill in {name} (line {line_num})")
+
                 allsies = {one for one in members if not one.startswith("@")}
                 onesies = {one[1:] for one in members - allsies}
                 metas[name] = MetaBook(
