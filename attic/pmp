@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
-# TODO: book->etude->key->track, binder
 import argparse
 import io
 from pathlib import Path
@@ -12,32 +11,20 @@ from collections.abc import Iterable
 import typing
 
 
-class Palette(typing.NamedTuple):
-    """A palette of strings"""
-    colors: typing.Sequence[str]
-
-
-class Page(typing.NamedTuple):
-    """A concrete page, e.g., 'minor pentatonic'"""
+class Etude(typing.NamedTuple):
+    """A concrete etude, e.g., 'minor pentatonic'"""
     name: str
-    palette: str | Palette
+    keys: str | list[str]
 
 
-Pook: typing.TypeAlias = "Page | Book"
-TableOfContents: typing.TypeAlias = list[Pook]
+Playable: typing.TypeAlias = "Etude | Book"
+TableOfContents: typing.TypeAlias = list[Playable]
 PitchClass: typing.TypeAlias = tuple[str] | tuple[str, str]
 
 
 class Book(typing.NamedTuple):
-    """Basically a list of pages or cross references"""
+    """Basically a list of etudes or pointers to other books"""
     toc: TableOfContents
-
-
-class MetaBook(typing.NamedTuple):
-    """A book that just an amalamation of other book"""
-    line_num: int
-    allsies: set[str]  # Books swallowed in their entirety
-    onesies: set[str]  # Books from which a single page is taken
 
 
 class Configuration(typing.NamedTuple):
@@ -96,20 +83,22 @@ class PracticeMakesPerfect:
             type=str,
             nargs="*",
         )
+
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "-n",
-            "--num-pictures",
+            "--num-tracks",
             type=int,
         )
         group.add_argument(
             "-N",
-            "--one-per-page",
+            "--one-of-each",
             action="store_true",
         )
+
         parser.add_argument(
             "-i",
-            "--max-pictures",
+            "--max-etudes",
             type=int,
         )
         parser.add_argument(
@@ -188,7 +177,7 @@ class PracticeMakesPerfect:
         self.configure()
 
         book_pool = self.config.books
-        report = False
+        report = self.args.verbose
 
         if not self.args.books:
             self.args.books = [random.choice(self.config.defaults)]
@@ -198,49 +187,48 @@ class PracticeMakesPerfect:
             self.fail(f"Unknown book(s): {' '.join(unknown)}")
         book_name = random.choice(self.args.books)
 
-        pook_pool = book_pool[book_name].toc
-        if self.args.max_pictures:
-            if len(pook_pool) > self.args.max_pictures:
-                pook_pool = random.sample(pook_pool, self.args.max_pictures)
+        playable_pool = book_pool[book_name].toc
+        if self.args.max_etudes:
+            num_playables = min(self.args.max_etudes, len(playable_pool))
+            playable_pool = random.sample(playable_pool, num_playables)
 
-        if self.args.one_per_page:
-            num_pictures = len(pook_pool)
+        if self.args.one_of_each:
+            num_tracks = len(playable_pool)
         else:
-            num_pictures = self.args.num_pictures or len(book_pool)
+            num_tracks = self.args.num_tracks or len(book_pool)
 
-        if self.args.verbose or report:
-            print(f"[{book_name} × {num_pictures}]")
+        if report:
+            print(f"[{book_name} × {num_tracks}]")
 
-        page_seq: list[Page] = []
-        for pook in self.choose(pook_pool, num_pictures):
-            while isinstance(pook, Book):
-                pook = random.choice(pook.toc)
-            page_seq.append(pook)
+        etude_seq: list[Etude] = []
+        for playable in self.choose(playable_pool, num_tracks):
+            while isinstance(playable, Book):
+                playable = random.choice(playable.toc)
+            etude_seq.append(playable)
 
-        pitch_class_seq = self.choose(self.PITCH_CLASSES, num_pictures)
+        pitch_class_seq = self.choose(self.PITCH_CLASSES, num_tracks)
 
-        picture_seq = []
-        for page, pitch_class in zip(page_seq, pitch_class_seq):
-            if isinstance(page.palette, Palette):
-                color = random.choice(page.palette.colors)
+        track_seq = []
+        for etude, pitch_class in zip(etude_seq, pitch_class_seq):
+            if isinstance(etude.keys, list):
+                key = random.choice(etude.keys)
+            elif etude.keys == "NONE":
+                key = ""
             else:
-                scale: str = page.palette
-                if scale == "NONE":
-                    color = ""
-                else:
-                    note = random.choice(pitch_class)
-                    color = self.SCALE_FIX[scale].get(note, note)
-            picture_seq.append(f"{color}{page.name}")
+                scale: str = etude.keys
+                note = random.choice(pitch_class)
+                key = self.SCALE_FIX[scale].get(note, note)
+            track_seq.append(f"{key}{etude.name}")
 
-        print(self.get_sep(picture_seq).join(picture_seq))
+        print(self.get_sep(track_seq).join(track_seq))
 
-    def get_sep(self, pictures: list[str]) -> str:
+    def get_sep(self, tracks: list[str]) -> str:
         """Return space or newline separator"""
         if self.args.multiline:
             return "\n"
-        if any(" " not in pic for pic in pictures):
+        if any(" " not in track for track in tracks):
             return "\n"
-        if sum(len(pic) for pic in pictures) + len(pictures) >= 80:
+        if sum(len(track) for track in tracks) + len(tracks) >= 80:
             return "\n"
         return " "
 
@@ -296,6 +284,12 @@ class PracticeMakesPerfect:
 
     def parse_config(self, stream: typing.TextIO) -> Configuration:
         """Read configuration file"""
+        class MetaBook(typing.NamedTuple):
+            """A book that just an amalamation of other book"""
+            line_num: int
+            allsies: set[str]  # Books swallowed in their entirety
+            onesies: set[str]  # Books from which a single etude is taken
+
         books: dict[str, Book] = {}
         metas: dict[str, MetaBook] = {}
         defaults = []
@@ -326,12 +320,11 @@ class PracticeMakesPerfect:
                     name = name[1:-1]
                 field = mobj.group(2).strip()
                 if field in self.SCALE_FIX:
-                    curr.toc.append(Page(name=name, palette=field))
+                    curr.toc.append(Etude(name=name, keys=field))
                 else:
-                    colors = [color.strip() for color in field.split("|")]
-                    curr.toc.append(Page(
+                    curr.toc.append(Etude(
                         name=name,
-                        palette=Palette(colors),
+                        keys=[key.strip() for key in field.split("|")],
                     ))
             elif (mobj := match(r"([^=]*)\s*=\s*{([^}]*)}")):
                 name = mobj.group(1).strip()
