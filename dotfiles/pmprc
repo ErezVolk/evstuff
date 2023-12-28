@@ -1,6 +1,6 @@
 # cli: --count=1 --max-items=1
 
-keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths }
+keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths @good-warmups }
 revise = { etude }
 
 note:
@@ -17,11 +17,16 @@ warmup:
   ' Harvey': Ionian (1)|Dorian (2)|Phrygian (3)|Lydian (4)|Mixolydian (5)|Aeolian (6)|Locrian (7)
 
 homework:
-  Ray Brown's Blues (p.101): NONE
+  Ray Brown's Blues (I) (p.101): NONE
+  # Ray Brown's Blues (II) (p.102): NONE
+  # Ray Brown's Blues (III) (p.103): NONE
   Ray Brown's 10ths with a 5th, E string (p.50): NONE
   # Ray Brown's 10ths with a 5th, A string (p.51): NONE
   Melodic Etude No. 2 (p.8): NONE
   Darker Side: NONE
+
+good-warmups:
+  Ray Brown's Blues (p.100): NONE
 
 steve-chromatic:
   " string chromatically in 8ths": E|A
