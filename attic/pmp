@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
+# MAYBE: "session" for the daily
 import argparse
 import io
 from pathlib import Path
@@ -31,6 +32,15 @@ PitchClass: TypeAlias = tuple[str] | tuple[str, str]
 class Book(NamedTuple):
     """Basically a list of etudes or pointers to other books"""
     toc: TableOfContents
+
+
+class SessionItem(NamedTuple):
+    """A step in a session"""
+    num_etudes: int | None
+    book: str
+
+
+Session: TypeAlias = list[SessionItem]
 
 
 DEFAULT_CONFIG = """
@@ -190,8 +200,8 @@ class PracticeMakesPerfect:
         self.report_book = self.args.verbose
 
         book_name = self.choose_book()
-
-        self.playables = self.all_books[book_name].toc
+        book = self.all_books[book_name]
+        self.playables = book.toc
         if self.args.max_etudes:
             num_playables = min(self.args.max_etudes, len(self.playables))
             self.playables = random.sample(self.playables, num_playables)
@@ -334,6 +344,7 @@ class ConfigParser:
 
     books: dict[str, Book] = {}
     folders: dict[str, Folder] = {}
+    sessions: dict[str, Session] = {}
     defaults = []
     curr: Book | None = None
     line_num: int
@@ -366,11 +377,16 @@ class ConfigParser:
                     name=mobj.group(1).strip(),
                     playables=[part.strip() for part in mobj.group(2).split()],
                 )
+            elif (mobj := self.match(r"([^=]*)\s*=\s*\[([^]]*)\]")):
+                self.add_session(
+                    name=mobj.group(1).strip(),
+                    parts=[part.strip() for part in mobj.group(2).split()],
+                )
             elif not self.match(r""):
                 raise BadConfig(f"Bad line {self.line_num}: {repr(self.line)}")
 
         self.check_no_loops()
-        self.add_folders()
+        self.convert_folders()
 
         return Configuration(
             books=self.books,
@@ -412,6 +428,27 @@ class ConfigParser:
             onesies=onesies,
         )
 
+    PART_RE = r"(?P<at>(?P<num>[1-9]\d+)?@)?(?P<book>\S+)"
+
+    def add_session(self, name: str, parts: Sequence[str]) -> None:
+        """Found a session line"""
+        if not parts:
+            raise BadConfig(f"No playable in {name} (line {self.line_num})")
+        session: Session = []
+        for part in parts:
+            if not (mobj := re.fullmatch(self.PART_RE, part)):
+                raise BadConfig(f"Bad {repr(part)} (line {self.line_num})")
+            if (nstr := mobj.group("num")):
+                num = int(nstr)
+            elif mobj.group("at"):
+                num = 1
+            else:
+                num = None
+            item = SessionItem(num_etudes=num, book=mobj.group("book"))
+            session.append(item)
+        self.sessions[name] = session
+        print("WARNING:", session)
+
     def check_no_loops(self) -> None:
         """Make sure no folder->folder links"""
         known = set(self.books)
@@ -424,7 +461,7 @@ class ConfigParser:
                     f"{unks} in folder {name}"
                 )
 
-    def add_folders(self) -> None:
+    def convert_folders(self) -> None:
         """Convert the folders to books"""
         for name, folder in self.folders.items():
             items: TableOfContents

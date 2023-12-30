@@ -1,4 +1,4 @@
-# cli: --count=1 --max-items=1
+daily = [ warmup @chops-r 3@keep @chops-l @arp homework 3@book @revise ]
 
 keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths @good-warmups }
 revise = { etude }
