@@ -152,7 +152,7 @@ class PracticeMakesPerfect:
         ("A",),
         ("A♯", "B♭"),
         ("B",),
-     ]
+    ]
 
     SCALE_FIX: dict[str, dict[str, str]] = {
         "NONE": {},
@@ -219,12 +219,12 @@ class PracticeMakesPerfect:
         """Pick out a book"""
         if self.args.books:
             pool = self.args.books
+            if (unknown := set(pool) - set(self.all_books)):
+                self.fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
             pool = self.config.defaults
             if len(pool) > 1:
                 self.report_book = True
-        if (unknown := set(pool) - set(self.all_books)):
-            self.fail(f"Unknown book(s): {' '.join(unknown)}")
         return random.choice(pool)
 
     def make_tracks(
@@ -232,7 +232,7 @@ class PracticeMakesPerfect:
         etude_seq: list[Etude],
         pitch_class_seq: list[PitchClass]
     ) -> list[str]:
-        """Attach pitch classes to etudes"""
+        """Attach chosen pitch classes to chosen etudes"""
         track_seq = []
         for etude, pitch_class in zip(etude_seq, pitch_class_seq):
             if isinstance(etude.keys, list):
@@ -278,7 +278,8 @@ class PracticeMakesPerfect:
                 for key, value in model.items()
             }
 
-    def choose(self, options: Iterable[T], num_choices: int) -> list[T]:
+    @classmethod
+    def choose(cls, options: Iterable[T], num_choices: int) -> list[T]:
         """Choose so we have as many "full" repetitions and a random tail"""
         opts = list(options)
         nopts = len(opts)
@@ -315,7 +316,7 @@ class PracticeMakesPerfect:
             raise err  # Won't happen, just to appease pyright
 
     def fail(self, message: str) -> NoReturn:
-        """Handy wrapper around ArgumentParser's fail method"""
+        """Handy wrapper around ArgumentParser's `.fail()` method"""
         self.parser.error(message)
 
 
