@@ -7,31 +7,30 @@ import random
 import re
 import shlex
 
+from collections.abc import Container
 from collections.abc import Iterable
-import typing
+from collections.abc import Sequence
+from typing import NamedTuple
+from typing import NoReturn
+from typing import TextIO
+from typing import TypeAlias
+from typing import TypeVar
 
 
-class Etude(typing.NamedTuple):
+class Etude(NamedTuple):
     """A concrete etude, e.g., 'minor pentatonic'"""
     name: str
     keys: str | list[str]
 
 
-Playable: typing.TypeAlias = "Etude | Book"
-TableOfContents: typing.TypeAlias = list[Playable]
-PitchClass: typing.TypeAlias = tuple[str] | tuple[str, str]
+Playable: TypeAlias = "Etude | Book"
+TableOfContents: TypeAlias = list[Playable]
+PitchClass: TypeAlias = tuple[str] | tuple[str, str]
 
 
-class Book(typing.NamedTuple):
+class Book(NamedTuple):
     """Basically a list of etudes or pointers to other books"""
     toc: TableOfContents
-
-
-class Configuration(typing.NamedTuple):
-    """The information from the config file"""
-    books: dict[str, Book]
-    defaults: list[str]
-    cli: str
 
 
 DEFAULT_CONFIG = """
@@ -63,6 +62,13 @@ arp:  # Play an arpeggio
   ' major pentatonic': major
   ' minor pentatonic': minor
 """
+
+
+class Configuration(NamedTuple):
+    """The information from the config file"""
+    books: dict[str, Book]
+    defaults: list[str]
+    cli: str
 
 
 class PracticeMakesPerfect:
@@ -120,7 +126,7 @@ class PracticeMakesPerfect:
         self.args = parser.parse_args()
         self.parser = parser
 
-    T = typing.TypeVar("T")
+    T = TypeVar("T")
 
     _LETTERS = "CDEFGAB"
     _MODES = (
@@ -165,6 +171,10 @@ class PracticeMakesPerfect:
 
     DEFAULT_CLI = f"-n {len(PITCH_CLASSES)}"
 
+    all_books: dict[str, Book]
+    playables: list[Playable]
+    report_book: bool = False
+
     def main(self) -> None:
         """Practice Makes Perfect"""
         self.parse_command_line()
@@ -176,38 +186,53 @@ class PracticeMakesPerfect:
         self.add_modes()
         self.configure()
 
-        book_pool = self.config.books
-        report = self.args.verbose
+        self.all_books = self.config.books
+        self.report_book = self.args.verbose
 
-        if not self.args.books:
-            self.args.books = [random.choice(self.config.defaults)]
-            if len(self.config.defaults) > 1:
-                report = True
-        if (unknown := set(self.args.books) - set(book_pool)):
-            self.fail(f"Unknown book(s): {' '.join(unknown)}")
-        book_name = random.choice(self.args.books)
+        book_name = self.choose_book()
 
-        playable_pool = book_pool[book_name].toc
+        self.playables = self.all_books[book_name].toc
         if self.args.max_etudes:
-            num_playables = min(self.args.max_etudes, len(playable_pool))
-            playable_pool = random.sample(playable_pool, num_playables)
+            num_playables = min(self.args.max_etudes, len(self.playables))
+            self.playables = random.sample(self.playables, num_playables)
 
         if self.args.one_of_each:
-            num_tracks = len(playable_pool)
+            num_tracks = len(self.playables)
         else:
-            num_tracks = self.args.num_tracks or len(book_pool)
+            num_tracks = self.args.num_tracks or len(self.all_books)
 
-        if report:
+        if self.report_book:
             print(f"[{book_name} × {num_tracks}]")
 
         etude_seq: list[Etude] = []
-        for playable in self.choose(playable_pool, num_tracks):
+        for playable in self.choose(self.playables, num_tracks):
             while isinstance(playable, Book):
                 playable = random.choice(playable.toc)
             etude_seq.append(playable)
 
         pitch_class_seq = self.choose(self.PITCH_CLASSES, num_tracks)
+        track_seq = self.make_tracks(etude_seq, pitch_class_seq)
 
+        print(self.get_sep(track_seq).join(track_seq))
+
+    def choose_book(self) -> str:
+        """Pick out a book"""
+        if self.args.books:
+            pool = self.args.books
+        else:
+            pool = self.config.defaults
+            if len(pool) > 1:
+                self.report_book = True
+        if (unknown := set(pool) - set(self.all_books)):
+            self.fail(f"Unknown book(s): {' '.join(unknown)}")
+        return random.choice(pool)
+
+    def make_tracks(
+        self,
+        etude_seq: list[Etude],
+        pitch_class_seq: list[PitchClass]
+    ) -> list[str]:
+        """Attach pitch classes to etudes"""
         track_seq = []
         for etude, pitch_class in zip(etude_seq, pitch_class_seq):
             if isinstance(etude.keys, list):
@@ -219,8 +244,7 @@ class PracticeMakesPerfect:
                 note = random.choice(pitch_class)
                 key = self.SCALE_FIX[scale].get(note, note)
             track_seq.append(f"{key}{etude.name}")
-
-        print(self.get_sep(track_seq).join(track_seq))
+        return track_seq
 
     def get_sep(self, tracks: list[str]) -> str:
         """Return space or newline separator"""
@@ -282,92 +306,131 @@ class PracticeMakesPerfect:
                     if (new_val := getattr(new_args, key)):
                         setattr(self.args, key, new_val)
 
-    def parse_config(self, stream: typing.TextIO) -> Configuration:
+    def parse_config(self, stream: TextIO) -> Configuration:
         """Read configuration file"""
-        class MetaBook(typing.NamedTuple):
-            """A book that just an amalamation of other book"""
-            line_num: int
-            allsies: set[str]  # Books swallowed in their entirety
-            onesies: set[str]  # Books from which a single etude is taken
+        try:
+            return ConfigParser(self.SCALE_FIX).parse(stream)
+        except BadConfig as err:
+            self.fail(str(err))
+            raise err  # Won't happen, just to appease pyright
 
-        books: dict[str, Book] = {}
-        metas: dict[str, MetaBook] = {}
-        defaults = []
-        curr: Book | None = None
-        line: str
-        cli: str = ""
-
-        def match(expr: str) -> re.Match | None:
-            return re.fullmatch(expr, line)
-
-        for line_num, line in enumerate(stream, 1):
-            line = re.sub(r"\s*(#.*)?$", "", line)
-
-            if (mobj := match(r"cli:\s+(.*)")):
-                cli = mobj.group(1).strip()
-            elif (mobj := match(r"([*]?)(\S[^:]*):")):
-                name = mobj.group(2).strip()
-                books[name] = curr = Book([])
-                if mobj.group(1) == "*":
-                    defaults.append(name)
-            elif (mobj := match(r"\s+([^:]*):\s+(.*)")):
-                if curr is None:
-                    self.fail(f"Key without section in line {line_num}")
-                assert curr is not None
-
-                name = mobj.group(1).strip()
-                if name and name[0] in "'\"" and name[-1] == name[0]:
-                    name = name[1:-1]
-                field = mobj.group(2).strip()
-                if field in self.SCALE_FIX:
-                    curr.toc.append(Etude(name=name, keys=field))
-                else:
-                    curr.toc.append(Etude(
-                        name=name,
-                        keys=[key.strip() for key in field.split("|")],
-                    ))
-            elif (mobj := match(r"([^=]*)\s*=\s*{([^}]*)}")):
-                name = mobj.group(1).strip()
-                members = {drill.strip() for drill in mobj.group(2).split()}
-                if not members:
-                    self.fail(f"No drill in {name} (line {line_num})")
-
-                allsies = {one for one in members if not one.startswith("@")}
-                onesies = {one[1:] for one in members - allsies}
-                metas[name] = MetaBook(
-                    line_num=line_num,
-                    allsies=allsies,
-                    onesies=onesies,
-                )
-            elif not match(r""):
-                self.fail(f"Cannot parse line {line_num}: {repr(line)}")
-
-        # Now add the metas; check the names first to avoid loops
-        known = set(books)
-        for name, meta in metas.items():
-            unknown = (meta.allsies | meta.onesies) - known
-            if unknown:
-                unks = " ".join(unknown)
-                self.fail(
-                    f"Unknown drill(s) on line {meta.line_num}: "
-                    f"{unks} in meta {name}"
-                )
-
-        for name, meta in metas.items():
-            items: TableOfContents = [books[onesie] for onesie in meta.onesies]
-            for allsie in meta.allsies:
-                items.extend(books[allsie].toc)
-            books[name] = Book(items)
-
-        return Configuration(
-            books=books,
-            defaults=defaults or list(books),
-            cli=cli,
-        )
-
-    def fail(self, message: str) -> typing.NoReturn:
+    def fail(self, message: str) -> NoReturn:
         """Handy wrapper around ArgumentParser's fail method"""
         self.parser.error(message)
+
+
+class BadConfig(ValueError):
+    """Problem with config file"""
+
+
+class ConfigParser:
+    """Read configuration file"""
+    class Folder(NamedTuple):
+        """A book that just an amalgamation of other books"""
+        line_num: int
+        allsies: set[str]  # Books swallowed in their entirety
+        onesies: set[str]  # Books from which a single etude is taken
+
+    books: dict[str, Book] = {}
+    folders: dict[str, Folder] = {}
+    defaults = []
+    curr: Book | None = None
+    line_num: int
+    line: str
+    cli: str = ""
+
+    def __init__(self, known_scales: Container[str]):
+        self.known_scales = known_scales
+
+    def match(self, expr: str) -> re.Match | None:
+        """Handy wrapper around `re.fullmatch` for the current line"""
+        return re.fullmatch(expr, self.line)
+
+    def parse(self, stream: TextIO) -> "Configuration":
+        """Read configuration file"""
+        for self.line_num, line in enumerate(stream, 1):
+            self.line = re.sub(r"\s*(#.*)?$", "", line)
+
+            if (mobj := self.match(r"cli:\s+(.*)")):
+                self.cli = mobj.group(1).strip()
+            elif (mobj := self.match(r"([*]?)(\S[^:]*):")):
+                self.enter_book(name=mobj.group(2).strip(), star=mobj.group(1))
+            elif (mobj := self.match(r"\s+([^:]*):\s+(.*)")):
+                self.add_etude(
+                    name=mobj.group(1).strip(),
+                    scale=mobj.group(2).strip(),
+                )
+            elif (mobj := self.match(r"([^=]*)\s*=\s*{([^}]*)}")):
+                self.add_folder(
+                    name=mobj.group(1).strip(),
+                    playables=[part.strip() for part in mobj.group(2).split()],
+                )
+            elif not self.match(r""):
+                raise BadConfig(f"Bad line {self.line_num}: {repr(self.line)}")
+
+        self.check_no_loops()
+        self.add_folders()
+
+        return Configuration(
+            books=self.books,
+            defaults=self.defaults or list(self.books),
+            cli=self.cli,
+        )
+
+    def enter_book(self, name: str, star=str) -> None:
+        """Found a book line"""
+        self.books[name] = self.curr = Book([])
+        if star == "*":
+            self.defaults.append(name)
+
+    def add_etude(self, name: str, scale: str) -> None:
+        """Found an etude line"""
+        if self.curr is None:
+            raise BadConfig(f"Bookless etude in line {self.line_num}")
+
+        if name and name[0] in "'\"" and name[-1] == name[0]:
+            name = name[1:-1]
+        if scale in self.known_scales:
+            self.curr.toc.append(Etude(name=name, keys=scale))
+        else:
+            self.curr.toc.append(Etude(
+                name=name,
+                keys=[key.strip() for key in scale.split("|")],
+            ))
+
+    def add_folder(self, name: str, playables: Sequence[str]) -> None:
+        """Found a folder line"""
+        if not playables:
+            raise BadConfig(f"No playable in {name} (line {self.line_num})")
+
+        allsies = {one for one in playables if not one.startswith("@")}
+        onesies = {one[1:] for one in set(playables) - allsies}
+        self.folders[name] = self.Folder(
+            line_num=self.line_num,
+            allsies=allsies,
+            onesies=onesies,
+        )
+
+    def check_no_loops(self) -> None:
+        """Make sure no folder->folder links"""
+        known = set(self.books)
+        for name, folder in self.folders.items():
+            unknown = (folder.allsies | folder.onesies) - known
+            if unknown:
+                unks = " ".join(unknown)
+                raise BadConfig(
+                    f"Unknown playable(s) on line {folder.line_num}: "
+                    f"{unks} in folder {name}"
+                )
+
+    def add_folders(self) -> None:
+        """Convert the folders to books"""
+        for name, folder in self.folders.items():
+            items: TableOfContents
+            items = [self.books[onesie] for onesie in folder.onesies]
+            for allsie in folder.allsies:
+                items.extend(self.books[allsie].toc)
+            self.books[name] = Book(items)
 
 
 if __name__ == "__main__":
