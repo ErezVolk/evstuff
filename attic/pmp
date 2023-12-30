@@ -6,7 +6,6 @@ import io
 from pathlib import Path
 import random
 import re
-import shlex
 
 from collections.abc import Container
 from collections.abc import Iterable
@@ -77,8 +76,7 @@ arp:  # Play an arpeggio
 class Configuration(NamedTuple):
     """The information from the config file"""
     books: dict[str, Book]
-    defaults: list[str]
-    cli: str
+    starred: list[str]
 
 
 class PracticeMakesPerfect:
@@ -179,8 +177,6 @@ class PracticeMakesPerfect:
         }
     }
 
-    DEFAULT_CLI = f"-n {len(PITCH_CLASSES)}"
-
     all_books: dict[str, Book]
     playables: list[Playable]
     report_book: bool = False
@@ -209,7 +205,7 @@ class PracticeMakesPerfect:
         if self.args.one_of_each:
             num_tracks = len(self.playables)
         else:
-            num_tracks = self.args.num_tracks or len(self.all_books)
+            num_tracks = self.args.num_tracks or len(self.PITCH_CLASSES)
 
         if self.report_book:
             print(f"[{book_name} × {num_tracks}]")
@@ -232,7 +228,7 @@ class PracticeMakesPerfect:
             if (unknown := set(pool) - set(self.all_books)):
                 self.fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
-            pool = self.config.defaults
+            pool = self.config.starred
             if len(pool) > 1:
                 self.report_book = True
         return random.choice(pool)
@@ -310,12 +306,6 @@ class PracticeMakesPerfect:
                 self.config = self.parse_config(fobj)
         except (FileNotFoundError, ValueError):
             self.config = self.parse_config(io.StringIO(DEFAULT_CONFIG))
-        for cli in (self.config.cli, self.DEFAULT_CLI):
-            new_args = self.parser.parse_args(shlex.split(cli))
-            for key, val in vars(self.args).items():
-                if val is None:
-                    if (new_val := getattr(new_args, key)):
-                        setattr(self.args, key, new_val)
 
     def parse_config(self, stream: TextIO) -> Configuration:
         """Read configuration file"""
@@ -345,11 +335,10 @@ class ConfigParser:
     books: dict[str, Book] = {}
     folders: dict[str, Folder] = {}
     sessions: dict[str, Session] = {}
-    defaults = []
+    starred = []
     curr: Book | None = None
     line_num: int
     line: str
-    cli: str = ""
 
     def __init__(self, known_scales: Container[str]):
         self.known_scales = known_scales
@@ -363,9 +352,7 @@ class ConfigParser:
         for self.line_num, line in enumerate(stream, 1):
             self.line = re.sub(r"\s*(#.*)?$", "", line)
 
-            if (mobj := self.match(r"cli:\s+(.*)")):
-                self.cli = mobj.group(1).strip()
-            elif (mobj := self.match(r"([*]?)(\S[^:]*):")):
+            if (mobj := self.match(r"([*]?)(\S[^:]*):")):
                 self.enter_book(name=mobj.group(2).strip(), star=mobj.group(1))
             elif (mobj := self.match(r"\s+([^:]*):\s+(.*)")):
                 self.add_etude(
@@ -390,15 +377,14 @@ class ConfigParser:
 
         return Configuration(
             books=self.books,
-            defaults=self.defaults or list(self.books),
-            cli=self.cli,
+            starred=self.starred or list(self.books),
         )
 
     def enter_book(self, name: str, star=str) -> None:
         """Found a book line"""
         self.books[name] = self.curr = Book([])
         if star == "*":
-            self.defaults.append(name)
+            self.starred.append(name)
 
     def add_etude(self, name: str, scale: str) -> None:
         """Found an etude line"""
