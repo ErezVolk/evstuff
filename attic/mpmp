@@ -1,20 +1,2 @@
 #!/bin/sh
-pmp warmup -N
-echo
-echo "[keep]"
-pmp chops-r -n 1
-echo
-pmp keep -n 3
-echo
-pmp chops-l -n 1
-echo
-pmp arp -n 1
-echo
-echo "[homework]"
-pmp homework -N
-echo
-echo "[build]"
-pmp --multiline book -n 3
-echo
-echo "[maybe revise]"
-pmp revise -n 1
+pmp daily
