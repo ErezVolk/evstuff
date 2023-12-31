@@ -87,6 +87,11 @@ steve-slide:
   ' melodic minor zig-zig slides in octaves (Ex 4B on p.19)': minor
   ' minor linear slides in fifths (Ex 5A on p.19)': minor
   ' minor zig-zig slides in fifths (Ex 5B on p.19)': minor
+  # ' slides in 3rds (p.21)': D-A|A-G|E-A
+  # ' legato in 3rds (4A ON p.22)': D-A|A-G|E-A
+  # ' legato in 3rds (4B ON p.22)': D-A|A-G|E-A
+  # ' legato in 3rds (4C ON p.22)': D-A|A-G|E-A
+  # '-string legato in 3rds (4A ON p.22)': E|A|D|G
 
 etude:
   Steve's 4th Combination (Ex 4 on page 9): NONE
