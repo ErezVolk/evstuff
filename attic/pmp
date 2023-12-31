@@ -22,7 +22,7 @@ class Etude(NamedTuple):
     keys: str | list[str]
 
 
-FirstOrderConstruct: TypeAlias = "Book | Agenda"
+Tome: TypeAlias = "Book | Agenda"
 Playable: TypeAlias = "Etude | Book"
 TableOfContents: TypeAlias = list[Playable]
 PitchClass: TypeAlias = tuple[str] | tuple[str, str]
@@ -35,7 +35,7 @@ class Book(NamedTuple):
 
 class Agendum(NamedTuple):
     """A step in a agenda"""
-    book: str
+    book_name: str
     num_etudes: int | None
 
 
@@ -79,7 +79,7 @@ arp:  # Play an arpeggio
 
 class Configuration(NamedTuple):
     """The information from the config file"""
-    books: dict[str, Book]
+    tomes: dict[str, Tome]
     starred: list[str]
 
 
@@ -96,8 +96,8 @@ class PracticeMakesPerfect:
             description="Practice Makes Perfect"
         )
         parser.add_argument(
-            "books",
-            metavar="BOOK",
+            "tomes",
+            metavar="TOME",
             type=str,
             nargs="*",
         )
@@ -181,38 +181,59 @@ class PracticeMakesPerfect:
         }
     }
 
-    all_books: dict[str, Book]
+    all_tomes: dict[str, Tome]
     playables: list[Playable]
     report_book: bool = False
+    book_name: str
 
     def main(self) -> None:
         """Practice Makes Perfect"""
         self.parse_command_line()
 
-        if self.args.books == ["default-config"]:
+        if self.args.tomes == ["default-config"]:
             print(DEFAULT_CONFIG)
             return
 
         self.add_modes()
         self.configure()
 
-        self.all_books = self.config.books
+        self.all_tomes = self.config.tomes
         self.report_book = self.args.verbose
 
-        book_name = self.choose_book()
-        book = self.all_books[book_name]
+        self.book_name = self.choose_tome()
+        tome = self.all_tomes[self.book_name]
+        if isinstance(tome, Book):
+            self.run_book(tome, self.args.num_tracks, self.args.one_of_each)
+        else:
+            self.run_agenda(tome)
+
+    def run_agenda(self, agenda: Agenda) -> None:
+        """Run an agenda: A sequence of books"""
+        for agendum in agenda.items:
+            self.book_name = agendum.book_name
+            book = self.all_tomes[self.book_name]
+            assert isinstance(book, Book)
+            self.run_book(
+                book,
+                num_tracks=agendum.num_etudes,
+                one_of_each=agendum.num_etudes is None
+            )
+            print("")
+
+    def run_book(self, book: Book, num_tracks: int | None, one_of_each: bool):
+        """Run a "simple" book"""
         self.playables = book.toc
         if self.args.max_etudes:
             num_playables = min(self.args.max_etudes, len(self.playables))
             self.playables = random.sample(self.playables, num_playables)
 
-        if self.args.one_of_each:
+        if one_of_each:
             num_tracks = len(self.playables)
-        else:
-            num_tracks = self.args.num_tracks or len(self.PITCH_CLASSES)
+        elif not num_tracks:
+            num_tracks = len(self.PITCH_CLASSES)
 
         if self.report_book:
-            print(f"[{book_name} × {num_tracks}]")
+            print(f"[{self.book_name} × {num_tracks}]")
 
         etude_seq: list[Etude] = []
         for playable in self.choose(self.playables, num_tracks):
@@ -225,11 +246,11 @@ class PracticeMakesPerfect:
 
         print(self.get_sep(track_seq).join(track_seq))
 
-    def choose_book(self) -> str:
-        """Pick out a book"""
-        if self.args.books:
-            pool = self.args.books
-            if (unknown := set(pool) - set(self.all_books)):
+    def choose_tome(self) -> str:
+        """Pick out a tome"""
+        if self.args.tomes:
+            pool = self.args.tomes
+            if (unknown := set(pool) - set(self.all_tomes)):
                 self.fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
             pool = self.config.starred
@@ -337,8 +358,8 @@ class ConfigParser:
         onesies: set[str]  # Books from which a single etude is taken
 
     books: dict[str, Book] = {}
+    tomes: dict[str, Tome] = {}
     folders: dict[str, Folder] = {}
-    agendas: dict[str, Agenda] = {}
     starred = []
     curr: Book | None = None
     line_num: int
@@ -368,10 +389,11 @@ class ConfigParser:
                     name=mobj.group(1).strip(),
                     playables=[part.strip() for part in mobj.group(2).split()],
                 )
-            elif (mobj := self.match(r"([^=]*)\s*=\s*\[([^]]*)\]")):
+            elif (mobj := self.match(r"([*]?)([^=]*)\s*=\s*\[([^]]*)\]")):
                 self.add_agenda(
-                    name=mobj.group(1).strip(),
-                    parts=[part.strip() for part in mobj.group(2).split()],
+                    star=mobj.group(1),
+                    name=mobj.group(2).strip(),
+                    parts=[part.strip() for part in mobj.group(3).split()],
                 )
             elif not self.match(r""):
                 raise BadConfig(f"Bad line {self.line_num}: {repr(self.line)}")
@@ -380,13 +402,16 @@ class ConfigParser:
         self.convert_folders()
 
         return Configuration(
-            books=self.books,
-            starred=self.starred or list(self.books),
+            tomes=self.tomes,
+            starred=self.starred or list(self.tomes),
         )
 
     def enter_book(self, name: str, star=str) -> None:
         """Found a book line"""
-        self.books[name] = self.curr = Book([])
+        if name in self.tomes:
+            raise BadConfig(f"Duplicate name: {repr(name)}")
+
+        self.tomes[name] = self.books[name] = self.curr = Book([])
         if star == "*":
             self.starred.append(name)
 
@@ -418,12 +443,15 @@ class ConfigParser:
             onesies=onesies,
         )
 
-    PART_RE = r"(?P<at>(?P<num>[1-9]\d+)?@)?(?P<book>\S+)"
+    PART_RE = r"(?P<at>(?P<num>[1-9]\d*)?@)?(?P<book>\S+)"
 
-    def add_agenda(self, name: str, parts: Sequence[str]) -> None:
+    def add_agenda(self, star: str, name: str, parts: Sequence[str]) -> None:
         """Found a agenda line"""
         if not parts:
             raise BadConfig(f"No book in agenda {name} (line {self.line_num})")
+
+        if name in self.tomes:
+            raise BadConfig(f"Duplicate name: {repr(name)}")
 
         items = []
         for part in parts:
@@ -435,9 +463,11 @@ class ConfigParser:
                 num = 1
             else:
                 num = None
-            items.append(Agendum(num_etudes=num, book=mobj.group("book")))
-        self.agendas[name] = Agenda(items=items)
-        # print("WARNING:", agenda)
+            items.append(Agendum(num_etudes=num, book_name=mobj.group("book")))
+        self.tomes[name] = Agenda(items=items)
+
+        if star == "*":
+            self.starred.append(name)
 
     def check_no_loops(self) -> None:
         """Make sure no folder->folder links"""
@@ -458,7 +488,7 @@ class ConfigParser:
             items = [self.books[onesie] for onesie in folder.onesies]
             for allsie in folder.allsies:
                 items.extend(self.books[allsie].toc)
-            self.books[name] = Book(items)
+            self.tomes[name] = self.books[name] = Book(items)
 
 
 if __name__ == "__main__":

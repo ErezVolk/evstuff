@@ -1,7 +1,7 @@
-daily = [ warmup @chops-r 3@keep @chops-l @arp homework 3@book @revise ]
+*daily = [ warmup @chops-r 3@keep @chops-l @arp homework 3@book @maybe-revise ]
 
 keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths @ray-browns }
-revise = { etude }
+maybe-revise = { etude }
 
 note:
   : ANY
@@ -150,7 +150,7 @@ mode:
   ' aeolian': aeolian
   ' locrian': locrian
 
-*arp:
+arp:
   : major
   m: minor
   ⁷: major
