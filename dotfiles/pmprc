@@ -1,6 +1,6 @@
 daily = [ warmup @chops-r 3@keep @chops-l @arp homework 3@book @revise ]
 
-keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths @good-warmups }
+keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths @ray-browns }
 revise = { etude }
 
 note:
@@ -17,16 +17,40 @@ warmup:
   ' Harvey': Ionian (1)|Dorian (2)|Phrygian (3)|Lydian (4)|Mixolydian (5)|Aeolian (6)|Locrian (7)
 
 homework:
-  Ray Brown's Blues (I) (p.101): NONE
-  # Ray Brown's Blues (II) (p.102): NONE
+  Ray Brown's Blues (II) (p.102): NONE
   # Ray Brown's Blues (III) (p.103): NONE
-  Ray Brown's 10ths with a 5th, E string (p.50): NONE
-  # Ray Brown's 10ths with a 5th, A string (p.51): NONE
+  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
+  # Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
+  # Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+  # Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
+  # Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
+  # Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
+  # Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
+  # Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
+  # Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
+  # Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
+  # Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
+  # Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
   Melodic Etude No. 2 (p.8): NONE
   Darker Side: NONE
 
-good-warmups:
+ray-browns:
   Ray Brown's Blues (p.100): NONE
+  # Ray Brown's Blues (I) (p.101): NONE
+  # Ray Brown's Blues (II) (p.102): NONE
+  # Ray Brown's Blues (III) (p.103): NONE
+  # Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
+  # Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
+  # Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+  # Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
+  # Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
+  # Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
+  # Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
+  # Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
+  # Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
+  # Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
+  # Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
+  # Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
 
 steve-chromatic:
   " string chromatically in 8ths": E|A
