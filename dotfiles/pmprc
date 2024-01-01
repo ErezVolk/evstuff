@@ -1,4 +1,4 @@
-*daily = [ warmup @chops-r 3@keep @chops-l @arp @scale-on-a-string homework 3@book @maybe-revise ]
+*daily = [ warmup @scale-on-a-string @chops-r 3@keep @chops-l @arp homework 3@book @maybe-revise ]
 
 keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths @ray-browns }
 maybe-revise = { etude }
@@ -14,7 +14,8 @@ chord:
   M⁷: major
 
 warmup:
-  ' Harvey': Ionian (1)|Dorian (2)|Phrygian (3)|Lydian (4)|Mixolydian (5)|Aeolian (6)|Locrian (7)
+  Daily Harvey: NONE
+  # ' Harvey': Ionian (1)|Dorian (2)|Phrygian (3)|Lydian (4)|Mixolydian (5)|Aeolian (6)|Locrian (7)
 
 homework:
   Ray Brown's Blues (II) (p.102): NONE
@@ -36,7 +37,7 @@ homework:
 
 scale-on-a-string:
   -major on one string: major
-  -minor on one string: minor
+  # -minor on one string: minor
 
 ray-browns:
   Ray Brown's Blues (p.100): NONE
