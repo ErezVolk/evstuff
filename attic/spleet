@@ -11,18 +11,32 @@ import pandas as pd
 from pydub import AudioSegment
 
 
-SplitPoint = t.Union[float, int]
+SplitPoint: t.TypeAlias = float | int
+SplitList: t.TypeAlias = list[SplitPoint]
+
+
+class Runs(t.NamedTuple):
+    """A list of same-value runs"""
+    values: np.ndarray
+    starts: np.ndarray
+    lengths: np.ndarray
 
 
 class Spleet:
     """Spleet audio files by silence"""
     args: argparse.Namespace
     min_ms: int
+    sus: set[Path] = set()
 
     def main(self):
         """Entry point"""
         for path in self.parse_args():
             self.spleet(path)
+        if self.sus:
+            print(
+                "You may want to check:",
+                " ".join(path.name for path in self.sus)
+            )
 
     def parse_args(self):
         """Command line"""
@@ -81,10 +95,16 @@ class Spleet:
 
     def spleet(self, path: Path):
         """Process one audio file"""
-        points_ms = self.get_splitpoints(path)
-        points_text = ["0.00"] + [self.ms_to_mp3splt(ms) for ms in points_ms] + ["EOF"]
+        points_ms = self.get_splitlist(path)
+        if any(np.isnan(ms) for ms in points_ms):
+            self.sus.add(path)
+
+        points_text = [self.ms_to_mp3splt(ms) for ms in points_ms]
         points = " ".join(points_text)
-        line = f"mp3splt -f -n -d '.' -o '@f/@f @n2' '{path}' {points}"
+        line = (
+            f"mp3splt -f -n -d '.' -o '@f/@f @n2' '{path}' "
+            f"0.00 {points} EOF"
+        )
         print(line)
         if not self.args.output:
             return
@@ -117,7 +137,7 @@ class Spleet:
 
         return (int(match.group(1)) * 60 + int(match.group(2))) * 1000
 
-    def get_splitpoints(self, path: Path) -> list[SplitPoint]:
+    def get_splitlist(self, path: Path) -> SplitList:
         """Find where to split"""
         snd = AudioSegment.from_file(path)
         duration_ms = len(snd)
@@ -126,23 +146,24 @@ class Spleet:
 
         sliceable_ms = (len(snd) // self.args.slice_ms) * self.args.slice_ms
         rmss = np.array([
-            snd[start_ms : start_ms + self.args.slice_ms].rms
+            snd[start_ms : start_ms + self.args.slice_ms].rms  # noqa: E203
             for start_ms in range(0, sliceable_ms, self.args.slice_ms)
         ])
-        threshold = np.quantile(rmss, self.args.top_quantile) / self.args.threshold_nth
+        threshold_times_n = np.quantile(rmss, self.args.top_quantile)
+        threshold = threshold_times_n / self.args.threshold_nth
         vads = rmss > threshold
 
-        run_values, run_starts, run_lengths = self.find_runs(vads)
-        sil_tmap = run_values == 0
+        runs = self.find_runs(vads)
+        sil_tmap = runs.values == 0
         sils = pd.DataFrame({
-            "start": run_starts[sil_tmap] * self.args.slice_ms,
-            "length": run_lengths[sil_tmap] * self.args.slice_ms,
+            "start": runs.starts[sil_tmap] * self.args.slice_ms,
+            "length": runs.lengths[sil_tmap] * self.args.slice_ms,
         })
         sils["end"] = sils.start + sils.length
 
-        return self.sils_to_points(sils, duration_ms)
+        return self.sils_to_list(sils, duration_ms)
 
-    def sils_to_points(self, sils: pd.DataFrame, duration_ms: int) -> list[SplitPoint]:
+    def sils_to_list(self, sils: pd.DataFrame, duration_ms: int) -> SplitList:
         """Find split points from silences"""
         points = []
         target = self.args.mean
@@ -150,7 +171,7 @@ class Spleet:
         while target <= limit_ms:
             window_min = target - self.min_ms
             window_max = target + self.min_ms
-            rows = sils.loc[(sils.start < window_max) & (sils.end > window_min)]
+            rows = sils.query(f"start < {window_max} and end > {window_min}")
             if len(rows) == 0:
                 point = np.nan
             else:
@@ -168,7 +189,7 @@ class Spleet:
         return points
 
     @classmethod
-    def find_runs(cls, arr: npt.ArrayLike) -> t.Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def find_runs(cls, arr: npt.ArrayLike) -> Runs:
         """Find runs of consecutive items in an array.
 
         https://gist.github.com/alimanfoo/c5977e87111abe8127453b21204c1065
@@ -182,7 +203,7 @@ class Spleet:
 
         # handle empty array
         if nvals == 0:
-            return np.array([]), np.array([]), np.array([])
+            return Runs(np.array([]), np.array([]), np.array([]))
 
         # find run starts
         loc_run_start = np.empty(nvals, dtype=bool)
@@ -196,7 +217,7 @@ class Spleet:
         # find run lengths
         run_lengths = np.diff(np.append(run_starts, nvals))
 
-        return run_values, run_starts, run_lengths
+        return Runs(run_values, run_starts, run_lengths)
 
 
 if __name__ == "__main__":
