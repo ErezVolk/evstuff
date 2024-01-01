@@ -1,4 +1,4 @@
-*daily = [ warmup @chops-r 3@keep @chops-l @arp homework 3@book @maybe-revise ]
+*daily = [ warmup @chops-r 3@keep @chops-l @arp @scale-on-a-string homework 3@book @maybe-revise ]
 
 keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths @ray-browns }
 maybe-revise = { etude }
@@ -33,6 +33,10 @@ homework:
   # Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
   Melodic Etude No. 2 (p.8): NONE
   Darker Side: NONE
+
+scale-on-a-string:
+  -major on one string: major
+  -minor on one string: minor
 
 ray-browns:
   Ray Brown's Blues (p.100): NONE
