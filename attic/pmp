@@ -281,7 +281,7 @@ class PracticeMakesPerfect:
         """Return space or newline separator"""
         if self.args.multiline:
             return "\n"
-        if any(" " not in track for track in tracks):
+        if any(" " in track for track in tracks):
             return "\n"
         if sum(len(track) for track in tracks) + len(tracks) >= 80:
             return "\n"
@@ -360,7 +360,7 @@ class ConfigParser:
     books: dict[str, Book] = {}
     tomes: dict[str, Tome] = {}
     folders: dict[str, Folder] = {}
-    starred = []
+    starred: list[str] = []
     curr: Book | None = None
     line_num: int
     line: str
