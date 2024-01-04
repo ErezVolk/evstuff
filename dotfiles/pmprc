@@ -1,8 +1,9 @@
-*daily = [ warmup @chopsRight @chopsLeft @intonation 3@keep @arp homework 3@book @revise ]
+*daily = [ warmup chops @intonation 3@keep @arp homework 3@book @revise ]
 
 intonation = { @oneStringScale @chalmers }
 keep = { @steveInterval @steve3rdHazards @steve5thHazards @steveSlide @steveScaleIn4ths @steveScaleIn5ths @steveScaleIn10ths @rayBrownDone }
 revise = { reviseSteve reviseBaroque reviseMelodic }
+chops = { @chopsLeft @chopsRight }
 
 note:
   : ANY

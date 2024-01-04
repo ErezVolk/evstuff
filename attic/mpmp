@@ -1,2 +1,2 @@
 #!/bin/sh
-pmp daily
+pmp daily -v
