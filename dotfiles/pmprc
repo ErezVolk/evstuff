@@ -2,7 +2,7 @@
 
 intonation = { @oneStringScale @chalmers }
 keep = { @steveInterval @steve3rdHazards @steve5thHazards @steveSlide @steveScaleIn4ths @steveScaleIn5ths @steveScaleIn10ths @rayBrownDone }
-revise = { reviseSteve reviseBaroque reviseMelodic }
+revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl }
 chops = { @chopsLeft @chopsRight }
 
 note:
@@ -22,17 +22,19 @@ homework:
   Melodic Étude in Bb Major (p.9): NONE
   Ray Brown's Blues (II) (p.102): NONE
   Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
-  #TBD# Ray Brown's Blues (III) (p.103): NONE
-  #TBD# Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
-  #TBD# Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
-  #TBD# Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
-  #TBD# Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
-  #TBD# Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
-  #TBD# Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
-  #TBD# Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
-  #TBD# Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
-  #TBD# Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
-  #TBD# Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
+
+_rayBrownTBD:  # As I work through the book
+  Ray Brown's Blues (III) (p.103): NONE
+  Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+  Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
+  Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
+  Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
+  Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
+  Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
+  Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
+  Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
+  Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
+  Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
 
 oneStringScale:
   -major on one string: major
@@ -77,11 +79,13 @@ steveSlide:
   ' melodic minor zig-zig slides in octaves (Ex 4B on p.19)': minor
   ' minor linear slides in fifths (Ex 5A on p.19)': minor
   ' minor zig-zig slides in fifths (Ex 5B on p.19)': minor
-  #TBD# ' slides in 3rds (p.21)': D-A|A-G|E-A
-  #TBD# ' legato in 3rds (4A ON p.22)': D-A|A-G|E-A
-  #TBD# ' legato in 3rds (4B ON p.22)': D-A|A-G|E-A
-  #TBD# ' legato in 3rds (4C ON p.22)': D-A|A-G|E-A
-  #TBD# '-string legato in 3rds (4A ON p.22)': E|A|D|G
+
+_steveTBD:  # As I work through the book
+  ' slides in 3rds (p.21)': D-A|A-G|E-A
+  ' legato in 3rds (4A ON p.22)': D-A|A-G|E-A
+  ' legato in 3rds (4B ON p.22)': D-A|A-G|E-A
+  ' legato in 3rds (4C ON p.22)': D-A|A-G|E-A
+  '-string legato in 3rds (4A ON p.22)': E|A|D|G
 
 reviseSteve:
   Steve's 4th Combination (Ex 4 on page 9): NONE
@@ -91,10 +95,43 @@ reviseSteve:
 
 reviseBaroque:
   Baroque Étude No. 1 (p.3): NONE
+  Baroque Étude No. 2 (p.3): NONE
 
 reviseMelodic:
   Melodic Étude in C Major (p.7): NONE
   Melodic Etude in F Major (p.8): NONE
+
+reviseSimandl:
+  Simandl Étude 1 (p.3): NONE
+  # Simandl Étude 2 (p.4): NONE
+  # Simandl Étude 3 (p.4-5): NONE
+  # Simandl Étude 4 (p.6): NONE
+  # Simandl Étude 5 (p.7): NONE
+  # Simandl Étude 6 (p.8): NONE
+  # Simandl Étude 7 (p.9): NONE
+  # Simandl Étude 8 (p.10): NONE
+  # Simandl Étude 9 (p.11): NONE
+  # Simandl Étude 10 (p.12-13): NONE
+  # Simandl Étude 11 (p.13): NONE
+  # Simandl Étude 12 (p.14): NONE
+  # Simandl Étude 13 (p.15): NONE
+  # Simandl Étude 14 (p.16): NONE
+  # Simandl Étude 15 (p.17): NONE
+  # Simandl Étude 16 (p.18): NONE
+  # Simandl Étude 17 (p.19): NONE
+  # Simandl Étude 18 (p.20-21): NONE
+  # Simandl Étude 19 (p.21): NONE
+  # Simandl Étude 20 (p.22-23): NONE
+  # Simandl Étude 21 (p.23): NONE
+  # Simandl Étude 22 (p.24-25): NONE
+  # Simandl Étude 23 (p.25): NONE
+  # Simandl Étude 24 (p.26): NONE
+  # Simandl Étude 25 (p.27): NONE
+  # Simandl Étude 26 (p.28): NONE
+  # Simandl Étude 27 (p.29): NONE
+  # Simandl Étude 28 (p.30-31): NONE
+  # Simandl Étude 29 (p.32-33): NONE
+  # Simandl Étude 30 (p.34-35): NONE
 
 book:
   Radley ctd.: NONE
@@ -103,8 +140,11 @@ book:
   Improviser's ctd.: NONE
   Ed's Walking Bass ctd.: NONE
   Simandl Études ctd.: NONE
-  #TBD# JP's Walking Bass: NONE
-  #TBD# " book by CK": 1st|2nd|3rd|5th|Howto
+
+_bookTBD:  # When I'm good enough?
+  Pelczar's Bach: NONE
+  JP's Walking Bass: NONE
+  " book by CK": 1st|2nd|3rd|5th|Howto
 
 chopsLeft:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
@@ -136,9 +176,11 @@ chopsLeft:
   L-Modes 15 (♫ 45676421 p.25): NONE
   L-Modes 16 (♫ 13574321 p.26): NONE
   L-Modes 17 (♫ 13578765 p.27): NONE
-  #TBD# L-Dexterity II.1 (p7): NONE  # setting aside for now, due to shifts
-  #TBD# L-Dexterity II.2 (p8): NONE  # setting aside for now, due to shifts
-  #TBD# L-Dexterity II.3 (p9): NONE  # setting aside for now, due to shifts
+
+_chopsLeftTBD:  # too shifty for now
+  L-Dexterity II.1 (p7): NONE
+  L-Dexterity II.2 (p8): NONE
+  L-Dexterity II.3 (p9): NONE
 
 chopsRight:
   R-16th-1 (p29) ♬ 1212...: NONE
