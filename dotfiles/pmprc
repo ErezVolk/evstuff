@@ -16,45 +16,29 @@ chord:
 
 warmup:
   Daily Harvey: NONE
-  # ' Harvey': Ionian (1)|Dorian (2)|Phrygian (3)|Lydian (4)|Mixolydian (5)|Aeolian (6)|Locrian (7)
 
 homework:
-  Ray Brown's Blues (II) (p.102): NONE
-  # Ray Brown's Blues (III) (p.103): NONE
-  Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
-  # Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
-  # Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
-  # Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
-  # Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
-  # Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
-  # Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
-  # Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
-  # Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
-  # Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
-  # Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
   Melodic Étude in Bb Major (p.9): NONE
+  Ray Brown's Blues (II) (p.102): NONE
+  Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
+  #TBD# Ray Brown's Blues (III) (p.103): NONE
+  #TBD# Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+  #TBD# Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
+  #TBD# Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
+  #TBD# Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
+  #TBD# Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
+  #TBD# Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
+  #TBD# Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
+  #TBD# Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
+  #TBD# Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
+  #TBD# Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
 
 scale-on-a-string:
   -major on one string: major
-  # -minor on one string: minor
 
 ray-browns:
   Ray Brown's Blues (p.100): NONE
-  # Ray Brown's Blues (I) (p.101): NONE
-  # Ray Brown's Blues (II) (p.102): NONE
-  # Ray Brown's Blues (III) (p.103): NONE
-  # Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
-  # Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
-  # Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
-  # Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
-  # Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
-  # Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
-  # Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
-  # Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
-  # Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
-  # Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
-  # Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
-  # Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
+  Ray Brown's Blues (I) (p.101): NONE
 
 steve-chromatic:
   " string chromatically in 8ths": E|A
@@ -91,11 +75,11 @@ steve-slide:
   ' melodic minor zig-zig slides in octaves (Ex 4B on p.19)': minor
   ' minor linear slides in fifths (Ex 5A on p.19)': minor
   ' minor zig-zig slides in fifths (Ex 5B on p.19)': minor
-  # ' slides in 3rds (p.21)': D-A|A-G|E-A
-  # ' legato in 3rds (4A ON p.22)': D-A|A-G|E-A
-  # ' legato in 3rds (4B ON p.22)': D-A|A-G|E-A
-  # ' legato in 3rds (4C ON p.22)': D-A|A-G|E-A
-  # '-string legato in 3rds (4A ON p.22)': E|A|D|G
+  #TBD# ' slides in 3rds (p.21)': D-A|A-G|E-A
+  #TBD# ' legato in 3rds (4A ON p.22)': D-A|A-G|E-A
+  #TBD# ' legato in 3rds (4B ON p.22)': D-A|A-G|E-A
+  #TBD# ' legato in 3rds (4C ON p.22)': D-A|A-G|E-A
+  #TBD# '-string legato in 3rds (4A ON p.22)': E|A|D|G
 
 revise-steve:
   Steve's 4th Combination (Ex 4 on page 9): NONE
@@ -120,47 +104,92 @@ book:
   Improviser's ctd.: NONE
   Ed's Walking Bass ctd.: NONE
   Simandl Études ctd.: NONE
-  # JP's Walking Bass: NONE
-  # " book by CK": 1st|2nd|3rd|5th|Howto
+  #TBD# JP's Walking Bass: NONE
+  #TBD# " book by CK": 1st|2nd|3rd|5th|Howto
 
 chops-l:
-  L-Dexterity I.1 (p4) 1345.6767|5656.4532: NONE
-  L-Dexterity I.2 (p4) 1345.6787|6756.4532: NONE
-  L-Dexterity I.3 (p4) 1564.7587|6425.42↓67: NONE
-  L-Dexterity I.4 (p4) 1658.7547|6538.75↓7↑2: NONE
-  L-Dexterity I.5 (p5) 1365.2465|3565.7542: NONE
-  L-Dexterity I.6 (p5) 1365.4265|3165.42↓67: NONE
-  L-Dexterity I.7 (p5) 1865.5645|3823.18↓7↑2: NONE
-  L-Dexterity I.8 (p5) 1653.4652|1875.6523: NONE
-  L-Dexterity I.9 (p6) 1875.6758|6756.4532: NONE
-  L-Dexterity I.10 (p6) 3123.4568|7546.5324: NONE
-  L-Dexterity I.11 (p6) 1812.3848|5867.8765: NONE
-  L-Dexterity I.12 (p6) 1234.7658|4325.6781: NONE
-  # L-Dexterity II.1 (p7): NONE
-  # L-Dexterity II.2 (p8): NONE
-  # L-Dexterity II.3 (p9): NONE
+  L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
+  L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
+  L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42↓67: NONE
+  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75↓7↑2: NONE
+  L-Dexterity I.5 (p5) ♫@80~120 1365.2465|3565.7542: NONE
+  L-Dexterity I.6 (p5) ♫@80~120 1365.4265|3165.42↓67: NONE
+  L-Dexterity I.7 (p5) ♫@80~120 1865.5645|3823.18↓7↑2: NONE
+  L-Dexterity I.8 (p5) ♫@80~120 1653.4652|1875.6523: NONE
+  L-Dexterity I.9 (p6) ♫@80~120 1875.6758|6756.4532: NONE
+  L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
+  L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
+  L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
+  L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
+  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
+  L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
+  L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
+  L-Modes 5 (♬@60 132435465768 p.15): NONE
+  L-Modes 6 (♬@60 867564534231 p.16): NONE
+  L-Modes 7 (♬@60 134235645786 p.17): NONE
+  L-Modes 8 (♫ 13576421⇗ p.18): NONE
+  L-Modes 9 (♫ 13576421⇘ p.19): NONE
+  L-Modes 10 (♫ 12348675 p.20): NONE
+  L-Modes 11 (♫ 13248765 p.21): NONE
+  L-Modes 12 (♫ 43215768 p.22): NONE
+  L-Modes 13 (♫ 42315678 p.23): NONE
+  L-Modes 14 (♫ 12346421 p.24): NONE
+  L-Modes 15 (♫ 45676421 p.25): NONE
+  L-Modes 16 (♫ 13574321 p.26): NONE
+  L-Modes 17 (♫ 13578765 p.27): NONE
+  #TBD# L-Dexterity II.1 (p7): NONE  # setting aside for now, due to shifts
+  #TBD# L-Dexterity II.2 (p8): NONE  # setting aside for now, due to shifts
+  #TBD# L-Dexterity II.3 (p9): NONE  # setting aside for now, due to shifts
 
 chops-r:
-  R-16th-1 (p29) 1212...: NONE
-  R-16th-2 (p29) 2121...: NONE
-  R-16th-3 (p29) 1211.2122...: NONE
-  R-16th-4 (p29) 1121.2212...: NONE
-  R-16th-5 (p30) 1221.2112...: NONE
-  R-16th-6 (p30) 1211.2112...: NONE
-  R-16th-7 (p30) 2122.1221...: NONE
-  R-16th-8 (p30) 1122.1221.2211.2112...: NONE
-  R-16th-9 (p31) 1122.1121.2211.2212...: NONE
-  R-16th-10 (p31) 1122.1211.2211.2122...: NONE
-  R-16th-11 (p31) 1221.2221.2112.1112...: NONE
-  R-16th-12 (p31) 1221.2111.2112.1222...: NONE
-  # R-8th-and-16th-1 (p33) (₂1 22...): NONE
-  # R-8th-and-16th-2 (p33) (₁2 11...): NONE
-  # R-8th-and-16th-3 (p33) (₂1 21...): NONE
-  # R-8th-and-16th-4 (p33) (₁2 12...): NONE
-  # R-8th-and-16th-5 (p34) (₂1 21.₁2 12...): NONE
-  # R-8th-and-16th-5 (p34) (₂1 21.₁2 12...): NONE
-  # R-8th-and-16th-7 (p34) (₂1 22.₂1 21.₁2 11.₁2 12...: NONE
-  # R-8th-and-16th-8 (p34) (₂1 12.₂1 21.₁2 21.₁2 12...: NONE
+  R-16th-1 (p29) ♬ 1212...: NONE
+  R-16th-2 (p29) ♬ 2121...: NONE
+  R-16th-3 (p29) ♬ 1211.2122...: NONE
+  R-16th-4 (p29) ♬ 1121.2212...: NONE
+  R-16th-5 (p30) ♬ 1221.2112...: NONE
+  R-16th-6 (p30) ♬ 1211.2112...: NONE
+  R-16th-7 (p30) ♬ 2122.1221...: NONE
+  R-16th-8 (p30) ♬ 1122.1221.2211.2112...: NONE
+  R-16th-9 (p31) ♬ 1122.1121.2211.2212...: NONE
+  R-16th-10 (p31) ♬ 1122.1211.2211.2122...: NONE
+  R-16th-11 (p31) ♬ 1221.2221.2112.1112...: NONE
+  R-16th-12 (p31) ♬ 1221.2111.2112.1222...: NONE
+
+  R-8th-and-16th-1 (p33) (♪♬ ₂1 22...): NONE
+  R-8th-and-16th-2 (p33) (♪♬ ₂1 22...): NONE
+  R-8th-and-16th-3 (p33) (♪♬ ₁2 11...): NONE
+  R-8th-and-16th-4 (p33) (♪♬ ₂1 21...): NONE
+  R-8th-and-16th-5 (p34) (♪♬ ₂1 21.₁2 12...): NONE
+  R-8th-and-16th-6 (p34) (♪♬ ₂1 22.₁2 11...: NONE
+  R-8th-and-16th-7 (p34) (♪♬ ₂1 22.₂1 21.₁2 11.₁2 12...: NONE
+  R-8th-and-16th-8 (p34) (♪♬ ₂1 12.₂1 21.₁2 21.₁2 12...: NONE
+
+  R-8th-and-16th-9 (p35) (♬♪ ₂12 2...): NONE
+  R-8th-and-16th-10 (p35) (♬♪ ₂12 2...): NONE
+  R-8th-and-16th-11 (p35) (♬♪ ₁21 1...): NONE
+  R-8th-and-16th-12 (p35) (♬♪ ₂12 1...): NONE
+  R-8th-and-16th-13 (p36) (♬♪ ₂12 1.₁21 2...): NONE
+  R-8th-and-16th-14 (p36) (♬♪ ₂12 2.₁21 1...: NONE
+  R-8th-and-16th-15 (p36) (♬♪ ₂12 2.₂12 1.₁21 1.₁21 2...: NONE
+  R-8th-and-16th-16 (p36) (♬♪ ₂11 2.₂12 1.₁22 1.₁21 2...: NONE
+
+  R-grace-16th-8th-16th-17 (p37) (₂122...): NONE
+  R-grace-16th-8th-16th-18 (p37) (₁211...): NONE
+  R-grace-16th-8th-16th-19 (p37) (₂121...): NONE
+  R-grace-16th-8th-16th-20 (p37) (₁212...): NONE
+  R-grace-16th-8th-16th-21 (p38) (₂121.₁212...): NONE
+  R-grace-16th-8th-16th-22 (p38) (₂122.₁211...): NONE
+  R-grace-16th-8th-16th-23 (p38) (₂122.₂121.₁211.₁212...): NONE
+  R-grace-16th-8th-16th-24 (p38) (₂112.₂121.₁221.₁212...): NONE
+
+  R-grace-triplet-25 (p39) (₂122...): NONE
+  R-grace-triplet-26 (p39) (₁211...): NONE
+  R-grace-triplet-27 (p39) (₂121...): NONE
+  R-grace-triplet-28 (p39) (₁212...): NONE
+  R-grace-triplet-29 (p40) (₂121.₁212...): NONE
+  R-grace-triplet-30 (p40) (₂122.₁211...): NONE
+  R-grace-triplet-31 (p40) (₂122.₂121.₁211.₁212...): NONE
+  R-grace-triplet-32 (p40) (₂112.₂121.₁221.₁212...): NONE
 
 scale:
   -major: major
