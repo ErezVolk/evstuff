@@ -1,8 +1,8 @@
-*daily = [ warmup @chops-r @chops-l @intonation 3@keep @arp homework 3@book @maybe-revise ]
+*daily = [ warmup @chopsRight @chopsLeft @intonation 3@keep @arp homework 3@book @revise ]
 
-intonation = { @scale-on-a-string @chalmers }
-keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths @ray-browns }
-maybe-revise = { revise-steve revise-baroque revise-melodic revise-ray }
+intonation = { @oneStringScale @chalmers }
+keep = { @steveInterval @steve3rdHazards @steve5thHazards @steveSlide @steveScaleIn4ths @steveScaleIn5ths @steveScaleIn10ths @rayBrownDone }
+revise = { reviseSteve reviseBaroque reviseMelodic }
 
 note:
   : ANY
@@ -33,44 +33,45 @@ homework:
   #TBD# Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   #TBD# Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
 
-scale-on-a-string:
+oneStringScale:
   -major on one string: major
 
-ray-browns:
+rayBrownDone:
   Ray Brown's Blues (p.100): NONE
   Ray Brown's Blues (I) (p.101): NONE
+  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
 
-steve-chromatic:
-  " string chromatically in 8ths": E|A
-  " string chromatically in 5ths": E|A|D
-  " string chromatically in 4ths": E|A|D
-  " string chromatically in 3rds": E|A|D
-  " string chromatically in 6ths": E|A
-  " string chromatically in minor 6ths": E|A|D
-  "Chromatically in 10ths": NONE
+steveInterval:
+  " string 8ths drill": E+D|A+G
+  " string 5ths drill": E+A|A+D|D+G
+  " string 4ths drill": E+E|A+D|D+G
+  " string 3rds drill": E+E|A+D|D+G
+  " string 6ths drill": E+D|A+G
+  " string minor 6ths drill": E+A/D|A+D/G
+  " string 10ths drill": E+G
 
-steve-hazard-3rds:
+steve3rdHazards:
   ' Hazard 3rds': 2-1-4-3|4-1-2-3
   ' Hazard 3rds': 1-4-3-2|2-1-4-3|1-2-3-4|4-3-2-1
 
-steve-hazard-6ths:
+steve5thHazards:
   ' Hazard 6ths (Ex 2 on p.14)': 2-1-4-3
   ' Hazard 6ths (Ex 3A on p.15)': 1-2-3-4
   ' Hazard 6ths (Ex 3B on p.15)': 4-3-2-1
 
-steve-scale-in-10ths:
+steveScaleIn10ths:
   -major in 10th double stops (p.13): major
   -minor in 10th double stops (p.13): minor
 
-steve-scale-in-4ths:
+steveScaleIn4ths:
   -major in 4th double stops (Ex 5 on p.10): major
   -minor in 4th double stops (Ex 5 on p.10): minor
 
-steve-scale-in-5ths:
+steveScaleIn5ths:
   -major in 5th double stops (Ex 6 on p.7): major
   -minor in 5th double stops (Ex 6 on p.7): minor
 
-steve-slide:
+steveSlide:
   ' melodic minor linear slides in octaves (Ex 4A on p.19)': minor
   ' melodic minor zig-zig slides in octaves (Ex 4B on p.19)': minor
   ' minor linear slides in fifths (Ex 5A on p.19)': minor
@@ -81,21 +82,18 @@ steve-slide:
   #TBD# ' legato in 3rds (4C ON p.22)': D-A|A-G|E-A
   #TBD# '-string legato in 3rds (4A ON p.22)': E|A|D|G
 
-revise-steve:
+reviseSteve:
   Steve's 4th Combination (Ex 4 on page 9): NONE
   Steve's 6ths étude (Ex 5 on page 16): NONE
   Steve's Triads 1 (Ex 1 on page 17): NONE
   " Steve's linear Slides (Ex 3 on page 8)": 1st finger|2nd finger|3rd finger|4th finger
 
-revise-baroque:
+reviseBaroque:
   Baroque Étude No. 1 (p.3): NONE
 
-revise-melodic:
+reviseMelodic:
   Melodic Étude in C Major (p.7): NONE
   Melodic Etude in F Major (p.8): NONE
-
-revise-ray:
-  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
 
 book:
   Radley ctd.: NONE
@@ -107,7 +105,7 @@ book:
   #TBD# JP's Walking Bass: NONE
   #TBD# " book by CK": 1st|2nd|3rd|5th|Howto
 
-chops-l:
+chopsLeft:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
   L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
   L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42↓67: NONE
@@ -141,7 +139,7 @@ chops-l:
   #TBD# L-Dexterity II.2 (p8): NONE  # setting aside for now, due to shifts
   #TBD# L-Dexterity II.3 (p9): NONE  # setting aside for now, due to shifts
 
-chops-r:
+chopsRight:
   R-16th-1 (p29) ♬ 1212...: NONE
   R-16th-2 (p29) ♬ 2121...: NONE
   R-16th-3 (p29) ♬ 1211.2122...: NONE
