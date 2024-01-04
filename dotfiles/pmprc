@@ -2,7 +2,7 @@
 
 intonation = { @scale-on-a-string @chalmers }
 keep = { @steve-chromatic @steve-hazard-3rds @steve-hazard-6ths @steve-slide @steve-scale-in-4ths @steve-scale-in-5ths @steve-scale-in-10ths @ray-browns }
-maybe-revise = { revise-steve revise-baroque revise-melodic }
+maybe-revise = { revise-steve revise-baroque revise-melodic revise-ray }
 
 note:
   : ANY
@@ -21,7 +21,6 @@ warmup:
 homework:
   Ray Brown's Blues (II) (p.102): NONE
   # Ray Brown's Blues (III) (p.103): NONE
-  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
   Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
   # Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
   # Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
@@ -111,6 +110,9 @@ revise-melodic:
   Melodic Étude in C Major (p.7): NONE
   Melodic Etude in F Major (p.8): NONE
 
+revise-ray:
+  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
+
 book:
   Radley ctd.: NONE
   Steve ctd.: NONE
@@ -122,18 +124,21 @@ book:
   # " book by CK": 1st|2nd|3rd|5th|Howto
 
 chops-l:
-  L-Dexterity-1 (p4) 1345.6767|5656.4532: NONE
-  L-Dexterity-2 (p4) 1345.6787|6756.4532: NONE
-  L-Dexterity-3 (p4) 1564.7587|6425.42↓67: NONE
-  L-Dexterity-4 (p4) 1658.7547|6538.75↓7↑2: NONE
-  L-Dexterity-5 (p5) 1365.2465|3565.7542: NONE
-  L-Dexterity-6 (p5) 1365.4265|3165.42↓67: NONE
-  L-Dexterity-7 (p5) 1865.5645|3823.18↓7↑2: NONE
-  L-Dexterity-8 (p5) 1653.4652|1875.6523: NONE
-  L-Dexterity-9 (p6) 1875.6758|6756.4532: NONE
-  L-Dexterity-10 (p6) 3123.4568|7546.5324: NONE
-  L-Dexterity-11 (p6) 1812.3848|5867.8765: NONE
-  L-Dexterity-12 (p6) 1234.7658|4325.6781: NONE
+  L-Dexterity I.1 (p4) 1345.6767|5656.4532: NONE
+  L-Dexterity I.2 (p4) 1345.6787|6756.4532: NONE
+  L-Dexterity I.3 (p4) 1564.7587|6425.42↓67: NONE
+  L-Dexterity I.4 (p4) 1658.7547|6538.75↓7↑2: NONE
+  L-Dexterity I.5 (p5) 1365.2465|3565.7542: NONE
+  L-Dexterity I.6 (p5) 1365.4265|3165.42↓67: NONE
+  L-Dexterity I.7 (p5) 1865.5645|3823.18↓7↑2: NONE
+  L-Dexterity I.8 (p5) 1653.4652|1875.6523: NONE
+  L-Dexterity I.9 (p6) 1875.6758|6756.4532: NONE
+  L-Dexterity I.10 (p6) 3123.4568|7546.5324: NONE
+  L-Dexterity I.11 (p6) 1812.3848|5867.8765: NONE
+  L-Dexterity I.12 (p6) 1234.7658|4325.6781: NONE
+  # L-Dexterity II.1 (p7): NONE
+  # L-Dexterity II.2 (p8): NONE
+  # L-Dexterity II.3 (p9): NONE
 
 chops-r:
   R-16th-1 (p29) 1212...: NONE
@@ -148,6 +153,14 @@ chops-r:
   R-16th-10 (p31) 1122.1211.2211.2122...: NONE
   R-16th-11 (p31) 1221.2221.2112.1112...: NONE
   R-16th-12 (p31) 1221.2111.2112.1222...: NONE
+  # R-8th-and-16th-1 (p33) (₂1 22...): NONE
+  # R-8th-and-16th-2 (p33) (₁2 11...): NONE
+  # R-8th-and-16th-3 (p33) (₂1 21...): NONE
+  # R-8th-and-16th-4 (p33) (₁2 12...): NONE
+  # R-8th-and-16th-5 (p34) (₂1 21.₁2 12...): NONE
+  # R-8th-and-16th-5 (p34) (₂1 21.₁2 12...): NONE
+  # R-8th-and-16th-7 (p34) (₂1 22.₂1 21.₁2 11.₁2 12...: NONE
+  # R-8th-and-16th-8 (p34) (₂1 12.₂1 21.₁2 21.₁2 12...: NONE
 
 scale:
   -major: major
