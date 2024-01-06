@@ -16,7 +16,8 @@ chord:
   M⁷: major
 
 warmup:
-  Daily Harvey: NONE
+  Harvey: NONE
+  -major modes: major
 
 homework:
   Melodic Étude in B♭ Major (p.9): NONE
@@ -76,9 +77,9 @@ steveScaleIn5ths:
 
 steveSlide:
   ' melodic minor linear slides in octaves (Ex 4A on p.19)': minor
-  ' melodic minor zig-zig slides in octaves (Ex 4B on p.19)': minor
+  ' melodic minor zig-zag slides in octaves (Ex 4B on p.19)': minor
   ' minor linear slides in fifths (Ex 5A on p.19)': minor
-  ' minor zig-zig slides in fifths (Ex 5B on p.19)': minor
+  ' minor zig-zag slides in fifths (Ex 5B on p.19)': minor
 
 _steveTBD:  # As I work through the book
   ' slides in 3rds (p.21)': D-A|A-G|E-A
