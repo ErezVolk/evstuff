@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Search and download from libgen"""
+# TODO: save files for resume
+# TODO: support annas-archive.org
 import argparse
 from dataclasses import dataclass
 import logging
@@ -385,6 +387,12 @@ class LibgenDownload:
                     self.log.debug("Trying to open %s", hit.path)
                     subprocess.run(["open", str(hit.path)], check=False)
                 return
+
+        try:
+            if hit.work_path.stat().st_size == 0:
+                hit.work_path.unlink()
+        except FileNotFoundError:
+            pass
 
         self.log.info(
             "%s: Could not download (number of mirrors: %d)",
