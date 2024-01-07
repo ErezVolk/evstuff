@@ -21,12 +21,20 @@ warmup:
 
 homework:
   Melodic Étude in B♭ Major (p.9): NONE
+  Ray Brown's Blues (III) (p.103): NONE
+  Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+
+oneStringScale:
+  -major on one string: major
+
+rayBrownDone:
+  Ray Brown's Blues (p.100): NONE
+  Ray Brown's Blues (I) (p.101): NONE
+  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
   Ray Brown's Blues (II) (p.102): NONE
   Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
 
 _rayBrownTBD:  # As I work through the book
-  Ray Brown's Blues (III) (p.103): NONE
-  Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
   Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
   Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
   Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
@@ -36,14 +44,6 @@ _rayBrownTBD:  # As I work through the book
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
   Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
-
-oneStringScale:
-  -major on one string: major
-
-rayBrownDone:
-  Ray Brown's Blues (p.100): NONE
-  Ray Brown's Blues (I) (p.101): NONE
-  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
 
 steveInterval:
   " string 8ths drill": E+D|A+G
@@ -83,16 +83,18 @@ steveSlide:
 
 _steveTBD:  # As I work through the book
   ' slides in 3rds (p.21)': D-A|A-G|E-A
-  ' legato in 3rds (4A ON p.22)': D-A|A-G|E-A
-  ' legato in 3rds (4B ON p.22)': D-A|A-G|E-A
-  ' legato in 3rds (4C ON p.22)': D-A|A-G|E-A
-  '-string legato in 3rds (4A ON p.22)': E|A|D|G
+  ' slegato in 3rds (4A ON p.22)': D-A|A-G|E-A
+  ' slegato in 3rds (4B ON p.22)': D-A|A-G|E-A
+  ' slegato in 3rds (4C ON p.22)': D-A|A-G|E-A
+  '-string slegato in 3rds (4D ON p.22)': E|A|D|G
 
 reviseSteve:
   Steve's 4th Combination (Ex 4 on page 9): NONE
   Steve's 6ths étude (Ex 5 on page 16): NONE
   Steve's Triads 1 (Ex 1 on page 17): NONE
   " Steve's linear Slides (Ex 3 on page 8)": 1st finger|2nd finger|3rd finger|4th finger
+  Steve's Ex 1 on page 20: NONE
+  Steve's "Slow and Bluesy" (Ex 2 on page 20): NONE
 
 reviseBaroque:
   Baroque Étude No. 1 (p.3): NONE
@@ -147,7 +149,7 @@ revisePatitucci:
   JP's 1.34 Basic Etude in A Major (2. two-feel, maybe walking, 3. solo): NONE
   JP's 1.35 Basic Etude in D Major (2. Baião, 3+4. solo): NONE
   JP's 1.36 Basic Etude in G Major (2. two-feel, 3. solo): NONE
-  #TBD# JP's 1.37 Basic Etude in C Minor (2. solo, 3+4. walk): NONE
+  JP's 1.37 Basic Etude in C Minor (2. solo, 3+4. walk): NONE
   #TBD# JP's 1.38 Basic Etude in F Minor (2+3. Baião): NONE
   #TBD# JP's 1.39 Basic Etude in B♭ Minor (2. two-feel, 3. solo): NONE
   #TBD# JP's 1.40 Basic Etude in E♭ Minor (2. solo, 3. samba feel): NONE
