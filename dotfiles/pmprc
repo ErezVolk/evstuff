@@ -16,7 +16,7 @@ chord:
   M⁷: major
 
 warmup:
-  Harvey: NONE
+  -based Harvey: G|C
   -major modes: major
 
 homework:
