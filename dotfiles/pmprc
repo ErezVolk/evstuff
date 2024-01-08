@@ -172,14 +172,17 @@ book:
   Baroque ctd.: NONE
   Simandl Études ctd.: NONE
   John P's course ctd.: NONE
-  # Improviser's ctd.: NONE
-  # Ed's Walking Bass ctd.: NONE
-  # Blues Grooves ctd.: NONE
 
 _bookTBD:  # When I'm good enough?
-  Pelczar's Bach: NONE
-  JP's Walking Bass: NONE
-  " book by CK": 1st|2nd|3rd|5th|Howto
+  Pelczar's Bach: NONE  # Needs to be done seriously, but I could work on it
+  JP's Walking Bass: NONE  # After his course? Or maybe instead?
+  " book by CK": 1st|2nd|3rd|5th|Howto  # Hm.
+  Mike Downes: NONE  # Too much self-reliance? Or maybe it eats up all the rest?
+  Bob Magnusson's "The Art of Walking Bass": NONE  # Any good?
+  Steven Mooney's "Contructing Walking Jazz Bass Lines": NONE  # Any good?
+  Blues Grooves: NONE  # Take a look?
+  Improviser's Bass Book: NONE  # Overruled by JP?
+  Ed's Building Walking Bass: NONE  # Overruled by JP?
 
 chopsLeft:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
