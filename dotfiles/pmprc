@@ -16,6 +16,7 @@ chord:
   M⁷: major
 
 warmup:
+  -string octaves: E|A
   -based Harvey: G|C
   -major modes: major
 
@@ -169,10 +170,11 @@ book:
   Radley ctd.: NONE
   Steve ctd.: NONE
   Baroque ctd.: NONE
-  # Improviser's ctd.: NONE
-  # Ed's Walking Bass ctd.: NONE
   Simandl Études ctd.: NONE
   John P's course ctd.: NONE
+  # Improviser's ctd.: NONE
+  # Ed's Walking Bass ctd.: NONE
+  # Blues Grooves ctd.: NONE
 
 _bookTBD:  # When I'm good enough?
   Pelczar's Bach: NONE
