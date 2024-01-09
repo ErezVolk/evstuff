@@ -1,4 +1,4 @@
-*daily = [ warmup chops @intonation 3@keep @arp homework 3@book @revise ]
+*daily = [ warmup chops @intonation 3@keep @arp homeworkTechnical homeworkOnePiece 3@book @revise ]
 
 intonation = { @oneStringScale @chalmers }
 keep = { @steveInterval @steve3rdHazards @steve5thHazards @steveSlide @steveScaleIn4ths @steveScaleIn5ths @steveScaleIn10ths @rayBrownDone }
@@ -20,10 +20,12 @@ warmup:
   -based Harvey: G|C
   -major modes: major
 
-homework:
-  Melodic Étude in B♭ Major (p.9): NONE
+homeworkTechnical:
   Ray Brown's Blues (III) (p.103): NONE
   Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+
+homeworkOnePiece:  # Must be one!
+  Melodic Étude in B♭ Major (p.9): NONE
 
 oneStringScale:
   -major on one string: major
