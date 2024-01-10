@@ -1,7 +1,7 @@
 *daily = [ warmup chops @intonation 3@keep @arp homeworkTechnical homeworkOnePiece 3@book @revise ]
 
 intonation = { @oneStringScale @chalmers }
-keep = { @steveInterval @steve3rdHazards @steve5thHazards @steveSlide @steveScaleIn4ths @steveScaleIn5ths @steveScaleIn10ths @rayBrownDone }
+keep = { @steveInterval @steve3rdHazards @steve5thHazards @steveSlide @steveScaleIn4ths @steveScaleIn5ths @steveScaleIn10ths @reviseRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci }
 chops = { @chopsLeft @chopsRight }
 
@@ -22,7 +22,6 @@ warmup:
 
 homeworkTechnical:
   Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
-  Ray Brown's Solo Exercise (p.118): NONE
 
 homeworkOnePiece:  # Must be one!
   Melodic Étude in B♭ Major (p.9): NONE
@@ -30,7 +29,7 @@ homeworkOnePiece:  # Must be one!
 oneStringScale:
   -major on one string: major
 
-rayBrownDone:
+reviseRayBrown:
   Ray Brown's Blues (p.100): NONE
   Ray Brown's Blues (I) (p.101): NONE
   Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
@@ -39,7 +38,7 @@ rayBrownDone:
   Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
   Ray Brown's Blues (III) (p.103): NONE
 
-_rayBrownTBD:  # As I work through the book
+_rayBrownToDo:  # As I work through the book
   Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
   Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
   Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
@@ -64,6 +63,7 @@ _rayBrownTBD:  # As I work through the book
   Ray Brown's Augmented Exercise (p.95-96): NONE
   Ray Brown's Augmented Exercise (p.97): NONE
   Ray Brown's Augmented Exercise (p.98): NONE
+  Ray Brown's Solo Exercise (p.118): NONE
   Ray Brown's Solo Exercise (p.119): NONE
   Ray Brown's Exercise in Fourths (p.120): NONE
   Ray Brown's Exercise in Fourths (p.121): NONE
@@ -115,7 +115,7 @@ steveSlide:
   ' minor linear slides in fifths (Ex 5A on p.19)': minor
   ' minor zig-zag slides in fifths (Ex 5B on p.19)': minor
 
-_steveTBD:  # As I work through the book
+_steveToDo:  # As I work through the book
   ' slides in 3rds (p.21)': D-A|A-G|E-A
   ' slegato in 3rds (4A ON p.22)': D-A|A-G|E-A
   ' slegato in 3rds (4B ON p.22)': D-A|A-G|E-A
@@ -206,15 +206,15 @@ book:
   Simandl Études ctd.: NONE
   John P's course ctd.: NONE
 
-_bookTBD:  # When I'm good enough?
+_bookToDo:  # When I'm good enough?
   Pelczar's Bach: NONE  # Needs to be done seriously, but I could work on it
   JP's Walking Bass: NONE  # After his course? Or maybe instead?
   " book by CK": 1st|2nd|3rd|5th|Howto  # Hm.
   Mike Downes: NONE  # Too much self-reliance? Or maybe it eats up all the rest?
   Blues Grooves: NONE  # Take a look?
-  Connecting Chords with Linear Harmony by Bert Ligon: NONE  # Check it out?
   Improviser's Bass Book: NONE  # Loses to JP+Dones? But Harvey likes it
 
+  Connecting Chords with Linear Harmony by Bert Ligon: NONE  # Check it out? For improvising
   Coker's Patterns for Jazz: NONE  # Pretty serious stuff, for improvising
   Comprehensive Technique for Jazz Musicians by Bert Ligon: NONE  # Maybe in the distant future
 
@@ -253,7 +253,7 @@ chopsLeft:
   #TBD# L-Modes 16 (♫ 13574321 p.26): NONE
   #TBD# L-Modes 17 (♫ 13578765 p.27): NONE
 
-_chopsLeftTBD:  # too shifty for now
+_chopsLeftToDo:  # too shifty for now
   L-Dexterity II.1 (p7): NONE
   L-Dexterity II.2 (p8): NONE
   L-Dexterity II.3 (p9): NONE
