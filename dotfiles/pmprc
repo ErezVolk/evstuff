@@ -23,8 +23,14 @@ warmup:
 homeworkTechnical:
   Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
 
-homeworkOnePiece:  # Must be one!
+homeworkOnePiece:  # Try to keep this to one!
   Melodic Étude in B♭ Major (p.9): NONE
+  Bach I.Prelude: NONE
+
+_melodicToDo:
+  Melodic Étude in E♭ Major (p.10): NONE
+  Melodic Étude in A♭ Major (p.11): NONE
+  Melodic Étude in D♭ Major (p.12): NONE
 
 oneStringScale:
   -major on one string: major
