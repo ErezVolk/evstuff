@@ -21,8 +21,8 @@ warmup:
   -major modes: major
 
 homeworkTechnical:
-  Ray Brown's Blues (III) (p.103): NONE
-  Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+  Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
+  Ray Brown's Solo Exercise (p.118): NONE
 
 homeworkOnePiece:  # Must be one!
   Melodic Étude in B♭ Major (p.9): NONE
@@ -36,9 +36,10 @@ rayBrownDone:
   Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
   Ray Brown's Blues (II) (p.102): NONE
   Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
+  Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+  Ray Brown's Blues (III) (p.103): NONE
 
 _rayBrownTBD:  # As I work through the book
-  Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
   Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
   Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
   Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
@@ -47,6 +48,20 @@ _rayBrownTBD:  # As I work through the book
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
   Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
+  Ray Brown's Solo Exercise (p.119): NONE
+  Ray Brown's Exercise in Fourths (p.120): NONE
+  Ray Brown's Exercise in Fourths (p.121): NONE
+  Ray Brown's Exercise in Fourths (p.122): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
+  Ray Brown's Exercise (Solo) (p.125-126): NONE
+  Ray Brown's Exercise (Solo) (p.127-128): NONE
+  Ray Brown's Exercise (Solo) (p.129): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.131): NONE
+  Ray Brown's Exercise (p.133): NONE
+  Ray Brown's Arpeggios for Endings (p.134): NONE
+  Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 steveInterval:
   " string 8ths drill": E+D|A+G
@@ -204,23 +219,23 @@ chopsLeft:
   L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
   L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
   L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
-  L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
-  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
-  L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
-  L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
-  L-Modes 5 (♬@60 132435465768 p.15): NONE
-  L-Modes 6 (♬@60 867564534231 p.16): NONE
-  L-Modes 7 (♬@60 134235645786 p.17): NONE
-  L-Modes 8 (♫ 13576421⇗ p.18): NONE
-  L-Modes 9 (♫ 13576421⇘ p.19): NONE
-  L-Modes 10 (♫ 12348675 p.20): NONE
-  L-Modes 11 (♫ 13248765 p.21): NONE
-  L-Modes 12 (♫ 43215768 p.22): NONE
-  L-Modes 13 (♫ 42315678 p.23): NONE
-  L-Modes 14 (♫ 12346421 p.24): NONE
-  L-Modes 15 (♫ 45676421 p.25): NONE
-  L-Modes 16 (♫ 13574321 p.26): NONE
-  L-Modes 17 (♫ 13578765 p.27): NONE
+  #TBD# L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
+  #TBD# L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
+  #TBD# L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
+  #TBD# L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
+  #TBD# L-Modes 5 (♬@60 132435465768 p.15): NONE
+  #TBD# L-Modes 6 (♬@60 867564534231 p.16): NONE
+  #TBD# L-Modes 7 (♬@60 134235645786 p.17): NONE
+  #TBD# L-Modes 8 (♫ 13576421⇗ p.18): NONE
+  #TBD# L-Modes 9 (♫ 13576421⇘ p.19): NONE
+  #TBD# L-Modes 10 (♫ 12348675 p.20): NONE
+  #TBD# L-Modes 11 (♫ 13248765 p.21): NONE
+  #TBD# L-Modes 12 (♫ 43215768 p.22): NONE
+  #TBD# L-Modes 13 (♫ 42315678 p.23): NONE
+  #TBD# L-Modes 14 (♫ 12346421 p.24): NONE
+  #TBD# L-Modes 15 (♫ 45676421 p.25): NONE
+  #TBD# L-Modes 16 (♫ 13574321 p.26): NONE
+  #TBD# L-Modes 17 (♫ 13578765 p.27): NONE
 
 _chopsLeftTBD:  # too shifty for now
   L-Dexterity II.1 (p7): NONE
