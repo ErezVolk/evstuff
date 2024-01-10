@@ -249,7 +249,7 @@ class Metronome:
         self.args = parser.parse_args()
         if self.args.beats != [0]:
             if not all(beats > 0 for beats in self.args.beats):
-                parser.fail("--beats must be all positive numbers or a single zero")
+                parser.error("--beats must be all positive numbers or a single zero")
 
     @classmethod
     def validate_subdivision_arg(cls, arg: str) -> str:
