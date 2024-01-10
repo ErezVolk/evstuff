@@ -48,6 +48,22 @@ _rayBrownTBD:  # As I work through the book
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
   Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase II) (p.65): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
+  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
+  Ray Brown's Diminished Exercise (p.79): NONE
+  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
+  Ray Brown's Diminished Exercise (p.82): NONE
+  Ray Brown's Diminished Exercise (p.83): NONE
+  Ray Brown's Diminished Exercise (Solo) (p.84): NONE
+  Ray Brown's Diminished Exercise (p.85): NONE
+  Ray Brown's Augmented Exercise (p.92): NONE
+  Ray Brown's Augmented Exercise (p.94): NONE
+  Ray Brown's Augmented Exercise (p.95-96): NONE
+  Ray Brown's Augmented Exercise (p.97): NONE
+  Ray Brown's Augmented Exercise (p.98): NONE
   Ray Brown's Solo Exercise (p.119): NONE
   Ray Brown's Exercise in Fourths (p.120): NONE
   Ray Brown's Exercise in Fourths (p.121): NONE
@@ -316,6 +332,8 @@ arp:
   M⁷: major
   ' major pentatonic': major
   ' minor pentatonic': minor
+  ᴼ⁷: minor
+  aug⁷: minor
 
 chalmers:
   Chalmers Chromatic Ex.1 (p.1): NONE
