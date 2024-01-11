@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
+# TODO: More generic nodes and leafs
 import argparse
 import io
 from pathlib import Path
