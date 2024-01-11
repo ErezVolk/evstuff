@@ -1,7 +1,8 @@
-*daily = [ warmup chops @intonation 3@keep @arp homeworkTechnical homeworkOnePiece 3@book @revise ]
+*daily = [ warmup chops @intonation 3@keep @arpeggio homeworkTechnical homeworkOnePiece 3@book @revise ]
 
+warmup = { @warmupInterval @warmupHarvey @warmupScale }
 intonation = { @oneStringScale @chalmers }
-keep = { @steveInterval @steve3rdHazards @steve5thHazards @steveSlide @steveScaleIn4ths @steveScaleIn5ths @steveScaleIn10ths @reviseRayBrown }
+keep = { @keepSteveInterval @keepSteve3rdHazards @keepSteve5thHazards @keepSteveSlide @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci }
 chops = { @chopsLeft @chopsRight }
 
@@ -15,9 +16,17 @@ chord:
   m⁷: minor
   M⁷: major
 
-warmup:
+warmupInterval:
   -string octaves: E|A
-  -based Harvey: G|C
+  -string fifths: E|A
+
+warmupHarvey:
+  ' Minor Harvey from G': Natural|Harmonic|Melodic
+  ' Minor Harvey from C': Natural|Harmonic|Melodic
+  ' Harvey from G': Major
+  ' Harvey from C': Major
+
+warmupScale:
   -major modes: major
 
 homeworkTechnical:
@@ -36,7 +45,7 @@ _melodicToDo:
 oneStringScale:
   -major on one string: major
 
-reviseRayBrown:
+keepRayBrown:
   Ray Brown's Blues (p.100): NONE
   Ray Brown's Blues (I) (p.101): NONE
   Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
@@ -85,7 +94,7 @@ _rayBrownToDo:  # As I work through the book
   Ray Brown's Arpeggios for Endings (p.134): NONE
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
-steveInterval:
+keepSteveInterval:
   " string 8ths drill": E+D|A+G
   " string 5ths drill": E+A|A+D|D+G
   " string 4ths drill": E+E|A+D|D+G
@@ -94,28 +103,28 @@ steveInterval:
   " string minor 6ths drill": E+A/D|A+D/G
   " string 10ths drill": E+G
 
-steve3rdHazards:
+keepSteve3rdHazards:
   ' Hazard 3rds': 2-1-4-3|4-1-2-3
   ' Hazard 3rds': 1-4-3-2|2-1-4-3|1-2-3-4|4-3-2-1
 
-steve5thHazards:
+keepSteve5thHazards:
   ' Hazard 6ths (Ex 2 on p.14)': 2-1-4-3
   ' Hazard 6ths (Ex 3A on p.15)': 1-2-3-4
   ' Hazard 6ths (Ex 3B on p.15)': 4-3-2-1
 
-steveScaleIn10ths:
+keepSteveScaleIn10ths:
   -major in 10th double stops (p.13): major
   -minor in 10th double stops (p.13): minor
 
-steveScaleIn4ths:
+keepSteveScaleIn4ths:
   -major in 4th double stops (Ex 5 on p.10): major
   -minor in 4th double stops (Ex 5 on p.10): minor
 
-steveScaleIn5ths:
+keepSteveScaleIn5ths:
   -major in 5th double stops (Ex 6 on p.7): major
   -minor in 5th double stops (Ex 6 on p.7): minor
 
-steveSlide:
+keepSteveSlide:
   ' melodic minor linear slides in octaves (Ex 4A on p.19)': minor
   ' melodic minor zig-zag slides in octaves (Ex 4B on p.19)': minor
   ' minor linear slides in fifths (Ex 5A on p.19)': minor
@@ -330,7 +339,7 @@ mode:
   ' aeolian': aeolian
   ' locrian': locrian
 
-arp:
+arpeggio:
   : major
   m: minor
   ⁷: major
