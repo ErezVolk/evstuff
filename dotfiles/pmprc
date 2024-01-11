@@ -4,7 +4,7 @@ warmup = [ 1@warmupInterval 1@warmupHarvey 1@warmupMode 1@warmupScale ]
 intonation = { @oneStringScale @chalmers }
 keep = { @keepSteveInterval @keepSteve3rdHazards @keepSteve5thHazards @keepSteveSlide @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci }
-chops = { @chopsLeft @chopsRight }
+chops = [ 1@chopsRight 1@chopsLeft ]
 
 note:
   : ANY
