@@ -1,6 +1,6 @@
 *daily = [ warmup chops @intonation 3@keep @arpeggio homeworkTechnical homeworkOnePiece 3@book @revise ]
 
-warmup = { @warmupInterval @warmupHarvey @warmupMode @warmupScale }
+warmup = [ 1@warmupInterval 1@warmupHarvey 1@warmupMode 1@warmupScale ]
 intonation = { @oneStringScale @chalmers }
 keep = { @keepSteveInterval @keepSteve3rdHazards @keepSteve5thHazards @keepSteveSlide @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci }
@@ -31,7 +31,7 @@ warmupScale:
   ' Melodic Minor Scale': minor
   ' Harmonic Minor Scale': minor
   ' Natural Minor Scale': minor
-  ' Whole Tone Scale': E|F
+  ' Whole Tone Scale': ANY
 
 homeworkTechnical:
   Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE

@@ -207,18 +207,22 @@ class PracticeMakesPerfect:
         else:
             self.run_agenda(tome)
 
-    def run_agenda(self, agenda: Agenda) -> None:
+    def run_agenda(self, agenda: Agenda, spaced=True) -> None:
         """Run an agenda: A sequence of books"""
         for agendum in agenda.items:
-            self.book_name = agendum.book_name
-            book = self.all_tomes[self.book_name]
-            assert isinstance(book, Book)
-            self.run_book(
-                book,
-                num_tracks=agendum.num_etudes,
-                one_of_each=agendum.num_etudes is None
-            )
-            print("")
+            name = agendum.book_name
+            tome = self.all_tomes[name]
+            if isinstance(tome, Book):
+                self.book_name = name
+                self.run_book(
+                    tome,
+                    num_tracks=agendum.num_etudes,
+                    one_of_each=agendum.num_etudes is None
+                )
+            elif isinstance(tome, Agenda):
+                self.run_agenda(tome, spaced=False)
+            if spaced:
+                print("")
 
     def run_book(self, book: Book, num_tracks: int | None, one_of_each: bool):
         """Run a "simple" book"""
@@ -384,10 +388,10 @@ class ConfigParser:
                     name=mobj.group(1).strip(),
                     scale=mobj.group(2).strip(),
                 )
-            elif (mobj := self.match(r"([^=]*)\s*=\s*{([^}]*)}")):
+            elif (mobj := self.match(r"(?P<name>[^=]*)\s*=\s*{(?P<parts>[^}]*)}")):
                 self.add_folder(
-                    name=mobj.group(1).strip(),
-                    playables=[part.strip() for part in mobj.group(2).split()],
+                    name=mobj.group("name").strip(),
+                    playables=[part.strip() for part in mobj.group("parts").split()],
                 )
             elif (mobj := self.match(r"([*]?)([^=]*)\s*=\s*\[([^]]*)\]")):
                 self.add_agenda(
