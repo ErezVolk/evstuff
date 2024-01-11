@@ -1,6 +1,6 @@
 *daily = [ warmup chops @intonation 3@keep @arpeggio homeworkTechnical homeworkOnePiece 3@book @revise ]
 
-warmup = { @warmupInterval @warmupHarvey @warmupScale }
+warmup = { @warmupInterval @warmupHarvey @warmupMode @warmupScale }
 intonation = { @oneStringScale @chalmers }
 keep = { @keepSteveInterval @keepSteve3rdHazards @keepSteve5thHazards @keepSteveSlide @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci }
@@ -21,13 +21,16 @@ warmupInterval:
   -string fifths: E|A
 
 warmupHarvey:
-  ' Minor Harvey from G': Natural|Harmonic|Melodic
-  ' Minor Harvey from C': Natural|Harmonic|Melodic
-  ' Harvey from G': Major
-  ' Harvey from C': Major
+  # ' Minor Harvey from C': Natural|Harmonic|Melodic  # Not a good idea, because Harvey needs to be sung!
+  '-based Harvey': G|C
+
+warmupMode:
+  -major modes: major
 
 warmupScale:
-  -major modes: major
+  ' Melodic Minor Scale': minor
+  ' Harmonic Minor Scale': minor
+  ' Natural Minor Scale': minor
 
 homeworkTechnical:
   Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
@@ -348,7 +351,10 @@ arpeggio:
   ' major pentatonic': major
   ' minor pentatonic': minor
   ᴼ⁷: minor
-  aug⁷: minor
+  aug⁷: major
+  ⁹: major
+  maj⁹: major
+  min⁹: minor
 
 chalmers:
   Chalmers Chromatic Ex.1 (p.1): NONE
