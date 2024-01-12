@@ -10,7 +10,7 @@ note:
   : ANY
 
 chord:
-  : major
+  Δ: major
   m: minor
   ⁷: major
   m⁷: minor
@@ -34,7 +34,7 @@ warmupScale:
   ' Whole Tone Scale': ANY
 
 homeworkTechnical:
-  Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
+  Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64): NONE
 
 homeworkOnePiece:  # Try to keep this to one!
@@ -56,10 +56,10 @@ keepRayBrown:
   Ray Brown's Blues (II) (p.102): NONE
   Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
   Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+  Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
   Ray Brown's Blues (III) (p.103): NONE
 
 _rayBrownToDo:  # As I work through the book
-  Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
   Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
   Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
   Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
@@ -291,23 +291,23 @@ chopsRight:
   R-16th-11 (p31) ♬ 1221.2221.2112.1112...: NONE
   R-16th-12 (p31) ♬ 1221.2111.2112.1222...: NONE
 
-  R-8th-and-16th-1 (p33) (♪♬ ₂1 22...): NONE
-  R-8th-and-16th-2 (p33) (♪♬ ₂1 22...): NONE
-  R-8th-and-16th-3 (p33) (♪♬ ₁2 11...): NONE
-  R-8th-and-16th-4 (p33) (♪♬ ₂1 21...): NONE
-  R-8th-and-16th-5 (p34) (♪♬ ₂1 21.₁2 12...): NONE
-  R-8th-and-16th-6 (p34) (♪♬ ₂1 22.₁2 11...: NONE
-  R-8th-and-16th-7 (p34) (♪♬ ₂1 22.₂1 21.₁2 11.₁2 12...: NONE
-  R-8th-and-16th-8 (p34) (♪♬ ₂1 12.₂1 21.₁2 21.₁2 12...: NONE
+  R-grace-8th-16ths-1 (p33) (♪♬ ₂1 22...): NONE
+  R-grace-8th-16ths-2 (p33) (♪♬ ₂1 22...): NONE
+  R-grace-8th-16ths-3 (p33) (♪♬ ₁2 11...): NONE
+  R-grace-8th-16ths-4 (p33) (♪♬ ₂1 21...): NONE
+  R-grace-8th-16ths-5 (p34) (♪♬ ₂1 21.₁2 12...): NONE
+  R-grace-8th-16ths-6 (p34) (♪♬ ₂1 22.₁2 11...: NONE
+  R-grace-8th-16ths-7 (p34) (♪♬ ₂1 22.₂1 21.₁2 11.₁2 12...: NONE
+  R-grace-8th-16ths-8 (p34) (♪♬ ₂1 12.₂1 21.₁2 21.₁2 12...: NONE
 
-  R-8th-and-16th-9 (p35) (♬♪ ₂12 2...): NONE
-  R-8th-and-16th-10 (p35) (♬♪ ₂12 2...): NONE
-  R-8th-and-16th-11 (p35) (♬♪ ₁21 1...): NONE
-  R-8th-and-16th-12 (p35) (♬♪ ₂12 1...): NONE
-  R-8th-and-16th-13 (p36) (♬♪ ₂12 1.₁21 2...): NONE
-  R-8th-and-16th-14 (p36) (♬♪ ₂12 2.₁21 1...: NONE
-  R-8th-and-16th-15 (p36) (♬♪ ₂12 2.₂12 1.₁21 1.₁21 2...: NONE
-  R-8th-and-16th-16 (p36) (♬♪ ₂11 2.₂12 1.₁22 1.₁21 2...: NONE
+  R-grace-16ths-8th-9 (p35) (♬♪ ₂12 2...): NONE
+  R-grace-16ths-8th-10 (p35) (♬♪ ₂12 2...): NONE
+  R-grace-16ths-8th-11 (p35) (♬♪ ₁21 1...): NONE
+  R-grace-16ths-8th-12 (p35) (♬♪ ₂12 1...): NONE
+  R-grace-16ths-8th-13 (p36) (♬♪ ₂12 1.₁21 2...): NONE
+  R-grace-16ths-8th-14 (p36) (♬♪ ₂12 2.₁21 1...: NONE
+  R-grace-16ths-8th-15 (p36) (♬♪ ₂12 2.₂12 1.₁21 1.₁21 2...: NONE
+  R-grace-16ths-8th-16 (p36) (♬♪ ₂11 2.₂12 1.₁22 1.₁21 2...: NONE
 
   R-grace-16th-8th-16th-17 (p37) (₂122...): NONE
   R-grace-16th-8th-16th-18 (p37) (₁211...): NONE
@@ -344,7 +344,7 @@ mode:
   ' locrian': locrian
 
 arpeggio:
-  : major
+  Δ: major
   m: minor
   ⁷: major
   m⁷: minor
