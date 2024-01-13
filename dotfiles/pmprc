@@ -2,9 +2,10 @@
 
 warmup = [ 1@warmupInterval 1@warmupHarvey 1@warmupMode 1@warmupScale ]
 intonation = { @oneStringScale @chalmers }
-keep = { @keepSteveInterval @keepSteve3rdHazards @keepSteve5thHazards @keepSteveSlide @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
+keep = { @keepSteveInterval @keepSteve3rdHazards @keepSteve6thHazards @keepSteveSlide @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci }
 chops = [ 1@chopsRight 1@chopsLeft ]
+hazard = { @keepSteve3rdHazards @keepSteve6thHazards }
 
 note:
   : ANY
@@ -35,7 +36,7 @@ warmupScale:
 
 homeworkTechnical:
   Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase II) (p.65): NONE
 
 homeworkOnePiece:  # Try to keep this to one!
   Melodic Étude in B♭ Major (p.9): NONE
@@ -58,6 +59,7 @@ keepRayBrown:
   Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
   Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
   Ray Brown's Blues (III) (p.103): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64): NONE
 
 _rayBrownToDo:  # As I work through the book
   Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
@@ -67,7 +69,6 @@ _rayBrownToDo:  # As I work through the book
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
   Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase II) (p.65): NONE
   Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
@@ -111,7 +112,7 @@ keepSteve3rdHazards:
   ' Hazard 3rds': 2-1-4-3|4-1-2-3
   ' Hazard 3rds': 1-4-3-2|2-1-4-3|1-2-3-4|4-3-2-1
 
-keepSteve5thHazards:
+keepSteve6thHazards:
   ' Hazard 6ths (Ex 2 on p.14)': 2-1-4-3
   ' Hazard 6ths (Ex 3A on p.15)': 1-2-3-4
   ' Hazard 6ths (Ex 3B on p.15)': 4-3-2-1
