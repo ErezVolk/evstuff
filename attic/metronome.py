@@ -18,6 +18,7 @@ import time
 import typing as t
 import wave
 
+import numpy as np
 from soundfile import SoundFile
 import pyaudio
 import rich
@@ -343,13 +344,9 @@ class Metronome:
         los = []
         if self.args.subdivision:
             self.beats_per_bar = 1
-            subs = len(self.args.subdivision)
-            his = []
-            for where, mnem in enumerate(self.args.subdivision):
-                if mnem == "T":
-                    his.append(where / subs)
-                elif mnem == "t":
-                    los.append(where / subs)
+            mnems = np.array(list(self.args.subdivision))
+            los = np.flatnonzero(mnems == "t") / len(mnems)
+            his = np.flatnonzero(mnems == "T") / len(mnems)
         elif self.args.rhythm == "half":
             self.beats_per_bar = 4
             his = [0]
@@ -386,13 +383,13 @@ class Metronome:
                 self.beats_per_bar += beats
             los = range(self.beats_per_bar)  # Will get overrun by his
 
-        for click, where in ((self.lo_click, los), (self.hi_click, his)):
-            for pos in where:
-                self.pattern[pos] = click.data
+        self.pattern.update({lo: self.lo_click.data for lo in los})
+        self.pattern.update({hi: self.hi_click.data for hi in his})
 
-    # pylint: disable-next=unused-argument
     def read_more(self, in_data, frame_count: int, time_info, status):
         """Supply pyaudio with more audio"""
+        del in_data, time_info, status  # unused
+
         if self.aborting or self.paused:
             return (b"", pyaudio.paAbort)
 
@@ -439,9 +436,9 @@ class Metronome:
         self.next_loop = loop
         self.show_tempo()
 
-    # pylint: disable-next=unused-argument
     def handle_ctrl_c(self, sig, frame):
         """Handle Ctrl-C"""
+        del sig, frame  # unused
         self.abort()
 
     def abort(self):
@@ -449,9 +446,9 @@ class Metronome:
         self.status.update("Aborting...")
         self.aborting = True
 
-    # pylint: disable-next=unused-argument
     def intercept(self, event_type, event):
         """Handle MacOS media key event"""
+        del event_type  # unused
         bitmap = NSEvent.eventWithCGEvent_(event).data1()
         key = (bitmap & 0xFFFF0000) >> 16
 
