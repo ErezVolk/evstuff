@@ -20,8 +20,8 @@ import wave
 
 from soundfile import SoundFile
 import pyaudio
+import rich
 import rich.live
-from rich import print  # pylint: disable=redefined-builtin
 
 try:
     import pynput.keyboard
@@ -145,7 +145,7 @@ class PathAwareDefaultsHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
         return result
 
 
-# pylint: disable-next=too-many-instance-attributes
+# pylint: disable-next=too-many-instance-attributes,too-many-public-methods
 class Metronome:
     """A simple metronome"""
 
@@ -243,8 +243,14 @@ class Metronome:
                 "roll your own sub-beat rhythms with a combination of "
                 "'T' = high click, 't' = low click, and '-' = rest. "
                 "E.g., 't-t' is a first- and third triplet "
-                "beat, and '-t' clicks on the second eighth. "
+                "beat, and '-t' clicks on the second eighth."
             ),
+        )
+        parser.add_argument(
+            "-p",
+            "--start-paused",
+            action="store_true",
+            help="Start paused."
         )
         self.args = parser.parse_args()
         if self.args.beats != [0]:
@@ -295,7 +301,7 @@ class Metronome:
     def main_loop(self):
         """Keep playing until pause or abort"""
         player = pyaudio.PyAudio()
-        self.pause_unpause()  # Get ready for playing
+        self.pause_unpause(paused=self.args.start_paused)  # Get ready for playing
 
         while not self.aborting:
             # Every pass through the loop is playing, then pause/abort
@@ -325,7 +331,7 @@ class Metronome:
             self.lo_click = Click(paths[1])
             if not self.lo_click.is_compatible_with(self.hi_click):
                 self.lo_click = self.hi_click
-                print(
+                rich.print(
                     f"{paths[0]} and {paths[1]} are incompatible, "
                     f"using only {paths[0]}."
                 )
@@ -415,8 +421,7 @@ class Metronome:
     def make_loop(self):
         """Rebuild the audio loop"""
         frames_per_beat = (60 / self.tempo) * self.shape.rate
-        ideal_bar_frames = self.beats_per_bar * frames_per_beat
-        ideal_bar = ideal_bar_frames * self.bytes_per_frame
+        ideal_bar = (self.beats_per_bar * frames_per_beat) * self.bytes_per_frame
         bars_per_loop = 1
         rounded_frames = round(ideal_bar / self.bytes_per_frame)
         loop_size = rounded_frames * self.bytes_per_frame
@@ -467,9 +472,12 @@ class Metronome:
         """On ⏯"""
         self.pause_unpause()
 
-    def pause_unpause(self):
+    def pause_unpause(self, paused: bool | None = None):
         """Toggle play/pause status"""
-        self.paused = not self.paused
+        if paused is None:
+            self.paused = not self.paused
+        else:
+            self.paused = paused
         self.show_tempo()
 
     def show_tempo(self):
