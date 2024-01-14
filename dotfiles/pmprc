@@ -1,7 +1,7 @@
 *daily = [ warmup chops @intonation 3@keep @arpeggio homeworkTechnical homeworkOnePiece 3@book @revise ]
 
 warmup = [ 1@warmupInterval 1@warmupHarvey 1@warmupMode 1@warmupScale ]
-intonation = { @oneStringScale @chalmers }
+intonation = { @oneStringScale }
 keep = { @keepSteveInterval @keepSteve3rdHazards @keepSteve6thHazards @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci }
 chops = [ 1@chopsRight 1@chopsLeft ]
@@ -363,7 +363,7 @@ arpeggio:
   maj⁹: major
   min⁹: minor
 
-chalmers:
+chalmers:  # Nah
   Chalmers Chromatic Ex.1 (p.1): NONE
   Chalmers Chromatic Ex.2 (p.1): NONE
   Chalmers Chromatic Ex.3 (p.1): NONE
