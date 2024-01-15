@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
-# TODO: More generic nodes and leafs
 import argparse
+from dataclasses import dataclass
 import io
 from pathlib import Path
 import random
@@ -17,16 +17,43 @@ from typing import TypeAlias
 from typing import TypeVar
 
 
-class Etude(NamedTuple):
+@dataclass
+class Etude:
     """A concrete etude, e.g., 'minor pentatonic'"""
     name: str
     keys: str | list[str]
+
+    def __post_init__(self):
+        if isinstance(self.keys, str):
+            self.mnem = self.keys
+        else:
+            self.mnem = "|".join(sorted(self.keys))
 
 
 Tome: TypeAlias = "Book | Agenda"
 Playable: TypeAlias = "Etude | Book"
 TableOfContents: TypeAlias = list[Playable]
-PitchClass: TypeAlias = tuple[str] | tuple[str, str]
+PitchClass: TypeAlias = Sequence[str]
+
+
+# pylint: disable-next=too-few-public-methods
+class Chooseroo:
+    """Chooses from a defined pool, minimizing repetitions"""
+    pool: list[PitchClass | str]
+    unused: list[PitchClass | str] | None = None
+
+    def __init__(self, pool: Iterable[PitchClass | str]):
+        self.pool = list(pool)
+
+    def get(self) -> str:
+        """Get the next item"""
+        if not self.unused:
+            self.unused = list(self.pool)
+        idx = random.randrange(len(self.unused))
+        item = self.unused.pop(idx)
+        if isinstance(item, str):
+            return item
+        return random.choice(item)
 
 
 class Book(NamedTuple):
@@ -183,7 +210,7 @@ class PracticeMakesPerfect:
     }
 
     all_tomes: dict[str, Tome]
-    playables: list[Playable]
+    chooseroos: dict[str, Chooseroo]
     report_book: bool = False
     book_name: str
 
@@ -197,10 +224,9 @@ class PracticeMakesPerfect:
 
         self.add_modes()
         self.configure()
+        self.make_chooseroos()
 
-        self.all_tomes = self.config.tomes
         self.report_book = self.args.verbose
-
         self.book_name = self.choose_tome()
         tome = self.all_tomes[self.book_name]
         if isinstance(tome, Book):
@@ -227,13 +253,13 @@ class PracticeMakesPerfect:
 
     def run_book(self, book: Book, num_tracks: int | None, one_of_each: bool):
         """Run a "simple" book"""
-        self.playables = book.toc
+        playables = book.toc
         if self.args.max_etudes:
-            num_playables = min(self.args.max_etudes, len(self.playables))
-            self.playables = random.sample(self.playables, num_playables)
+            num_playables = min(self.args.max_etudes, len(playables))
+            playables = random.sample(playables, num_playables)
 
         if one_of_each:
-            num_tracks = len(self.playables)
+            num_tracks = len(playables)
         elif not num_tracks:
             num_tracks = len(self.PITCH_CLASSES)
 
@@ -241,13 +267,12 @@ class PracticeMakesPerfect:
             print(f"[{self.book_name} × {num_tracks}]")
 
         etude_seq: list[Etude] = []
-        for playable in self.choose(self.playables, num_tracks):
+        for playable in self.choose(playables, num_tracks):
             while isinstance(playable, Book):
                 playable = random.choice(playable.toc)
             etude_seq.append(playable)
 
-        pitch_class_seq = self.choose(self.PITCH_CLASSES, num_tracks)
-        track_seq = self.make_tracks(etude_seq, pitch_class_seq)
+        track_seq = self.make_tracks(etude_seq)
 
         print(self.get_sep(track_seq).join(track_seq))
 
@@ -266,19 +291,11 @@ class PracticeMakesPerfect:
     def make_tracks(
         self,
         etude_seq: list[Etude],
-        pitch_class_seq: list[PitchClass]
     ) -> list[str]:
-        """Attach chosen pitch classes to chosen etudes"""
+        """Pick a key for each etude"""
         track_seq = []
-        for etude, pitch_class in zip(etude_seq, pitch_class_seq):
-            if isinstance(etude.keys, list):
-                key = random.choice(etude.keys)
-            elif etude.keys == "NONE":
-                key = ""
-            else:
-                scale: str = etude.keys
-                note = random.choice(pitch_class)
-                key = self.SCALE_FIX[scale].get(note, note)
+        for etude in etude_seq:
+            key = self.chooseroos[etude.mnem].get()
             track_seq.append(f"{key}{etude.name}")
         return track_seq
 
@@ -336,6 +353,32 @@ class PracticeMakesPerfect:
                 self.config = self.parse_config(fobj)
         except (FileNotFoundError, ValueError):
             self.config = self.parse_config(io.StringIO(DEFAULT_CONFIG))
+        self.all_tomes = self.config.tomes
+
+    def make_chooseroos(self) -> None:
+        """Prepare randomizers"""
+        self.chooseroos = {
+            scale: Chooseroo([
+                [
+                    fixes.get(note, note)
+                    for note in pitch_class
+                ]
+                for pitch_class in self.PITCH_CLASSES
+            ])
+            for scale, fixes in self.SCALE_FIX.items()
+        }
+        self.chooseroos["NONE"] = Chooseroo([""])
+        for book in self.all_tomes.values():
+            if not isinstance(book, Book):
+                continue
+            for etude in book.toc:
+                if not isinstance(etude, Etude):
+                    continue
+                if etude.mnem in self.chooseroos:
+                    continue
+                if not isinstance(etude.keys, list):
+                    continue
+                self.chooseroos[etude.mnem] = Chooseroo(etude.keys)
 
     def parse_config(self, stream: TextIO) -> Configuration:
         """Read configuration file"""
@@ -389,12 +432,19 @@ class ConfigParser:
                     name=mobj.group(1).strip(),
                     scale=mobj.group(2).strip(),
                 )
-            elif (mobj := self.match(r"(?P<name>[^=]*)\s*=\s*{(?P<parts>[^}]*)}")):
+            elif (mobj := self.match(
+                r"(?P<name>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"
+            )):
                 self.add_folder(
                     name=mobj.group("name").strip(),
-                    playables=[part.strip() for part in mobj.group("parts").split()],
+                    playables=[
+                        part.strip()
+                        for part in mobj.group("parts").split()
+                    ],
                 )
-            elif (mobj := self.match(r"([*]?)([^=]*)\s*=\s*\[([^]]*)\]")):
+            elif (mobj := self.match(
+                r"([*]?)([^=]*)\s*=\s*\[([^]]*)\]"
+            )):
                 self.add_agenda(
                     star=mobj.group(1),
                     name=mobj.group(2).strip(),
