@@ -49,8 +49,8 @@ class Chooseroo:
         """Get the next item"""
         if not self.unused:
             self.unused = list(self.pool)
-        idx = random.randrange(len(self.unused))
-        item = self.unused.pop(idx)
+            random.shuffle(self.unused)
+        item = self.unused.pop()
         if isinstance(item, str):
             return item
         return random.choice(item)
