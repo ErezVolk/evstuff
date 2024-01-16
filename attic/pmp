@@ -296,7 +296,10 @@ class PracticeMakesPerfect:
         track_seq = []
         for etude in etude_seq:
             key = self.chooseroos[etude.mnem].get()
-            track_seq.append(f"{key}{etude.name}")
+            if "{}" in etude.name:
+                track_seq.append(etude.name.replace("{}", key))
+            else:
+                track_seq.append(f"{key}{etude.name}")
         return track_seq
 
     def get_sep(self, tracks: list[str]) -> str:

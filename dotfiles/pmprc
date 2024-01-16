@@ -18,25 +18,25 @@ chord:
   M⁷: major
 
 warmupInterval:
-  -string octaves: E|A
-  -string fifths: E|A
+  Octaves on the {} string: E|A
+  Fifths on the {} string: E|A
 
 warmupHarvey:
   # ' Minor Harvey from C': Natural|Harmonic|Melodic  # Not a good idea, because Harvey needs to be sung!
-  '-based Harvey': G|C
+  Harvey from {}: G|C
 
 warmupMode:
   -major modes: major
 
 warmupScale:
-  ' Melodic Minor Scale': minor
-  ' Harmonic Minor Scale': minor
-  ' Natural Minor Scale': minor
-  ' Whole Tone Scale': ANY
+  -Melodic Minor Scale: minor
+  -Harmonic Minor Scale: minor
+  -Natural Minor Scale: minor
+  Whole Tone Scale from {}: ANY
 
 homeworkTechnical:
   Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
-  -initial Ray Brown's Rhythm Patterns with Drops (Phase II) (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 
 homeworkOnePiece:  # Try to keep this to one!
   Melodic Étude in B♭ Major (p.9): NONE
@@ -51,15 +51,15 @@ oneStringScale:
   -major on one string: major
 
 keepRayBrown:
-  -pattern Ray Brown's Blues (p.100): A+B|C|D|E|F
-  -initial Ray Brown's Blues (I) (p.101): C|F|B♭|G
-  -initial Ray Brown's Blues (II) (p.102): C|F|B♭|G
-  -initial Ray Brown's Blues (III) (p.103): C|F|B♭|G
+  Ray Brown's Blues (p.100), {} pattern: A+B|C|D|E|F
+  Ray Brown's Blues (I) (p.101), starting from {}: C|F|B♭|G
+  Ray Brown's Blues (II) (p.102), starting from {}: C|F|B♭|G
+  Ray Brown's Blues (III) (p.103), starting from {}: C|F|B♭|G
   Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
   Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
   Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
   Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
-  -initial Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), starting from {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 
 _rayBrownToDo:  # As I work through the book
   Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
@@ -101,22 +101,22 @@ _rayBrownToDo:  # As I work through the book
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 keepSteveInterval:
-  " string 8ths drill": E+D|A+G
-  " string 5ths drill": E+A|A+D|D+G
-  " string 4ths drill": E+E|A+D|D+G
-  " string 3rds drill": E+E|A+D|D+G
-  " string 6ths drill": E+D|A+G
-  " string minor 6ths drill": E+A/D|A+D/G
-  " string 10ths drill": E+G
+  8ths drill on the {} strings: E+D|A+G
+  5ths drill on the {} strings: E+A|A+D|D+G
+  4ths drill on the {} strings: E+E|A+D|D+G
+  3rds drill on the {} strings: E+E|A+D|D+G
+  6ths drill on the {} strings: E+D|A+G
+  minor 6ths drill on the {} strings: E+A/D|A+D/G
+  10ths drill on the {} strings: E+G
 
 keepSteve3rdHazards:
-  ' Hazard 3rds': 2-1-4-3|4-1-2-3
-  ' Hazard 3rds': 1-4-3-2|2-1-4-3|1-2-3-4|4-3-2-1
+  Hazard 3rds, {}: 2-1-4-3|4-1-2-3
+  Hazard 3rds, {}: 1-4-3-2|2-1-4-3|1-2-3-4|4-3-2-1
 
 keepSteve6thHazards:
-  ' Hazard 6ths (Ex 2 on p.14)': 2-1-4-3
-  ' Hazard 6ths (Ex 3A on p.15)': 1-2-3-4
-  ' Hazard 6ths (Ex 3B on p.15)': 4-3-2-1
+  Hazard 6ths (Ex 2 on p.14), {}: 2-1-4-3
+  Hazard 6ths (Ex 3A on p.15), {}: 1-2-3-4
+  Hazard 6ths (Ex 3B on p.15), {}: 4-3-2-1
 
 keepSteveScaleIn10ths:
   -major in 10th double stops (p.13): major
@@ -131,26 +131,26 @@ keepSteveScaleIn5ths:
   -minor in 5th double stops (Ex 6 on p.7): minor
 
 keepSteveSlide2nd:
-  ' melodic minor linear slides in octaves (Ex 4A on p.19)': minor
-  ' melodic minor zig-zag slides in octaves (Ex 4B on p.19)': minor
-  ' minor linear slides in fifths (Ex 5A on p.19)': minor
-  ' minor zig-zag slides in fifths (Ex 5B on p.19)': minor
+  -melodic minor linear slides in octaves (Ex 4A on p.19): minor
+  -melodic minor zig-zag slides in octaves (Ex 4B on p.19): minor
+  -minor linear slides in fifths (Ex 5A on p.19): minor
+  -minor zig-zag slides in fifths (Ex 5B on p.19): minor
 
 keepSteveSlide3rd:
-  ' slides in 3rds (p21/3)': D-A|A-G|E-A
-  ' slides in 3rds (p22/4A)': D-A|A-G|E-A
-  ' slides in 3rds (p22/4B)': D-A|A-G|E-A
-  ' slides in 3rds (p22/4C)': D-A|A-G|E-A
-  '-string 1-2-3-2-3-4... slides (p22/4D)': E|A|D|G
+  Slides in 3rds (p21/3) on the {} strings: D-A|A-G|E-A
+  Slides in 3rds (p22/4A) on the {} strings: D-A|A-G|E-A
+  Slides in 3rds (p22/4B) on the {} strings: D-A|A-G|E-A
+  Slides in 3rds (p22/4C) on the {} strings: D-A|A-G|E-A
+  1-2-3-2-3-4... slides (p22/4D) on the {} string: E|A|D|G
 
 _steveToDo:  # As I work through the book
-  '-major slides in 4ths (p23/1)': major
+  -major slides in 4ths (p23/1): major
 
 reviseSteve:
   Steve's 4th Combination (Ex 4 on page 9): NONE
   Steve's 6ths étude (Ex 5 on page 16): NONE
   Steve's Triads 1 (Ex 1 on page 17): NONE
-  " Steve's linear Slides (Ex 3 on page 8)": 1st finger|2nd finger|3rd finger|4th finger
+  Steve's linear Slides (Ex 3 on page 8) using the {} finger: 1st|2nd|3rd|4th
   Steve's Ex 1 on page 20: NONE
   Steve's "Slow and Bluesy" (Ex 2 on page 20): NONE
 
@@ -356,8 +356,8 @@ arpeggio:
   ⁷: major
   m⁷: minor
   M⁷: major
-  ' major pentatonic': major
-  ' minor pentatonic': minor
+  -major pentatonic: major
+  -minor pentatonic: minor
   ᴼ⁷: minor
   aug⁷: major
   ⁹: major
