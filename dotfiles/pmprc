@@ -36,7 +36,7 @@ warmupScale:
 
 homeworkTechnical:
   Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase II) (p.65): NONE
+  -initial Ray Brown's Rhythm Patterns with Drops (Phase II) (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 
 homeworkOnePiece:  # Try to keep this to one!
   Melodic Étude in B♭ Major (p.9): NONE
@@ -51,15 +51,15 @@ oneStringScale:
   -major on one string: major
 
 keepRayBrown:
-  Ray Brown's Blues (p.100): NONE
-  Ray Brown's Blues (I) (p.101): NONE
+  -pattern Ray Brown's Blues (p.100): A+B|C|D|E|F
+  -initial Ray Brown's Blues (I) (p.101): C|F|B♭|G
+  -initial Ray Brown's Blues (II) (p.102): C|F|B♭|G
+  -initial Ray Brown's Blues (III) (p.103): C|F|B♭|G
   Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
-  Ray Brown's Blues (II) (p.102): NONE
   Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
   Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
   Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
-  Ray Brown's Blues (III) (p.103): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64): NONE
+  -initial Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 
 _rayBrownToDo:  # As I work through the book
   Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
@@ -79,9 +79,10 @@ _rayBrownToDo:  # As I work through the book
   Ray Brown's Diminished Exercise (Solo) (p.84): NONE
   Ray Brown's Diminished Exercise (p.85): NONE
   Ray Brown's Augmented Exercise (p.92): NONE
-  Ray Brown's Augmented Exercise (p.94): NONE
-  Ray Brown's Augmented Exercise (p.95-96): NONE
-  Ray Brown's Augmented Exercise (p.97): NONE
+  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
+  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
+  Ray Brown's Augmented Exercise (p.97, top 2): NONE
+  Ray Brown's Augmented Exercise (p.97, bottom 2): NONE
   Ray Brown's Augmented Exercise (p.98): NONE
   Ray Brown's Solo Exercise (p.118): NONE
   Ray Brown's Solo Exercise (p.119): NONE
