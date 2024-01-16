@@ -415,43 +415,46 @@ class ConfigParser:
     curr: Book | None = None
     line_num: int
     line: str
+    mobj: re.Match | None
 
     def __init__(self, known_scales: Container[str]):
         self.known_scales = known_scales
 
-    def match(self, expr: str) -> re.Match | None:
+    def match(self, expr: str) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line"""
-        return re.fullmatch(expr, self.line)
+        self.mobj = re.fullmatch(expr, self.line)
+        return bool(self.mobj)
+
+    def group(self, group: int | str) -> str:
+        """Group from previous `self.match()`."""
+        assert self.mobj is not None
+        return self.mobj.group(group)
 
     def parse(self, stream: TextIO) -> "Configuration":
         """Read configuration file"""
         for self.line_num, line in enumerate(stream, 1):
             self.line = re.sub(r"\s*(#.*)?$", "", line)
 
-            if (mobj := self.match(r"([*]?)(\S[^:]*):")):
-                self.enter_book(name=mobj.group(2).strip(), star=mobj.group(1))
-            elif (mobj := self.match(r"\s+([^:]*):\s+(.*)")):
+            if self.match(r"([*]?)(\S[^:]*):"):
+                self.enter_book(name=self.group(2).strip(), star=self.group(1))
+            elif self.match(r"\s+([^:]*):\s+(.*)"):
                 self.add_etude(
-                    name=mobj.group(1).strip(),
-                    scale=mobj.group(2).strip(),
+                    name=self.group(1).strip(),
+                    scale=self.group(2).strip(),
                 )
-            elif (mobj := self.match(
-                r"(?P<name>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"
-            )):
+            elif self.match(r"(?P<name>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"):
                 self.add_folder(
-                    name=mobj.group("name").strip(),
+                    name=self.group("name").strip(),
                     playables=[
                         part.strip()
-                        for part in mobj.group("parts").split()
+                        for part in self.group("parts").split()
                     ],
                 )
-            elif (mobj := self.match(
-                r"([*]?)([^=]*)\s*=\s*\[([^]]*)\]"
-            )):
+            elif self.match(r"([*]?)([^=]*)\s*=\s*\[([^]]*)\]"):
                 self.add_agenda(
-                    star=mobj.group(1),
-                    name=mobj.group(2).strip(),
-                    parts=[part.strip() for part in mobj.group(3).split()],
+                    star=self.group(1),
+                    name=self.group(2).strip(),
+                    parts=[part.strip() for part in self.group(3).split()],
                 )
             elif not self.match(r""):
                 raise BadConfig(f"Bad line {self.line_num}: {repr(self.line)}")
@@ -464,7 +467,7 @@ class ConfigParser:
             starred=self.starred or list(self.tomes),
         )
 
-    def enter_book(self, name: str, star=str) -> None:
+    def enter_book(self, name: str, star: str) -> None:
         """Found a book line"""
         if name in self.tomes:
             raise BadConfig(f"Duplicate name: {repr(name)}")
