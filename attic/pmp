@@ -16,8 +16,6 @@ from typing import TextIO
 from typing import TypeAlias
 from typing import TypeVar
 
-# TODO: Keep refactoring so that book==agenda
-
 
 @dataclass
 class Etude:
@@ -32,7 +30,6 @@ class Etude:
             self.mnem = "|".join(sorted(self.keys))
 
 
-Tome: TypeAlias = "Book | Agenda"
 Playable: TypeAlias = "Etude | BookRef"
 TableOfContents: TypeAlias = list[Playable]
 PitchClass: TypeAlias = Sequence[str]
@@ -61,19 +58,13 @@ class Chooseroo:
 class Book(NamedTuple):
     """A collections of etudes or pointers to other books"""
     toc: TableOfContents
+    sequential: bool = False
 
 
 class BookRef(NamedTuple):
     """A reference to a book"""
     book_name: str
     num_etudes: int | None = None
-
-
-class Agenda(NamedTuple):
-    """Like a practice plan for the day
-    "do 3 of this book, then all of this book, etc."
-    """
-    toc: TableOfContents
 
 
 DEFAULT_CONFIG = """
@@ -109,7 +100,7 @@ arp:  # Play an arpeggio
 
 class Configuration(NamedTuple):
     """The information from the config file"""
-    tomes: dict[str, Tome]
+    books: dict[str, Book]
     starred: list[str]
 
 
@@ -126,8 +117,8 @@ class PracticeMakesPerfect:
             description="Practice Makes Perfect"
         )
         parser.add_argument(
-            "tomes",
-            metavar="TOME",
+            "books",
+            metavar="BOOK",
             type=str,
             nargs="*",
         )
@@ -211,7 +202,7 @@ class PracticeMakesPerfect:
         }
     }
 
-    all_tomes: dict[str, Tome]
+    all_books: dict[str, Book]
     chooseroos: dict[str, Chooseroo]
     book_name: str
 
@@ -219,7 +210,7 @@ class PracticeMakesPerfect:
         """Practice Makes Perfect"""
         self.parse_command_line()
 
-        if self.args.tomes == ["default-config"]:
+        if self.args.books == ["default-config"]:
             print(DEFAULT_CONFIG)
             return
 
@@ -227,28 +218,29 @@ class PracticeMakesPerfect:
         self.configure()
         self.make_chooseroos()
 
-        self.book_name = self.choose_tome()
-        tome = self.all_tomes[self.book_name]
-        if isinstance(tome, Book):
-            self.run_book(tome, self.args.num_tracks, self.args.one_of_each)
+        self.book_name = self.choose_book()
+        book = self.all_books[self.book_name]
+        if book.sequential:
+            self.run_agenda(book)
         else:
-            self.run_agenda(tome)
+            self.run_book(book, self.args.num_tracks, self.args.one_of_each)
 
-    def run_agenda(self, agenda: Agenda, spaced=True) -> None:
+    def run_agenda(self, book: Book, spaced=True) -> None:
         """Run an agenda: A sequence of books"""
-        for ref in agenda.toc:
+        assert book.sequential
+        for ref in book.toc:
             assert isinstance(ref, BookRef)
             name = ref.book_name
-            tome = self.all_tomes[name]
-            if isinstance(tome, Book):
+            book = self.all_books[name]
+            if book.sequential:
+                self.run_agenda(book, spaced=False)
+            else:
                 self.book_name = name
                 self.run_book(
-                    tome,
+                    book,
                     num_tracks=ref.num_etudes,
                     one_of_each=ref.num_etudes is None
                 )
-            elif isinstance(tome, Agenda):
-                self.run_agenda(tome, spaced=False)
             if spaced:
                 print("")
 
@@ -282,15 +274,15 @@ class PracticeMakesPerfect:
             if isinstance(entry, Etude):
                 yield entry
             else:
-                book = self.all_tomes[entry.book_name]
-                assert isinstance(book, Book)
+                book = self.all_books[entry.book_name]
+                assert not book.sequential
                 yield from self.choose_etudes(book.toc, entry.num_etudes or 1)
 
-    def choose_tome(self) -> str:
-        """Pick out a tome"""
-        if self.args.tomes:
-            pool = self.args.tomes
-            if (unknown := set(pool) - set(self.all_tomes)):
+    def choose_book(self) -> str:
+        """Pick out a book"""
+        if self.args.books:
+            pool = self.args.books
+            if (unknown := set(pool) - set(self.all_books)):
                 self.fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
             pool = self.config.starred
@@ -366,7 +358,7 @@ class PracticeMakesPerfect:
                 self.config = self.parse_config(fobj)
         except (FileNotFoundError, ValueError):
             self.config = self.parse_config(io.StringIO(DEFAULT_CONFIG))
-        self.all_tomes = self.config.tomes
+        self.all_books = self.config.books
 
     def make_chooseroos(self) -> None:
         """Prepare randomizers"""
@@ -381,8 +373,8 @@ class PracticeMakesPerfect:
             for scale, fixes in self.SCALE_FIX.items()
         }
         self.chooseroos["NONE"] = Chooseroo([""])
-        for book in self.all_tomes.values():
-            if not isinstance(book, Book):
+        for book in self.all_books.values():
+            if book.sequential:
                 continue
             for etude in book.toc:
                 if not isinstance(etude, Etude):
@@ -418,7 +410,6 @@ class ConfigParser:
         refs: list[BookRef]
 
     books: dict[str, Book] = {}
-    tomes: dict[str, Tome] = {}
     folders: dict[str, Folder] = {}
     starred: list[str] = []
     curr: Book | None = None
@@ -472,16 +463,16 @@ class ConfigParser:
         self.convert_folders()
 
         return Configuration(
-            tomes=self.tomes,
-            starred=self.starred or list(self.tomes),
+            books=self.books,
+            starred=self.starred or list(self.books),
         )
 
     def enter_book(self, name: str, star: str) -> None:
         """Found a book line"""
-        if name in self.tomes:
+        if name in self.books:
             raise BadConfig(f"Duplicate name: {repr(name)}")
 
-        self.tomes[name] = self.books[name] = self.curr = Book([])
+        self.books[name] = self.books[name] = self.curr = Book([])
         if star == "*":
             self.starred.append(name)
 
@@ -523,7 +514,7 @@ class ConfigParser:
         if not parts:
             raise BadConfig(f"No book in agenda {name} (line {self.line_num})")
 
-        if name in self.tomes:
+        if name in self.books:
             raise BadConfig(f"Duplicate name: {repr(name)}")
 
         toc = []
@@ -537,7 +528,7 @@ class ConfigParser:
             else:
                 num = None
             toc.append(BookRef(num_etudes=num, book_name=mobj.group("book")))
-        self.tomes[name] = Agenda(toc=toc)
+        self.books[name] = Book(toc=toc, sequential=True)
 
         if star == "*":
             self.starred.append(name)
@@ -558,7 +549,7 @@ class ConfigParser:
     def convert_folders(self) -> None:
         """Convert the folders to books"""
         for name, folder in self.folders.items():
-            self.tomes[name] = self.books[name] = Book(list(folder.refs))
+            self.books[name] = self.books[name] = Book(list(folder.refs))
 
 
 if __name__ == "__main__":
