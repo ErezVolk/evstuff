@@ -40,7 +40,7 @@ homeworkTechnical:
 
 homeworkMusic:  # Try to keep this to one!
   Melodic Étude in E♭ Major (p.10): NONE
-  JP@AW 1.41 Basic Etude in G♯ Minor (2. solo, 3. two-feel): NONE
+  JP@AW 1.42 Basic Etude in C♯ Minor (2+3. 6/8 bass line): NONE
 
 _melodicToDo:
   Melodic Étude in A♭ Major (p.11): NONE
@@ -213,7 +213,7 @@ revisePatitucci:
   JP@AW 1.38 Basic Etude in F Minor (2+3. Baião): NONE
   JP@AW 1.39 Basic Etude in B♭ Minor (2. two-feel, 3. solo): NONE
   JP@AW 1.40 Basic Etude in E♭ Minor (2. solo, 3. samba feel): NONE
-  #TBD# JP@AW 1.42 Basic Etude in C♯ Minor (2+3. 6/8 bass line): NONE
+  JP@AW 1.41 Basic Etude in G♯ Minor (2. solo, 3. two-feel): NONE
   #TBD# JP@AW 1.43 Basic Etude in F♯ Minor (2. bass line, 3. solo): NONE
   #TBD# JP@AW 1.44 Basic Etude in B Minor (2. two-feel, 3. solo): NONE
   #TBD# JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
