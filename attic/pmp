@@ -219,41 +219,42 @@ class PracticeMakesPerfect:
         self.make_chooseroos()
 
         self.book_name = self.choose_book()
-        book = self.all_books[self.book_name]
-        if book.sequential:
-            self.run_agenda(book)
-        else:
-            self.run_book(book, self.args.num_tracks, self.args.one_of_each)
+        self.run_book(
+            self.book_name,
+            None if self.args.one_of_each else self.args.num_tracks,
+            spaced=True,
+        )
 
-    def run_agenda(self, book: Book, spaced=True) -> None:
+    def run_book(self, name: str, num_tracks: int | None, spaced=False):
+        """Run any book"""
+        book = self.all_books[name]
+        if book.sequential:
+            self.run_agenda(book, spaced=spaced)
+        else:
+            self.book_name = name
+            self.run_plain(book, num_tracks)
+
+    def run_agenda(self, book: Book, spaced: bool) -> None:
         """Run an agenda: A sequence of books"""
-        assert book.sequential
-        for ref in book.toc:
-            assert isinstance(ref, BookRef)
-            name = ref.book_name
-            book = self.all_books[name]
-            if book.sequential:
-                self.run_agenda(book, spaced=False)
+        for entry in book.toc:
+            if isinstance(entry, Etude):
+                print(self.make_track(entry))
             else:
-                self.book_name = name
-                self.run_book(
-                    book,
-                    num_tracks=ref.num_etudes,
-                    one_of_each=ref.num_etudes is None
-                )
+                ref: BookRef = entry
+                self.run_book(ref.book_name, ref.num_etudes)
             if spaced:
                 print("")
 
-    def run_book(self, book: Book, num_tracks: int | None, one_of_each: bool):
-        """Run a "simple" book"""
+    def run_plain(self, book: Book, num_tracks: int | None):
+        """Run a "simple" book, choosing etudes and assigining keys"""
         playables = book.toc
         if self.args.max_etudes:
             num_playables = min(self.args.max_etudes, len(playables))
             playables = random.sample(playables, num_playables)
 
-        if one_of_each:
+        if num_tracks is None:
             num_tracks = len(playables)
-        elif not num_tracks:
+        elif num_tracks == 0:
             num_tracks = len(self.PITCH_CLASSES)
 
         if self.args.verbose:
@@ -295,14 +296,17 @@ class PracticeMakesPerfect:
         etude_seq: Iterable[Etude],
     ) -> list[str]:
         """Pick a key for each etude"""
-        track_seq = []
-        for etude in etude_seq:
-            key = self.chooseroos[etude.mnem].get()
-            if "{}" in etude.name:
-                track_seq.append(etude.name.replace("{}", key))
-            else:
-                track_seq.append(f"{key}{etude.name}")
-        return track_seq
+        return [
+            self.make_track(etude)
+            for etude in etude_seq
+        ]
+
+    def make_track(self, etude: Etude) -> str:
+        """Pick a key for one etude"""
+        key = self.chooseroos[etude.mnem].get()
+        if "{}" in etude.name:
+            return etude.name.replace("{}", key)
+        return f"{key}{etude.name}"
 
     def get_sep(self, tracks: list[str]) -> str:
         """Return space or newline separator"""
@@ -374,8 +378,6 @@ class PracticeMakesPerfect:
         }
         self.chooseroos["NONE"] = Chooseroo([""])
         for book in self.all_books.values():
-            if book.sequential:
-                continue
             for etude in book.toc:
                 if not isinstance(etude, Etude):
                     continue
