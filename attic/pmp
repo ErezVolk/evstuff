@@ -16,6 +16,8 @@ from typing import TextIO
 from typing import TypeAlias
 from typing import TypeVar
 
+# TODO: Keep refactoring so that folder==book==agenda
+
 
 @dataclass
 class Etude:
@@ -31,7 +33,7 @@ class Etude:
 
 
 Tome: TypeAlias = "Book | Agenda"
-Playable: TypeAlias = "Etude | Book"
+Playable: TypeAlias = "Etude | BookRef"
 TableOfContents: TypeAlias = list[Playable]
 PitchClass: TypeAlias = Sequence[str]
 
@@ -61,17 +63,17 @@ class Book(NamedTuple):
     toc: TableOfContents
 
 
-class Agendum(NamedTuple):
-    """A step in a agenda"""
+class BookRef(NamedTuple):
+    """A reference to a book"""
     book_name: str
-    num_etudes: int | None
+    num_etudes: int | None = None
 
 
 class Agenda(NamedTuple):
     """Like a practice plan for the day
     "do 3 of this book, then all of this book, etc."
     """
-    items: list[Agendum]
+    items: list[BookRef]
 
 
 DEFAULT_CONFIG = """
@@ -211,7 +213,6 @@ class PracticeMakesPerfect:
 
     all_tomes: dict[str, Tome]
     chooseroos: dict[str, Chooseroo]
-    report_book: bool = False
     book_name: str
 
     def main(self) -> None:
@@ -226,7 +227,6 @@ class PracticeMakesPerfect:
         self.configure()
         self.make_chooseroos()
 
-        self.report_book = self.args.verbose
         self.book_name = self.choose_tome()
         tome = self.all_tomes[self.book_name]
         if isinstance(tome, Book):
@@ -236,15 +236,15 @@ class PracticeMakesPerfect:
 
     def run_agenda(self, agenda: Agenda, spaced=True) -> None:
         """Run an agenda: A sequence of books"""
-        for agendum in agenda.items:
-            name = agendum.book_name
+        for ref in agenda.items:
+            name = ref.book_name
             tome = self.all_tomes[name]
             if isinstance(tome, Book):
                 self.book_name = name
                 self.run_book(
                     tome,
-                    num_tracks=agendum.num_etudes,
-                    one_of_each=agendum.num_etudes is None
+                    num_tracks=ref.num_etudes,
+                    one_of_each=ref.num_etudes is None
                 )
             elif isinstance(tome, Agenda):
                 self.run_agenda(tome, spaced=False)
@@ -263,18 +263,27 @@ class PracticeMakesPerfect:
         elif not num_tracks:
             num_tracks = len(self.PITCH_CLASSES)
 
-        if self.report_book:
+        if self.args.verbose:
             print(f"[{self.book_name} × {num_tracks}]")
 
-        etude_seq: list[Etude] = []
-        for playable in self.choose(playables, num_tracks):
-            while isinstance(playable, Book):
-                playable = random.choice(playable.toc)
-            etude_seq.append(playable)
-
+        etude_seq = self.choose_etudes(playables, num_tracks)
         track_seq = self.make_tracks(etude_seq)
 
         print(self.get_sep(track_seq).join(track_seq))
+
+    def choose_etudes(
+        self,
+        playables: TableOfContents,
+        count: int
+    ) -> Iterable[Etude]:
+        """Yields chosen etudes"""
+        for entry in self.choose(playables, count):
+            if isinstance(entry, Etude):
+                yield entry
+            else:
+                book = self.all_tomes[entry.book_name]
+                assert isinstance(book, Book)
+                yield from self.choose_etudes(book.toc, entry.num_etudes or 1)
 
     def choose_tome(self) -> str:
         """Pick out a tome"""
@@ -285,12 +294,12 @@ class PracticeMakesPerfect:
         else:
             pool = self.config.starred
             if len(pool) > 1:
-                self.report_book = True
+                self.args.verbose = True
         return random.choice(pool)
 
     def make_tracks(
         self,
-        etude_seq: list[Etude],
+        etude_seq: Iterable[Etude],
     ) -> list[str]:
         """Pick a key for each etude"""
         track_seq = []
@@ -405,8 +414,7 @@ class ConfigParser:
     class Folder(NamedTuple):
         """A book that just an amalgamation of other books"""
         line_num: int
-        allsies: set[str]  # Books swallowed in their entirety
-        onesies: set[str]  # Books from which a single etude is taken
+        refs: list[BookRef]
 
     books: dict[str, Book] = {}
     tomes: dict[str, Tome] = {}
@@ -496,13 +504,16 @@ class ConfigParser:
         if not playables:
             raise BadConfig(f"No playable in {name} (line {self.line_num})")
 
-        allsies = {one for one in playables if not one.startswith("@")}
-        onesies = {one[1:] for one in set(playables) - allsies}
-        self.folders[name] = self.Folder(
-            line_num=self.line_num,
-            allsies=allsies,
-            onesies=onesies,
-        )
+        refs: list[BookRef] = []
+        for playable in playables:
+            if (mobj := re.fullmatch(r"(?P<n>\d+)?@(?P<b>.*)", playable)):
+                if (nstr := mobj.group("n")):
+                    refs.append(BookRef(mobj.group("b"), int(nstr)))
+                else:
+                    refs.append(BookRef(mobj.group("b"), 1))
+            else:
+                refs.append(BookRef(playable))
+        self.folders[name] = self.Folder(line_num=self.line_num, refs=refs)
 
     PART_RE = r"(?P<at>(?P<num>[1-9]\d*)?@)?(?P<book>\S+)"
 
@@ -524,7 +535,7 @@ class ConfigParser:
                 num = 1
             else:
                 num = None
-            items.append(Agendum(num_etudes=num, book_name=mobj.group("book")))
+            items.append(BookRef(num_etudes=num, book_name=mobj.group("book")))
         self.tomes[name] = Agenda(items=items)
 
         if star == "*":
@@ -534,7 +545,8 @@ class ConfigParser:
         """Make sure no folder->folder links"""
         known = set(self.books)
         for name, folder in self.folders.items():
-            unknown = (folder.allsies | folder.onesies) - known
+            used = {ref.book_name for ref in folder.refs}
+            unknown = used - known
             if unknown:
                 unks = " ".join(unknown)
                 raise BadConfig(
@@ -545,11 +557,7 @@ class ConfigParser:
     def convert_folders(self) -> None:
         """Convert the folders to books"""
         for name, folder in self.folders.items():
-            items: TableOfContents
-            items = [self.books[onesie] for onesie in folder.onesies]
-            for allsie in folder.allsies:
-                items.extend(self.books[allsie].toc)
-            self.tomes[name] = self.books[name] = Book(items)
+            self.tomes[name] = self.books[name] = Book(list(folder.refs))
 
 
 if __name__ == "__main__":
