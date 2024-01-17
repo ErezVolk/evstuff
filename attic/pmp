@@ -16,7 +16,7 @@ from typing import TextIO
 from typing import TypeAlias
 from typing import TypeVar
 
-# TODO: Keep refactoring so that folder==book==agenda
+# TODO: Keep refactoring so that book==agenda
 
 
 @dataclass
@@ -73,7 +73,7 @@ class Agenda(NamedTuple):
     """Like a practice plan for the day
     "do 3 of this book, then all of this book, etc."
     """
-    items: list[BookRef]
+    toc: TableOfContents
 
 
 DEFAULT_CONFIG = """
@@ -236,7 +236,8 @@ class PracticeMakesPerfect:
 
     def run_agenda(self, agenda: Agenda, spaced=True) -> None:
         """Run an agenda: A sequence of books"""
-        for ref in agenda.items:
+        for ref in agenda.toc:
+            assert isinstance(ref, BookRef)
             name = ref.book_name
             tome = self.all_tomes[name]
             if isinstance(tome, Book):
@@ -525,7 +526,7 @@ class ConfigParser:
         if name in self.tomes:
             raise BadConfig(f"Duplicate name: {repr(name)}")
 
-        items = []
+        toc = []
         for part in parts:
             if not (mobj := re.fullmatch(self.PART_RE, part)):
                 raise BadConfig(f"Bad {repr(part)} (line {self.line_num})")
@@ -535,8 +536,8 @@ class ConfigParser:
                 num = 1
             else:
                 num = None
-            items.append(BookRef(num_etudes=num, book_name=mobj.group("book")))
-        self.tomes[name] = Agenda(items=items)
+            toc.append(BookRef(num_etudes=num, book_name=mobj.group("book")))
+        self.tomes[name] = Agenda(toc=toc)
 
         if star == "*":
             self.starred.append(name)

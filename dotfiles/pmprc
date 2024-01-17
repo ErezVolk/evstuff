@@ -3,7 +3,7 @@
 warmup = [ @warmupInterval @warmupHarvey @warmupMode @warmupScale ]
 intonation = { @oneStringScale }
 keep = { @keepSteveInterval @keepSteve3rdHazards @keepSteve6thHazards @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
-revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci }
+revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci reviseOther }
 chops = [ @chopsRight @chopsLeft ]
 hazard = { @keepSteve3rdHazards @keepSteve6thHazards }
 
@@ -39,8 +39,8 @@ homeworkTechnical:
   Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
 
 homeworkOnePiece:  # Try to keep this to one!
-  Bach I. Prelude, last played at ♩=76: NONE
   Melodic Étude in E♭ Major (p.10): NONE
+  JP@AW 1.40 Basic Etude in E♭ Minor (2. solo, 3. samba feel): NONE
 
 _melodicToDo:
   Melodic Étude in A♭ Major (p.11): NONE
@@ -211,8 +211,7 @@ revisePatitucci:
   JP@AW 1.36 Basic Etude in G Major (2. two-feel, 3. solo): NONE
   JP@AW 1.37 Basic Etude in C Minor (2. solo, 3+4. walk): NONE
   JP@AW 1.38 Basic Etude in F Minor (2+3. Baião): NONE
-  #TBD# JP@AW 1.39 Basic Etude in B♭ Minor (2. two-feel, 3. solo): NONE
-  #TBD# JP@AW 1.40 Basic Etude in E♭ Minor (2. solo, 3. samba feel): NONE
+  JP@AW 1.39 Basic Etude in B♭ Minor (2. two-feel, 3. solo): NONE
   #TBD# JP@AW 1.41 Basic Etude in G♯ Minor (2. solo, 3. two-feel): NONE
   #TBD# JP@AW 1.42 Basic Etude in C♯ Minor (2+3. 6/8 bass line): NONE
   #TBD# JP@AW 1.43 Basic Etude in F♯ Minor (2. bass line, 3. solo): NONE
@@ -224,6 +223,12 @@ revisePatitucci:
   #TBD# JP@AW 1.49 Bolero (Slow): NONE
   #TBD# JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
   #TBD# JP@AW 1.52 Bossa Nova (Slow): NONE
+
+reviseOther:
+  Bach I. Prelude, last played at ♩=76: NONE
+
+otherToDo:
+  Bach I. Allemande: NONE
 
 book:
   Radley ctd.: NONE
