@@ -2,11 +2,13 @@
 """Practice Makes Perfect"""
 import argparse
 from dataclasses import dataclass
+import graphlib
 import io
 from pathlib import Path
 import random
 import re
 
+from collections import defaultdict
 from collections.abc import Container
 from collections.abc import Iterable
 from collections.abc import Sequence
@@ -363,6 +365,7 @@ class PracticeMakesPerfect:
         except (FileNotFoundError, ValueError):
             self.config = self.parse_config(io.StringIO(DEFAULT_CONFIG))
         self.all_books = self.config.books
+        self.check_refs()
 
     def make_chooseroos(self) -> None:
         """Prepare randomizers"""
@@ -395,6 +398,26 @@ class PracticeMakesPerfect:
             self.fail(str(err))
             raise err  # Won't happen, just to appease pyright
 
+    def check_refs(self) -> None:
+        """Check configured graph is legit"""
+        graph = defaultdict(set)
+        for name, book in self.all_books.items():
+            for ref in book.toc:
+                if isinstance(ref, BookRef):
+                    graph[ref.book_name].add(name)
+        if (missing := graph.keys() - self.all_books.keys()):
+            error = (
+                f"{name} (used by {', '.join(graph[name])})"
+                for name in missing
+            )
+            self.fail(f"Unknown reference(s): {', '.join(error)}")
+
+        try:
+            topo = graphlib.TopologicalSorter(graph)
+            topo.prepare()
+        except graphlib.CycleError as exc:
+            self.fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
+
     def fail(self, message: str) -> NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
         self.parser.error(message)
@@ -406,13 +429,7 @@ class BadConfig(ValueError):
 
 class ConfigParser:
     """Read configuration file"""
-    class Folder(NamedTuple):
-        """A book that just an amalgamation of other books"""
-        line_num: int
-        refs: list[BookRef]
-
     books: dict[str, Book] = {}
-    folders: dict[str, Folder] = {}
     starred: list[str] = []
     curr: Book | None = None
     line_num: int
@@ -461,9 +478,6 @@ class ConfigParser:
             elif not self.match(r""):
                 raise BadConfig(f"Bad line {self.line_num}: {repr(self.line)}")
 
-        self.check_no_loops()
-        self.convert_folders()
-
         return Configuration(
             books=self.books,
             starred=self.starred or list(self.books),
@@ -498,16 +512,19 @@ class ConfigParser:
         if not playables:
             raise BadConfig(f"No playable in {name} (line {self.line_num})")
 
-        refs: list[BookRef] = []
+        if name in self.books:
+            raise BadConfig(f"Duplicate name: {repr(name)}")
+
+        toc: TableOfContents = []
         for playable in playables:
             if (mobj := re.fullmatch(r"(?P<n>\d+)?@(?P<b>.*)", playable)):
                 if (nstr := mobj.group("n")):
-                    refs.append(BookRef(mobj.group("b"), int(nstr)))
+                    toc.append(BookRef(mobj.group("b"), int(nstr)))
                 else:
-                    refs.append(BookRef(mobj.group("b"), 1))
+                    toc.append(BookRef(mobj.group("b"), 1))
             else:
-                refs.append(BookRef(playable))
-        self.folders[name] = self.Folder(line_num=self.line_num, refs=refs)
+                toc.append(BookRef(playable))
+        self.books[name] = Book(toc=toc, sequential=False)
 
     PART_RE = r"(?P<at>(?P<num>[1-9]\d*)?@)?(?P<book>\S+)"
 
@@ -519,7 +536,7 @@ class ConfigParser:
         if name in self.books:
             raise BadConfig(f"Duplicate name: {repr(name)}")
 
-        toc = []
+        toc: TableOfContents = []
         for part in parts:
             if not (mobj := re.fullmatch(self.PART_RE, part)):
                 raise BadConfig(f"Bad {repr(part)} (line {self.line_num})")
@@ -534,24 +551,6 @@ class ConfigParser:
 
         if star == "*":
             self.starred.append(name)
-
-    def check_no_loops(self) -> None:
-        """Make sure no folder->folder links"""
-        known = set(self.books)
-        for name, folder in self.folders.items():
-            used = {ref.book_name for ref in folder.refs}
-            unknown = used - known
-            if unknown:
-                unks = " ".join(unknown)
-                raise BadConfig(
-                    f"Unknown playable(s) on line {folder.line_num}: "
-                    f"{unks} in folder {name}"
-                )
-
-    def convert_folders(self) -> None:
-        """Convert the folders to books"""
-        for name, folder in self.folders.items():
-            self.books[name] = self.books[name] = Book(list(folder.refs))
 
 
 if __name__ == "__main__":
