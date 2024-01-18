@@ -405,12 +405,13 @@ class PracticeMakesPerfect:
             for ref in book.toc:
                 if isinstance(ref, BookRef):
                     graph[ref.book_name].add(name)
+
         if (missing := graph.keys() - self.all_books.keys()):
-            error = (
+            error = ", ".join(
                 f"{name} (used by {', '.join(graph[name])})"
                 for name in missing
             )
-            self.fail(f"Unknown reference(s): {', '.join(error)}")
+            self.fail(f"Unknown reference(s): {error}")
 
         try:
             topo = graphlib.TopologicalSorter(graph)
