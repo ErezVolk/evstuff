@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
 import argparse
-from dataclasses import dataclass
+import dataclasses as dc
 import graphlib
 import io
 from pathlib import Path
@@ -12,18 +12,30 @@ from collections import defaultdict
 from collections.abc import Container
 from collections.abc import Iterable
 from collections.abc import Sequence
+from typing import Generic
 from typing import NamedTuple
 from typing import NoReturn
 from typing import TextIO
 from typing import TypeAlias
 from typing import TypeVar
 
+# TO DO:
+# - "{} major on the {} string: major * E|A|D|G"
+# - Support {}->[]
 
-@dataclass
+
+T = TypeVar("T")
+Playable: TypeAlias = "Etude | BookRef"
+TableOfContents: TypeAlias = list[Playable]
+PitchClass: TypeAlias = Sequence[str]
+
+
+@dc.dataclass  # pylint: disable-next=too-few-public-methods
 class Etude:
     """A concrete etude, e.g., 'minor pentatonic'"""
     name: str
     keys: str | list[str]
+    mnem: str = dc.field(init=False)
 
     def __post_init__(self):
         if isinstance(self.keys, str):
@@ -32,35 +44,40 @@ class Etude:
             self.mnem = "|".join(sorted(self.keys))
 
 
-Playable: TypeAlias = "Etude | BookRef"
-TableOfContents: TypeAlias = list[Playable]
-PitchClass: TypeAlias = Sequence[str]
-
-
 # pylint: disable-next=too-few-public-methods
-class Chooseroo:
+class Chooseroo(Generic[T]):
     """Chooses from a defined pool, minimizing repetitions"""
-    pool: list[PitchClass | str]
-    unused: list[PitchClass | str] | None = None
+    pool: list[T]
+    unused: list[T] | None = None
 
-    def __init__(self, pool: Iterable[PitchClass | str]):
+    def __init__(self, pool: Iterable[T]):
         self.pool = list(pool)
 
-    def get(self) -> str:
+    def get(self) -> T:
         """Get the next item"""
         if not self.unused:
             self.unused = list(self.pool)
             random.shuffle(self.unused)
-        item = self.unused.pop()
-        if isinstance(item, str):
-            return item
-        return random.choice(item)
+        return self.unused.pop()
 
 
-class Book(NamedTuple):
+@dc.dataclass  # pylint: disable-next=too-few-public-methods
+class Book:
     """A collections of etudes or pointers to other books"""
     toc: TableOfContents
     sequential: bool = False
+    chooseroo: Chooseroo[Playable] = dc.field(init=False)
+
+    def __post_init__(self):
+        self.make_chooseroo()
+
+    def append(self, playable: Playable):
+        """Add an entry to the TOC"""
+        self.toc.append(playable)
+
+    def make_chooseroo(self):
+        """(Re)create the chooseroo"""
+        self.chooseroo = Chooseroo(self.toc)
 
 
 class BookRef(NamedTuple):
@@ -161,8 +178,6 @@ class PracticeMakesPerfect:
         self.args = parser.parse_args()
         self.parser = parser
 
-    T = TypeVar("T")
-
     _LETTERS = "CDEFGAB"
     _MODES = (
         "ionian",
@@ -262,24 +277,29 @@ class PracticeMakesPerfect:
         if self.args.verbose:
             print(f"[{self.book_name} × {num_tracks}]")
 
-        etude_seq = self.choose_etudes(playables, num_tracks)
+        chooseroo = Chooseroo(playables)
+        etude_seq = self.choose_etudes(chooseroo, num_tracks)
         track_seq = self.make_tracks(etude_seq)
 
         print(self.get_sep(track_seq).join(track_seq))
 
     def choose_etudes(
         self,
-        playables: TableOfContents,
+        chooseroo: Chooseroo[Playable],
         count: int
     ) -> Iterable[Etude]:
         """Yields chosen etudes"""
-        for entry in self.choose(playables, count):
+        for _ in range(count):
+            entry = chooseroo.get()
             if isinstance(entry, Etude):
                 yield entry
             else:
                 book = self.all_books[entry.book_name]
                 assert not book.sequential
-                yield from self.choose_etudes(book.toc, entry.num_etudes or 1)
+                yield from self.choose_etudes(
+                    book.chooseroo,
+                    entry.num_etudes or 1
+                )
 
     def choose_book(self) -> str:
         """Pick out a book"""
@@ -306,6 +326,8 @@ class PracticeMakesPerfect:
     def make_track(self, etude: Etude) -> str:
         """Pick a key for one etude"""
         key = self.chooseroos[etude.mnem].get()
+        if not isinstance(key, str):  # e.g., ("C♯", "D♭")
+            key = random.choice(key)
         if "{}" in etude.name:
             return etude.name.replace("{}", key)
         return f"{key}{etude.name}"
@@ -384,9 +406,9 @@ class PracticeMakesPerfect:
             for etude in book.toc:
                 if not isinstance(etude, Etude):
                     continue
-                if etude.mnem in self.chooseroos:
-                    continue
                 if not isinstance(etude.keys, list):
+                    continue
+                if etude.mnem in self.chooseroos:
                     continue
                 self.chooseroos[etude.mnem] = Chooseroo(etude.keys)
 
@@ -407,7 +429,7 @@ class PracticeMakesPerfect:
                     continue
                 other = ref.book_name
                 if self.all_books[other].sequential and not book.sequential:
-                    self.fail(f"Book->agenda not supported ({name}->{other})")
+                    self.fail(f"{name}{{}}->{other}[] not supported")
                 graph[other].add(name)
 
         if (missing := graph.keys() - self.all_books.keys()):
@@ -477,6 +499,9 @@ class ConfigParser:
             elif not self.match(r""):
                 raise BadConfig(f"Bad line {self.line_num}: {repr(self.line)}")
 
+        for book in self.books.values():
+            book.make_chooseroo()
+
         return Configuration(
             books=self.books,
             starred=self.starred or list(self.books),
@@ -499,9 +524,9 @@ class ConfigParser:
         if name and name[0] in "'\"" and name[-1] == name[0]:
             name = name[1:-1]
         if scale in self.known_scales:
-            self.curr.toc.append(Etude(name=name, keys=scale))
+            self.curr.append(Etude(name=name, keys=scale))
         else:
-            self.curr.toc.append(Etude(
+            self.curr.append(Etude(
                 name=name,
                 keys=[key.strip() for key in scale.split("|")],
             ))

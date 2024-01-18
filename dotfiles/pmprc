@@ -2,10 +2,10 @@
 
 warmup = [ @warmupInterval @warmupHarvey @warmupMode @warmupScale ]
 intonation = { @oneStringScale }
-keep = { @keepSteveInterval @keepSteve3rdHazards @keepSteve6thHazards @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
+keep = { @keepSteveInterval @keepSteveHazards @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci reviseOther }
 chops = [ @chopsRight @chopsLeft ]
-hazard = { @keepSteve3rdHazards @keepSteve6thHazards }
+hazard = { keepSteveHazards }
 
 note:
   : ANY
@@ -18,12 +18,12 @@ chord:
   M⁷: major
 
 warmupInterval:
-  Octaves on the {} string: E|A
-  Fifths on the {} string: E|A
+  8ths drill on the {} strings: E+D|A+G
+  5ths drill on the {} strings: E+A|A+D|D+G
 
 warmupHarvey:
   # ' Minor Harvey from C': Natural|Harmonic|Melodic  # Not a good idea, because Harvey needs to be sung!
-  Harvey from {}: G|C
+  Harvey from {}Δ: G|C
 
 warmupMode:
   -major modes: major
@@ -47,7 +47,10 @@ _melodicToDo:
   Melodic Étude in D♭ Major (p.12): NONE
 
 oneStringScale:
-  -major on one string: major
+  -major on the E string: major
+  -major on the A string: major
+  -major on the D string: major
+  -major on the G string: major
 
 keepRayBrown:
   Ray Brown's Blues (p.100), {} pattern: A+B|C|D|E|F
@@ -102,20 +105,17 @@ _rayBrownToDo:  # As I work through the book
 keepSteveInterval:
   8ths drill on the {} strings: E+D|A+G
   5ths drill on the {} strings: E+A|A+D|D+G
-  4ths drill on the {} strings: E+E|A+D|D+G
-  3rds drill on the {} strings: E+E|A+D|D+G
+  4ths drill on the {} strings: E+A|A+D|D+G
+  3rds drill on the {} strings: E+A|A+D|D+G
   6ths drill on the {} strings: E+D|A+G
-  minor 6ths drill on the {} strings: E+A/D|A+D/G
-  10ths drill on the {} strings: E+G
+  Minor 6ths drill on the {} strings: E+A/D|A+D/G
+  10ths drill on the E+G strings: NONE
 
-keepSteve3rdHazards:
-  Hazard 3rds, {}: 2-1-4-3|4-1-2-3
-  Hazard 3rds, {}: 1-4-3-2|2-1-4-3|1-2-3-4|4-3-2-1
-
-keepSteve6thHazards:
-  Hazard 6ths (Ex 2 on p.14), {}: 2-1-4-3
-  Hazard 6ths (Ex 3A on p.15), {}: 1-2-3-4
-  Hazard 6ths (Ex 3B on p.15), {}: 4-3-2-1
+keepSteveHazards:
+  Hazard 3rds, {}: 2-1-4-3 (p11:2)|4-1-2-3 (p12:3A)|1-3-4-2 (p12:3B)|1-4-3-2 (p12:3C)
+  Hazard minor 3rds (p.12), {}: 1-4-3-1 (Ex.4)|1-4-1-3 (Ex.4A)|3-1-4-1 (Ex.4B)
+  Hazard 6ths, {}: 2-1-4-3 (p14:2)|1-2-3-4 (p15:3A)|4-3-2-1 (p15:3B)
+  Hazard minor 6ths, {}: 1-4-3-1 (p15:4A)
 
 keepSteveScaleIn10ths:
   -major in 10th double stops (p.13): major
@@ -136,10 +136,10 @@ keepSteveSlide2nd:
   -minor zig-zag slides in fifths (Ex 5B on p.19): minor
 
 keepSteveSlide3rd:
-  Slides in 3rds (p21/3) on the {} strings: D-A|A-G|E-A
-  Slides in 3rds (p22/4A) on the {} strings: D-A|A-G|E-A
-  Slides in 3rds (p22/4B) on the {} strings: D-A|A-G|E-A
-  Slides in 3rds (p22/4C) on the {} strings: D-A|A-G|E-A
+  Slides in 3rds (p21/3) on the {} strings: E+A|A+D|D+G
+  Slides in 3rds (p22/4A) on the {} strings: E+A|A+D|D+G
+  Slides in 3rds (p22/4B) on the {} strings: E+A|A+D|D+G
+  Slides in 3rds (p22/4C) on the {} strings: E+A|A+D|D+G
   1-2-3-2-3-4... slides (p22/4D) on the {} string: E|A|D|G
 
 _steveToDo:  # As I work through the book
