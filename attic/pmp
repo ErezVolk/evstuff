@@ -403,8 +403,12 @@ class PracticeMakesPerfect:
         graph = defaultdict(set)
         for name, book in self.all_books.items():
             for ref in book.toc:
-                if isinstance(ref, BookRef):
-                    graph[ref.book_name].add(name)
+                if not isinstance(ref, BookRef):
+                    continue
+                other = ref.book_name
+                if self.all_books[other].sequential and not book.sequential:
+                    self.fail(f"Book->agenda not supported ({name}->{other})")
+                graph[other].add(name)
 
         if (missing := graph.keys() - self.all_books.keys()):
             error = ", ".join(
@@ -464,6 +468,8 @@ class ConfigParser:
                     name=self.group(1).strip(),
                     scale=self.group(2).strip(),
                 )
+            elif self.match(f"\\s+{self.PART_RE}\\s*") and self.group("at"):
+                self.add_ref()
             elif self.match(r"(?P<name>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"):
                 self.add_one_liner(sequential=False)
             elif self.match(r"(?P<name>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
@@ -500,6 +506,13 @@ class ConfigParser:
                 keys=[key.strip() for key in scale.split("|")],
             ))
 
+    def add_ref(self) -> None:
+        """Add book reference line (in self.mobj)"""
+        if self.curr is None:
+            raise BadConfig(f"Bookless reference in line {self.line_num}")
+        assert self.mobj is not None
+        self.add_ref_to(self.curr.toc, self.mobj)
+
     def add_one_liner(self, sequential: bool) -> None:
         """A one-liner is in `self.group("name" | "parts")`"""
         name = self.group("name").strip()
@@ -516,17 +529,21 @@ class ConfigParser:
         for part in parts:
             if not (mobj := re.fullmatch(self.PART_RE, part)):
                 raise BadConfig(f"Bad {repr(part)} (line {self.line_num})")
-            if (nstr := mobj.group("num")):
-                num = int(nstr)
-            elif mobj.group("at"):
-                num = 1
-            else:
-                num = None
-            toc.append(BookRef(num_etudes=num, book_name=mobj.group("book")))
+            self.add_ref_to(toc, mobj)
         self.books[name] = Book(toc=toc, sequential=sequential)
 
         if starred:
             self.starred.append(name)
+
+    def add_ref_to(self, toc: TableOfContents, mobj: re.Match):
+        """Add book reference to a give TOC"""
+        if (nstr := mobj.group("num")):
+            num = int(nstr)
+        elif mobj.group("at"):
+            num = 1
+        else:
+            num = None
+        toc.append(BookRef(num_etudes=num, book_name=mobj.group("book")))
 
 
 if __name__ == "__main__":
