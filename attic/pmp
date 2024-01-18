@@ -450,6 +450,8 @@ class ConfigParser:
         assert self.mobj is not None
         return self.mobj.group(group)
 
+    PART_RE = r"(?P<at>(?P<num>[1-9]\d*)?@)?(?P<book>\S+)"
+
     def parse(self, stream: TextIO) -> "Configuration":
         """Read configuration file"""
         for self.line_num, line in enumerate(stream, 1):
@@ -463,19 +465,9 @@ class ConfigParser:
                     scale=self.group(2).strip(),
                 )
             elif self.match(r"(?P<name>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"):
-                self.add_folder(
-                    name=self.group("name").strip(),
-                    playables=[
-                        part.strip()
-                        for part in self.group("parts").split()
-                    ],
-                )
-            elif self.match(r"([*]?)([^=]*)\s*=\s*\[([^]]*)\]"):
-                self.add_agenda(
-                    star=self.group(1),
-                    name=self.group(2).strip(),
-                    parts=[part.strip() for part in self.group(3).split()],
-                )
+                self.add_one_liner(sequential=False)
+            elif self.match(r"(?P<name>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
+                self.add_one_liner(sequential=True)
             elif not self.match(r""):
                 raise BadConfig(f"Bad line {self.line_num}: {repr(self.line)}")
 
@@ -508,34 +500,17 @@ class ConfigParser:
                 keys=[key.strip() for key in scale.split("|")],
             ))
 
-    def add_folder(self, name: str, playables: Sequence[str]) -> None:
-        """Found a folder line"""
-        if not playables:
-            raise BadConfig(f"No playable in {name} (line {self.line_num})")
-
+    def add_one_liner(self, sequential: bool) -> None:
+        """A one-liner is in `self.group("name" | "parts")`"""
+        name = self.group("name").strip()
+        if (starred := name.startswith("*")):
+            name = name[1:]
         if name in self.books:
-            raise BadConfig(f"Duplicate name: {repr(name)}")
+            raise BadConfig(f"Duplicate {repr(name)} (line {self.line_num})")
 
-        toc: TableOfContents = []
-        for playable in playables:
-            if (mobj := re.fullmatch(r"(?P<n>\d+)?@(?P<b>.*)", playable)):
-                if (nstr := mobj.group("n")):
-                    toc.append(BookRef(mobj.group("b"), int(nstr)))
-                else:
-                    toc.append(BookRef(mobj.group("b"), 1))
-            else:
-                toc.append(BookRef(playable))
-        self.books[name] = Book(toc=toc, sequential=False)
-
-    PART_RE = r"(?P<at>(?P<num>[1-9]\d*)?@)?(?P<book>\S+)"
-
-    def add_agenda(self, star: str, name: str, parts: Sequence[str]) -> None:
-        """Found a agenda line"""
+        parts = self.group("parts").split()
         if not parts:
-            raise BadConfig(f"No book in agenda {name} (line {self.line_num})")
-
-        if name in self.books:
-            raise BadConfig(f"Duplicate name: {repr(name)}")
+            raise BadConfig(f"Empty one-liner {name} (line {self.line_num})")
 
         toc: TableOfContents = []
         for part in parts:
@@ -548,9 +523,9 @@ class ConfigParser:
             else:
                 num = None
             toc.append(BookRef(num_etudes=num, book_name=mobj.group("book")))
-        self.books[name] = Book(toc=toc, sequential=True)
+        self.books[name] = Book(toc=toc, sequential=sequential)
 
-        if star == "*":
+        if starred:
             self.starred.append(name)
 
 
