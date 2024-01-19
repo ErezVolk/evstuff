@@ -2,7 +2,7 @@
 
 warmup = [ @warmupInterval @warmupHarvey @warmupMode @warmupScale ]
 intonation = { @oneStringScale }
-keep = { @keepSteveInterval @keepSteveHazards @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
+keep = { @keepSteveInterval @keepSteveHazards @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveScaleIn4ths @keepSteveSlide4th @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci reviseOther }
 chops = [ @chopsRight @chopsLeft ]
 hazard = { keepSteveHazards }
@@ -37,10 +37,11 @@ warmupScale:
 homeworkTechnical:
   Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
   Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
+  {}-major Diatonic slides in 4ths 1437-2541-3652-... (p.23:2A): major
 
 homeworkMusic:  # Try to keep this to one!
   Melodic Étude in E♭ Major (p.10): NONE
-  JP@AW 1.42 Basic Etude in C♯ Minor (2+3. 6/8 bass line): NONE
+  JP@AW 1.43 Basic Etude in F♯ Minor (2. bass line, 3. solo): NONE
 
 _melodicToDo:
   Melodic Étude in A♭ Major (p.11): NONE
@@ -142,6 +143,9 @@ keepSteveSlide3rd:
   Slides in 3rds (p22/4C) on the {} strings: E+A|A+D|D+G
   1-2-3-2-3-4... slides (p22/4D) on the {} string: E|A|D|G
 
+keepSteveSlide4th:
+  {}-major Diatonic Slides in 4th: major
+
 _steveToDo:  # As I work through the book
   -major slides in 4ths (p23/1): major
 
@@ -214,7 +218,7 @@ revisePatitucci:
   JP@AW 1.39 Basic Etude in B♭ Minor (2. two-feel, 3. solo): NONE
   JP@AW 1.40 Basic Etude in E♭ Minor (2. solo, 3. samba feel): NONE
   JP@AW 1.41 Basic Etude in G♯ Minor (2. solo, 3. two-feel): NONE
-  #TBD# JP@AW 1.43 Basic Etude in F♯ Minor (2. bass line, 3. solo): NONE
+  JP@AW 1.42 Basic Etude in C♯ Minor (2+3. 6/8 bass line): NONE
   #TBD# JP@AW 1.44 Basic Etude in B Minor (2. two-feel, 3. solo): NONE
   #TBD# JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
   #TBD# JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
@@ -236,11 +240,11 @@ book:
   Baroque ctd.: NONE
   Simandl Études ctd.: NONE
   John P's course ctd.: NONE
+  Carol Kaye ctd.: NONE
 
 _bookToDo:  # When I'm good enough?
   Pelczar's Bach: NONE  # Needs to be done seriously, but I could work on it
   JP's Walking Bass: NONE  # After his course? Or maybe instead?
-  " book by CK": 1st|2nd|3rd|5th|Howto  # Hm.
   Mike Downes: NONE  # Too much self-reliance? Or maybe it eats up all the rest?
   Blues Grooves: NONE  # Take a look?
   Improviser's Bass Book: NONE  # Loses to JP+Dones? But Harvey likes it
@@ -260,7 +264,7 @@ chopsLeft:
   L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75↓7↑2: NONE
   L-Dexterity I.5 (p5) ♫@80~120 1365.2465|3565.7542: NONE
   L-Dexterity I.6 (p5) ♫@80~120 1365.4265|3165.42↓67: NONE
-  L-Dexterity I.7 (p5) ♫@80~120 1865.5645|3823.18↓7↑2: NONE
+  L-Dexterity I.7 (p5) ♫@80~120 1867.5645|3823.18↓7↑2: NONE
   L-Dexterity I.8 (p5) ♫@80~120 1653.4652|1875.6523: NONE
   L-Dexterity I.9 (p6) ♫@80~120 1875.6758|6756.4532: NONE
   L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
