@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
 import argparse
-import dataclasses as dc
+import dataclasses
 import graphlib
 import io
 from pathlib import Path
@@ -20,7 +20,7 @@ from typing import TypeAlias
 from typing import TypeVar
 
 # TO DO:
-# - "{} major on the {} string: major * E|A|D|G"
+# - "{}-major on the {} string: {major} {E|A|D|G}"
 # - Support {}->[]
 
 
@@ -30,12 +30,12 @@ TableOfContents: TypeAlias = list[Playable]
 PitchClass: TypeAlias = Sequence[str]
 
 
-@dc.dataclass  # pylint: disable-next=too-few-public-methods
+@dataclasses.dataclass
 class Etude:
     """A concrete etude, e.g., 'minor pentatonic'"""
     name: str
     keys: str | list[str]
-    mnem: str = dc.field(init=False)
+    mnem: str = dataclasses.field(init=False)
 
     def __post_init__(self):
         if isinstance(self.keys, str):
@@ -44,14 +44,11 @@ class Etude:
             self.mnem = "|".join(sorted(self.keys))
 
 
-# pylint: disable-next=too-few-public-methods
+@dataclasses.dataclass
 class Chooseroo(Generic[T]):
     """Chooses from a defined pool, minimizing repetitions"""
     pool: list[T]
-    unused: list[T] | None = None
-
-    def __init__(self, pool: Iterable[T]):
-        self.pool = list(pool)
+    unused: list[T] | None = dataclasses.field(default=None, init=False)
 
     def get(self) -> T:
         """Get the next item"""
@@ -61,15 +58,12 @@ class Chooseroo(Generic[T]):
         return self.unused.pop()
 
 
-@dc.dataclass  # pylint: disable-next=too-few-public-methods
+@dataclasses.dataclass
 class Book:
     """A collections of etudes or pointers to other books"""
     toc: TableOfContents
     sequential: bool = False
-    chooseroo: Chooseroo[Playable] = dc.field(init=False)
-
-    def __post_init__(self):
-        self.make_chooseroo()
+    chooseroo: Chooseroo[Playable] = dataclasses.field(init=False)
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
@@ -403,6 +397,7 @@ class PracticeMakesPerfect:
         }
         self.chooseroos["NONE"] = Chooseroo([""])
         for book in self.all_books.values():
+            book.make_chooseroo()
             for etude in book.toc:
                 if not isinstance(etude, Etude):
                     continue
@@ -498,9 +493,6 @@ class ConfigParser:
                 self.add_one_liner(sequential=True)
             elif not self.match(r""):
                 raise BadConfig(f"Bad line {self.line_num}: {repr(self.line)}")
-
-        for book in self.books.values():
-            book.make_chooseroo()
 
         return Configuration(
             books=self.books,
