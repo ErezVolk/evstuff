@@ -3,20 +3,13 @@
 warmup = [ @warmupInterval @warmupHarvey @warmupMode @warmupScale ]
 intonation = { @oneStringScale }
 keep = { @keepSteveInterval @keepSteveHazards @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveScaleIn4ths @keepSteveSlide4th @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
-revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl revisePatitucci reviseOther }
+revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther }
 chops = [ @chopsRight @chopsLeft ]
 hazard = { keepSteveHazards }
 
-note:
-  : ANY
-
-chord:
-  Δ: major
-  m: minor
-  ⁷: major
-  m⁷: minor
-  M⁷: major
-
+#
+# Warmup Selection
+#
 warmupInterval:
   8ths drill on the {} strings: E+D|A+G
   5ths drill on the {} strings: E+A|A+D|D+G
@@ -34,18 +27,23 @@ warmupScale:
   -Natural Minor Scale: minor
   Whole Tone Scale from {}: ANY
 
-homeworkTechnical:
-  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
-  Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
-  {}-major Diatonic slides in 4ths 1437-2541-3652-... (p.23:2A): major
+#
+# Technical things to keep by practicing
+#
 
-homeworkMusic:  # Try to keep this to one!
-  Melodic Étude in E♭ Major (p.10): NONE
-  JP@AW 1.43 Basic Etude in F♯ Minor (2. bass line, 3. solo): NONE
-
-_melodicToDo:
-  Melodic Étude in A♭ Major (p.11): NONE
-  Melodic Étude in D♭ Major (p.12): NONE
+arpeggio:
+  Δ: major
+  m: minor
+  ⁷: major
+  m⁷: minor
+  M⁷: major
+  -major pentatonic: major
+  -minor pentatonic: minor
+  ᴼ⁷: minor
+  aug⁷: major
+  ⁹: major
+  maj⁹: major
+  min⁹: minor
 
 oneStringScale:
   -major on the E string: major
@@ -65,44 +63,6 @@ keepRayBrown:
   Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), starting from {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 
-_rayBrownToDo:  # As I work through the book
-  Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
-  Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
-  Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
-  Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
-  Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
-  Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
-  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
-  Ray Brown's Diminished Exercise (p.79): NONE
-  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
-  Ray Brown's Diminished Exercise (p.82): NONE
-  Ray Brown's Diminished Exercise (p.83): NONE
-  Ray Brown's Diminished Exercise (Solo) (p.84): NONE
-  Ray Brown's Diminished Exercise (p.85): NONE
-  Ray Brown's Augmented Exercise (p.92): NONE
-  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
-  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
-  Ray Brown's Augmented Exercise (p.97, top 2): NONE
-  Ray Brown's Augmented Exercise (p.97, bottom 2): NONE
-  Ray Brown's Augmented Exercise (p.98): NONE
-  Ray Brown's Solo Exercise (p.118): NONE
-  Ray Brown's Solo Exercise (p.119): NONE
-  Ray Brown's Exercise in Fourths (p.120): NONE
-  Ray Brown's Exercise in Fourths (p.121): NONE
-  Ray Brown's Exercise in Fourths (p.122): NONE
-  Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
-  Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
-  Ray Brown's Exercise (Solo) (p.125-126): NONE
-  Ray Brown's Exercise (Solo) (p.127-128): NONE
-  Ray Brown's Exercise (Solo) (p.129): NONE
-  Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
-  Ray Brown's Exercise in Fourths (Solo) (p.131): NONE
-  Ray Brown's Exercise (p.133): NONE
-  Ray Brown's Arpeggios for Endings (p.134): NONE
-  Ray Brown's Triplet Exercise for Solos (p.135): NONE
-
 keepSteveInterval:
   8ths drill on the {} strings: E+D|A+G
   5ths drill on the {} strings: E+A|A+D|D+G
@@ -113,10 +73,10 @@ keepSteveInterval:
   10ths drill on the E+G strings: NONE
 
 keepSteveHazards:
-  Hazard 3rds, {}: 2-1-4-3 (p11:2)|4-1-2-3 (p12:3A)|1-3-4-2 (p12:3B)|1-4-3-2 (p12:3C)
+  Hazard 3rds, {}: 2-1-4-3 (p11/2)|4-1-2-3 (p12/3A)|1-3-4-2 (p12/3B)|1-4-3-2 (p12/3C)
   Hazard minor 3rds (p.12), {}: 1-4-3-1 (Ex.4)|1-4-1-3 (Ex.4A)|3-1-4-1 (Ex.4B)
-  Hazard 6ths, {}: 2-1-4-3 (p14:2)|1-2-3-4 (p15:3A)|4-3-2-1 (p15:3B)
-  Hazard minor 6ths, {}: 1-4-3-1 (p15:4A)
+  Hazard 6ths, {}: 2-1-4-3 (p14/2)|1-2-3-4 (p15/3A)|4-3-2-1 (p15/3B)
+  Hazard minor 6ths, {}: 1-4-3-1 (p15/4A)
 
 keepSteveScaleIn10ths:
   -major in 10th double stops (p.13): major
@@ -146,18 +106,112 @@ keepSteveSlide3rd:
 keepSteveSlide4th:
   {}-major Diatonic Slides of 4th half notes (1-4|4-1|2-5|5-2|...): major
 
-_steveToDo:  # As I work through the book
-  {}-major Diatonic slides of 4th in eights 4125.6347... (p.23:2B): major
-  4th slide etude (p24:3): NONE
-  4th slide etude (p24:4): NONE
-  {}-major Diatonic Slides of 5th half notes (1-5|5-1|2-6|..) (p.25:1): major
-  {}-major Diatonic Slides combination up to 5ths (p.26:2): major
-  {}-major Diatonic Slides combination variation (p.27:2A): major
-  {}-major Diatonic Slides combination variation (p.27:2B): major
-  {}-major Diatonic Slides combination variation (p.27:2C): major
-  Diatonic Slides combination exercise (p.27:3): NONE
-  {}-major Diatonic Slides of 6th half notes (1-6|6-1|2-7|..) (p.28:4): major
-  {}-major Diatonic Slides combination up to 6ths (p.29:5): major
+chopsLeft:
+  L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
+  L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
+  L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42↓67: NONE
+  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75↓7↑2: NONE
+  L-Dexterity I.5 (p5) ♫@80~120 1365.2465|3565.7542: NONE
+  L-Dexterity I.6 (p5) ♫@80~120 1365.4265|3165.42↓67: NONE
+  L-Dexterity I.7 (p5) ♫@80~120 1867.5645|3823.18↓7↑2: NONE
+  L-Dexterity I.8 (p5) ♫@80~120 1653.4652|1875.6523: NONE
+  L-Dexterity I.9 (p6) ♫@80~120 1875.6758|6756.4532: NONE
+  L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
+  L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
+  L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
+  #TBD# L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
+  #TBD# L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
+  #TBD# L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
+  #TBD# L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
+  #TBD# L-Modes 5 (♬@60 132435465768 p.15): NONE
+  #TBD# L-Modes 6 (♬@60 867564534231 p.16): NONE
+  #TBD# L-Modes 7 (♬@60 134235645786 p.17): NONE
+  #TBD# L-Modes 8 (♫ 13576421⇗ p.18): NONE
+  #TBD# L-Modes 9 (♫ 13576421⇘ p.19): NONE
+  #TBD# L-Modes 10 (♫ 12348675 p.20): NONE
+  #TBD# L-Modes 11 (♫ 13248765 p.21): NONE
+  #TBD# L-Modes 12 (♫ 43215768 p.22): NONE
+  #TBD# L-Modes 13 (♫ 42315678 p.23): NONE
+  #TBD# L-Modes 14 (♫ 12346421 p.24): NONE
+  #TBD# L-Modes 15 (♫ 45676421 p.25): NONE
+  #TBD# L-Modes 16 (♫ 13574321 p.26): NONE
+  #TBD# L-Modes 17 (♫ 13578765 p.27): NONE
+
+chopsRight:
+  R-16th-1 (p29) ♬ 1212...: NONE
+  R-16th-2 (p29) ♬ 2121...: NONE
+  R-16th-3 (p29) ♬ 1211.2122...: NONE
+  R-16th-4 (p29) ♬ 1121.2212...: NONE
+  R-16th-5 (p30) ♬ 1221.2112...: NONE
+  R-16th-6 (p30) ♬ 1211.2112...: NONE
+  R-16th-7 (p30) ♬ 2122.1221...: NONE
+  R-16th-8 (p30) ♬ 1122.1221.2211.2112...: NONE
+  R-16th-9 (p31) ♬ 1122.1121.2211.2212...: NONE
+  R-16th-10 (p31) ♬ 1122.1211.2211.2122...: NONE
+  R-16th-11 (p31) ♬ 1221.2221.2112.1112...: NONE
+  R-16th-12 (p31) ♬ 1221.2111.2112.1222...: NONE
+
+  R-grace-8th-16ths-1 (p33) (♪♬ ₂1 22...): NONE
+  R-grace-8th-16ths-2 (p33) (♪♬ ₂1 22...): NONE
+  R-grace-8th-16ths-3 (p33) (♪♬ ₁2 11...): NONE
+  R-grace-8th-16ths-4 (p33) (♪♬ ₂1 21...): NONE
+  R-grace-8th-16ths-5 (p34) (♪♬ ₂1 21.₁2 12...): NONE
+  R-grace-8th-16ths-6 (p34) (♪♬ ₂1 22.₁2 11...: NONE
+  R-grace-8th-16ths-7 (p34) (♪♬ ₂1 22.₂1 21.₁2 11.₁2 12...: NONE
+  R-grace-8th-16ths-8 (p34) (♪♬ ₂1 12.₂1 21.₁2 21.₁2 12...: NONE
+
+  R-grace-16ths-8th-9 (p35) (♬♪ ₂12 2...): NONE
+  R-grace-16ths-8th-10 (p35) (♬♪ ₂12 2...): NONE
+  R-grace-16ths-8th-11 (p35) (♬♪ ₁21 1...): NONE
+  R-grace-16ths-8th-12 (p35) (♬♪ ₂12 1...): NONE
+  R-grace-16ths-8th-13 (p36) (♬♪ ₂12 1.₁21 2...): NONE
+  R-grace-16ths-8th-14 (p36) (♬♪ ₂12 2.₁21 1...: NONE
+  R-grace-16ths-8th-15 (p36) (♬♪ ₂12 2.₂12 1.₁21 1.₁21 2...: NONE
+  R-grace-16ths-8th-16 (p36) (♬♪ ₂11 2.₂12 1.₁22 1.₁21 2...: NONE
+
+  R-grace-16th-8th-16th-17 (p37) (₂122...): NONE
+  R-grace-16th-8th-16th-18 (p37) (₁211...): NONE
+  R-grace-16th-8th-16th-19 (p37) (₂121...): NONE
+  R-grace-16th-8th-16th-20 (p37) (₁212...): NONE
+  R-grace-16th-8th-16th-21 (p38) (₂121.₁212...): NONE
+  R-grace-16th-8th-16th-22 (p38) (₂122.₁211...): NONE
+  R-grace-16th-8th-16th-23 (p38) (₂122.₂121.₁211.₁212...): NONE
+  R-grace-16th-8th-16th-24 (p38) (₂112.₂121.₁221.₁212...): NONE
+
+  R-grace-triplet-25 (p39) (₂122...): NONE
+  R-grace-triplet-26 (p39) (₁211...): NONE
+  R-grace-triplet-27 (p39) (₂121...): NONE
+  R-grace-triplet-28 (p39) (₁212...): NONE
+  R-grace-triplet-29 (p40) (₂121.₁212...): NONE
+  R-grace-triplet-30 (p40) (₂122.₁211...): NONE
+  R-grace-triplet-31 (p40) (₂122.₂121.₁211.₁212...): NONE
+  R-grace-triplet-32 (p40) (₂112.₂121.₁221.₁212...): NONE
+
+
+
+#
+# Currently working on
+#
+homeworkTechnical:
+  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+  Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
+  {}-major Diatonic slides in 4ths 1437-2541-3652-... (p.23/2A): major
+
+homeworkMusic:  # Try to keep this to one!
+  Melodic Étude in E♭ Major (p.10): NONE
+  JP@AW 1.43 Basic Etude in F♯ Minor (2. bass line, 3. solo): NONE
+
+book:
+  Radley ctd.: NONE
+  Steve ctd.: NONE
+  Baroque ctd.: NONE
+  Simandl Études ctd.: NONE
+  John P's course ctd.: NONE
+  Carol Kaye ctd.: NONE
+
+#
+# Etudes and pieces to revise from time to time
+#
 
 reviseSteve:
   Steve's 4th Combination (Ex 4 on page 9): NONE
@@ -210,7 +264,7 @@ reviseSimandl:
   # Simandl Étude 29 (p.32-33): NONE
   # Simandl Étude 30 (p.34-35): NONE
 
-revisePatitucci:
+reviseJP@AW:
   JP@AW 1.25 Basic Etude in C Major (2. solo): NONE
   JP@AW 1.26 Basic Etude in F Major (2. bass, 3. solo): NONE
   JP@AW 1.27 Basic Etude in B♭ Major (2. bass line like sample groove): NONE
@@ -241,16 +295,73 @@ revisePatitucci:
 reviseOther:
   Bach I. Prelude, last played at ♩=76: NONE
 
-otherToDo:
-  Bach I. Allemande: NONE
 
-book:
-  Radley ctd.: NONE
-  Steve ctd.: NONE
-  Baroque ctd.: NONE
-  Simandl Études ctd.: NONE
-  John P's course ctd.: NONE
-  Carol Kaye ctd.: NONE
+#
+# Future of things currently at work
+#
+
+_melodicToDo:
+  Melodic Étude in A♭ Major (p.11): NONE
+  Melodic Étude in D♭ Major (p.12): NONE
+
+_rayBrownToDo:  # As I work through the book
+  Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
+  Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
+  Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
+  Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
+  Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
+  Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
+  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
+  Ray Brown's Diminished Exercise (p.79): NONE
+  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
+  Ray Brown's Diminished Exercise (p.82): NONE
+  Ray Brown's Diminished Exercise (p.83): NONE
+  Ray Brown's Diminished Exercise (Solo) (p.84): NONE
+  Ray Brown's Diminished Exercise (p.85): NONE
+  Ray Brown's Augmented Exercise (p.92): NONE
+  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
+  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
+  Ray Brown's Augmented Exercise (p.97, top 2): NONE
+  Ray Brown's Augmented Exercise (p.97, bottom 2): NONE
+  Ray Brown's Augmented Exercise (p.98): NONE
+  Ray Brown's Solo Exercise (p.118): NONE
+  Ray Brown's Solo Exercise (p.119): NONE
+  Ray Brown's Exercise in Fourths (p.120): NONE
+  Ray Brown's Exercise in Fourths (p.121): NONE
+  Ray Brown's Exercise in Fourths (p.122): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
+  Ray Brown's Exercise (Solo) (p.125-126): NONE
+  Ray Brown's Exercise (Solo) (p.127-128): NONE
+  Ray Brown's Exercise (Solo) (p.129): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.131): NONE
+  Ray Brown's Exercise (p.133): NONE
+  Ray Brown's Arpeggios for Endings (p.134): NONE
+  Ray Brown's Triplet Exercise for Solos (p.135): NONE
+
+_steveToDo:  # As I work through the book
+  {}-major Diatonic slides of 4th in eights 4125.6347... (p.23/2B): major
+  4th slide etude (p24/3): NONE
+  4th slide etude (p24/4): NONE
+  {}-major Diatonic Slides of 5th half notes (1-5|5-1|2-6|..) (p.25/1): major
+  {}-major Diatonic Slides combination up to 5ths (p.26/2): major
+  {}-major Diatonic Slides combination variation (p.27/2A): major
+  {}-major Diatonic Slides combination variation (p.27/2B): major
+  {}-major Diatonic Slides combination variation (p.27/2C): major
+  Diatonic Slides combination exercise (p.27/3): NONE
+  {}-major Diatonic Slides of 6th half notes (1-6|6-1|2-7|..) (p.28/4): major
+  {}-major Diatonic Slides combination up to 6ths (p.29/5): major
+
+_chopsLeftToDo:  # too shifty for now
+  L-Dexterity II.1 (p7): NONE
+  L-Dexterity II.2 (p8): NONE
+  L-Dexterity II.3 (p9): NONE
+
+_bachToDo:
+  Bach I. Allemande: NONE
 
 _bookToDo:  # When I'm good enough?
   Pelczar's Bach: NONE  # Needs to be done seriously, but I could work on it
@@ -267,91 +378,19 @@ _bookToDo:  # When I'm good enough?
   #NAH# Steven Mooney's "Contructing Walking Jazz Bass Lines": NONE  # Loses to JP+Downes
   #NAH# Ed's Building Walking Bass: NONE  # Loses to JP+Downes
 
-chopsLeft:
-  L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
-  L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
-  L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42↓67: NONE
-  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75↓7↑2: NONE
-  L-Dexterity I.5 (p5) ♫@80~120 1365.2465|3565.7542: NONE
-  L-Dexterity I.6 (p5) ♫@80~120 1365.4265|3165.42↓67: NONE
-  L-Dexterity I.7 (p5) ♫@80~120 1867.5645|3823.18↓7↑2: NONE
-  L-Dexterity I.8 (p5) ♫@80~120 1653.4652|1875.6523: NONE
-  L-Dexterity I.9 (p6) ♫@80~120 1875.6758|6756.4532: NONE
-  L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
-  L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
-  L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
-  #TBD# L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
-  #TBD# L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
-  #TBD# L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
-  #TBD# L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
-  #TBD# L-Modes 5 (♬@60 132435465768 p.15): NONE
-  #TBD# L-Modes 6 (♬@60 867564534231 p.16): NONE
-  #TBD# L-Modes 7 (♬@60 134235645786 p.17): NONE
-  #TBD# L-Modes 8 (♫ 13576421⇗ p.18): NONE
-  #TBD# L-Modes 9 (♫ 13576421⇘ p.19): NONE
-  #TBD# L-Modes 10 (♫ 12348675 p.20): NONE
-  #TBD# L-Modes 11 (♫ 13248765 p.21): NONE
-  #TBD# L-Modes 12 (♫ 43215768 p.22): NONE
-  #TBD# L-Modes 13 (♫ 42315678 p.23): NONE
-  #TBD# L-Modes 14 (♫ 12346421 p.24): NONE
-  #TBD# L-Modes 15 (♫ 45676421 p.25): NONE
-  #TBD# L-Modes 16 (♫ 13574321 p.26): NONE
-  #TBD# L-Modes 17 (♫ 13578765 p.27): NONE
+#
+# Generic
+#
 
-_chopsLeftToDo:  # too shifty for now
-  L-Dexterity II.1 (p7): NONE
-  L-Dexterity II.2 (p8): NONE
-  L-Dexterity II.3 (p9): NONE
+note:
+  : ANY
 
-chopsRight:
-  R-16th-1 (p29) ♬ 1212...: NONE
-  R-16th-2 (p29) ♬ 2121...: NONE
-  R-16th-3 (p29) ♬ 1211.2122...: NONE
-  R-16th-4 (p29) ♬ 1121.2212...: NONE
-  R-16th-5 (p30) ♬ 1221.2112...: NONE
-  R-16th-6 (p30) ♬ 1211.2112...: NONE
-  R-16th-7 (p30) ♬ 2122.1221...: NONE
-  R-16th-8 (p30) ♬ 1122.1221.2211.2112...: NONE
-  R-16th-9 (p31) ♬ 1122.1121.2211.2212...: NONE
-  R-16th-10 (p31) ♬ 1122.1211.2211.2122...: NONE
-  R-16th-11 (p31) ♬ 1221.2221.2112.1112...: NONE
-  R-16th-12 (p31) ♬ 1221.2111.2112.1222...: NONE
-
-  R-grace-8th-16ths-1 (p33) (♪♬ ₂1 22...): NONE
-  R-grace-8th-16ths-2 (p33) (♪♬ ₂1 22...): NONE
-  R-grace-8th-16ths-3 (p33) (♪♬ ₁2 11...): NONE
-  R-grace-8th-16ths-4 (p33) (♪♬ ₂1 21...): NONE
-  R-grace-8th-16ths-5 (p34) (♪♬ ₂1 21.₁2 12...): NONE
-  R-grace-8th-16ths-6 (p34) (♪♬ ₂1 22.₁2 11...: NONE
-  R-grace-8th-16ths-7 (p34) (♪♬ ₂1 22.₂1 21.₁2 11.₁2 12...: NONE
-  R-grace-8th-16ths-8 (p34) (♪♬ ₂1 12.₂1 21.₁2 21.₁2 12...: NONE
-
-  R-grace-16ths-8th-9 (p35) (♬♪ ₂12 2...): NONE
-  R-grace-16ths-8th-10 (p35) (♬♪ ₂12 2...): NONE
-  R-grace-16ths-8th-11 (p35) (♬♪ ₁21 1...): NONE
-  R-grace-16ths-8th-12 (p35) (♬♪ ₂12 1...): NONE
-  R-grace-16ths-8th-13 (p36) (♬♪ ₂12 1.₁21 2...): NONE
-  R-grace-16ths-8th-14 (p36) (♬♪ ₂12 2.₁21 1...: NONE
-  R-grace-16ths-8th-15 (p36) (♬♪ ₂12 2.₂12 1.₁21 1.₁21 2...: NONE
-  R-grace-16ths-8th-16 (p36) (♬♪ ₂11 2.₂12 1.₁22 1.₁21 2...: NONE
-
-  R-grace-16th-8th-16th-17 (p37) (₂122...): NONE
-  R-grace-16th-8th-16th-18 (p37) (₁211...): NONE
-  R-grace-16th-8th-16th-19 (p37) (₂121...): NONE
-  R-grace-16th-8th-16th-20 (p37) (₁212...): NONE
-  R-grace-16th-8th-16th-21 (p38) (₂121.₁212...): NONE
-  R-grace-16th-8th-16th-22 (p38) (₂122.₁211...): NONE
-  R-grace-16th-8th-16th-23 (p38) (₂122.₂121.₁211.₁212...): NONE
-  R-grace-16th-8th-16th-24 (p38) (₂112.₂121.₁221.₁212...): NONE
-
-  R-grace-triplet-25 (p39) (₂122...): NONE
-  R-grace-triplet-26 (p39) (₁211...): NONE
-  R-grace-triplet-27 (p39) (₂121...): NONE
-  R-grace-triplet-28 (p39) (₁212...): NONE
-  R-grace-triplet-29 (p40) (₂121.₁212...): NONE
-  R-grace-triplet-30 (p40) (₂122.₁211...): NONE
-  R-grace-triplet-31 (p40) (₂122.₂121.₁211.₁212...): NONE
-  R-grace-triplet-32 (p40) (₂112.₂121.₁221.₁212...): NONE
+chord:
+  Δ: major
+  m: minor
+  ⁷: major
+  m⁷: minor
+  M⁷: major
 
 scale:
   -major: major
@@ -368,55 +407,3 @@ mode:
   ' mixolydian': mixolydian
   ' aeolian': aeolian
   ' locrian': locrian
-
-arpeggio:
-  Δ: major
-  m: minor
-  ⁷: major
-  m⁷: minor
-  M⁷: major
-  -major pentatonic: major
-  -minor pentatonic: minor
-  ᴼ⁷: minor
-  aug⁷: major
-  ⁹: major
-  maj⁹: major
-  min⁹: minor
-
-chalmers:  # Nah
-  Chalmers Chromatic Ex.1 (p.1): NONE
-  Chalmers Chromatic Ex.2 (p.1): NONE
-  Chalmers Chromatic Ex.3 (p.1): NONE
-  Chalmers Chromatic Ex.3b (p.1): NONE
-  Chalmers Chromatic Ex.4 (p.1): NONE
-  Chalmers Chromatic Ex.4b (p.1): NONE
-  Chalmers Chromatic Ex.5 (p.2): NONE
-  Chalmers Chromatic Ex.5b (p.2): NONE
-  Chalmers Chromatic Ex.6 (p.2): NONE
-  Chalmers Chromatic Ex.7 (p.3): NONE
-  Chalmers Chromatic Ex.8 (p.3): NONE
-  Chalmers Chromatic Ex.8 (p.3): NONE
-  Chalmers C Major Ex.1 (p.4): NONE
-  Chalmers C Major Ex.1b (p.4): NONE
-  Chalmers C Major Ex.2b (p.4): NONE
-  Chalmers C Major Ex.2 (p.4): NONE
-  Chalmers C Major Ex.3 (p.4): NONE
-  Chalmers C Major Ex.3b (p.5): NONE
-  Chalmers C Major Ex.4 (p.5): NONE
-  Chalmers C Major Ex.5 (p.5): NONE
-  Chalmers C Major Ex.6 (p.5): NONE
-  Chalmers C Major Ex.6b (p.5): NONE
-  Chalmers C Major Ex.7 (p.5): NONE
-  Chalmers C Major Ex.7b (p.5): NONE
-  Chalmers C Major Ex.8 (p.6): NONE
-  Chalmers C Major Ex.8b (p.6): NONE
-  Chalmers C Major Ex.9 (p.6): NONE
-  Chalmers C Major Ex.10 (p.6): NONE
-  Chalmers C Major Ex.11 (p.6): NONE
-  Chalmers C Major Ex.12 (p.6): NONE
-  Chalmers C Major Ex.13 (p.6): NONE
-  Chalmers C Major Ex.14 (p.7): NONE
-  Chalmers C Major Ex.15 (p.7): NONE
-  Chalmers C Major Ex.16 (p.7): NONE
-  Chalmers C Major Ex.17 (p.7): NONE
-  Chalmers C Major Ex.18 (p.7): NONE
