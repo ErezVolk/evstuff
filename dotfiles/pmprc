@@ -144,10 +144,20 @@ keepSteveSlide3rd:
   1-2-3-2-3-4... slides (p22/4D) on the {} string: E|A|D|G
 
 keepSteveSlide4th:
-  {}-major Diatonic Slides in 4th: major
+  {}-major Diatonic Slides of 4th half notes (1-4|4-1|2-5|5-2|...): major
 
 _steveToDo:  # As I work through the book
-  -major slides in 4ths (p23/1): major
+  {}-major Diatonic slides of 4th in eights 4125.6347... (p.23:2B): major
+  4th slide etude (p24:3): NONE
+  4th slide etude (p24:4): NONE
+  {}-major Diatonic Slides of 5th half notes (1-5|5-1|2-6|..) (p.25:1): major
+  {}-major Diatonic Slides combination up to 5ths (p.26:2): major
+  {}-major Diatonic Slides combination variation (p.27:2A): major
+  {}-major Diatonic Slides combination variation (p.27:2B): major
+  {}-major Diatonic Slides combination variation (p.27:2C): major
+  Diatonic Slides combination exercise (p.27:3): NONE
+  {}-major Diatonic Slides of 6th half notes (1-6|6-1|2-7|..) (p.28:4): major
+  {}-major Diatonic Slides combination up to 6ths (p.29:5): major
 
 reviseSteve:
   Steve's 4th Combination (Ex 4 on page 9): NONE
