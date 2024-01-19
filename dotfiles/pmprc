@@ -1,15 +1,11 @@
-*daily = [ warmup chops @intonation 3@keep @arpeggio homeworkTechnical homeworkMusic 3@book 2@revise ]
+*daily = [ warmup chops @warmupOneStringScale 3@keep @arpeggio homeworkTechnical homeworkMusic 3@book 2@revise ]
 
-warmup = [ @warmupInterval @warmupHarvey @warmupMode @warmupScale ]
-intonation = { @oneStringScale }
-keep = { @keepSteveInterval @keepSteveHazards @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveScaleIn4ths @keepSteveSlide4th @keepSteveScaleIn5ths @keepSteveScaleIn10ths @keepRayBrown }
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther }
-chops = [ @chopsRight @chopsLeft ]
-hazard = { keepSteveHazards }
 
 #
 # Warmup Selection
 #
+warmup = [ @warmupInterval @warmupHarvey @warmupMode @warmupScale ]
 warmupInterval:
   8ths drill on the {} strings: E+D|A+G
   5ths drill on the {} strings: E+A|A+D|D+G
@@ -27,84 +23,16 @@ warmupScale:
   -Natural Minor Scale: minor
   Whole Tone Scale from {}: ANY
 
-#
-# Technical things to keep by practicing
-#
-
-arpeggio:
-  Δ: major
-  m: minor
-  ⁷: major
-  m⁷: minor
-  M⁷: major
-  -major pentatonic: major
-  -minor pentatonic: minor
-  ᴼ⁷: minor
-  aug⁷: major
-  ⁹: major
-  maj⁹: major
-  min⁹: minor
-
-oneStringScale:
+warmupOneStringScale:
   -major on the E string: major
   -major on the A string: major
   -major on the D string: major
   -major on the G string: major
 
-keepRayBrown:
-  Ray Brown's Blues (p.100), {} pattern: A+B|C|D|E|F
-  Ray Brown's Blues (I) (p.101), starting from {}: C|F|B♭|G
-  Ray Brown's Blues (II) (p.102), starting from {}: C|F|B♭|G
-  Ray Brown's Blues (III) (p.103), starting from {}: C|F|B♭|G
-  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
-  Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
-  Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
-  Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
-  Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), starting from {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
-
-keepSteveInterval:
-  8ths drill on the {} strings: E+D|A+G
-  5ths drill on the {} strings: E+A|A+D|D+G
-  4ths drill on the {} strings: E+A|A+D|D+G
-  3rds drill on the {} strings: E+A|A+D|D+G
-  6ths drill on the {} strings: E+D|A+G
-  Minor 6ths drill on the {} strings: E+A/D|A+D/G
-  10ths drill on the E+G strings: NONE
-
-keepSteveHazards:
-  Hazard 3rds, {}: 2-1-4-3 (p11/2)|4-1-2-3 (p12/3A)|1-3-4-2 (p12/3B)|1-4-3-2 (p12/3C)
-  Hazard minor 3rds (p.12), {}: 1-4-3-1 (Ex.4)|1-4-1-3 (Ex.4A)|3-1-4-1 (Ex.4B)
-  Hazard 6ths, {}: 2-1-4-3 (p14/2)|1-2-3-4 (p15/3A)|4-3-2-1 (p15/3B)
-  Hazard minor 6ths, {}: 1-4-3-1 (p15/4A)
-
-keepSteveScaleIn10ths:
-  -major in 10th double stops (p.13): major
-  -minor in 10th double stops (p.13): minor
-
-keepSteveScaleIn4ths:
-  -major in 4th double stops (Ex 5 on p.10): major
-  -minor in 4th double stops (Ex 5 on p.10): minor
-
-keepSteveScaleIn5ths:
-  -major in 5th double stops (Ex 6 on p.7): major
-  -minor in 5th double stops (Ex 6 on p.7): minor
-
-keepSteveSlide2nd:
-  -melodic minor linear slides in octaves (Ex 4A on p.19): minor
-  -melodic minor zig-zag slides in octaves (Ex 4B on p.19): minor
-  -minor linear slides in fifths (Ex 5A on p.19): minor
-  -minor zig-zag slides in fifths (Ex 5B on p.19): minor
-
-keepSteveSlide3rd:
-  Slides in 3rds (p21/3) on the {} strings: E+A|A+D|D+G
-  Slides in 3rds (p22/4A) on the {} strings: E+A|A+D|D+G
-  Slides in 3rds (p22/4B) on the {} strings: E+A|A+D|D+G
-  Slides in 3rds (p22/4C) on the {} strings: E+A|A+D|D+G
-  1-2-3-2-3-4... slides (p22/4D) on the {} string: E|A|D|G
-
-keepSteveSlide4th:
-  {}-major Diatonic Slides of 4th half notes (1-4|4-1|2-5|5-2|...): major
+#
+# JdP's "Daily Chop-Builders for Bass"
+#
+chops = [ @chopsRight @chopsLeft ]
 
 chopsLeft:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
@@ -136,6 +64,9 @@ chopsLeft:
   #TBD# L-Modes 15 (♫ 45676421 p.25): NONE
   #TBD# L-Modes 16 (♫ 13574321 p.26): NONE
   #TBD# L-Modes 17 (♫ 13578765 p.27): NONE
+  #TBD# L-Dexterity II.1 (p7): NONE  # Too shifty for now
+  #TBD# L-Dexterity II.2 (p8): NONE  # Too shifty for now
+  #TBD# L-Dexterity II.3 (p9): NONE  # Too shifty for now
 
 chopsRight:
   R-16th-1 (p29) ♬ 1212...: NONE
@@ -188,6 +119,84 @@ chopsRight:
   R-grace-triplet-32 (p40) (₂112.₂121.₁221.₁212...): NONE
 
 
+#
+# Technical things to keep by practicing
+#
+keep = { @keepSteveInterval @hazard @slide @doubleStop @keepRayBrown }
+hazard = { @keepSteveHazard }
+slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th }
+doubleStop = { @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths }
+
+arpeggio:
+  Δ: major
+  m: minor
+  ⁷: major
+  m⁷: minor
+  M⁷: major
+  -major pentatonic: major
+  -minor pentatonic: minor
+  ᴼ⁷: minor
+  aug⁷: major
+  ⁹: major
+  maj⁹: major
+  min⁹: minor
+
+keepRayBrown:
+  Ray Brown's Blues (p.100), {} pattern: A+B|C|D|E|F
+  Ray Brown's Blues (I) (p.101), starting from {}: C|F|B♭|G
+  Ray Brown's Blues (II) (p.102), starting from {}: C|F|B♭|G
+  Ray Brown's Blues (III) (p.103), starting from {}: C|F|B♭|G
+  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
+  Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
+  Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
+  Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
+  Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), starting from {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+
+keepSteveInterval:
+  8ths drill on the {} strings: E+D|A+G
+  5ths drill on the {} strings: E+A|A+D|D+G
+  4ths drill on the {} strings: E+A|A+D|D+G
+  3rds drill on the {} strings: E+A|A+D|D+G
+  6ths drill on the {} strings: E+D|A+G
+  Minor 6ths drill on the {} strings: E+A/D|A+D/G
+  10ths drill on the E+G strings: NONE
+
+keepSteveHazard:
+  Hazard 3rds, {}: 2-1-4-3 (p11/2)|4-1-2-3 (p12/3A)|1-3-4-2 (p12/3B)|1-4-3-2 (p12/3C)
+  Hazard minor 3rds (p.12), {}: 1-4-3-1 (Ex.4)|1-4-1-3 (Ex.4A)|3-1-4-1 (Ex.4B)
+  Hazard 6ths, {}: 2-1-4-3 (p14/2)|1-2-3-4 (p15/3A)|4-3-2-1 (p15/3B)
+  Hazard minor 6ths, {}: 1-4-3-1 (p15/4A)
+
+keepSteveScaleIn10ths:
+  -major in 10th double stops (p.13): major
+  -minor in 10th double stops (p.13): minor
+
+keepSteveScaleIn4ths:
+  -major in 4th double stops (Ex 5 on p.10): major
+  -minor in 4th double stops (Ex 5 on p.10): minor
+
+keepSteveScaleIn5ths:
+  -major in 5th double stops (Ex 6 on p.7): major
+  -minor in 5th double stops (Ex 6 on p.7): minor
+
+keepSteveSlide2nd:
+  -melodic minor linear slides in octaves (Ex 4A on p.19): minor
+  -melodic minor zig-zag slides in octaves (Ex 4B on p.19): minor
+  -minor linear slides in fifths (Ex 5A on p.19): minor
+  -minor zig-zag slides in fifths (Ex 5B on p.19): minor
+
+keepSteveSlide3rd:
+  Slides in 3rds (p21/3) on the {} strings: E+A|A+D|D+G
+  Slides in 3rds (p22/4A) on the {} strings: E+A|A+D|D+G
+  Slides in 3rds (p22/4B) on the {} strings: E+A|A+D|D+G
+  Slides in 3rds (p22/4C) on the {} strings: E+A|A+D|D+G
+  1-2-3-2-3-4... slides (p22/4D) on the {} string: E|A|D|G
+
+keepSteveSlide4th:
+  {}-major Diatonic Slides of 4th half notes (1-4|4-1|2-5|5-2|...): major
+
+
 
 #
 # Currently working on
@@ -208,6 +217,7 @@ book:
   Simandl Études ctd.: NONE
   John P's course ctd.: NONE
   Carol Kaye ctd.: NONE
+  Learn a song: NONE
 
 #
 # Etudes and pieces to revise from time to time
@@ -354,11 +364,6 @@ _steveToDo:  # As I work through the book
   Diatonic Slides combination exercise (p.27/3): NONE
   {}-major Diatonic Slides of 6th half notes (1-6|6-1|2-7|..) (p.28/4): major
   {}-major Diatonic Slides combination up to 6ths (p.29/5): major
-
-_chopsLeftToDo:  # too shifty for now
-  L-Dexterity II.1 (p7): NONE
-  L-Dexterity II.2 (p8): NONE
-  L-Dexterity II.3 (p9): NONE
 
 _bachToDo:
   Bach I. Allemande: NONE
