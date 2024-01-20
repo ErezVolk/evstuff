@@ -3,6 +3,27 @@
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther }
 
 #
+# Currently working on
+#
+homeworkTechnical:
+  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+  Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
+  {}-major Diatonic slides in 4ths 1437-2541-3652-... (p.23/2A): major
+
+homeworkMusic:  # Try to keep this to one!
+  Melodic Étude in E♭ Major (p.10): NONE
+  JP@AW 1.43 Basic Etude in F♯ Minor (straight eighths 2. bass line, 3. solo): NONE
+
+book:
+  Radley ctd.: NONE
+  Steve ctd.: NONE
+  Baroque ctd.: NONE
+  Simandl Études ctd.: NONE
+  John P's course ctd.: NONE
+  Carol Kaye ctd.: NONE
+  Learn a song: NONE
+
+#
 # Warmup Selection
 #
 warmup = [ @warmupInterval @warmupHarvey @warmupMode @warmupOtherScale ]
@@ -203,27 +224,6 @@ keepCarolKaye:  # When I'm done
   Page {} in "How To Play the Electric Bass": 5|6|7|8|9|10|11|18-19|20|21|22|23|24-25|26-27|28
 
 
-
-#
-# Currently working on
-#
-homeworkTechnical:
-  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
-  Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
-  {}-major Diatonic slides in 4ths 1437-2541-3652-... (p.23/2A): major
-
-homeworkMusic:  # Try to keep this to one!
-  Melodic Étude in E♭ Major (p.10): NONE
-  JP@AW 1.43 Basic Etude in F♯ Minor (straight eighths 2. bass line, 3. solo): NONE
-
-book:
-  Radley ctd.: NONE
-  Steve ctd.: NONE
-  Baroque ctd.: NONE
-  Simandl Études ctd.: NONE
-  John P's course ctd.: NONE
-  Carol Kaye ctd.: NONE
-  Learn a song: NONE
 
 #
 # Etudes and pieces to revise from time to time
