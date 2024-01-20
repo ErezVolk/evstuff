@@ -5,7 +5,8 @@ revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW rev
 #
 # Warmup Selection
 #
-warmup = [ @warmupInterval @warmupHarvey @warmupMode @warmupScale ]
+warmup = [ @warmupInterval @warmupHarvey @warmupMode @warmupOtherScale ]
+
 warmupInterval:
   8ths drill on the {} strings: E+D|A+G
   5ths drill on the {} strings: E+A|A+D|D+G
@@ -17,11 +18,13 @@ warmupHarvey:
 warmupMode:
   -major modes: major
 
-warmupScale:
+warmupOtherScale:
   -Melodic Minor Scale: minor
   -Harmonic Minor Scale: minor
   -Natural Minor Scale: minor
   Whole Tone Scale from {}: ANY
+  # Modes of the ascending minor (https://en.wikipedia.org/wiki/Jazz_minor_scale#Modes_of_jazz_minor_scale) ?
+  # 8-tone diminished scale (alternating whole steps and half steps, C D E- F G- A- A B, Di Bartolo p.232)
 
 warmupOneStringScale:
   -major on the E string: major
@@ -178,13 +181,13 @@ keepSteveScaleIn4ths:
 
 keepSteveScaleIn5ths:
   -major in 5th double stops (Ex 6 on p.7): major
-  -minor in 5th double stops (Ex 6 on p.7): minor
+  -melodic minor in 5th double stops (Ex 6 on p.7): minor
 
 keepSteveSlide2nd:
-  -melodic minor linear slides in octaves (Ex 4A on p.19): minor
-  -melodic minor zig-zag slides in octaves (Ex 4B on p.19): minor
-  -minor linear slides in fifths (Ex 5A on p.19): minor
-  -minor zig-zag slides in fifths (Ex 5B on p.19): minor
+  -melodic minor linear slides of a second in octave double steps (Ex 4A on p.19): minor
+  -melodic minor zig-zag slides of a third in octave double steps (Ex 4B on p.19): minor
+  -minor linear slides of a second in fifth double steps (Ex 5A on p.19): minor
+  -minor zig-zag slides of a third in fifth double steps (Ex 5B on p.19): minor
 
 keepSteveSlide3rd:
   Slides in 3rds (p21/3) on the {} strings: E+A|A+D|D+G
@@ -195,6 +198,9 @@ keepSteveSlide3rd:
 
 keepSteveSlide4th:
   {}-major Diatonic Slides of 4th half notes (1-4|4-1|2-5|5-2|...): major
+
+keepCarolKaye:  # When I'm done
+  Page {} in "How To Play the Electric Bass": 5|6|7|8|9|10|11|18-19|20|21|22|23|24-25|26-27|28
 
 
 
@@ -208,7 +214,7 @@ homeworkTechnical:
 
 homeworkMusic:  # Try to keep this to one!
   Melodic Étude in E♭ Major (p.10): NONE
-  JP@AW 1.43 Basic Etude in F♯ Minor (2. bass line, 3. solo): NONE
+  JP@AW 1.43 Basic Etude in F♯ Minor (straight eighths 2. bass line, 3. solo): NONE
 
 book:
   Radley ctd.: NONE
@@ -374,6 +380,9 @@ _bookToDo:  # When I'm good enough?
   Mike Downes: NONE  # Too much self-reliance? Or maybe it eats up all the rest?
   Blues Grooves: NONE  # Take a look?
   Improviser's Bass Book: NONE  # Loses to JP+Dones? But Harvey likes it
+
+  Clayton's Guide to Scales and Modes: NONE  # Hm, pretty comprehensive
+  Di Bartolo's Complete Guide to Scales and Chords: NONE  # Hm
 
   Connecting Chords with Linear Harmony by Bert Ligon: NONE  # Check it out? For improvising
   Coker's Patterns for Jazz: NONE  # Pretty serious stuff, for improvising
