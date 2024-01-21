@@ -25,6 +25,7 @@ from typing import TypeVar
 # - "{}-major on the {} string: {major} {E|A|D|G}"
 # - Support {}->[]
 # - Refactor to make all chooseroos integerish?
+# - "easy-major := C|F|G" etc., a sort of mnem-mnem
 
 
 T = TypeVar("T")

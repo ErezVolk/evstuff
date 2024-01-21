@@ -6,8 +6,8 @@ revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW rev
 # Currently working on
 #
 homeworkTechnical:
-  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
-  Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
+  Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
   {}-major Diatonic slides in 4ths 143₇-2541-3652-... (p.23/2A): major
 
 homeworkMusic:  # Try to keep this to one!
@@ -175,7 +175,9 @@ keepRayBrown:
   Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
   Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
   Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
+  Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), starting from {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 
 keepSteveInterval:
   8ths drill on the {} strings: E+D|A+G
@@ -321,13 +323,11 @@ _melodicToDo:
   Melodic Étude in D♭ Major (p.12): NONE
 
 _rayBrownToDo:  # As I work through the book
-  Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE
   Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
   Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
   Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
   Ray Brown's Diminished Exercise (p.79): NONE
@@ -359,7 +359,7 @@ _rayBrownToDo:  # As I work through the book
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:  # As I work through the book
-  {}-major Diatonic slides of 4th in eights 4125.6347... (p.23/2B): major
+  {}-major Diatonic slides of 4th in eights 1₅₆2.3₇14... (p.23/2B): major
   4th slide etude (p24/3): NONE
   4th slide etude (p24/4): NONE
   {}-major Diatonic Slides of 5th half notes (1-5|5-1|2-6|..) (p.25/1): major
@@ -382,7 +382,7 @@ _bookToDo:  # When I'm good enough?
   Improviser's Bass Book: NONE  # Loses to JP+Dones? But Harvey likes it
 
   Clayton's Guide to Scales and Modes: NONE  # Hm, pretty comprehensive
-  Di Bartolo's Complete Guide to Scales and Chords: NONE  # Hm
+  Di Bartolo's Complete Guide to Scales and Chords: NONE  # Hm, quite comprehensive
 
   Connecting Chords with Linear Harmony by Bert Ligon: NONE  # Check it out? For improvising
   Coker's Patterns for Jazz: NONE  # Pretty serious stuff, for improvising
