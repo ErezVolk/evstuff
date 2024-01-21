@@ -2,6 +2,7 @@
 """Practice Makes Perfect"""
 import argparse
 import dataclasses
+import hashlib
 import graphlib
 import io
 from pathlib import Path
@@ -45,10 +46,6 @@ class Etude:
         else:
             self.mnem = "|".join(sorted(self.keys))
 
-    def __hash__(self) -> int:
-        """Hash for books"""
-        return hash(self.name)
-
 
 @dataclasses.dataclass
 class Chooseroo(Generic[T]):
@@ -77,7 +74,8 @@ class Book:
         self.make_chooseroo()
 
     def __hash__(self) -> int:
-        return hash((tuple(self.toc), self.sequential))
+        hashable = "\x00".join([entry.name for entry in self.toc])
+        return int(hashlib.sha256(hashable.encode()).hexdigest(), 16)
 
     @property
     def used(self) -> bool:
@@ -87,6 +85,20 @@ class Book:
     def get(self) -> Playable:
         """Get the next random playable"""
         return self.toc[self.chooseroo.get()]
+
+    def restore(self, queue) -> None:
+        """Validate and restore a saved queue"""
+        if not isinstance(queue, list):
+            return
+        if not all(isinstance(idx, int) for idx in queue):
+            return
+        if queue:
+            idxs = set(queue)
+            if len(idxs) != len(queue):
+                return
+            if max(idxs) >= len(self.toc):
+                return
+        self.chooseroo.queue = queue
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
@@ -99,7 +111,7 @@ class Book:
 
 class BookRef(NamedTuple):
     """A reference to a book"""
-    book_name: str
+    name: str
     num_etudes: int | None = None
 
 
@@ -261,6 +273,7 @@ class PracticeMakesPerfect:
         self.configure()
         self.load_state()
         self.make_chooseroos()
+        self.restore_book_state()
 
         self.book_name = self.choose_book()
         self.run_book(
@@ -286,7 +299,7 @@ class PracticeMakesPerfect:
                 print(self.make_track(entry))
             else:
                 ref: BookRef = entry
-                self.run_book(ref.book_name, ref.num_etudes)
+                self.run_book(ref.name, ref.num_etudes)
             if spaced:
                 print("")
 
@@ -324,7 +337,7 @@ class PracticeMakesPerfect:
                 yield entry
             else:
                 yield from self.choose_etudes(
-                    self.all_books[entry.book_name],
+                    self.all_books[entry.name],
                     entry.num_etudes or 1
                 )
 
@@ -487,11 +500,12 @@ class PracticeMakesPerfect:
                     self.state.get(etude.mnem),
                 )
 
-        # And loaded book state
+    def restore_book_state(self) -> None:
+        """Continue books from where we left off"""
         for name, saved in self.state["book"].items():
             if (book := self.all_books[name]):
                 if saved.get("hash") == hash(book):
-                    book.chooseroo.queue = saved["queue"]
+                    book.restore(saved.get("queue"))
 
     def parse_config(self, stream: TextIO) -> Configuration:
         """Read configuration file"""
@@ -508,7 +522,7 @@ class PracticeMakesPerfect:
             for ref in book.toc:
                 if not isinstance(ref, BookRef):
                     continue
-                other = ref.book_name
+                other = ref.name
                 if self.all_books[other].sequential and not book.sequential:
                     self.fail(f"{name}{{}}->{other}[] not supported")
                 graph[other].add(name)
@@ -646,7 +660,7 @@ class ConfigParser:
             num = 1
         else:
             num = None
-        toc.append(BookRef(num_etudes=num, book_name=mobj.group("book")))
+        toc.append(BookRef(num_etudes=num, name=mobj.group("book")))
 
 
 if __name__ == "__main__":
