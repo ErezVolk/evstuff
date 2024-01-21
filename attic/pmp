@@ -5,6 +5,7 @@ import dataclasses
 import graphlib
 import io
 from pathlib import Path
+import plistlib
 import random
 import re
 
@@ -22,6 +23,7 @@ from typing import TypeVar
 # TO DO:
 # - "{}-major on the {} string: {major} {E|A|D|G}"
 # - Support {}->[]
+# - Refactor to make all chooseroos integerish?
 
 
 T = TypeVar("T")
@@ -43,19 +45,25 @@ class Etude:
         else:
             self.mnem = "|".join(sorted(self.keys))
 
+    def __hash__(self) -> int:
+        """Hash for books"""
+        return hash(self.name)
+
 
 @dataclasses.dataclass
 class Chooseroo(Generic[T]):
     """Chooses from a defined pool, minimizing repetitions"""
     pool: list[T]
-    unused: list[T] | None = dataclasses.field(default=None, init=False)
+    queue: list[T] | None = dataclasses.field(default=None)
+    used: bool = dataclasses.field(default=False, init=False)
 
     def get(self) -> T:
         """Get the next item"""
-        if not self.unused:
-            self.unused = list(self.pool)
-            random.shuffle(self.unused)
-        return self.unused.pop()
+        if not self.queue:
+            self.queue = list(self.pool)
+            random.shuffle(self.queue)
+        self.used = True
+        return self.queue.pop()
 
 
 @dataclasses.dataclass
@@ -63,7 +71,22 @@ class Book:
     """A collections of etudes or pointers to other books"""
     toc: TableOfContents
     sequential: bool = False
-    chooseroo: Chooseroo[Playable] = dataclasses.field(init=False)
+    chooseroo: Chooseroo[int] = dataclasses.field(init=False)
+
+    def __post_init__(self):
+        self.make_chooseroo()
+
+    def __hash__(self) -> int:
+        return hash((tuple(self.toc), self.sequential))
+
+    @property
+    def used(self) -> bool:
+        """Whether this book has been used"""
+        return self.chooseroo.used
+
+    def get(self) -> Playable:
+        """Get the next random playable"""
+        return self.toc[self.chooseroo.get()]
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
@@ -71,7 +94,7 @@ class Book:
 
     def make_chooseroo(self):
         """(Re)create the chooseroo"""
-        self.chooseroo = Chooseroo(self.toc)
+        self.chooseroo = Chooseroo(list(range(len(self.toc))))
 
 
 class BookRef(NamedTuple):
@@ -169,6 +192,12 @@ class PracticeMakesPerfect:
             type=Path,
             default=Path.home() / ".pmprc",
         )
+        parser.add_argument(
+            "-C",
+            "--state-file",
+            type=Path,
+            default=Path.home() / ".pmp.plist",
+        )
         self.args = parser.parse_args()
         self.parser = parser
 
@@ -215,7 +244,10 @@ class PracticeMakesPerfect:
 
     all_books: dict[str, Book]
     chooseroos: dict[str, Chooseroo]
+    state: dict
     book_name: str
+
+    STATE_VERSION = "v1"
 
     def main(self) -> None:
         """Practice Makes Perfect"""
@@ -227,6 +259,7 @@ class PracticeMakesPerfect:
 
         self.add_modes()
         self.configure()
+        self.load_state()
         self.make_chooseroos()
 
         self.book_name = self.choose_book()
@@ -235,6 +268,7 @@ class PracticeMakesPerfect:
             None if self.args.one_of_each else self.args.num_tracks,
             spaced=True,
         )
+        self.save_state()
 
     def run_book(self, name: str, num_tracks: int | None, spaced=False):
         """Run any book"""
@@ -271,27 +305,26 @@ class PracticeMakesPerfect:
         if self.args.verbose:
             print(f"[{self.book_name} × {num_tracks}]")
 
-        chooseroo = Chooseroo(playables)
-        etude_seq = self.choose_etudes(chooseroo, num_tracks)
+        pseudo_book = Book(playables)
+        etude_seq = self.choose_etudes(pseudo_book, num_tracks)
         track_seq = self.make_tracks(etude_seq)
 
         print(self.get_sep(track_seq).join(track_seq))
 
     def choose_etudes(
         self,
-        chooseroo: Chooseroo[Playable],
+        book: Book,
         count: int
     ) -> Iterable[Etude]:
         """Yields chosen etudes"""
+        assert not book.sequential
         for _ in range(count):
-            entry = chooseroo.get()
+            entry = book.get()
             if isinstance(entry, Etude):
                 yield entry
             else:
-                book = self.all_books[entry.book_name]
-                assert not book.sequential
                 yield from self.choose_etudes(
-                    book.chooseroo,
+                    self.all_books[entry.book_name],
                     entry.num_etudes or 1
                 )
 
@@ -383,16 +416,60 @@ class PracticeMakesPerfect:
         self.all_books = self.config.books
         self.check_refs()
 
+    def load_state(self) -> None:
+        """Read saved state.
+
+        Sets `self.state`.
+        """
+        try:
+            with open(self.args.state_file, "rb") as fobj:
+                loaded = plistlib.load(fobj)
+            self.state = loaded[self.STATE_VERSION]
+        except (FileNotFoundError, plistlib.InvalidFileException, KeyError):
+            self.state = {}
+        self.state.setdefault("book", {})
+        self.state.setdefault("etude", {})
+
+    def save_state(self) -> None:
+        """Save the queue state"""
+        # Remove goners
+        for key in list(self.state["etude"]):
+            if key not in self.chooseroos:
+                del self.state["etude"][key]
+        for key, saved in list(self.state["book"].items()):
+            if not (book := self.all_books[key]) or hash(book) != saved["hash"]:
+                del self.state["book"][key]
+
+        # Update current
+        for key, chooseroo in self.chooseroos.items():
+            if chooseroo.used:
+                self.state["etude"][key] = chooseroo.queue
+        for key, book in self.all_books.items():
+            if book.used:
+                self.state["book"][key] = {
+                    "hash": hash(book),
+                    "queue": book.chooseroo.queue,
+                }
+
+        with open(self.args.state_file, "wb") as fobj:
+            plistlib.dump(
+                {self.STATE_VERSION: self.state},
+                fobj,
+            )
+
     def make_chooseroos(self) -> None:
         """Prepare randomizers"""
         self.chooseroos = {
-            scale: Chooseroo([
+            scale: Chooseroo(
                 [
-                    fixes.get(note, note)
-                    for note in pitch_class
-                ]
-                for pitch_class in self.PITCH_CLASSES
-            ])
+                    [
+                        fixes.get(note, note)
+                        for note in pitch_class
+                    ]
+                    for pitch_class in self.PITCH_CLASSES
+                ],
+                self.state.get(scale),
+            )
             for scale, fixes in self.SCALE_FIX.items()
         }
         self.chooseroos["NONE"] = Chooseroo([""])
@@ -405,7 +482,16 @@ class PracticeMakesPerfect:
                     continue
                 if etude.mnem in self.chooseroos:
                     continue
-                self.chooseroos[etude.mnem] = Chooseroo(etude.keys)
+                self.chooseroos[etude.mnem] = Chooseroo(
+                    etude.keys,
+                    self.state.get(etude.mnem),
+                )
+
+        # And loaded book state
+        for name, saved in self.state["book"].items():
+            if (book := self.all_books[name]):
+                if saved.get("hash") == hash(book):
+                    book.chooseroo.queue = saved["queue"]
 
     def parse_config(self, stream: TextIO) -> Configuration:
         """Read configuration file"""
