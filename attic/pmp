@@ -24,7 +24,7 @@ from typing import TypeVar
 
 # TO DO:
 # - Support {}->[]
-# - Refactor to make all choosers integerish? And all in self.choosers
+# - Refactor to make all choosers integerish, and all in self.choosers
 # - "easy-major := C|F|G" etc., a sort of mnem-mnem
 
 
@@ -83,7 +83,7 @@ class Chooser(Generic[T]):
 
 @dataclasses.dataclass
 class Book:
-    """A collections of etudes or pointers to other books"""
+    """A collection of etudes or pointers to other books"""
     toc: TableOfContents
     sequential: bool = False
     chooser: Chooser[int] = dataclasses.field(init=False)
@@ -570,17 +570,23 @@ class PracticeMakesPerfect:
 
     def restore_book_state(self) -> None:
         """Continue books from where we left off"""
-        for name, saved in self.state["book"].items():
+        queues = self.state["book"]
+        for name in list(self.state["book"]):
             if (book := self.all_books.get(name)):
+                saved = queues[name]
                 if saved.get("hash") == hash(book):
-                    queue = saved.get("queue")
-                    book.restore(queue)
-                    self.log.debug(
-                        "Loaded %s -> (%d of %d)",
-                        name,
-                        len(queue),
-                        len(book),
-                    )
+                    if len(book) >= self.MIN_SAVABLE:
+                        queue = saved.get("queue")
+                        book.restore(queue)
+                        self.log.debug(
+                            "Loaded %s -> (%d of %d)",
+                            name,
+                            len(queue),
+                            len(book),
+                        )
+                    else:
+                        self.log.debug("Forgetting saved state for %s", book)
+                        del queues[name]
 
     def parse_config(self, stream: TextIO) -> Configuration:
         """Read configuration file"""
