@@ -173,12 +173,12 @@ class Configuration(NamedTuple):
     starred: list[str]
 
 
+# pylint: disable-next=too-many-instance-attributes,too-many-public-methods
 class PracticeMakesPerfect:
     """Practice Makes Perfect"""
 
     parser: argparse.ArgumentParser
     args: argparse.Namespace
-    config: Configuration
 
     def parse_command_line(self) -> None:
         """Command-line"""
@@ -282,6 +282,7 @@ class PracticeMakesPerfect:
 
     all_books: dict[str, Book]
     choosers: dict[str, Chooser]
+    config: Configuration
     log: logging.Logger
     state: dict
     book_name: str
