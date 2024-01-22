@@ -167,13 +167,10 @@ keepRayBrown:
   Ray Brown's Blues (I) (p.101), starting from {}: C|F|B♭|G
   Ray Brown's Blues (II) (p.102), starting from {}: C|F|B♭|G
   Ray Brown's Blues (III) (p.103), starting from {}: C|F|B♭|G
-  Ray Brown's 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.50): NONE
-  Ray Brown's 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.51): NONE
-  Ray Brown's minor 10ths with a 5th, (E↗B) ↗ (E♭↗B♭) (p.52): NONE
-  Ray Brown's minor 10ths with a 5th (B↘E) ↗ (B♭↘E♭) (p.53): NONE
-  Ray Brown's 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.54): NONE
-  Ray Brown's 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.55): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), starting from {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+  Ray Brown's 10ths with a 5th, {}: (E↗B) ↗ (E♭↗B♭) (p.50)|(B↘E) ↗ (B♭↘E♭) (p.51)
+  Ray Brown's minor 10ths with a 5th, {}: (E↗B) ↗ (E♭↗B♭) (p.52)|(B↘E) ↗ (B♭↘E♭) (p.53)
+  Ray Brown's 10ths with a 6th, {}: (E↗B) ↗ (E♭↗B♭) (p.54)|(B↘E) ↗ (B♭↘E♭) (p.55)
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
   Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 
 keepSteveInterval:
