@@ -22,7 +22,6 @@ from typing import TypeAlias
 from typing import TypeVar
 
 # TO DO:
-# - "Ray Brown's Blues (p.100), {} pattern in {}-major: {A+B|C|D|E|F} {major}"
 # - Support {}->[]
 # - Refactor to make all choosers integerish? And all in self.choosers
 # - "easy-major := C|F|G" etc., a sort of mnem-mnem
@@ -390,7 +389,10 @@ class PracticeMakesPerfect:
             keys.append(key)
 
         if "{}" in etude.name:
-            return etude.name.format(*keys)
+            return "".join((
+                keys.pop(0) if part == "{}" else part
+                for part in re.split(r"({})", etude.name)
+            ))
 
         return f"{keys[0]}{etude.name}"
 
@@ -642,7 +644,7 @@ class ConfigParser:
         if re.fullmatch(r"({[^}]*}\s*)+", description.strip()):
             parts = [
                 substr[1:-1]
-                for substr in re.findall(r"{[^}]*}", description)
+                for substr in re.findall(r"{[^{}]*}", description)
             ]
         else:
             parts = [description]
