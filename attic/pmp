@@ -22,7 +22,7 @@ from typing import TypeAlias
 from typing import TypeVar
 
 # TO DO:
-# - "{}-major on the {} string: {major} {E|A|D|G}"
+# - "Ray Brown's Blues (p.100), {} pattern in {}-major: {A+B|C|D|E|F} {major}"
 # - Support {}->[]
 # - Refactor to make all chooseroos integerish?
 # - "easy-major := C|F|G" etc., a sort of mnem-mnem
