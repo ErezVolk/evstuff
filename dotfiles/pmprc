@@ -48,10 +48,7 @@ warmupOtherScale:
   # 8-tone diminished scale (alternating whole steps and half steps, C D E- F G- A- A B, Di Bartolo p.232)
 
 warmupOneStringScale:
-  -major on the E string: major
-  -major on the A string: major
-  -major on the D string: major
-  -major on the G string: major
+  {}-major on the {} string: {major} {E|A|D|G}
 
 #
 # JdP's "Daily Chop-Builders for Bass"

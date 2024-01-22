@@ -528,7 +528,7 @@ class PracticeMakesPerfect:
     def restore_book_state(self) -> None:
         """Continue books from where we left off"""
         for name, saved in self.state["book"].items():
-            if (book := self.all_books[name]):
+            if (book := self.all_books.get(name)):
                 if saved.get("hash") == hash(book):
                     book.restore(saved.get("queue"))
 
