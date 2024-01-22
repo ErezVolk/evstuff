@@ -510,10 +510,11 @@ class PracticeMakesPerfect:
                 self.state["etude"][key] = chooser.queue
         for key, book in self.all_books.items():
             if book.used and len(book) >= self.MIN_SAVABLE:
-                self.state["book"][key] = {
-                    "hash": hash(book),
-                    "queue": book.chooser.queue,
-                }
+                if book.chooser.queue:
+                    self.state["book"][key] = {
+                        "hash": hash(book),
+                        "queue": book.chooser.queue,
+                    }
 
         with open(self.args.state_file, "wb") as fobj:
             plistlib.dump(
@@ -555,7 +556,13 @@ class PracticeMakesPerfect:
         for mnem, chooser in self.choosers.items():
             if chooser.queue:
                 if len(chooser) >= self.MIN_SAVABLE:
-                    self.log.debug("Loaded %s -> %s", mnem, chooser.queue)
+                    self.log.debug(
+                        "Loaded %s -> (%d of %d) %s",
+                        mnem,
+                        len(chooser.queue),
+                        len(chooser),
+                        chooser.queue,
+                    )
                 else:  # Was saved by an older version
                     self.log.debug("Forgetting saved state for %s", mnem)
                     del queues[mnem]
@@ -566,7 +573,14 @@ class PracticeMakesPerfect:
         for name, saved in self.state["book"].items():
             if (book := self.all_books.get(name)):
                 if saved.get("hash") == hash(book):
-                    book.restore(saved.get("queue"))
+                    queue = saved.get("queue")
+                    book.restore(queue)
+                    self.log.debug(
+                        "Loaded %s -> (%d of %d)",
+                        name,
+                        len(queue),
+                        len(book),
+                    )
 
     def parse_config(self, stream: TextIO) -> Configuration:
         """Read configuration file"""
