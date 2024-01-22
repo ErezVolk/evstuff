@@ -24,7 +24,7 @@ from typing import TypeVar
 # TO DO:
 # - "Ray Brown's Blues (p.100), {} pattern in {}-major: {A+B|C|D|E|F} {major}"
 # - Support {}->[]
-# - Refactor to make all chooseroos integerish?
+# - Refactor to make all choosers integerish?
 # - "easy-major := C|F|G" etc., a sort of mnem-mnem
 
 
@@ -49,11 +49,18 @@ class Etude:
 
 
 @dataclasses.dataclass
-class Chooseroo(Generic[T]):
+class Chooser(Generic[T]):
     """Chooses from a defined pool, minimizing repetitions"""
     pool: list[T]
     queue: list[T] | None = dataclasses.field(default=None)
     used: bool = dataclasses.field(default=False, init=False)
+
+    def __post_init__(self):
+        if self.queue:
+            random.shuffle(self.queue)
+
+    def __len__(self):
+        return len(self.pool)
 
     def get(self) -> T:
         """Get the next item"""
@@ -69,10 +76,13 @@ class Book:
     """A collections of etudes or pointers to other books"""
     toc: TableOfContents
     sequential: bool = False
-    chooseroo: Chooseroo[int] = dataclasses.field(init=False)
+    chooser: Chooser[int] = dataclasses.field(init=False)
+
+    def __len__(self):
+        return len(self.toc)
 
     def __post_init__(self):
-        self.make_chooseroo()
+        self.make_chooser()
 
     def __hash__(self) -> int:
         hashable = "\x00".join([entry.name for entry in self.toc])
@@ -81,11 +91,11 @@ class Book:
     @property
     def used(self) -> bool:
         """Whether this book has been used"""
-        return self.chooseroo.used
+        return self.chooser.used
 
     def get(self) -> Playable:
         """Get the next random playable"""
-        return self.toc[self.chooseroo.get()]
+        return self.toc[self.chooser.get()]
 
     def restore(self, queue) -> None:
         """Validate and restore a saved queue"""
@@ -97,17 +107,17 @@ class Book:
             idxs = set(queue)
             if len(idxs) != len(queue):
                 return
-            if max(idxs) >= len(self.toc):
+            if max(idxs) >= len(self):
                 return
-        self.chooseroo.queue = queue
+        self.chooser.queue = queue
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
         self.toc.append(playable)
 
-    def make_chooseroo(self):
-        """(Re)create the chooseroo"""
-        self.chooseroo = Chooseroo(list(range(len(self.toc))))
+    def make_chooser(self):
+        """(Re)create the chooser"""
+        self.chooser = Chooser(list(range(len(self))))
 
 
 class BookRef(NamedTuple):
@@ -256,11 +266,11 @@ class PracticeMakesPerfect:
     }
 
     all_books: dict[str, Book]
-    chooseroos: dict[str, Chooseroo]
+    choosers: dict[str, Chooser]
     state: dict
     book_name: str
 
-    STATE_VERSION = "v1"
+    STATE_VERSION = "v2"
 
     def main(self) -> None:
         """Practice Makes Perfect"""
@@ -273,7 +283,7 @@ class PracticeMakesPerfect:
         self.add_modes()
         self.configure()
         self.load_state()
-        self.make_chooseroos()
+        self.make_choosers()
         self.restore_book_state()
 
         self.book_name = self.choose_book()
@@ -366,7 +376,7 @@ class PracticeMakesPerfect:
 
     def make_track(self, etude: Etude) -> str:
         """Pick a key for one etude"""
-        key = self.chooseroos[etude.mnem].get()
+        key = self.choosers[etude.mnem].get()
         if not isinstance(key, str):  # e.g., ("C♯", "D♭")
             key = random.choice(key)
         if "{}" in etude.name:
@@ -448,21 +458,21 @@ class PracticeMakesPerfect:
         """Save the queue state"""
         # Remove goners
         for key in list(self.state["etude"]):
-            if key not in self.chooseroos:
+            if key not in self.choosers:
                 del self.state["etude"][key]
         for key, saved in list(self.state["book"].items()):
-            if not (book := self.all_books[key]) or hash(book) != saved["hash"]:
+            if hash(self.all_books.get(key)) != saved["hash"]:
                 del self.state["book"][key]
 
         # Update current
-        for key, chooseroo in self.chooseroos.items():
-            if chooseroo.used:
-                self.state["etude"][key] = chooseroo.queue
+        for key, chooser in self.choosers.items():
+            if chooser.used and len(chooser) > 2:
+                self.state["etude"][key] = chooser.queue
         for key, book in self.all_books.items():
-            if book.used:
+            if book.used and len(book) > 2:
                 self.state["book"][key] = {
                     "hash": hash(book),
-                    "queue": book.chooseroo.queue,
+                    "queue": book.chooser.queue,
                 }
 
         with open(self.args.state_file, "wb") as fobj:
@@ -471,10 +481,10 @@ class PracticeMakesPerfect:
                 fobj,
             )
 
-    def make_chooseroos(self) -> None:
+    def make_choosers(self) -> None:
         """Prepare randomizers"""
-        self.chooseroos = {
-            scale: Chooseroo(
+        self.choosers = {
+            scale: Chooser(
                 [
                     [
                         fixes.get(note, note)
@@ -486,19 +496,19 @@ class PracticeMakesPerfect:
             )
             for scale, fixes in self.SCALE_FIX.items()
         }
-        self.chooseroos["NONE"] = Chooseroo([""])
+        self.choosers["NONE"] = Chooser([""])
         for book in self.all_books.values():
-            book.make_chooseroo()
+            book.make_chooser()
             for etude in book.toc:
                 if not isinstance(etude, Etude):
                     continue
                 if not isinstance(etude.keys, list):
                     continue
-                if etude.mnem in self.chooseroos:
+                if etude.mnem in self.choosers:
                     continue
-                self.chooseroos[etude.mnem] = Chooseroo(
+                self.choosers[etude.mnem] = Chooser(
                     etude.keys,
-                    self.state.get(etude.mnem),
+                    self.state["etude"].get(etude.mnem),
                 )
 
     def restore_book_state(self) -> None:
