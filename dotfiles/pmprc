@@ -318,8 +318,9 @@ reviseOther:
 _melodicToDo:
   Melodic Étude in A♭ Major (p.11): NONE
   Melodic Étude in D♭ Major (p.12): NONE
+  # Add more as I play them
 
-_rayBrownToDo:  # As I work through the book
+_rayBrownToDo:
   Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
   Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
@@ -355,7 +356,7 @@ _rayBrownToDo:  # As I work through the book
   Ray Brown's Arpeggios for Endings (p.134): NONE
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
-_steveToDo:  # As I work through the book
+_steveToDo:
   {}-major Diatonic slides of 4th in eights 1₅₆2.3₇14... (p.23/2B): major
   4th slide etude (p24/3): NONE
   4th slide etude (p24/4): NONE
@@ -367,6 +368,7 @@ _steveToDo:  # As I work through the book
   Diatonic Slides combination exercise (p.27/3): NONE
   {}-major Diatonic Slides of 6th half notes (1-6|6-1|2-7|..) (p.28/4): major
   {}-major Diatonic Slides combination up to 6ths (p.29/5): major
+  # Add more as I play them
 
 _bachToDo:
   Bach I. Allemande: NONE
@@ -378,7 +380,7 @@ _bookToDo:  # When I'm good enough?
   Blues Grooves: NONE  # Take a look?
   Improviser's Bass Book: NONE  # Loses to JP+Dones? But Harvey likes it
 
-  Clayton's Guide to Scales and Modes: NONE  # Hm, pretty comprehensive
+  Stuart Clayton's Guide to Scales and Modes: NONE  # Hm, pretty comprehensive
   Di Bartolo's Complete Guide to Scales and Chords: NONE  # Hm, quite comprehensive
 
   Connecting Chords with Linear Harmony by Bert Ligon: NONE  # Check it out? For improvising
