@@ -166,7 +166,7 @@ arpeggio:
   min⁹: minor
 
 keepRayBrown:
-  Ray Brown's Blues (p.100), {} pattern: A+B|C|D|E|F
+  Ray Brown's Blues (p.100), {} pattern in {}-major: {A+B|C|D|E|F} {major}
   Ray Brown's Blues (I) (p.101), starting from {}: C|F|B♭|G
   Ray Brown's Blues (II) (p.102), starting from {}: C|F|B♭|G
   Ray Brown's Blues (III) (p.103), starting from {}: C|F|B♭|G

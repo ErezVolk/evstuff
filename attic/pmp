@@ -24,7 +24,7 @@ from typing import TypeVar
 # TO DO:
 # - "Ray Brown's Blues (p.100), {} pattern in {}-major: {A+B|C|D|E|F} {major}"
 # - Support {}->[]
-# - Refactor to make all choosers integerish?
+# - Refactor to make all choosers integerish? And all in self.choosers
 # - "easy-major := C|F|G" etc., a sort of mnem-mnem
 
 
@@ -35,9 +35,8 @@ PitchClass: TypeAlias = Sequence[str]
 
 
 @dataclasses.dataclass
-class Etude:
-    """A concrete etude, e.g., 'minor pentatonic'"""
-    name: str
+class Pool:
+    """A pool of choices for an etude"""
     keys: str | list[str]
     mnem: str = dataclasses.field(init=False)
 
@@ -46,6 +45,13 @@ class Etude:
             self.mnem = self.keys
         else:
             self.mnem = "|".join(sorted(self.keys))
+
+
+@dataclasses.dataclass
+class Etude:
+    """A concrete etude, e.g., 'minor pentatonic'"""
+    name: str
+    pools: list[Pool]
 
 
 @dataclasses.dataclass
@@ -376,12 +382,17 @@ class PracticeMakesPerfect:
 
     def make_track(self, etude: Etude) -> str:
         """Pick a key for one etude"""
-        key = self.choosers[etude.mnem].get()
-        if not isinstance(key, str):  # e.g., ("C♯", "D♭")
-            key = random.choice(key)
+        keys = []
+        for pool in etude.pools:
+            key = self.choosers[pool.mnem].get()
+            if not isinstance(key, str):  # e.g., ("C♯", "D♭")
+                key = random.choice(key)
+            keys.append(key)
+
         if "{}" in etude.name:
-            return etude.name.replace("{}", key)
-        return f"{key}{etude.name}"
+            return etude.name.format(*keys)
+
+        return f"{keys[0]}{etude.name}"
 
     def get_sep(self, tracks: list[str]) -> str:
         """Return space or newline separator"""
@@ -502,14 +513,15 @@ class PracticeMakesPerfect:
             for etude in book.toc:
                 if not isinstance(etude, Etude):
                     continue
-                if not isinstance(etude.keys, list):
-                    continue
-                if etude.mnem in self.choosers:
-                    continue
-                self.choosers[etude.mnem] = Chooser(
-                    etude.keys,
-                    self.state["etude"].get(etude.mnem),
-                )
+                for pool in etude.pools:
+                    if not isinstance(pool.keys, list):
+                        continue
+                    if pool.mnem in self.choosers:
+                        continue
+                    self.choosers[pool.mnem] = Chooser(
+                        pool.keys,
+                        self.state["etude"].get(pool.mnem),
+                    )
 
     def restore_book_state(self) -> None:
         """Continue books from where we left off"""
@@ -594,7 +606,7 @@ class ConfigParser:
             elif self.match(r"\s+([^:]*):\s+(.*)"):
                 self.add_etude(
                     name=self.group(1).strip(),
-                    scale=self.group(2).strip(),
+                    description=self.group(2).strip(),
                 )
             elif self.match(f"\\s+{self.PART_RE}\\s*") and self.group("at"):
                 self.add_ref()
@@ -619,20 +631,33 @@ class ConfigParser:
         if star == "*":
             self.starred.append(name)
 
-    def add_etude(self, name: str, scale: str) -> None:
+    def add_etude(self, name: str, description: str) -> None:
         """Found an etude line"""
         if self.curr is None:
             raise BadConfig(f"Bookless etude in line {self.line_num}")
 
         if name and name[0] in "'\"" and name[-1] == name[0]:
             name = name[1:-1]
-        if scale in self.known_scales:
-            self.curr.append(Etude(name=name, keys=scale))
+
+        if re.fullmatch(r"({[^}]*}\s*)+", description.strip()):
+            parts = [
+                substr[1:-1]
+                for substr in re.findall(r"{[^}]*}", description)
+            ]
         else:
-            self.curr.append(Etude(
-                name=name,
-                keys=[key.strip() for key in scale.split("|")],
-            ))
+            parts = [description]
+
+        num_placeholders = len(re.findall(r"{}", name)) or 1
+        if len(parts) != num_placeholders:
+            raise BadConfig(f"Placeholder mismatch in line {self.line_num}")
+
+        pools = []
+        for part in parts:
+            if part in self.known_scales:
+                pools.append(Pool(part))
+            else:
+                pools.append(Pool([key.strip() for key in part.split("|")]))
+        self.curr.append(Etude(name=name, pools=pools))
 
     def add_ref(self) -> None:
         """Add book reference line (in self.mobj)"""
