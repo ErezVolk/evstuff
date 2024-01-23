@@ -222,6 +222,12 @@ class PracticeMakesPerfect:
             type=Path,
             default=Path.home() / ".pmpstate.plist",
         )
+        parser.add_argument(
+            "-s",
+            "--saveless",
+            action="store_true",
+            help="Don't save state file",
+        )
         self.args = parser.parse_args()
         self.parser = parser
 
@@ -296,7 +302,8 @@ class PracticeMakesPerfect:
             None if self.args.one_of_each else self.args.num_tracks,
             spaced=True,
         )
-        self.save_state()
+        if not self.args.saveless:
+            self.save_state()
 
     def configure_logging(self):
         """Set logging format and level"""
