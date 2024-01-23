@@ -37,20 +37,14 @@ class Deck:
     cards: list[str]
     queue: list[str] = dataclasses.field(default_factory=list)
     mnem: str = ""
-    used: bool = dataclasses.field(default=False, init=False)
+    used: bool = False
 
     def __post_init__(self):
-        if self.queue:
-            random.shuffle(self.queue)
         if not self.mnem:
             self.mnem = "|".join(sorted(self.cards))
 
     def __len__(self):
         return len(self.cards)
-
-    def reset(self):
-        """Forget the current queue"""
-        self.queue = []
 
     def restore(self, queue: object) -> bool:
         """Validate and restore a saved queue"""
@@ -60,12 +54,11 @@ class Deck:
             return False
         if not all(isinstance(card, str) for card in queue):
             return False
-        if queue:
-            cards = set(queue)
-            if len(cards) != len(queue):
-                return False
-            if not set(self.cards).issubset(self.cards):
-                return False
+        cards = set(queue)
+        if len(cards) != len(queue):
+            return False
+        if not set(self.cards).issubset(self.cards):
+            return False
         self.queue = queue
         return True
 
@@ -93,9 +86,6 @@ class Book:
     deck: Deck = dataclasses.field(init=False)
     names: list[str] = dataclasses.field(init=False)
 
-    def __len__(self):
-        return len(self.toc)
-
     def __post_init__(self):
         self.make_deck()
 
@@ -103,14 +93,10 @@ class Book:
         hashable = "\x00".join(self.names)
         return int(hashlib.sha256(hashable.encode()).hexdigest(), 16)
 
-    @property
-    def used(self) -> bool:
-        """Whether this book has been used"""
-        return self.deck.used
-
-    def get(self) -> Playable:
+    def draw(self) -> Playable:
         """Get the next random playable"""
-        return self.toc[self.names.index(self.deck.draw())]
+        name = self.deck.draw()
+        return self.toc[self.names.index(name)]
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
@@ -166,7 +152,7 @@ class Configuration(NamedTuple):
     starred: list[str]
 
 
-# pylint: disable-next=too-many-instance-attributes,too-many-public-methods
+# pylint: disable-next=too-many-instance-attributes
 class PracticeMakesPerfect:
     """Practice Makes Perfect"""
 
@@ -292,10 +278,10 @@ class PracticeMakesPerfect:
             print(DEFAULT_CONFIG)
             return
 
-        self.make_key_decks()
+        self.make_mode_decks()
         self.configure()
         self.load_state()
-        self.make_decks()
+        self.make_all_decks()
 
         self.book_name = self.choose_book()
         self.run_book(
@@ -367,7 +353,7 @@ class PracticeMakesPerfect:
         """Yields chosen etudes"""
         assert not book.sequential
         for _ in range(count):
-            entry = book.get()
+            entry = book.draw()
             if isinstance(entry, Etude):
                 yield entry
             else:
@@ -403,7 +389,7 @@ class PracticeMakesPerfect:
         keys = []
         for deck in etude.decks:
             key = deck.draw()
-            if "|" in key:
+            if "|" in key:  # Can only come from our pitch classes
                 key = random.choice(key.split("|"))
             keys.append(key)
 
@@ -425,8 +411,8 @@ class PracticeMakesPerfect:
             return "\n"
         return " "
 
-    def make_key_decks(self) -> None:
-        """Add the Greek modes and their hypotheticals to our known scales"""
+    def make_mode_decks(self) -> None:
+        """Start `self.decks` with the Greek modes and their hypotheticals"""
         model = self.SCALE_FIX["major"]
         mapping: dict[str, str]
 
@@ -460,21 +446,6 @@ class PracticeMakesPerfect:
         self.decks["NONE"] = Deck([""], mnem="NONE")
         self.log.debug("Key decks: %s", list(self.decks))
 
-    @classmethod
-    def choose(cls, options: Iterable[T], num_choices: int) -> list[T]:
-        """Choose so we have as many "full" repetitions and a random tail"""
-        opts = list(options)
-        nopts = len(opts)
-
-        if num_choices <= nopts:
-            return random.sample(opts, max(num_choices, 1))
-
-        ntail = num_choices % nopts
-        n_full_rounds = (num_choices - ntail) // nopts
-
-        choices = (opts * n_full_rounds) + random.sample(opts, ntail)
-        return choices
-
     def configure(self) -> None:
         """Fix configuration files, defaults, etc."""
         try:
@@ -486,7 +457,7 @@ class PracticeMakesPerfect:
         self.check_refs()
 
     def load_state(self) -> None:
-        """Read saved state.
+        """Read saved state info `self.state`
 
         Sets `self.state`.
         """
@@ -500,13 +471,11 @@ class PracticeMakesPerfect:
 
     def save_state(self) -> None:
         """Save the queue state"""
-        # Remove goners
         for key in list(self.state["deck"]):
             if key not in self.decks:
                 self.log.debug("Deck %r is no more", key)
                 del self.state["deck"][key]
 
-        # Update current
         used = []
         for key, deck in self.decks.items():
             if deck.used and len(deck) >= self.MIN_SAVABLE:
@@ -520,10 +489,9 @@ class PracticeMakesPerfect:
                 fobj,
             )
 
-    def make_decks(self) -> None:
+    def make_all_decks(self) -> None:
         """Prepare randomizers"""
-
-        # Make sure we have all the decks
+        # Make sure all etude and book decks are registered
         for book in self.all_books.values():
             deck = book.make_deck()
             self.decks[deck.mnem] = deck
@@ -534,7 +502,7 @@ class PracticeMakesPerfect:
                     if deck.mnem in self.decks:
                         etude.decks[idx] = self.decks[deck.mnem]
 
-        # Now restore states for any eligible deck
+        # Restore states for any eligible deck
         queues = self.state["deck"]
         n_used = 0
         for mnem, deck in self.decks.items():
