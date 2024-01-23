@@ -710,7 +710,7 @@ class ConfigParser:
             self.starred.append(name)
 
     def add_ref_to(self, toc: TableOfContents, mobj: re.Match):
-        """Add book reference to a give TOC"""
+        """Add book reference to a given TOC"""
         if (nstr := mobj.group("num")):
             num = int(nstr)
         elif mobj.group("at"):
