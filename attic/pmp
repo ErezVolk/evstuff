@@ -21,8 +21,9 @@ from typing import TypeAlias
 from typing import TypeVar
 
 # TO DO:
-# - Fix the name/mnem thing
-# - Support {}->[]
+# - Refactor the name/mnem thing
+# - A UI to mark what was done?
+# - Support {}->[] (but what should it do?)
 # - "easy-major := C|F|G" etc., a sort of mnem-mnem
 
 
