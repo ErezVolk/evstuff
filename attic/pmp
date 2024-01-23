@@ -32,6 +32,10 @@ TableOfContents: TypeAlias = list[Playable]
 PitchClass: TypeAlias = Sequence[str]
 
 
+class CannotRestore(ValueError):
+    """Raised internally when a deck cannot be restored."""
+
+
 @dataclasses.dataclass
 class Deck:
     """A deck of strings"""
@@ -47,21 +51,20 @@ class Deck:
     def __len__(self):
         return len(self.cards)
 
-    def restore(self, queue: object) -> bool:
+    def restore(self, queue: object):
         """Validate and restore a saved queue"""
         if not isinstance(queue, list):
-            return False
+            raise CannotRestore("Not a list")
         if not queue:
-            return False
+            raise CannotRestore("Empty list")
         if not all(isinstance(card, str) for card in queue):
-            return False
+            raise CannotRestore("Not a list of strings")
         cards = set(queue)
         if len(cards) != len(queue):
-            return False
+            raise CannotRestore("Not a list of unique strings")
         if not set(self.cards).issubset(self.cards):
-            return False
+            raise CannotRestore("List contains invalid strings")
         self.queue = queue
-        return True
 
     def draw(self) -> str:
         """Get the next card"""
@@ -109,7 +112,7 @@ class Book:
         """Add an entry to the TOC"""
         self.toc.append(playable)
 
-    def make_deck(self, mnem="") -> Deck:
+    def make_deck(self, mnem: str) -> Deck:
         """(Re)create the deck"""
         self.cap = self.names = [entry.name for entry in self.toc]
         self.deck = Deck(self.names, mnem=mnem)
@@ -521,10 +524,14 @@ class PracticeMakesPerfect:
         # Restore states for any eligible deck
         queues = self.state["deck"]
         n_used = 0
-        for mnem, deck in self.decks.items():
+        for mnem in list(self.decks):
             if (queue := queues.get(mnem)) is None:
                 continue
-            if len(deck) >= self.MIN_SAVABLE and deck.restore(queue):
+            deck = self.decks[mnem]
+            try:
+                if len(deck) < self.MIN_SAVABLE:
+                    raise CannotRestore("Too few items to load state")
+                deck.restore(queue)
                 self.log.debug(
                     "Loaded %s -> (%d of %d) %s",
                     mnem,
@@ -533,8 +540,9 @@ class PracticeMakesPerfect:
                     deck.queue,
                 )
                 n_used += 1
-            else:
-                self.log.debug("Forgetting saved state for %s", mnem)
+            except CannotRestore as exc:
+                self.log.debug("Forgetting saved state for %s: %s", mnem, exc)
+                del self.decks[mnem]
 
         self.log.debug(">> %d of %d decks", n_used, len(self.decks))
 
