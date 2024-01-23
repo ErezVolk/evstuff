@@ -14,7 +14,6 @@ import re
 from collections import defaultdict
 from collections.abc import Iterable
 from collections.abc import Sequence
-from typing import Generic
 from typing import NamedTuple
 from typing import NoReturn
 from typing import TextIO
@@ -23,7 +22,6 @@ from typing import TypeVar
 
 # TO DO:
 # - Support {}->[]
-# - Refactor to make all choosers integerish, and all in self.choosers
 # - "easy-major := C|F|G" etc., a sort of mnem-mnem
 
 
@@ -34,48 +32,57 @@ PitchClass: TypeAlias = Sequence[str]
 
 
 @dataclasses.dataclass
-class Pool:
-    """A pool of choices for an etude"""
-    keys: list[str]
+class Deck:
+    """A deck of strings"""
+    cards: list[str]
+    queue: list[str] = dataclasses.field(default_factory=list)
     mnem: str = ""
+    used: bool = dataclasses.field(default=False, init=False)
 
     def __post_init__(self):
+        if self.queue:
+            random.shuffle(self.queue)
         if not self.mnem:
-            self.mnem = "|".join(sorted(self.keys))
+            self.mnem = "|".join(sorted(self.cards))
+
+    def __len__(self):
+        return len(self.cards)
+
+    def reset(self):
+        """Forget the current queue"""
+        self.queue = []
+
+    def restore(self, queue: object) -> bool:
+        """Validate and restore a saved queue"""
+        if not isinstance(queue, list):
+            return False
+        if not queue:
+            return False
+        if not all(isinstance(card, str) for card in queue):
+            return False
+        if queue:
+            cards = set(queue)
+            if len(cards) != len(queue):
+                return False
+            if not set(self.cards).issubset(self.cards):
+                return False
+        self.queue = queue
+        return True
+
+    def draw(self) -> str:
+        """Get the next card"""
+        if not self.queue:
+            self.queue = list(self.cards)
+            random.shuffle(self.queue)
+        self.used = True
+        return self.queue.pop()
 
 
 @dataclasses.dataclass
 class Etude:
     """A concrete etude, e.g., 'minor pentatonic'"""
     name: str
-    pools: list[Pool]
-
-
-@dataclasses.dataclass
-class Chooser(Generic[T]):
-    """Chooses from a defined pool, minimizing repetitions"""
-    pool: list[T]
-    queue: list[T] | None = dataclasses.field(default=None)
-    used: bool = dataclasses.field(default=False, init=False)
-
-    def __post_init__(self):
-        if self.queue:
-            random.shuffle(self.queue)
-
-    def __len__(self):
-        return len(self.pool)
-
-    def reset(self):
-        """Forget the current queue"""
-        self.queue = None
-
-    def get(self) -> T:
-        """Get the next item"""
-        if not self.queue:
-            self.queue = list(self.pool)
-            random.shuffle(self.queue)
-        self.used = True
-        return self.queue.pop()
+    decks: list[Deck]
 
 
 @dataclasses.dataclass
@@ -83,48 +90,37 @@ class Book:
     """A collection of etudes or pointers to other books"""
     toc: TableOfContents
     sequential: bool = False
-    chooser: Chooser[int] = dataclasses.field(init=False)
+    deck: Deck = dataclasses.field(init=False)
+    names: list[str] = dataclasses.field(init=False)
 
     def __len__(self):
         return len(self.toc)
 
     def __post_init__(self):
-        self.make_chooser()
+        self.make_deck()
 
     def __hash__(self) -> int:
-        hashable = "\x00".join([entry.name for entry in self.toc])
+        hashable = "\x00".join(self.names)
         return int(hashlib.sha256(hashable.encode()).hexdigest(), 16)
 
     @property
     def used(self) -> bool:
         """Whether this book has been used"""
-        return self.chooser.used
+        return self.deck.used
 
     def get(self) -> Playable:
         """Get the next random playable"""
-        return self.toc[self.chooser.get()]
-
-    def restore(self, queue) -> None:
-        """Validate and restore a saved queue"""
-        if not isinstance(queue, list):
-            return
-        if not all(isinstance(idx, int) for idx in queue):
-            return
-        if queue:
-            idxs = set(queue)
-            if len(idxs) != len(queue):
-                return
-            if max(idxs) >= len(self):
-                return
-        self.chooser.queue = queue
+        return self.toc[self.names.index(self.deck.draw())]
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
         self.toc.append(playable)
 
-    def make_chooser(self):
-        """(Re)create the chooser"""
-        self.chooser = Chooser(list(range(len(self))))
+    def make_deck(self) -> Deck:
+        """(Re)create the deck"""
+        self.names = [entry.name for entry in self.toc]
+        self.deck = Deck(self.names)
+        return self.deck
 
 
 class BookRef(NamedTuple):
@@ -278,14 +274,13 @@ class PracticeMakesPerfect:
     }
 
     all_books: dict[str, Book]
-    key_pools: dict[str, Pool]
-    choosers: dict[str, Chooser]
+    decks: dict[str, Deck]
     config: Configuration
     log: logging.Logger
     state: dict
     book_name: str
 
-    STATE_VERSION = "v2"
+    STATE_VERSION = "v3"
     MIN_SAVABLE = 3
 
     def main(self) -> None:
@@ -297,11 +292,10 @@ class PracticeMakesPerfect:
             print(DEFAULT_CONFIG)
             return
 
-        self.make_key_pools()
+        self.make_key_decks()
         self.configure()
         self.load_state()
-        self.make_choosers()
-        self.restore_book_state()
+        self.make_decks()
 
         self.book_name = self.choose_book()
         self.run_book(
@@ -385,14 +379,14 @@ class PracticeMakesPerfect:
     def choose_book(self) -> str:
         """Pick out a book"""
         if self.args.books:
-            pool = self.args.books
-            if (unknown := set(pool) - set(self.all_books)):
+            books = self.args.books
+            if (unknown := set(books) - set(self.all_books)):
                 self.fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
-            pool = self.config.starred
-            if len(pool) > 1:
+            books = self.config.starred
+            if len(books) > 1:
                 self.args.verbose = True
-        return random.choice(pool)
+        return random.choice(books)
 
     def make_tracks(
         self,
@@ -407,8 +401,8 @@ class PracticeMakesPerfect:
     def make_track(self, etude: Etude) -> str:
         """Pick a key for one etude"""
         keys = []
-        for pool in etude.pools:
-            key = self.choosers[pool.mnem].get()
+        for deck in etude.decks:
+            key = deck.draw()
             if "|" in key:
                 key = random.choice(key.split("|"))
             keys.append(key)
@@ -431,7 +425,7 @@ class PracticeMakesPerfect:
             return "\n"
         return " "
 
-    def make_key_pools(self) -> None:
+    def make_key_decks(self) -> None:
         """Add the Greek modes and their hypotheticals to our known scales"""
         model = self.SCALE_FIX["major"]
         mapping: dict[str, str]
@@ -453,8 +447,8 @@ class PracticeMakesPerfect:
                 for key, value in model.items()
             }
 
-        self.key_pools = {
-            scale: Pool(
+        self.decks = {
+            scale: Deck(
                 [
                     "|".join((fixes.get(note, note) for note in pitch_class))
                     for pitch_class in self.PITCH_CLASSES
@@ -463,8 +457,8 @@ class PracticeMakesPerfect:
             )
             for scale, fixes in self.SCALE_FIX.items()
         }
-        self.key_pools["NONE"] = Pool([""], mnem="NONE")
-        self.log.debug("Key pools: %s", list(self.key_pools))
+        self.decks["NONE"] = Deck([""], mnem="NONE")
+        self.log.debug("Key decks: %s", list(self.decks))
 
     @classmethod
     def choose(cls, options: Iterable[T], num_choices: int) -> list[T]:
@@ -502,40 +496,23 @@ class PracticeMakesPerfect:
             self.state = loaded[self.STATE_VERSION]
         except (FileNotFoundError, plistlib.InvalidFileException, KeyError):
             self.state = {}
-        self.state.setdefault("book", {})
-        self.state.setdefault("etude", {})
+        self.state.setdefault("deck", {})
 
     def save_state(self) -> None:
         """Save the queue state"""
         # Remove goners
-        for key in list(self.state["etude"]):
-            if key not in self.choosers:
-                self.log.debug("Etude %r is no more", key)
-                del self.state["etude"][key]
-
-        for key, saved in list(self.state["book"].items()):
-            if hash(self.all_books.get(key)) != saved["hash"]:
-                self.log.debug("Book %r is no more", key)
-                del self.state["book"][key]
+        for key in list(self.state["deck"]):
+            if key not in self.decks:
+                self.log.debug("Deck %r is no more", key)
+                del self.state["deck"][key]
 
         # Update current
         used = []
-        for key, chooser in self.choosers.items():
-            if chooser.used and len(chooser) >= self.MIN_SAVABLE:
-                self.state["etude"][key] = chooser.queue
+        for key, deck in self.decks.items():
+            if deck.used and len(deck) >= self.MIN_SAVABLE:
+                self.state["deck"][key] = deck.queue
                 used.append(key)
-        self.log.debug("Saving etudes: %s", used)
-
-        used = []
-        for key, book in self.all_books.items():
-            if book.used and len(book) >= self.MIN_SAVABLE:
-                if book.chooser.queue:
-                    self.state["book"][key] = {
-                        "hash": hash(book),
-                        "queue": book.chooser.queue,
-                    }
-                    used.append(key)
-        self.log.debug("Saving books %s", used)
+        self.log.debug("Saving %d etude(s): %s", len(used), " ".join(used))
 
         with open(self.args.state_file, "wb") as fobj:
             plistlib.dump(
@@ -543,73 +520,45 @@ class PracticeMakesPerfect:
                 fobj,
             )
 
-    def make_choosers(self) -> None:
+    def make_decks(self) -> None:
         """Prepare randomizers"""
-        queues = self.state["etude"]
-        self.choosers = {
-            scale: Chooser(pool.keys, queues.get(pool.mnem))
-            for scale, pool in self.key_pools.items()
-        }
 
+        # Make sure we have all the decks
         for book in self.all_books.values():
-            book.make_chooser()
+            deck = book.make_deck()
+            self.decks[deck.mnem] = deck
             for etude in book.toc:
                 if not isinstance(etude, Etude):
                     continue
-                for pool in etude.pools:
-                    if not isinstance(pool.keys, list):
-                        continue
-                    if pool.mnem in self.choosers:
-                        continue
-                    queue = queues.get(pool.mnem)
-                    self.choosers[pool.mnem] = Chooser(pool.keys, queue)
+                for idx, deck in enumerate(etude.decks):
+                    if deck.mnem in self.decks:
+                        etude.decks[idx] = self.decks[deck.mnem]
 
-        # Get rid of any too-short saved queues
-        for mnem, chooser in self.choosers.items():
-            if chooser.queue:
-                if len(chooser) >= self.MIN_SAVABLE:
-                    self.log.debug(
-                        "Loaded %s -> (%d of %d) %s",
-                        mnem,
-                        len(chooser.queue),
-                        len(chooser),
-                        chooser.queue,
-                    )
-                else:  # Was saved by an older version
-                    self.log.debug("Forgetting saved state for %s", mnem)
-                    del queues[mnem]
-                    chooser.reset()
-
-        used = [chooser for chooser in self.choosers.values() if chooser.queue]
-        self.log.debug(">> %d of %d etudes", len(used), len(self.choosers))
-
-    def restore_book_state(self) -> None:
-        """Continue books from where we left off"""
-        queues = self.state["book"]
+        # Now restore states for any eligible deck
+        queues = self.state["deck"]
         n_used = 0
-        for name in list(self.state["book"]):
-            if (book := self.all_books.get(name)):
-                saved = queues[name]
-                if saved.get("hash") == hash(book):
-                    if len(book) >= self.MIN_SAVABLE:
-                        queue = saved.get("queue")
-                        book.restore(queue)
-                        n_used += 1
-                        self.log.debug(
-                            "Loaded %s -> (%d of %d)",
-                            name,
-                            len(queue),
-                            len(book),
-                        )
-                    else:
-                        self.log.debug("Forgetting saved state for %s", book)
-                        del queues[name]
-        self.log.debug(">> %d of %d books", n_used, len(self.all_books))
+        for mnem, deck in self.decks.items():
+            if (queue := queues.get(mnem)) is None:
+                continue
+            if len(deck) >= self.MIN_SAVABLE and deck.restore(queue):
+                deck.restore(queue)
+                self.log.debug(
+                    "Loaded %s -> (%d of %d) %s",
+                    mnem,
+                    len(deck.queue),
+                    len(deck),
+                    deck.queue,
+                )
+                n_used += 1
+            else:
+                self.log.debug("Forgetting saved state for %s", mnem)
+
+        self.log.debug(">> %d of %d decks", n_used, len(self.decks))
 
     def parse_config(self, stream: TextIO) -> Configuration:
         """Read configuration file"""
         try:
-            return ConfigParser(self.key_pools).parse(stream)
+            return ConfigParser(self.decks).parse(stream)
         except BadConfig as err:
             self.fail(str(err))
             raise err  # Won't happen, just to appease pyright
@@ -657,8 +606,8 @@ class ConfigParser:
     line: str
     mobj: re.Match | None
 
-    def __init__(self, known_pools: dict[str, Pool]):
-        self.known_pools = known_pools
+    def __init__(self, known_decks: dict[str, Deck]):
+        self.known_decks = known_decks
 
     def match(self, expr: str) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line"""
@@ -727,13 +676,13 @@ class ConfigParser:
         if len(parts) != num_placeholders:
             raise BadConfig(f"Placeholder mismatch in line {self.line_num}")
 
-        pools: list[Pool] = []
+        decks: list[Deck] = []
         for part in parts:
             try:
-                pools.append(self.known_pools[part])
+                decks.append(self.known_decks[part])
             except KeyError:
-                pools.append(Pool([key.strip() for key in part.split("|")]))
-        self.curr.append(Etude(name=name, pools=pools))
+                decks.append(Deck([key.strip() for key in part.split("|")]))
+        self.curr.append(Etude(name=name, decks=decks))
 
     def add_ref(self) -> None:
         """Add book reference line (in self.mobj)"""
