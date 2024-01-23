@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect"""
 import argparse
+import contextlib
 import dataclasses
 import hashlib
 import graphlib
@@ -93,21 +94,24 @@ class Book:
     cap: list[str] = dataclasses.field(init=False)
 
     def __hash__(self) -> int:
-        hashable = "\x00".join(self.names)
-        return int(hashlib.sha256(hashable.encode()).hexdigest(), 16)
+        hashable = "\x00".join(self.names).encode()
+        return int(hashlib.sha256(hashable).hexdigest(), 16)
 
     def draw(self) -> Playable:
         """Get the next random playable"""
-        while True:
-            name = self.deck.draw()
-            if name in self.cap:
-                break
+        while (name := self.deck.draw()) not in self.cap:
+            continue
         return self.toc[self.names.index(name)]
 
-    def set_cap(self, cap: list[str]) -> None:
+    @contextlib.contextmanager
+    def set_cap(self, cap: list[str]):
         """Set cap"""
         assert cap and set(cap).issubset(self.names)
         self.cap = cap
+        try:
+            yield
+        finally:
+            self.cap = self.names
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
@@ -357,8 +361,8 @@ class PracticeMakesPerfect:
         if self.args.verbose:
             print(f"[{self.book_name} × {num_tracks}]")
 
-        book.set_cap(names)
-        etude_seq = self.choose_etudes(book, num_tracks)
+        with book.set_cap(names):
+            etude_seq = self.choose_etudes(book, num_tracks)
         track_seq = self.make_tracks(etude_seq)
 
         print(self.get_sep(track_seq).join(track_seq))
