@@ -12,7 +12,6 @@ import random
 import re
 
 from collections import defaultdict
-from collections.abc import Container
 from collections.abc import Iterable
 from collections.abc import Sequence
 from typing import Generic
@@ -37,13 +36,11 @@ PitchClass: TypeAlias = Sequence[str]
 @dataclasses.dataclass
 class Pool:
     """A pool of choices for an etude"""
-    keys: str | list[str]
-    mnem: str = dataclasses.field(init=False)
+    keys: list[str]
+    mnem: str = ""
 
     def __post_init__(self):
-        if isinstance(self.keys, str):
-            self.mnem = self.keys
-        else:
+        if not self.mnem:
             self.mnem = "|".join(sorted(self.keys))
 
 
@@ -234,7 +231,7 @@ class PracticeMakesPerfect:
             "-C",
             "--state-file",
             type=Path,
-            default=Path.home() / ".pmp.plist",
+            default=Path.home() / ".pmpstate.plist",
         )
         self.args = parser.parse_args()
         self.parser = parser
@@ -281,13 +278,14 @@ class PracticeMakesPerfect:
     }
 
     all_books: dict[str, Book]
+    key_pools: dict[str, Pool]
     choosers: dict[str, Chooser]
     config: Configuration
     log: logging.Logger
     state: dict
     book_name: str
 
-    STATE_VERSION = "v1"
+    STATE_VERSION = "v2"
     MIN_SAVABLE = 3
 
     def main(self) -> None:
@@ -299,7 +297,7 @@ class PracticeMakesPerfect:
             print(DEFAULT_CONFIG)
             return
 
-        self.add_modes()
+        self.make_key_pools()
         self.configure()
         self.load_state()
         self.make_choosers()
@@ -411,8 +409,8 @@ class PracticeMakesPerfect:
         keys = []
         for pool in etude.pools:
             key = self.choosers[pool.mnem].get()
-            if not isinstance(key, str):  # e.g., ("C♯", "D♭")
-                key = random.choice(key)
+            if "|" in key:
+                key = random.choice(key.split("|"))
             keys.append(key)
 
         if "{}" in etude.name:
@@ -433,7 +431,7 @@ class PracticeMakesPerfect:
             return "\n"
         return " "
 
-    def add_modes(self) -> None:
+    def make_key_pools(self) -> None:
         """Add the Greek modes and their hypotheticals to our known scales"""
         model = self.SCALE_FIX["major"]
         mapping: dict[str, str]
@@ -454,6 +452,19 @@ class PracticeMakesPerfect:
                 modify(key): modify(value)
                 for key, value in model.items()
             }
+
+        self.key_pools = {
+            scale: Pool(
+                [
+                    "|".join((fixes.get(note, note) for note in pitch_class))
+                    for pitch_class in self.PITCH_CLASSES
+                ],
+                mnem=scale,
+            )
+            for scale, fixes in self.SCALE_FIX.items()
+        }
+        self.key_pools["NONE"] = Pool([""], mnem="NONE")
+        self.log.debug("Key pools: %s", list(self.key_pools))
 
     @classmethod
     def choose(cls, options: Iterable[T], num_choices: int) -> list[T]:
@@ -499,15 +510,23 @@ class PracticeMakesPerfect:
         # Remove goners
         for key in list(self.state["etude"]):
             if key not in self.choosers:
+                self.log.debug("Etude %r is no more", key)
                 del self.state["etude"][key]
+
         for key, saved in list(self.state["book"].items()):
             if hash(self.all_books.get(key)) != saved["hash"]:
+                self.log.debug("Book %r is no more", key)
                 del self.state["book"][key]
 
         # Update current
+        used = []
         for key, chooser in self.choosers.items():
             if chooser.used and len(chooser) >= self.MIN_SAVABLE:
                 self.state["etude"][key] = chooser.queue
+                used.append(key)
+        self.log.debug("Saving etudes: %s", used)
+
+        used = []
         for key, book in self.all_books.items():
             if book.used and len(book) >= self.MIN_SAVABLE:
                 if book.chooser.queue:
@@ -515,6 +534,8 @@ class PracticeMakesPerfect:
                         "hash": hash(book),
                         "queue": book.chooser.queue,
                     }
+                    used.append(key)
+        self.log.debug("Saving books %s", used)
 
         with open(self.args.state_file, "wb") as fobj:
             plistlib.dump(
@@ -526,19 +547,10 @@ class PracticeMakesPerfect:
         """Prepare randomizers"""
         queues = self.state["etude"]
         self.choosers = {
-            scale: Chooser(
-                [
-                    [
-                        fixes.get(note, note)
-                        for note in pitch_class
-                    ]
-                    for pitch_class in self.PITCH_CLASSES
-                ],
-                queues.get(scale),
-            )
-            for scale, fixes in self.SCALE_FIX.items()
+            scale: Chooser(pool.keys, queues.get(pool.mnem))
+            for scale, pool in self.key_pools.items()
         }
-        self.choosers["NONE"] = Chooser([""])
+
         for book in self.all_books.values():
             book.make_chooser()
             for etude in book.toc:
@@ -568,9 +580,13 @@ class PracticeMakesPerfect:
                     del queues[mnem]
                     chooser.reset()
 
+        used = [chooser for chooser in self.choosers.values() if chooser.queue]
+        self.log.debug(">> %d of %d etudes", len(used), len(self.choosers))
+
     def restore_book_state(self) -> None:
         """Continue books from where we left off"""
         queues = self.state["book"]
+        n_used = 0
         for name in list(self.state["book"]):
             if (book := self.all_books.get(name)):
                 saved = queues[name]
@@ -578,6 +594,7 @@ class PracticeMakesPerfect:
                     if len(book) >= self.MIN_SAVABLE:
                         queue = saved.get("queue")
                         book.restore(queue)
+                        n_used += 1
                         self.log.debug(
                             "Loaded %s -> (%d of %d)",
                             name,
@@ -587,11 +604,12 @@ class PracticeMakesPerfect:
                     else:
                         self.log.debug("Forgetting saved state for %s", book)
                         del queues[name]
+        self.log.debug(">> %d of %d books", n_used, len(self.all_books))
 
     def parse_config(self, stream: TextIO) -> Configuration:
         """Read configuration file"""
         try:
-            return ConfigParser(self.SCALE_FIX).parse(stream)
+            return ConfigParser(self.key_pools).parse(stream)
         except BadConfig as err:
             self.fail(str(err))
             raise err  # Won't happen, just to appease pyright
@@ -639,8 +657,8 @@ class ConfigParser:
     line: str
     mobj: re.Match | None
 
-    def __init__(self, known_scales: Container[str]):
-        self.known_scales = known_scales
+    def __init__(self, known_pools: dict[str, Pool]):
+        self.known_pools = known_pools
 
     def match(self, expr: str) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line"""
@@ -709,11 +727,11 @@ class ConfigParser:
         if len(parts) != num_placeholders:
             raise BadConfig(f"Placeholder mismatch in line {self.line_num}")
 
-        pools = []
+        pools: list[Pool] = []
         for part in parts:
-            if part in self.known_scales:
-                pools.append(Pool(part))
-            else:
+            try:
+                pools.append(self.known_pools[part])
+            except KeyError:
                 pools.append(Pool([key.strip() for key in part.split("|")]))
         self.curr.append(Etude(name=name, pools=pools))
 
