@@ -21,6 +21,7 @@ from typing import TypeAlias
 from typing import TypeVar
 
 # TO DO:
+# - Fix the name/mnem thing
 # - Support {}->[]
 # - "easy-major := C|F|G" etc., a sort of mnem-mnem
 
@@ -85,9 +86,7 @@ class Book:
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
     names: list[str] = dataclasses.field(init=False)
-
-    def __post_init__(self):
-        self.make_deck()
+    cap: list[str] = dataclasses.field(init=False)
 
     def __hash__(self) -> int:
         hashable = "\x00".join(self.names)
@@ -95,17 +94,25 @@ class Book:
 
     def draw(self) -> Playable:
         """Get the next random playable"""
-        name = self.deck.draw()
+        while True:
+            name = self.deck.draw()
+            if name in self.cap:
+                break
         return self.toc[self.names.index(name)]
+
+    def set_cap(self, cap: list[str]) -> None:
+        """Set cap"""
+        assert cap and set(cap).issubset(self.names)
+        self.cap = cap
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
         self.toc.append(playable)
 
-    def make_deck(self) -> Deck:
+    def make_deck(self, mnem="") -> Deck:
         """(Re)create the deck"""
-        self.names = [entry.name for entry in self.toc]
-        self.deck = Deck(self.names)
+        self.cap = self.names = [entry.name for entry in self.toc]
+        self.deck = Deck(self.names, mnem=mnem)
         return self.deck
 
 
@@ -326,21 +333,21 @@ class PracticeMakesPerfect:
 
     def run_plain(self, book: Book, num_tracks: int | None):
         """Run a "simple" book, choosing etudes and assigining keys"""
-        playables = book.toc
+        names = book.names
         if self.args.max_etudes:
-            num_playables = min(self.args.max_etudes, len(playables))
-            playables = random.sample(playables, num_playables)
+            num_names = min(self.args.max_etudes, len(names))
+            names = random.sample(names, num_names)
 
         if num_tracks is None:
-            num_tracks = len(playables)
+            num_tracks = len(names)
         elif num_tracks == 0:
             num_tracks = len(self.PITCH_CLASSES)
 
         if self.args.verbose:
             print(f"[{self.book_name} × {num_tracks}]")
 
-        pseudo_book = Book(playables)
-        etude_seq = self.choose_etudes(pseudo_book, num_tracks)
+        book.set_cap(names)
+        etude_seq = self.choose_etudes(book, num_tracks)
         track_seq = self.make_tracks(etude_seq)
 
         print(self.get_sep(track_seq).join(track_seq))
@@ -472,16 +479,16 @@ class PracticeMakesPerfect:
     def save_state(self) -> None:
         """Save the queue state"""
         for key in list(self.state["deck"]):
-            if key not in self.decks:
-                self.log.debug("Deck %r is no more", key)
+            if not (deck := self.decks.get(key)) or not deck.queue:
+                self.log.debug("%r is %s", key, "done" if deck else "gone")
                 del self.state["deck"][key]
 
         used = []
         for key, deck in self.decks.items():
-            if deck.used and len(deck) >= self.MIN_SAVABLE:
+            if deck.used and deck.queue and len(deck) >= self.MIN_SAVABLE:
                 self.state["deck"][key] = deck.queue
                 used.append(key)
-        self.log.debug("Saving %d etude(s): %s", len(used), " ".join(used))
+        self.log.debug("Saving %d deck(s): %s", len(used), " ".join(used))
 
         with open(self.args.state_file, "wb") as fobj:
             plistlib.dump(
@@ -492,15 +499,17 @@ class PracticeMakesPerfect:
     def make_all_decks(self) -> None:
         """Prepare randomizers"""
         # Make sure all etude and book decks are registered
-        for book in self.all_books.values():
-            deck = book.make_deck()
-            self.decks[deck.mnem] = deck
+        self.log.debug("All books: %s", list(self.all_books))
+        for name, book in self.all_books.items():
+            self.decks[name] = book.make_deck(name)
             for etude in book.toc:
                 if not isinstance(etude, Etude):
                     continue
                 for idx, deck in enumerate(etude.decks):
                     if deck.mnem in self.decks:
                         etude.decks[idx] = self.decks[deck.mnem]
+                    else:
+                        self.decks[deck.mnem] = deck
 
         # Restore states for any eligible deck
         queues = self.state["deck"]
@@ -509,7 +518,6 @@ class PracticeMakesPerfect:
             if (queue := queues.get(mnem)) is None:
                 continue
             if len(deck) >= self.MIN_SAVABLE and deck.restore(queue):
-                deck.restore(queue)
                 self.log.debug(
                     "Loaded %s -> (%d of %d) %s",
                     mnem,
