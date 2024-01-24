@@ -662,7 +662,7 @@ class ConfigParser:
     def add_etude(self, name: str, description: str) -> None:
         """Found an etude line"""
         if self.curr is None:
-            raise BadConfig(f"Bookless etude")
+            raise BadConfig("Bookless etude")
 
         if name and name[0] in "'\"" and name[-1] == name[0]:
             name = name[1:-1]
@@ -677,7 +677,7 @@ class ConfigParser:
 
         num_placeholders = len(re.findall(r"{}", name)) or 1
         if len(parts) != num_placeholders:
-            raise BadConfig(f"Placeholder mismatch")
+            raise BadConfig("Placeholder mismatch")
 
         decks: list[Deck] = []
         for part in parts:
@@ -690,7 +690,7 @@ class ConfigParser:
     def add_ref(self) -> None:
         """Add book reference line (in self.mobj)"""
         if self.curr is None:
-            raise BadConfig(f"Bookless reference")
+            raise BadConfig("Bookless reference")
         assert self.mobj is not None
         self.add_ref_to(self.curr.toc, self.mobj)
 
