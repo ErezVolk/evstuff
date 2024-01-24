@@ -176,14 +176,13 @@ class PracticeMakesPerfect:
 
     def parse_command_line(self) -> None:
         """Command-line"""
-        parser = argparse.ArgumentParser(
-            description="Practice Makes Perfect"
-        )
+        parser = argparse.ArgumentParser(description=__doc__)
         parser.add_argument(
             "books",
             metavar="BOOK",
             type=str,
             nargs="*",
+            help="Choose books from this list",
         )
 
         group = parser.add_mutually_exclusive_group()
@@ -191,44 +190,52 @@ class PracticeMakesPerfect:
             "-n",
             "--num-tracks",
             type=int,
+            help="Number of tracks (etude × key) to generate",
         )
         group.add_argument(
             "-N",
             "--one-of-each",
             action="store_true",
+            help="Make one track per etude in the chosen book",
         )
 
         parser.add_argument(
             "-i",
             "--max-etudes",
             type=int,
+            help="Use at most this number of etudes",
         )
         parser.add_argument(
             "-m",
             "--multiline",
             action="store_true",
+            help="Always print tracks on separate lines",
         )
         parser.add_argument(
             "-v",
             "--verbose",
             action="store_true",
+            help="Print selected book titles and etude counts",
         )
         parser.add_argument(
             "-d",
             "--debug",
             action="store_true",
+            help="Print lots of debugging information",
         )
         parser.add_argument(
             "-c",
             "--config",
             type=Path,
             default=Path.home() / ".pmprc",
+            help="Path for config file",
         )
         parser.add_argument(
             "-s",
             "--state-file",
             type=Path,
             default=Path.home() / ".pmpstate.plist",
+            help="Path for state file",
         )
         parser.add_argument(
             "-S",
