@@ -225,13 +225,13 @@ class PracticeMakesPerfect:
             default=Path.home() / ".pmprc",
         )
         parser.add_argument(
-            "-C",
+            "-s",
             "--state-file",
             type=Path,
             default=Path.home() / ".pmpstate.plist",
         )
         parser.add_argument(
-            "-s",
+            "-S",
             "--saveless",
             action="store_true",
             help="Don't save state file",
