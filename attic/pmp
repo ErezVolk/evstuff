@@ -24,7 +24,6 @@ from typing import TypeVar
 # TO DO:
 # - Refactor the name/mnem thing
 # - A UI to mark what was done?
-# - Support {}->[] (but what should it do?)
 # - "easy-major := C|F|G" etc., a sort of mnem-mnem
 
 
@@ -390,7 +389,6 @@ class PracticeMakesPerfect:
         count: int
     ) -> Iterable[Etude]:
         """Yields chosen etudes"""
-        assert not book.sequential
         for _ in range(count):
             entry = book.draw()
             if isinstance(entry, Etude):
@@ -566,7 +564,7 @@ class PracticeMakesPerfect:
                 self.log.debug("Forgetting saved state for %s: %s", mnem, exc)
                 del self.decks[mnem]
 
-        self.log.debug(">> %d of %d decks", n_used, len(self.decks))
+        self.log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
     def parse_config(self, filename: str, stream: TextIO) -> Configuration:
         """Read configuration file"""
@@ -583,10 +581,7 @@ class PracticeMakesPerfect:
             for ref in book.toc:
                 if not isinstance(ref, BookRef):
                     continue
-                other = ref.name
-                if self.all_books[other].sequential and not book.sequential:
-                    self.fail(f"{name}{{}}->{other}[] not supported")
-                graph[other].add(name)
+                graph[ref.name].add(name)
 
         if (missing := graph.keys() - self.all_books.keys()):
             error = ", ".join(
