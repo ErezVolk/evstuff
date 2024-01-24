@@ -105,8 +105,18 @@ class Book:
 
     @contextlib.contextmanager
     def set_cap(self, cap: list[str]):
-        """Set cap"""
-        assert cap and set(cap).issubset(self.names)
+        """Set cap.
+
+        Use as context manager:
+        ```
+        with book.set_cap(["major", "minor"]):
+            book.draw()
+        ```
+        """
+        if not cap:
+            raise ValueError("Cannot cap to nothing")
+        if not set(cap).issubset(self.names):
+            raise ValueError("Cap contains unknown names")
         self.cap = cap
         try:
             yield
