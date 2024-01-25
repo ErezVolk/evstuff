@@ -3,7 +3,6 @@
 import argparse
 import contextlib
 import dataclasses
-import hashlib
 import graphlib
 import io
 import logging
@@ -24,7 +23,7 @@ from typing import TypeVar
 # TO DO:
 # - Refactor the name/mnem thing
 # - A UI to mark what was done?
-# - "easy-major := C|F|G" etc., a sort of mnem-mnem
+# - "easy-major := C|F|G" etc.
 
 
 T = TypeVar("T")
@@ -95,10 +94,6 @@ class Book:
     deck: Deck = dataclasses.field(init=False)
     names: list[str] = dataclasses.field(init=False)
     cap: list[str] = dataclasses.field(init=False)
-
-    def __hash__(self) -> int:
-        hashable = "\x00".join(self.names).encode()
-        return int(hashlib.sha256(hashable).hexdigest(), 16)
 
     def draw(self) -> Playable:
         """Get the next random playable"""
