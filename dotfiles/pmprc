@@ -1,4 +1,7 @@
-*daily = [ warmup chops @warmupOneStringScale 3@keep @arpeggio homeworkTechnical homeworkMusic 3@book 2@revise ]
+all = [ morn eve ]
+
+*morn = [ warmup chops @warmupOneStringScale 3@keep @arpeggio homeworkTechnical ]
+eve = [ homeworkMusic 3@book 2@revise ]
 
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther }
 

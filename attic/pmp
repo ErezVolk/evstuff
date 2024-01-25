@@ -4,6 +4,7 @@ import argparse
 import contextlib
 import dataclasses
 import graphlib
+import hashlib
 import io
 import logging
 from pathlib import Path
@@ -21,7 +22,6 @@ from typing import TypeAlias
 from typing import TypeVar
 
 # TO DO:
-# - Refactor the name/mnem thing
 # - A UI to mark what was done?
 # - "easy-major := C|F|G" etc.
 
@@ -36,23 +36,45 @@ class CannotRestore(ValueError):
     """Raised internally when a deck cannot be restored."""
 
 
-@dataclasses.dataclass
+def make_guid(parts: Sequence[str]) -> str:
+    """Create an order-agnostic hash"""
+    return hashlib.sha256("\0".join(sorted(parts)).encode()).hexdigest()[:8]
+
+
 class Deck:
     """A deck of strings"""
-    cards: list[str]
-    queue: list[str] = dataclasses.field(default_factory=list)
-    mnem: str = ""
+    cards: tuple[str, ...]
+    queue: list[str]
     used: bool = False
+    name: str
+    guid: str
 
-    def __post_init__(self):
-        if not self.mnem:
-            self.mnem = "|".join(sorted(self.cards))
+    def __init__(self, cards: Sequence[str] | None = None, name=""):
+        self.cards = tuple(cards) if cards else ()
+        self.guid = make_guid(self.cards)
+        self.name = name or "|".join(self.cards)
+        self.queue = []
 
-    def __len__(self):
+    def __repr__(self) -> str:
+        return f"{self.name} ({self.guid})"
+
+    def __len__(self) -> int:
         return len(self.cards)
 
-    def restore(self, queue: object):
+    def serialize(self) -> dict:
+        """Serialize"""
+        return {
+            "guid": self.guid,
+            "queue": self.queue,
+        }
+
+    def deserialize(self, saved: object):
         """Validate and restore a saved queue"""
+        if not isinstance(saved, dict):
+            raise CannotRestore("Not a dict")
+        if saved.get("guid") != self.guid:
+            raise CannotRestore("GUID mismatch")
+        queue = saved.get("queue")
         if not isinstance(queue, list):
             raise CannotRestore("Not a list")
         if not queue:
@@ -73,7 +95,7 @@ class Deck:
         self.used = True
         return self.queue.pop()
 
-    def _set_queue(self, queue: list[str]) -> None:
+    def _set_queue(self, queue: Sequence[str]) -> None:
         """Set the queue"""
         self.queue = list(queue)
         random.shuffle(self.queue)
@@ -92,8 +114,9 @@ class Book:
     toc: TableOfContents
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
-    names: list[str] = dataclasses.field(init=False)
-    cap: list[str] = dataclasses.field(init=False)
+    names: tuple[str, ...] = dataclasses.field(init=False)
+    cap: set[str] = dataclasses.field(init=False)
+    guid: str = dataclasses.field(init=False)
 
     def draw(self) -> Playable:
         """Get the next random playable"""
@@ -102,7 +125,7 @@ class Book:
         return self.toc[self.names.index(name)]
 
     @contextlib.contextmanager
-    def set_cap(self, cap: list[str]):
+    def set_cap(self, cap: Sequence[str]):
         """Set cap.
 
         Use as context manager:
@@ -113,22 +136,23 @@ class Book:
         """
         if not cap:
             raise ValueError("Cannot cap to nothing")
-        if not set(cap).issubset(self.names):
+        if not (as_set := set(cap)).issubset(self.names):
             raise ValueError("Cap contains unknown names")
-        self.cap = cap
+        self.cap = as_set
         try:
             yield
         finally:
-            self.cap = self.names
+            self.cap = set(self.names)
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
         self.toc.append(playable)
 
-    def make_deck(self, mnem: str) -> Deck:
-        """(Re)create the deck"""
-        self.cap = self.names = [entry.name for entry in self.toc]
-        self.deck = Deck(self.names, mnem=mnem)
+    def finalize(self, name: str) -> Deck:
+        """(Re)create the dck"""
+        self.names = tuple(entry.name for entry in self.toc)
+        self.cap = set(self.names)
+        self.deck = Deck(self.names, name=name)
         return self.deck
 
 
@@ -302,7 +326,7 @@ class PracticeMakesPerfect:
     state: dict
     book_name: str
 
-    STATE_VERSION = "v3"
+    STATE_VERSION = "v4"
     MIN_SAVABLE = 3
 
     def main(self) -> None:
@@ -363,7 +387,7 @@ class PracticeMakesPerfect:
 
     def run_plain(self, book: Book, num_tracks: int | None):
         """Run a "simple" book, choosing etudes and assigining keys"""
-        names = book.names
+        names: Sequence[str] = book.names
         if self.args.max_etudes:
             num_names = min(self.args.max_etudes, len(names))
             names = random.sample(names, num_names)
@@ -469,18 +493,21 @@ class PracticeMakesPerfect:
                 for key, value in model.items()
             }
 
-        self.decks = {
-            scale: Deck(
+        self.decks = {}
+        for scale, fixes in self.SCALE_FIX.items():
+            self.have_deck(Deck(
                 [
                     "|".join((fixes.get(note, note) for note in pitch_class))
                     for pitch_class in self.PITCH_CLASSES
                 ],
-                mnem=scale,
-            )
-            for scale, fixes in self.SCALE_FIX.items()
-        }
-        self.decks["NONE"] = Deck([""], mnem="NONE")
-        self.log.debug("Key decks: %s", list(self.decks))
+                name=scale,
+            ))
+        self.have_deck(Deck(name="NONE", cards=[""]))
+        self.log.debug("Key decks: %s", list(self.decks.values()))
+
+    def have_deck(self, deck: Deck) -> Deck:
+        """Add a deck to our records"""
+        return self.decks.setdefault(deck.guid, deck)
 
     def configure(self) -> None:
         """Fix configuration files, defaults, etc."""
@@ -507,16 +534,21 @@ class PracticeMakesPerfect:
 
     def save_state(self) -> None:
         """Save the queue state"""
-        for key in list(self.state["deck"]):
-            if not (deck := self.decks.get(key)) or not deck.queue:
-                self.log.debug("%r is %s", key, "done" if deck else "gone")
-                del self.state["deck"][key]
+        saveds = self.state["deck"]
+        for guid in list(saveds):
+            if not (deck := self.decks.get(guid)):
+                self.log.debug("%r is gone", guid)
+            elif not deck.queue:
+                self.log.debug("%r is done", deck)
+            else:
+                continue
+            del saveds[guid]
 
         used = []
         for key, deck in self.decks.items():
             if deck.used and deck.queue and len(deck) >= self.MIN_SAVABLE:
-                self.state["deck"][key] = deck.queue
-                used.append(key)
+                saveds[key] = deck.serialize()
+                used.append(repr(deck))
         self.log.debug("Saving %d deck(s): %s", len(used), " ".join(used))
 
         with open(self.args.state_file, "wb") as fobj:
@@ -530,45 +562,44 @@ class PracticeMakesPerfect:
         # Make sure all etude and book decks are registered
         self.log.debug("All books: %s", list(self.all_books))
         for name, book in self.all_books.items():
-            self.decks[name] = book.make_deck(name)
+            book.deck = self.have_deck(book.finalize(name))
             for etude in book.toc:
-                if not isinstance(etude, Etude):
-                    continue
-                for idx, deck in enumerate(etude.elements):
-                    if deck.mnem in self.decks:
-                        etude.elements[idx] = self.decks[deck.mnem]
-                    else:
-                        self.decks[deck.mnem] = deck
+                if isinstance(etude, Etude):
+                    etude.elements = [
+                        self.have_deck(deck)
+                        for deck in etude.elements
+                    ]
 
         # Restore states for any eligible deck
-        queues = self.state["deck"]
+        saveds = self.state["deck"]
         n_used = 0
-        for mnem in list(self.decks):
-            if (queue := queues.get(mnem)) is None:
+        for guid in list(self.decks):
+            if (saved := saveds.get(guid)) is None:
                 continue
-            deck = self.decks[mnem]
+            deck = self.decks[guid]
             try:
                 if len(deck) < self.MIN_SAVABLE:
                     raise CannotRestore("Too few items to load state")
-                deck.restore(queue)
+                deck.deserialize(saved)
                 self.log.debug(
                     "Loaded %s -> (%d of %d) %s",
-                    mnem,
+                    deck,
                     len(deck.queue),
                     len(deck),
                     deck.queue,
                 )
                 n_used += 1
             except CannotRestore as exc:
-                self.log.debug("Forgetting saved state for %s: %s", mnem, exc)
-                del self.decks[mnem]
+                self.log.debug("Forgetting saved state for %s: %s", guid, exc)
+                del self.decks[guid]
 
         self.log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
     def parse_config(self, filename: str, stream: TextIO) -> Configuration:
         """Read configuration file"""
         try:
-            return ConfigParser(self.decks).parse(filename, stream)
+            named_decks = {deck.name: deck for deck in self.decks.values()}
+            return ConfigParser(named_decks).parse(filename, stream)
         except BadConfig as err:
             self.fail(str(err))
             raise err  # Won't happen, just to appease pyright
@@ -613,8 +644,8 @@ class ConfigParser:
     line: str
     mobj: re.Match | None
 
-    def __init__(self, known_decks: dict[str, Deck]):
-        self.known_decks = known_decks
+    def __init__(self, named_decks: dict[str, Deck]):
+        self.named_decks = named_decks
 
     def match(self, expr: str) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line"""
@@ -693,7 +724,7 @@ class ConfigParser:
         elements: list[Deck] = []
         for part in parts:
             try:
-                elements.append(self.known_decks[part])
+                elements.append(self.named_decks[part])
             except KeyError:
                 elements.append(Deck([key.strip() for key in part.split("|")]))
         self.curr.append(Etude(name=name, elements=elements))
