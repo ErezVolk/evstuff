@@ -65,15 +65,19 @@ class Deck:
             raise CannotRestore("Not a list of unique strings")
         if not set(self.cards).issubset(self.cards):
             raise CannotRestore("List contains invalid strings")
-        self.queue = queue
+        self._set_queue(queue)
 
     def draw(self) -> str:
         """Get the next card"""
         if not self.queue:
-            self.queue = list(self.cards)
-            random.shuffle(self.queue)
+            self._set_queue(self.cards)
         self.used = True
         return self.queue.pop()
+
+    def _set_queue(self, queue: list[str]) -> None:
+        """Set the queue"""
+        self.queue = list(queue)
+        random.shuffle(self.queue)
 
 
 @dataclasses.dataclass
