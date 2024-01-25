@@ -83,7 +83,7 @@ class Deck:
 class Etude:
     """A concrete etude, e.g., 'minor pentatonic'"""
     name: str
-    decks: list[Deck]
+    elements: list[Deck]
 
 
 @dataclasses.dataclass
@@ -423,7 +423,7 @@ class PracticeMakesPerfect:
     def make_track(self, etude: Etude) -> str:
         """Pick a key for one etude"""
         keys = []
-        for deck in etude.decks:
+        for deck in etude.elements:
             key = deck.draw()
             if "|" in key:  # Can only come from our pitch classes
                 key = random.choice(key.split("|"))
@@ -534,9 +534,9 @@ class PracticeMakesPerfect:
             for etude in book.toc:
                 if not isinstance(etude, Etude):
                     continue
-                for idx, deck in enumerate(etude.decks):
+                for idx, deck in enumerate(etude.elements):
                     if deck.mnem in self.decks:
-                        etude.decks[idx] = self.decks[deck.mnem]
+                        etude.elements[idx] = self.decks[deck.mnem]
                     else:
                         self.decks[deck.mnem] = deck
 
@@ -690,13 +690,13 @@ class ConfigParser:
         if len(parts) != num_placeholders:
             raise BadConfig("Placeholder mismatch")
 
-        decks: list[Deck] = []
+        elements: list[Deck] = []
         for part in parts:
             try:
-                decks.append(self.known_decks[part])
+                elements.append(self.known_decks[part])
             except KeyError:
-                decks.append(Deck([key.strip() for key in part.split("|")]))
-        self.curr.append(Etude(name=name, decks=decks))
+                elements.append(Deck([key.strip() for key in part.split("|")]))
+        self.curr.append(Etude(name=name, elements=elements))
 
     def add_ref(self) -> None:
         """Add book reference line (in self.mobj)"""
