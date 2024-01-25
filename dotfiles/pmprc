@@ -7,8 +7,8 @@ revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW rev
 #
 homeworkTechnical:
   Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
-  Ray Brown's minor 10ths with a 6th (B↘E) ↗ (B♭↘E♭) (p.57): NONE
   {}-major Diatonic slides of 4th in eights 1₅₆2.3₇14... (p.23/2B): major
+  Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
 
 homeworkMusic:  # Try to keep this to one!
   Melodic Étude in E♭ Major (p.10): NONE
@@ -170,7 +170,7 @@ keepRayBrown:
   Ray Brown's 10ths with a 5th, {}: (E↗B) ↗ (E♭↗B♭) (p.50)|(B↘E) ↗ (B♭↘E♭) (p.51)
   Ray Brown's minor 10ths with a 5th, {}: (E↗B) ↗ (E♭↗B♭) (p.52)|(B↘E) ↗ (B♭↘E♭) (p.53)
   Ray Brown's 10ths with a 6th, {}: (E↗B) ↗ (E♭↗B♭) (p.54)|(B↘E) ↗ (B♭↘E♭) (p.55)
-  Ray Brown's minor 10ths with a 6th, (E↗B) ↗ (E♭↗B♭) (p.56): NONE  # Join with p.57 when done
+  Ray Brown's minor 10ths with a 6th: (E↗B) ↗ (E♭↗B♭) (p.56)|(B↘E) ↗ (B♭↘E♭) (p.57)
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
   Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 
@@ -321,7 +321,6 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
   Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
