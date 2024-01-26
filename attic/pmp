@@ -68,6 +68,9 @@ class Deck:
     name: str
     guid: str
 
+    DESCRIPTION_KEY = "description"
+    MIN_SERIALIZABLE = 3
+
     def __init__(self, cards: Sequence[str] | None = None, name: str = ""):
         self.cards = list(cards) if cards else []
         hashable = "\0".join(sorted(self.cards)).encode()
@@ -76,20 +79,37 @@ class Deck:
         self.queue = []
 
     def __repr__(self) -> str:
-        return f"{self.name} ({self.guid})"
+        if self.queue:
+            state = f"{len(self.queue)} of {len(self)}"
+        else:
+            state = f"fresh {len(self)}"
+        return f"{self.name} ({self.guid}) ({state})"
 
     def __len__(self) -> int:
         return len(self.cards)
 
+    def serializable(self) -> bool:
+        """Should we serialize this deck in its current state"""
+        if not self.used:  # Never drawn
+            return False
+        if not self.queue:  # On the verge of a fresh shuffle
+            return False
+        if len(self) < self.MIN_SERIALIZABLE:  # Too small
+            return False
+        return True
+
     def serialize(self) -> dict:
         """Serialize"""
         return {
+            self.DESCRIPTION_KEY: repr(self),
             "guid": self.guid,
             "queue": self.queue,
         }
 
     def deserialize(self, saved: object):
         """Validate and restore a saved queue"""
+        if len(self) < self.MIN_SERIALIZABLE:
+            raise CannotRestore("Too few items to load state")
         if not isinstance(saved, dict):
             raise CannotRestore("Not a dict")
         if saved.get("guid") != self.guid:
@@ -343,7 +363,6 @@ class PracticeMakesPerfect:
     book_name: str
 
     STATE_VERSION = "v4"
-    MIN_SAVABLE = 3
 
     def main(self) -> None:
         """Practice Makes Perfect"""
@@ -558,7 +577,11 @@ class PracticeMakesPerfect:
         saveds = self.state["deck"]
         for guid in list(saveds):
             if not (deck := self.decks.get(guid)):
-                self.log.debug("%r is gone", guid)
+                try:
+                    description = saveds[guid][Deck.DESCRIPTION_KEY]
+                    self.log.debug("%s is gone", description)
+                except (KeyError, TypeError):
+                    self.log.debug("%r is gone", guid)
             elif not deck.queue:
                 self.log.debug("%r is done", deck)
             else:
@@ -567,10 +590,11 @@ class PracticeMakesPerfect:
 
         used = []
         for key, deck in self.decks.items():
-            if deck.used and deck.queue and len(deck) >= self.MIN_SAVABLE:
+            if deck.serializable():
                 saveds[key] = deck.serialize()
-                used.append(f"{repr(deck)} ({len(deck.queue)} of {len(deck)})")
-        self.log.debug("Saving %d deck(s): %s", len(used), " ‖ ".join(used))
+                used.append(repr(deck))
+        if used:
+            self.log.debug("Saving %d: %s", len(used), " ‖ ".join(used))
 
         with open(self.args.state_file, "wb") as fobj:
             plistlib.dump(
@@ -599,16 +623,8 @@ class PracticeMakesPerfect:
                 continue
             deck = self.decks[guid]
             try:
-                if len(deck) < self.MIN_SAVABLE:
-                    raise CannotRestore("Too few items to load state")
                 deck.deserialize(saved)
-                self.log.debug(
-                    "Loaded %s -> (%d of %d) %s",
-                    deck,
-                    len(deck.queue),
-                    len(deck),
-                    deck.queue,
-                )
+                self.log.debug("Loaded %s -> %s", deck, deck.queue)
                 n_used += 1
             except CannotRestore as exc:
                 self.log.debug("Forgetting saved state for %s: %s", guid, exc)
