@@ -9,9 +9,9 @@ revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW rev
 # Currently working on
 #
 homeworkTechnical:
-  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
   {}-major Diatonic slides of 4th in eights 1₅₆2.3₇14... (p.23/2B): major
   Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
 
 homeworkMusic:  # Try to keep this to one!
   Melodic Étude in E♭ Major (p.10): NONE
@@ -176,6 +176,7 @@ keepRayBrown:
   Ray Brown's minor 10ths with a 6th: (E↗B) ↗ (E♭↗B♭) (p.56)|(B↘E) ↗ (B♭↘E♭) (p.57)
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
   Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: E+D|A+G
@@ -207,8 +208,8 @@ keepSteveScaleIn5ths:
 keepSteveSlide2nd:
   -melodic minor linear slides of a second in octave double steps (Ex 4A on p.19): minor
   -melodic minor zig-zag slides of a third in octave double steps (Ex 4B on p.19): minor
-  -minor linear slides of a second in fifth double steps (Ex 5A on p.19): minor
-  -minor zig-zag slides of a third in fifth double steps (Ex 5B on p.19): minor
+  -melodic minor linear slides of a second in fifth double steps (Ex 5A on p.19): minor
+  -NATURAL minor zig-zag slides of a third in fifth double steps (Ex 5B on p.19, use 4B as model!): minor
 
 keepSteveSlide3rd:
   Slides in 3rds (p21/3) on the {} strings: E+A|A+D|D+G
@@ -327,7 +328,6 @@ _rayBrownToDo:
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
   Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
-  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
   Ray Brown's Diminished Exercise (p.79): NONE
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
