@@ -36,11 +36,6 @@ class CannotRestore(ValueError):
     """Raised internally when a deck cannot be restored."""
 
 
-def make_guid(parts: Sequence[str]) -> str:
-    """Create an order-agnostic hash"""
-    return hashlib.sha256("\0".join(sorted(parts)).encode()).hexdigest()[:8]
-
-
 class Deck:
     """A deck of strings"""
     cards: tuple[str, ...]
@@ -49,9 +44,10 @@ class Deck:
     name: str
     guid: str
 
-    def __init__(self, cards: Sequence[str] | None = None, name=""):
+    def __init__(self, cards: Sequence[str] | None = None, name: str = ""):
         self.cards = tuple(cards) if cards else ()
-        self.guid = make_guid(self.cards)
+        hashable = "\0".join(sorted(self.cards)).encode()
+        self.guid = hashlib.sha256(hashable).hexdigest()[:8]
         self.name = name or "|".join(self.cards)
         self.queue = []
 
