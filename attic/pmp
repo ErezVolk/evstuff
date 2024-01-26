@@ -355,7 +355,7 @@ class PracticeMakesPerfect:
         }
     }
 
-    all_books: dict[str, Book]
+    books: dict[str, Book]
     decks: dict[str, Deck]
     config: Configuration
     log: logging.Logger
@@ -407,15 +407,15 @@ class PracticeMakesPerfect:
 
     def run_book(self, name: str, num_tracks: int | None, spaced=False):
         """Run any book"""
-        book = self.all_books[name]
+        book = self.books[name]
         if book.sequential:
-            self.run_agenda(book, spaced=spaced)
+            self.run_sequential(book, spaced=spaced)
         else:
             self.book_name = name
             self.run_plain(book, num_tracks)
 
-    def run_agenda(self, book: Book, spaced: bool) -> None:
-        """Run an agenda: A sequence of books"""
+    def run_sequential(self, book: Book, spaced: bool) -> None:
+        """Run a sequence of items"""
         for entry in book.toc:
             if isinstance(entry, Etude):
                 print(self.make_track(entry))
@@ -456,9 +456,9 @@ class PracticeMakesPerfect:
             entry = book.draw()
             if isinstance(entry, Etude):
                 yield entry
-            else:
+            else:  # Recall: no cycles
                 yield from self.choose_etudes(
-                    self.all_books[entry.name],
+                    self.books[entry.name],
                     entry.num_etudes or 1
                 )
 
@@ -466,7 +466,7 @@ class PracticeMakesPerfect:
         """Pick out a book"""
         if self.args.books:
             books = self.args.books
-            if (unknown := set(books) - set(self.all_books)):
+            if (unknown := set(books) - set(self.books)):
                 self.fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
             books = self.config.starred
@@ -478,7 +478,7 @@ class PracticeMakesPerfect:
         self,
         etude_seq: Iterable[Etude],
     ) -> list[str]:
-        """Pick a key for each etude"""
+        """Pick a key (or selection of keys) for each etude"""
         return [
             self.make_track(etude)
             for etude in etude_seq
@@ -556,7 +556,7 @@ class PracticeMakesPerfect:
                 self.config = self.parse_config(str(self.args.config), fobj)
         except (FileNotFoundError, ValueError):
             self.config = self.parse_config("", io.StringIO(DEFAULT_CONFIG))
-        self.all_books = self.config.books
+        self.books = self.config.books
         self.check_refs()
 
     def load_state(self) -> None:
@@ -605,8 +605,8 @@ class PracticeMakesPerfect:
     def make_all_decks(self) -> None:
         """Prepare randomizers"""
         # Make sure all etude and book decks are registered
-        self.log.debug("All books: %s", list(self.all_books))
-        for name, book in self.all_books.items():
+        self.log.debug("All books: %s", list(self.books))
+        for name, book in self.books.items():
             book.deck = self.have_deck(book.finalize(name))
             for etude in book.toc:
                 if isinstance(etude, Etude):
@@ -644,13 +644,13 @@ class PracticeMakesPerfect:
     def check_refs(self) -> None:
         """Check configured graph is legit"""
         graph = defaultdict(set)
-        for name, book in self.all_books.items():
+        for name, book in self.books.items():
             for ref in book.toc:
                 if not isinstance(ref, BookRef):
                     continue
                 graph[ref.name].add(name)
 
-        if (missing := graph.keys() - self.all_books.keys()):
+        if (missing := graph.keys() - self.books.keys()):
             error = ", ".join(
                 f"{name} (used by {', '.join(graph[name])})"
                 for name in missing
