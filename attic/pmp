@@ -66,27 +66,28 @@ class Deck:
     cards: list[str]
     queue: list[str]
     used: bool = False
-    name: str
     guid: str
 
     DESCRIPTION_KEY = "description"
     MIN_SERIALIZABLE = 3
 
-    def __init__(self, cards: Sequence[str], name: str = "", guid: str = ""):
+    def __init__(self, cards: Sequence[str], guid: str | None = None):
         self.cards = list(cards)
         if guid:
             self.guid = guid
         else:
             hashable = "\0".join(sorted(self.cards)).encode()
-            self.guid = hashlib.sha256(hashable).hexdigest()[:8]
-        self.name = name or "|".join(self.cards)
+            hashed = hashlib.sha256(hashable).hexdigest()[:8]
+            self.guid = f":{hashed}:"
         self.queue = []
+
+    def ddesc(self) -> str:
+        """Debug description"""
+        return "|".join(self.cards)
 
     def __repr__(self) -> str:
         """Used only for display; use `.guid` when you need a stable hash"""
-        parts = [self.name]
-        if self.guid != self.name:
-            parts.append(f"({self.guid})")
+        parts = [self.guid]
         if self.queue:
             parts.append(f"{len(self.queue)} of {len(self)}")
         else:
@@ -164,11 +165,11 @@ class Etude:
 
     def ddesc(self) -> str:
         """Debug description"""
-        return f"{self.name}:{','.join(repr(deck) for deck in self.elements)}"
+        return f"{self.name}={', '.join(repr(deck) for deck in self.elements)}"
 
     def gist(self) -> str:
         """A readable string unique enough for a shortlist"""
-        return f"{self.name}:{','.join(deck.guid for deck in self.elements)}"
+        return f"{self.name}={', '.join(deck.guid for deck in self.elements)}"
 
 
 @dataclasses.dataclass
@@ -183,10 +184,7 @@ class Book:
     def ddesc(self) -> str:
         """A debug description"""
         parens = "[]" if self.sequential else "{}"
-        return (
-            f"({self.deck.guid}) "
-            f"{parens[0]}{len(self.deck)} of {len(self.toc)}{parens[1]}"
-        )
+        return f"{parens[0]}{len(self.deck)} of {len(self.toc)}{parens[1]}"
 
     def draw(self) -> Playable:
         """Get the next random playable"""
@@ -226,7 +224,7 @@ class Book:
         """(Re)create the deck"""
         self.gists = [entry.gist() for entry in self.toc]
         self.shortlist = self.gists
-        self.deck = Deck(self.shortlist, name=name)
+        self.deck = Deck(self.shortlist, guid=name)
         return self.deck
 
 
@@ -242,11 +240,14 @@ class BookRef:
         return f"{self.gist()} ({self.name})"
 
     def gist(self) -> str:
-        """A readable string unique enough for a shortlist"""
-        book_guid = self.book.deck.guid
+        """A readable string unique enough for a shortlist.
+
+        Note that we don't want the gist to change if the
+        referenced book changes, to avoid a domino effect.
+        """
         if self.num_etudes:
-            return f"{self.num_etudes}@{book_guid}"
-        return f"={book_guid}"
+            return f"{self.num_etudes}@{self.name}"
+        return f"={self.name}"
 
 
 DEFAULT_CONFIG = """
@@ -405,7 +406,7 @@ class PracticeMakesPerfect:
     log: logging.Logger
     state: dict
 
-    STATE_VERSION = "v4"
+    STATE_VERSION = "v1"
 
     def main(self) -> None:
         """Practice Makes Perfect"""
@@ -570,10 +571,9 @@ class PracticeMakesPerfect:
                     "|".join((fixes.get(note, note) for note in pitch_class))
                     for pitch_class in self.PITCH_CLASSES
                 ],
-                name=scale,
                 guid=scale,
             ))
-        self.have_deck(Deck(name="NONE", guid="NONE", cards=[""]))
+        self.have_deck(Deck(guid="NONE", cards=[""]))
         self.log.debug("Key decks: %s", list(self.decks.values()))
 
     def have_deck(self, deck: Deck) -> Deck:
@@ -630,7 +630,7 @@ class PracticeMakesPerfect:
         # For the human reading that file
         self.state["debug"] = {
             "decks": {"n": len(self.decks)} | {
-                guid: deck.name
+                guid: deck.ddesc()
                 for guid, deck in self.decks.items()
             },
             "books": {"n": len(self.books)} | {
@@ -678,7 +678,7 @@ class PracticeMakesPerfect:
     def parse_config(self, filename: str, stream: TextIO) -> Configuration:
         """Read configuration file"""
         try:
-            named_decks = {deck.name: deck for deck in self.decks.values()}
+            named_decks = {deck.guid: deck for deck in self.decks.values()}
             return ConfigParser(named_decks).parse(filename, stream)
         except BadConfig as err:
             self.fail(str(err))
