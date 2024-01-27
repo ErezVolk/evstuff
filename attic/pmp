@@ -84,11 +84,14 @@ class Deck:
 
     def __repr__(self) -> str:
         """Used only for display; use `.guid` when you need a stable hash"""
+        parts = [self.name]
+        if self.guid != self.name:
+            parts.append(f"({self.guid})")
         if self.queue:
-            state = f"{len(self.queue)} of {len(self)}"
+            parts.append(f"{len(self.queue)} of {len(self)}")
         else:
-            state = f"fresh {len(self)}"
-        return f"{self.name} ({self.guid}) ({state})"
+            parts.append(f"fresh {len(self)}")
+        return " ".join(parts)
 
     def __len__(self) -> int:
         return len(self.cards)
@@ -137,7 +140,7 @@ class Deck:
         self.used = True
         return self.queue.pop()
 
-    def peek_n(self, num: int) -> list[str]:
+    def peek(self, num: int) -> list[str]:
         """Draw `num` cards without affecting the queue."""
         if num < 1 or num > len(self):
             raise ValueError(f"Cannot draw {num} from a {len(self)}-card deck")
@@ -159,6 +162,10 @@ class Etude:
     name: str
     elements: list[Deck]
 
+    def ddesc(self) -> str:
+        """Debug description"""
+        return f"{self.name}:{','.join(repr(deck) for deck in self.elements)}"
+
     def gist(self) -> str:
         """A readable string unique enough for a shortlist"""
         return f"{self.name}:{','.join(deck.guid for deck in self.elements)}"
@@ -172,6 +179,14 @@ class Book:
     deck: Deck = dataclasses.field(init=False)
     gists: list[str] = dataclasses.field(init=False)
     shortlist: list[str] = dataclasses.field(init=False)
+
+    def ddesc(self) -> str:
+        """A debug description"""
+        parens = "[]" if self.sequential else "{}"
+        return (
+            f"({self.deck.guid}) "
+            f"{parens[0]}{len(self.deck)} of {len(self.toc)}{parens[1]}"
+        )
 
     def draw(self) -> Playable:
         """Get the next random playable"""
@@ -194,7 +209,7 @@ class Book:
         ```
         """
         if max_etudes and 0 < max_etudes < len(self.gists):
-            self.shortlist = self.deck.peek_n(max_etudes)
+            self.shortlist = self.deck.peek(max_etudes)
         else:
             self.shortlist = self.gists
 
@@ -221,6 +236,10 @@ class BookRef:
     name: str
     num_etudes: int | None = None
     book: Book = dataclasses.field(init=False)
+
+    def ddesc(self) -> str:
+        """Debug description"""
+        return f"{self.gist()} ({self.name})"
 
     def gist(self) -> str:
         """A readable string unique enough for a shortlist"""
@@ -609,9 +628,15 @@ class PracticeMakesPerfect:
             self.log.debug("Saving %d: %s", len(used), " ‖ ".join(used))
 
         # For the human reading that file
-        self.state["debug"] = {"n": len(self.decks)} | {
-            guid: deck.name
-            for guid, deck in self.decks.items()
+        self.state["debug"] = {
+            "decks": {"n": len(self.decks)} | {
+                guid: deck.name
+                for guid, deck in self.decks.items()
+            },
+            "books": {"n": len(self.books)} | {
+                f"{name} {book.ddesc()}": [entry.ddesc() for entry in book.toc]
+                for name, book in self.books.items()
+            }
         }
 
         with open(self.args.state_file, "wb") as fobj:
@@ -683,6 +708,7 @@ class PracticeMakesPerfect:
             self.fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
 
         # The hash of a book depends on the guids of book refs in the toc
+        order.extend(self.books.keys() - set(order))
         for name in reversed(order):
             book = self.books[name]
             book.deck = self.have_deck(book.finalize(name))
