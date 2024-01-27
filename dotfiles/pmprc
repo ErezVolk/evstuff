@@ -9,13 +9,13 @@ revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW rev
 # Currently working on
 #
 homeworkTechnical:
-  {}-major Diatonic slides of 4th in eights 1₅₆2.3₇14... (Ex. 2B on page 23): major
-  Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
+  Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
+  4th slide etude (Ex. 4 on page 24): NONE
 
 homeworkMusic:  # Try to keep this to one!
-  Melodic Étude in E♭ Major (p.10), last played at ♩=92: NONE
   JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
+  Melodic Étude in A♭ Major (p.11): NONE
 
 book:
   Radley ctd.: NONE
@@ -174,6 +174,7 @@ keepRayBrown:
   Ray Brown's minor 10ths with a 5th, {}: (E↗B) ↗ (E♭↗B♭) (p.52)|(B↘E) ↗ (B♭↘E♭) (p.53)
   Ray Brown's 10ths with a 6th, {}: (E↗B) ↗ (E♭↗B♭) (p.54)|(B↘E) ↗ (B♭↘E♭) (p.55)
   Ray Brown's minor 10ths with a 6th: (E↗B) ↗ (E♭↗B♭) (p.56)|(B↘E) ↗ (B♭↘E♭) (p.57)
+  Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE  # merge when the next is done
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
   Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
   Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
@@ -239,6 +240,7 @@ reviseSteve:
   Steve's linear Slides (Ex 3 on page 8) using the {} finger: 1st|2nd|3rd|4th
   Steve's Ex 1 on page 20: NONE
   Steve's "Slow and Bluesy" (Ex 2 on page 20): NONE
+  {}-major Diatonic slides of 4th in eights 1₅₆2.3₇14... (Ex. 2B on page 23): major
   Steve's 4th slide etude (Ex. 3 on page 24): NONE
 
 reviseBaroque:
@@ -251,6 +253,7 @@ reviseMelodic:
   Melodic Étude in C Major (p.7): NONE
   Melodic Etude in F Major (p.8): NONE
   Melodic Étude in B♭ Major (p.9), last played at ♩=69 of 86: NONE
+  Melodic Étude in E♭ Major (p.10), last played at ♩=92: NONE
 
 reviseSimandl:
   Simandl Étude 1 (p.3): NONE
@@ -321,12 +324,10 @@ reviseOther:
 #
 
 _melodicToDo:
-  Melodic Étude in A♭ Major (p.11): NONE
   Melodic Étude in D♭ Major (p.12): NONE
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
   Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
@@ -359,7 +360,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  4th slide etude (Ex. 4 on page 24): NONE
   {}-major Diatonic Slides of 5th half notes (1-5|5-1|2-6|..) (Ex. 1 on page 25): major
   {}-major Diatonic Slides combination up to 5ths (Ex. 2 on page 26): major
   {}-major Diatonic Slides combination variation (Ex. 2A on page 27): major
