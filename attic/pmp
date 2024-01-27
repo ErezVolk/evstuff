@@ -28,6 +28,7 @@ from typing import TypeVar
 # - "easy-major := C|F|G" etc.
 
 
+SEP = " ‖ "
 T = TypeVar("T")
 Playable: TypeAlias = "Etude | BookRef"
 TableOfContents: TypeAlias = list[Playable]
@@ -165,11 +166,11 @@ class Etude:
 
     def ddesc(self) -> str:
         """Debug description"""
-        return f"{self.name}:{','.join(repr(deck) for deck in self.elements)}"
+        return f"{self.name}={SEP.join(repr(deck) for deck in self.elements)}"
 
     def gist(self) -> str:
         """A readable string unique enough for a shortlist"""
-        return f"{self.name}:{','.join(deck.guid for deck in self.elements)}"
+        return f"{self.name}={SEP.join(deck.guid for deck in self.elements)}"
 
 
 @dataclasses.dataclass
@@ -578,7 +579,7 @@ class PracticeMakesPerfect:
                 guid=scale,
             ))
         self.have_deck(Deck(name="NONE", guid="NONE", cards=[""]))
-        self.log.debug("Key decks: %s", list(self.decks.values()))
+        self.log.debug("Key decks: %s", SEP.join(self.decks))
 
     def have_deck(self, deck: Deck) -> Deck:
         """Add a deck to our records"""
@@ -625,7 +626,7 @@ class PracticeMakesPerfect:
                 saveds[key] = deck.serialize()
                 used.append(repr(deck))
         if used:
-            self.log.debug("Saving %d: %s", len(used), " ‖ ".join(used))
+            self.log.debug("Saving %d: %s", len(used), SEP.join(used))
 
         # For the human reading that file
         self.state["debug"] = {
@@ -649,7 +650,7 @@ class PracticeMakesPerfect:
     def make_all_decks(self) -> None:
         """Prepare randomizers"""
         # Make sure all etude and book decks are registered
-        self.log.debug("All books: %s", list(self.books))
+        self.log.debug("All books: %s", SEP.join(self.books))
         for book in self.books.values():
             for etude in book.toc:
                 if isinstance(etude, Etude):
@@ -667,7 +668,7 @@ class PracticeMakesPerfect:
             deck = self.decks[guid]
             try:
                 deck.deserialize(saved)
-                self.log.debug("Loaded %s -> %s", deck, deck.queue)
+                self.log.debug("Loaded %s -> %s", deck, SEP.join(deck.queue))
                 n_used += 1
             except CannotRestore as exc:
                 self.log.debug("Forgetting saved state for %s: %s", guid, exc)
