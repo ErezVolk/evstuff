@@ -39,11 +39,8 @@ class LevelFormatter(logging.Formatter):
     def __init__(self, formats: dict[int, str], **kwargs):
         super().__init__()
 
-        if 'fmt' in kwargs:
-            raise ValueError(
-                'Format string must be passed to level-surrogate formatters, '
-                'not this one'
-            )
+        if "fmt" in kwargs:
+            raise ValueError("Use formats=, not fmt=")
 
         self.formats = sorted(
             (level, logging.Formatter(fmt, **kwargs))
@@ -54,6 +51,10 @@ class LevelFormatter(logging.Formatter):
         idx = bisect(self.formats, (record.levelno,), hi=len(self.formats) - 1)
         _, formatter = self.formats[idx]
         return formatter.format(record)
+
+
+class BadConfig(ValueError):
+    """Problem with config file"""
 
 
 class CannotRestore(ValueError):
@@ -136,21 +137,15 @@ class Deck:
         self.used = True
         return self.queue.pop()
 
-    @contextlib.contextmanager
-    def peek(self):
-        """Create a temporary draw context.
+    def peek_n(self, num: int) -> list[str]:
+        """Draw `num` cards without affecting the queue."""
+        if num < 1 or num > len(self):
+            raise ValueError(f"Cannot draw {num} from a {len(self)}-card deck")
 
-        Use as context manager:
-        ```
-        with deck.peek()
-            deck.draw()
-        ```
-        """
-        queue = list(self.queue)
-        try:
-            yield
-        finally:
-            self.queue = queue
+        if num <= len(self.queue):
+            return random.sample(self.queue, num)
+
+        return random.sample(self.cards, num)
 
     def _set_queue(self, queue: Sequence[str]) -> None:
         """Set the queue"""
@@ -199,8 +194,10 @@ class Book:
         ```
         """
         if max_etudes and 0 < max_etudes < len(self.gists):
-            with self.deck.peek():
-                self.shortlist = [self.deck.draw() for _ in range(max_etudes)]
+            self.shortlist = self.deck.peek_n(max_etudes)
+        else:
+            self.shortlist = self.gists
+
         try:
             yield
         finally:
@@ -693,10 +690,6 @@ class PracticeMakesPerfect:
     def fail(self, message: str) -> NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
         self.parser.error(message)
-
-
-class BadConfig(ValueError):
-    """Problem with config file"""
 
 
 class ConfigParser:
