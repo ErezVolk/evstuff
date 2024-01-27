@@ -23,6 +23,7 @@ from typing import TypeAlias
 from typing import TypeVar
 
 # TO DO:
+# - BookRefs should contain the actual Book refs
 # - Modes of minor scales
 # - A UI to mark what was done?
 # - "easy-major := C|F|G" etc.
@@ -35,7 +36,7 @@ PitchClass: TypeAlias = Sequence[str]
 
 
 class LevelFormatter(logging.Formatter):
-    """From https://stackoverflow.com/questions/14844970"""
+    """Adapted from https://stackoverflow.com/questions/14844970"""
     def __init__(self, formats: dict[int, str], **kwargs):
         super().__init__()
 
@@ -71,14 +72,18 @@ class Deck:
     DESCRIPTION_KEY = "description"
     MIN_SERIALIZABLE = 3
 
-    def __init__(self, cards: Sequence[str] | None = None, name: str = ""):
-        self.cards = list(cards) if cards else []
-        hashable = "\0".join(sorted(self.cards)).encode()
-        self.guid = hashlib.sha256(hashable).hexdigest()[:8]
+    def __init__(self, cards: Sequence[str], name: str = ""):
+        self.cards = list(cards)
+        if self.cards == [""]:
+            self.guid = "NONE"
+        else:
+            hashable = "\0".join(sorted(self.cards)).encode()
+            self.guid = hashlib.sha256(hashable).hexdigest()[:8]
         self.name = name or "|".join(self.cards)
         self.queue = []
 
     def __repr__(self) -> str:
+        """Used only for display; use `.guid` when you need a stable hash"""
         if self.queue:
             state = f"{len(self.queue)} of {len(self)}"
         else:
@@ -132,6 +137,22 @@ class Deck:
         self.used = True
         return self.queue.pop()
 
+    @contextlib.contextmanager
+    def peek(self):
+        """Create a temporary draw context.
+
+        Use as context manager:
+        ```
+        with deck.peek()
+            deck.draw()
+        ```
+        """
+        queue = list(self.queue)
+        try:
+            yield
+        finally:
+            self.queue = queue
+
     def _set_queue(self, queue: Sequence[str]) -> None:
         """Set the queue"""
         self.queue = list(queue)
@@ -144,6 +165,10 @@ class Etude:
     name: str
     elements: list[Deck]
 
+    def gist(self) -> str:
+        """A readable string unique enough for a shortlist"""
+        return f"{self.name}:{','.join(deck.guid for deck in self.elements)}"
+
 
 @dataclasses.dataclass
 class Book:
@@ -151,35 +176,37 @@ class Book:
     toc: TableOfContents
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
-    names: list[str] = dataclasses.field(init=False)
-    cap: set[str] = dataclasses.field(init=False)
+    gists: list[str] = dataclasses.field(init=False)
+    shortlist: list[str] = dataclasses.field(init=False)
     guid: str = dataclasses.field(init=False)
 
     def draw(self) -> Playable:
         """Get the next random playable"""
-        while (name := self.deck.draw()) not in self.cap:
+        while (gist := self.deck.draw()) not in self.shortlist:
             continue
-        return self.toc[self.names.index(name)]
+        return self.toc[self.gists.index(gist)]
+
+    def num_active_etudes(self) -> int:
+        """Return the number of different etudes currently drawable"""
+        return len(self.shortlist)
 
     @contextlib.contextmanager
-    def set_cap(self, cap: Sequence[str]):
-        """Set cap.
+    def limit_etudes(self, max_etudes: int | None):
+        """Select a shortlist.
 
         Use as context manager:
         ```
-        with book.set_cap(["major", "minor"]):
+        with book.limit_etudes(3):
             book.draw()
         ```
         """
-        if not cap:
-            raise ValueError("Cannot cap to nothing")
-        if not (as_set := set(cap)).issubset(self.names):
-            raise ValueError("Cap contains unknown names")
-        self.cap = as_set
+        if max_etudes and 0 < max_etudes < len(self.gists):
+            with self.deck.peek():
+                self.shortlist = [self.deck.draw() for _ in range(max_etudes)]
         try:
             yield
         finally:
-            self.cap = set(self.names)
+            self.shortlist = self.gists
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
@@ -187,9 +214,9 @@ class Book:
 
     def finalize(self, name: str) -> Deck:
         """(Re)create the dck"""
-        self.names = [entry.name for entry in self.toc]
-        self.cap = set(self.names)
-        self.deck = Deck(self.names, name=name)
+        self.gists = [entry.gist() for entry in self.toc]
+        self.shortlist = self.gists
+        self.deck = Deck(self.shortlist, name=name)
         return self.deck
 
 
@@ -197,6 +224,12 @@ class BookRef(NamedTuple):
     """A reference to a book"""
     name: str
     num_etudes: int | None = None
+
+    def gist(self) -> str:
+        """A readable string unique enough for a shortlist"""
+        if self.num_etudes:
+            return f"{self.num_etudes}@{self.name}"
+        return f"={self.name}"
 
 
 DEFAULT_CONFIG = """
@@ -427,20 +460,15 @@ class PracticeMakesPerfect:
 
     def run_plain(self, book: Book, num_tracks: int | None):
         """Run a "simple" book, choosing etudes and assigining keys"""
-        names: Sequence[str] = book.names
-        if self.args.max_etudes:
-            num_names = min(self.args.max_etudes, len(names))
-            names = random.sample(names, num_names)
+        with book.limit_etudes(self.args.max_etudes):
+            if num_tracks is None:
+                num_tracks = book.num_active_etudes()
+            elif num_tracks == 0:
+                num_tracks = len(self.PITCH_CLASSES)
 
-        if num_tracks is None:
-            num_tracks = len(names)
-        elif num_tracks == 0:
-            num_tracks = len(self.PITCH_CLASSES)
+            if self.args.verbose:
+                print(f"[{self.book_name} × {num_tracks}]")
 
-        if self.args.verbose:
-            print(f"[{self.book_name} × {num_tracks}]")
-
-        with book.set_cap(names):
             etude_seq = self.choose_etudes(book, num_tracks)
         track_seq = self.make_tracks(etude_seq)
 
