@@ -23,7 +23,6 @@ from typing import TypeAlias
 from typing import TypeVar
 
 # TO DO:
-# - BookRefs should contain the actual Book refs
 # - Modes of minor scales
 # - A UI to mark what was done?
 # - "easy-major := C|F|G" etc.
@@ -178,7 +177,6 @@ class Book:
     deck: Deck = dataclasses.field(init=False)
     gists: list[str] = dataclasses.field(init=False)
     shortlist: list[str] = dataclasses.field(init=False)
-    guid: str = dataclasses.field(init=False)
 
     def draw(self) -> Playable:
         """Get the next random playable"""
@@ -213,23 +211,26 @@ class Book:
         self.toc.append(playable)
 
     def finalize(self, name: str) -> Deck:
-        """(Re)create the dck"""
+        """(Re)create the deck"""
         self.gists = [entry.gist() for entry in self.toc]
         self.shortlist = self.gists
         self.deck = Deck(self.shortlist, name=name)
         return self.deck
 
 
-class BookRef(NamedTuple):
+@dataclasses.dataclass
+class BookRef:
     """A reference to a book"""
     name: str
     num_etudes: int | None = None
+    book: Book = dataclasses.field(init=False)
 
     def gist(self) -> str:
         """A readable string unique enough for a shortlist"""
+        book_guid = self.book.deck.guid
         if self.num_etudes:
-            return f"{self.num_etudes}@{self.name}"
-        return f"={self.name}"
+            return f"{self.num_etudes}@{book_guid}"
+        return f"={book_guid}"
 
 
 DEFAULT_CONFIG = """
@@ -314,12 +315,6 @@ class PracticeMakesPerfect:
             help="Always print tracks on separate lines",
         )
         parser.add_argument(
-            "-v",
-            "--verbose",
-            action="store_true",
-            help="Print selected book titles and etude counts",
-        )
-        parser.add_argument(
             "-d",
             "--debug",
             action="store_true",
@@ -393,9 +388,8 @@ class PracticeMakesPerfect:
     config: Configuration
     log: logging.Logger
     state: dict
-    book_name: str
 
-    STATE_VERSION = "v4"
+    STATE_VERSION = "v5"
 
     def main(self) -> None:
         """Practice Makes Perfect"""
@@ -411,9 +405,8 @@ class PracticeMakesPerfect:
         self.load_state()
         self.make_all_decks()
 
-        self.book_name = self.choose_book()
         self.run_book(
-            self.book_name,
+            self.choose_book(),
             None if self.args.one_of_each else self.args.num_tracks,
             spaced=True,
         )
@@ -438,13 +431,11 @@ class PracticeMakesPerfect:
         self.log.setLevel(level)
         self.log.addHandler(handler)
 
-    def run_book(self, name: str, num_tracks: int | None, spaced=False):
+    def run_book(self, book: Book, num_tracks: int | None, spaced=False):
         """Run any book"""
-        book = self.books[name]
         if book.sequential:
             self.run_sequential(book, spaced=spaced)
         else:
-            self.book_name = name
             self.run_plain(book, num_tracks)
 
     def run_sequential(self, book: Book, spaced: bool) -> None:
@@ -453,8 +444,7 @@ class PracticeMakesPerfect:
             if isinstance(entry, Etude):
                 print(self.make_track(entry))
             else:
-                ref: BookRef = entry
-                self.run_book(ref.name, ref.num_etudes)
+                self.run_book(entry.book, entry.num_etudes)
             if spaced:
                 print("")
 
@@ -465,9 +455,6 @@ class PracticeMakesPerfect:
                 num_tracks = book.num_active_etudes()
             elif num_tracks == 0:
                 num_tracks = len(self.PITCH_CLASSES)
-
-            if self.args.verbose:
-                print(f"[{self.book_name} × {num_tracks}]")
 
             etude_seq = self.choose_etudes(book, num_tracks)
         track_seq = self.make_tracks(etude_seq)
@@ -490,17 +477,16 @@ class PracticeMakesPerfect:
                     entry.num_etudes or 1
                 )
 
-    def choose_book(self) -> str:
+    def choose_book(self) -> Book:
         """Pick out a book"""
         if self.args.books:
-            books = self.args.books
-            if (unknown := set(books) - set(self.books)):
+            names = self.args.books
+            if (unknown := set(names) - set(self.books)):
                 self.fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
-            books = self.config.starred
-            if len(books) > 1:
-                self.args.verbose = True
-        return random.choice(books)
+            names = self.config.starred
+        name = random.choice(names)
+        return self.books[name]
 
     def make_tracks(
         self,
@@ -585,7 +571,7 @@ class PracticeMakesPerfect:
         except (FileNotFoundError, ValueError):
             self.config = self.parse_config("", io.StringIO(DEFAULT_CONFIG))
         self.books = self.config.books
-        self.check_refs()
+        self.finalize_books()
 
     def load_state(self) -> None:
         """Read saved state info `self.state`
@@ -610,8 +596,8 @@ class PracticeMakesPerfect:
                     self.log.debug("%s is gone", description)
                 except (KeyError, TypeError):
                     self.log.debug("%r is gone", guid)
-            elif not deck.queue:
-                self.log.debug("%r is done", deck)
+            # elif not deck.queue:
+            #     self.log.debug("%r is done", deck)
             else:
                 continue
             del saveds[guid]
@@ -634,8 +620,7 @@ class PracticeMakesPerfect:
         """Prepare randomizers"""
         # Make sure all etude and book decks are registered
         self.log.debug("All books: %s", list(self.books))
-        for name, book in self.books.items():
-            book.deck = self.have_deck(book.finalize(name))
+        for book in self.books.values():
             for etude in book.toc:
                 if isinstance(etude, Etude):
                     etude.elements = [
@@ -669,14 +654,15 @@ class PracticeMakesPerfect:
             self.fail(str(err))
             raise err  # Won't happen, just to appease pyright
 
-    def check_refs(self) -> None:
-        """Check configured graph is legit"""
+    def finalize_books(self) -> None:
+        """Check configured graph is legit and prepare all books for action"""
         graph = defaultdict(set)
         for name, book in self.books.items():
             for ref in book.toc:
                 if not isinstance(ref, BookRef):
                     continue
                 graph[ref.name].add(name)
+                ref.book = self.books[ref.name]
 
         if (missing := graph.keys() - self.books.keys()):
             error = ", ".join(
@@ -687,9 +673,14 @@ class PracticeMakesPerfect:
 
         try:
             topo = graphlib.TopologicalSorter(graph)
-            topo.prepare()
+            order = list(topo.static_order())
         except graphlib.CycleError as exc:
             self.fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
+
+        # The hash of a book depends on the guids of book refs in the toc
+        for name in reversed(order):
+            book = self.books[name]
+            book.deck = self.have_deck(book.finalize(name))
 
     def fail(self, message: str) -> NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
