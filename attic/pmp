@@ -71,10 +71,10 @@ class Deck:
     DESCRIPTION_KEY = "description"
     MIN_SERIALIZABLE = 3
 
-    def __init__(self, cards: Sequence[str], name: str = ""):
+    def __init__(self, cards: Sequence[str], name: str = "", guid: str = ""):
         self.cards = list(cards)
-        if self.cards == [""]:
-            self.guid = "NONE"
+        if guid:
+            self.guid = guid
         else:
             hashable = "\0".join(sorted(self.cards)).encode()
             self.guid = hashlib.sha256(hashable).hexdigest()[:8]
@@ -389,7 +389,7 @@ class PracticeMakesPerfect:
     log: logging.Logger
     state: dict
 
-    STATE_VERSION = "v5"
+    STATE_VERSION = "v4"
 
     def main(self) -> None:
         """Practice Makes Perfect"""
@@ -555,8 +555,9 @@ class PracticeMakesPerfect:
                     for pitch_class in self.PITCH_CLASSES
                 ],
                 name=scale,
+                guid=scale,
             ))
-        self.have_deck(Deck(name="NONE", cards=[""]))
+        self.have_deck(Deck(name="NONE", guid="NONE", cards=[""]))
         self.log.debug("Key decks: %s", list(self.decks.values()))
 
     def have_deck(self, deck: Deck) -> Deck:
@@ -610,10 +611,17 @@ class PracticeMakesPerfect:
         if used:
             self.log.debug("Saving %d: %s", len(used), " ‖ ".join(used))
 
+        # For the human reading that file
+        self.state["debug"] = {"n": len(self.decks)} | {
+            guid: deck.name
+            for guid, deck in self.decks.items()
+        }
+
         with open(self.args.state_file, "wb") as fobj:
             plistlib.dump(
                 {self.STATE_VERSION: self.state},
                 fobj,
+                sort_keys=False,
             )
 
     def make_all_decks(self) -> None:
