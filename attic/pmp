@@ -78,7 +78,8 @@ class Deck:
             self.guid = guid
         else:
             hashable = "\0".join(sorted(self.cards)).encode()
-            self.guid = hashlib.sha256(hashable).hexdigest()[:8]
+            hashed = hashlib.sha256(hashable).hexdigest()[:8]
+            self.guid = f":{hashed}:"
         self.name = name or "|".join(self.cards)
         self.queue = []
 
@@ -130,7 +131,7 @@ class Deck:
         if not all(isinstance(card, str) for card in queue):
             raise CannotRestore("Not a list of strings")
         if not set(queue).issubset(self.cards):
-            raise CannotRestore("List contains invalid strings")
+            raise CannotRestore("List contains unknown cards")
         self._set_queue(queue)
 
     def draw(self) -> str:
@@ -242,11 +243,14 @@ class BookRef:
         return f"{self.gist()} ({self.name})"
 
     def gist(self) -> str:
-        """A readable string unique enough for a shortlist"""
-        book_guid = self.book.deck.guid
+        """A readable string unique enough for a shortlist.
+
+        Note that we don't want the gist to change if the
+        referenced book changes, to avoid a domino effect.
+        """
         if self.num_etudes:
-            return f"{self.num_etudes}@{book_guid}"
-        return f"={book_guid}"
+            return f"{self.num_etudes}@{self.name}"
+        return f"={self.name}"
 
 
 DEFAULT_CONFIG = """
