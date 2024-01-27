@@ -63,17 +63,17 @@ class CannotRestore(ValueError):
 
 class Deck:
     """A deck of strings"""
-    cards: list[str]
-    queue: list[str]
-    used: bool = False
-    name: str
-    guid: str
+    cards: tuple[str, ...]  # The options
+    queue: list[str]  # Next in line
+    used: bool = False  # A "dirty" flag
+    guid: str  # Identifies this deck internally
+    name: str  # Identifies this deck in the config file
 
     DESCRIPTION_KEY = "description"
     MIN_SERIALIZABLE = 3
 
     def __init__(self, cards: Sequence[str], name: str = "", guid: str = ""):
-        self.cards = list(cards)
+        self.cards = tuple(cards)
         if guid:
             self.guid = guid
         else:
@@ -161,7 +161,7 @@ class Deck:
 class Etude:
     """A concrete etude, e.g., 'minor pentatonic'"""
     name: str
-    elements: list[Deck]
+    elements: list[Deck]  # one or more template arguments
 
     def ddesc(self) -> str:
         """Debug description"""
@@ -240,7 +240,7 @@ class BookRef:
 
     def ddesc(self) -> str:
         """Debug description"""
-        return f"{self.gist()} ({self.name})"
+        return self.gist()
 
     def gist(self) -> str:
         """A readable string unique enough for a shortlist.
@@ -374,7 +374,7 @@ class PracticeMakesPerfect:
         "locrian",
     )
 
-    PITCH_CLASSES: list[PitchClass] = [
+    PITCH_CLASSES: tuple[PitchClass, ...] = (
         ("C",),
         ("C♯", "D♭"),
         ("D",),
@@ -387,7 +387,7 @@ class PracticeMakesPerfect:
         ("A",),
         ("A♯", "B♭"),
         ("B",),
-    ]
+    )
 
     SCALE_FIX: dict[str, dict[str, str]] = {
         "ANY": {},
@@ -617,11 +617,7 @@ class PracticeMakesPerfect:
                     self.log.debug("%s is gone", description)
                 except (KeyError, TypeError):
                     self.log.debug("%r is gone", guid)
-            # elif not deck.queue:
-            #     self.log.debug("%r is done", deck)
-            else:
-                continue
-            del saveds[guid]
+                del saveds[guid]
 
         used = []
         for key, deck in self.decks.items():
