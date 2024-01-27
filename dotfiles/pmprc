@@ -106,23 +106,23 @@ chopsRight:
   R-16th-11 (p31) ♬ 1221.2221.2112.1112...: NONE
   R-16th-12 (p31) ♬ 1221.2111.2112.1222...: NONE
 
-  R-grace-8th-16ths-1 (p33) (♪♬ ₂1 22...): NONE
-  R-grace-8th-16ths-2 (p33) (♪♬ ₂1 22...): NONE
-  R-grace-8th-16ths-3 (p33) (♪♬ ₁2 11...): NONE
-  R-grace-8th-16ths-4 (p33) (♪♬ ₂1 21...): NONE
-  R-grace-8th-16ths-5 (p34) (♪♬ ₂1 21.₁2 12...): NONE
-  R-grace-8th-16ths-6 (p34) (♪♬ ₂1 22.₁2 11...: NONE
-  R-grace-8th-16ths-7 (p34) (♪♬ ₂1 22.₂1 21.₁2 11.₁2 12...: NONE
-  R-grace-8th-16ths-8 (p34) (♪♬ ₂1 12.₂1 21.₁2 21.₁2 12...: NONE
+  R-grace-8th-16ths-1 (p33) (♪̵♪♬ ₂122...): NONE
+  R-grace-8th-16ths-2 (p33) (♪̵♪♬ ₂122...): NONE
+  R-grace-8th-16ths-3 (p33) (♪̵♪♬ ₁211...): NONE
+  R-grace-8th-16ths-4 (p33) (♪̵♪♬ ₂121...): NONE
+  R-grace-8th-16ths-5 (p34) (♪̵♪♬ ₂121.₁212...): NONE
+  R-grace-8th-16ths-6 (p34) (♪̵♪♬ ₂122.₁211...: NONE
+  R-grace-8th-16ths-7 (p34) (♪̵♪♬ ₂122.₂121.₁211.₁212...: NONE
+  R-grace-8th-16ths-8 (p34) (♪̵♪♬ ₂112.₂121.₁221.₁212...: NONE
 
-  R-grace-16ths-8th-9 (p35) (♬♪ ₂12 2...): NONE
-  R-grace-16ths-8th-10 (p35) (♬♪ ₂12 2...): NONE
-  R-grace-16ths-8th-11 (p35) (♬♪ ₁21 1...): NONE
-  R-grace-16ths-8th-12 (p35) (♬♪ ₂12 1...): NONE
-  R-grace-16ths-8th-13 (p36) (♬♪ ₂12 1.₁21 2...): NONE
-  R-grace-16ths-8th-14 (p36) (♬♪ ₂12 2.₁21 1...: NONE
-  R-grace-16ths-8th-15 (p36) (♬♪ ₂12 2.₂12 1.₁21 1.₁21 2...: NONE
-  R-grace-16ths-8th-16 (p36) (♬♪ ₂11 2.₂12 1.₁22 1.₁21 2...: NONE
+  R-grace-16ths-8th-9 (p35) (♪̵♬♪ ₂122...): NONE
+  R-grace-16ths-8th-10 (p35) (♪̵♬♪ ₂122...): NONE
+  R-grace-16ths-8th-11 (p35) (♪̵♬♪ ₁211...): NONE
+  R-grace-16ths-8th-12 (p35) (♪̵♬♪ ₂121...): NONE
+  R-grace-16ths-8th-13 (p36) (♪̵♬♪ ₂121.₁212...): NONE
+  R-grace-16ths-8th-14 (p36) (♪̵♬♪ ₂122.₁211...: NONE
+  R-grace-16ths-8th-15 (p36) (♪̵♬♪ ₂122.₂121.₁211.₁212...: NONE
+  R-grace-16ths-8th-16 (p36) (♪̵♬♪ ₂112.₂121.₁221.₁212...: NONE
 
   R-grace-16th-8th-16th-17 (p37) (₂122...): NONE
   R-grace-16th-8th-16th-18 (p37) (₁211...): NONE
@@ -133,14 +133,14 @@ chopsRight:
   R-grace-16th-8th-16th-23 (p38) (₂122.₂121.₁211.₁212...): NONE
   R-grace-16th-8th-16th-24 (p38) (₂112.₂121.₁221.₁212...): NONE
 
-  R-grace-triplet-25 (p39) (₂122...): NONE
-  R-grace-triplet-26 (p39) (₁211...): NONE
-  R-grace-triplet-27 (p39) (₂121...): NONE
-  R-grace-triplet-28 (p39) (₁212...): NONE
-  R-grace-triplet-29 (p40) (₂121.₁212...): NONE
-  R-grace-triplet-30 (p40) (₂122.₁211...): NONE
-  R-grace-triplet-31 (p40) (₂122.₂121.₁211.₁212...): NONE
-  R-grace-triplet-32 (p40) (₂112.₂121.₁221.₁212...): NONE
+  R-grace-triplet-25 (p39) (♪̵♪♪♪ ₂122...): NONE
+  R-grace-triplet-26 (p39) (♪̵♪♪♪ ₁211...): NONE
+  R-grace-triplet-27 (p39) (♪̵♪♪♪ ₂121...): NONE
+  R-grace-triplet-28 (p39) (♪̵♪♪♪ ₁212...): NONE
+  R-grace-triplet-29 (p40) (♪̵♪♪♪ ₂121.₁212...): NONE
+  R-grace-triplet-30 (p40) (♪̵♪♪♪ ₂122.₁211...): NONE
+  R-grace-triplet-31 (p40) (♪̵♪♪♪ ₂122.₂121.₁211.₁212...): NONE
+  R-grace-triplet-32 (p40) (♪̵♪♪♪ ₂112.₂121.₁221.₁212...): NONE
 
 
 #
