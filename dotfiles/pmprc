@@ -148,7 +148,7 @@ chopsRight:
 #
 keep = { @keepSteveInterval @hazard @slide @doubleStop @keepRayBrown }
 hazard = { @keepSteveHazard }
-slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepCarolKaye }
+slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th }
 doubleStop = { @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths }
 
 arpeggio:
@@ -223,9 +223,9 @@ keepSteveSlide4th:
   {}-major Diatonic Slides of 4th half notes (1-4|4-1|2-5|5-2|...): major
   {}-major Diatonic slides in 4ths 143₇-2541-3652-... (Ex. 2A on page 23): major
 
-keepCarolKaye:
-  Page {} in "How to Play the Electric Bass": 5|6|7|8|9|10|11|20|21|22|23|28
-  {} from "How to Play the Electric Bass": Little Green Apples (pp. 18-19)|I Don't Need No Doctor (p.20)|Peace of Mind (pp. 24-25)|Out of this World (pp. 26-27)
+keepCarolKaye:  # When I'm done
+  # Page {} in "How to Play the Electric Bass": 5|6|7|8|9|10|11|20|21|22|23|28
+  # {} from "How to Play the Electric Bass": Little Green Apples (pp. 18-19)|I Don't Need No Doctor (p.20)|Peace of Mind (pp. 24-25)|Out of this World (pp. 26-27)
   # TODO: "Bass Lines Book 1"
   # TODO: "Bass Lines Book 2"
   # TODO: "Bass Lines Book 3"
