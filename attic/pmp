@@ -113,7 +113,6 @@ class Deck:
     layout: Layout
     preblurb: str
 
-    BLURB_KEY = "blurb"
     MIN_SERIALIZABLE = 3
 
     def __init__(self, cards: Sequence[str], label="", layout=""):
@@ -162,7 +161,7 @@ class Deck:
     def serialize(self) -> dict:
         """Serialize"""
         return {
-            self.BLURB_KEY: self.blurb,
+            "blurb": self.blurb,
             "layout": self.layout,
             "queue": self.queue,
         }
@@ -634,7 +633,7 @@ class PracticeMakesPerfect:
         for layout in list(saveds):
             if not (deck := self.decks.get(layout)):
                 try:
-                    description = saveds[layout][Deck.BLURB_KEY]
+                    description = saveds[layout]["blurb"]
                     self.log.debug("%s is gone", description)
                 except (KeyError, TypeError):
                     self.log.debug("%r is gone", layout)
