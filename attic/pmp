@@ -236,9 +236,9 @@ class Etude:
     blurb: str = dataclasses.field(init=False)
 
     def __post_init__(self):
-        pref = f"{self.template}="
-        self.label = f"{pref}{SEP.join(deck.label for deck in self.decks)}"
-        self.blurb = f"{pref}{SEP.join(deck.blurb for deck in self.decks)}"
+        for key in ("label", "blurb"):
+            vals = (getattr(deck, key) for deck in self.decks)
+            setattr(self, key, f"{self.template}={SEP.join(vals)}")
 
 
 @dataclasses.dataclass
