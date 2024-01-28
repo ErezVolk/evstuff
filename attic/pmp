@@ -32,11 +32,9 @@ from collections import defaultdict
 from collections.abc import Iterable
 from collections.abc import Sequence
 from os import PathLike
-from typing import NamedTuple
 from typing import NoReturn
 from typing import TextIO
 from typing import TypeAlias
-from typing import TypeVar
 
 # TO DO:
 # - Modes of minor scales
@@ -45,7 +43,6 @@ from typing import TypeVar
 
 
 SEP = " ‖ "
-T = TypeVar("T")
 Filename: TypeAlias = str | PathLike
 Logo: TypeAlias = str
 Layout: TypeAlias = str
@@ -69,6 +66,7 @@ class Deck:
     used: bool = False
     logo: Logo
     layout: Layout
+    preblurb: str
 
     BLURB_KEY = "blurb"
     MIN_SERIALIZABLE = 3
@@ -81,29 +79,35 @@ class Deck:
             hashable = "\0".join(sorted(self.cards)).encode()
             hashed = hashlib.sha256(hashable).hexdigest()[:8]
             self.layout = f":{hashed}:"
-        self.logo = logo or "|".join(self.cards)
+        if logo:
+            self.logo = logo
+        else:
+            self.logo = "|".join(self.cards)
+        if self.layout == self.logo:
+            self.preblurb = f"{self.logo}"
+        else:
+            self.preblurb = f"{self.logo} ({self.layout})"
         self.queue = []
+
+    def __len__(self) -> int:
+        return len(self.cards)
 
     @property
     def blurb(self) -> str:
         """A description of the deck in its current state"""
-        parts = [self.logo]
-        if self.layout != self.logo:
-            parts.append(f"({self.layout})")
-        if self.queue:
-            parts.append(f"{len(self.queue)} of {len(self)}")
-        else:
-            parts.append(f"fresh {len(self)}")
-        return " ".join(parts)
+        if self.midway():
+            return f"{self.preblurb} {len(self.queue)} of {len(self)}"
+        return f"{self.preblurb} {len(self)}"
 
-    def __len__(self) -> int:
-        return len(self.cards)
+    def midway(self) -> bool:
+        """Is a queue currently being dealt?"""
+        return 0 < len(self.queue) < len(self)
 
     def check_serializable(self):
         """Make sure we want to serialize this deck"""
         if not self.used:
             raise SerializationError("Never drawn")
-        if not self.queue:
+        if not self.midway():
             raise SerializationError("Starting new cycle")
         if len(self) < self.MIN_SERIALIZABLE:  # Too small
             raise SerializationError("Too small")
@@ -283,7 +287,8 @@ arp:  # Play an arpeggio
 """
 
 
-class Config(NamedTuple):
+@dataclasses.dataclass
+class Config:
     """The information from the config file"""
     books: dict[Logo, Book]
     starred: list[Logo]
