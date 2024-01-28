@@ -18,7 +18,7 @@ homeworkTechnical:
   {}-major Diatonic Slides of 5th half notes (1↗5 5↘1 2↗6 ..) (Ex. 1 on page 25): major
 
 homeworkMusic:  # Try to keep this to one!
-  JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
+  JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
   Melodic Étude in A♭ Major (p.11): NONE
 
 book:
@@ -243,7 +243,7 @@ keepCarolKaye:  # When I'm done
   Page 21 in "How to Play the Electric Bass": NONE
   Page 22 in "How to Play the Electric Bass": NONE
   Page 23 in "How to Play the Electric Bass": NONE
-  # Page 28 in "How to Play the Electric Bass": NONE
+  Page 28 in "How to Play the Electric Bass": NONE
   # TODO: "Bass Lines Book 1"
   # TODO: "Bass Lines Book 2"
   # TODO: "Bass Lines Book 3"
@@ -334,7 +334,7 @@ reviseJP@AW:
   JP@AW 1.42 Basic Etude in C♯ Minor (2+3. 6/8 bass line): NONE
   JP@AW 1.43 Basic Etude in F♯ Minor (straight eighths 2. bass line, 3. solo): NONE
   JP@AW 1.44 Basic Etude in B Minor (2. two-feel, 3. solo): NONE
-  #TBD# JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
+  JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
   #TBD# JP@AW 1.47 Basic Etude in D Minor (2. ballad bass line): NONE
   #TBD# JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
   #TBD# JP@AW 1.49 Bolero (Slow): NONE
@@ -345,7 +345,7 @@ reviseCarol:
   'Little Green Apples' (pp. 18-19) from "How to Play the Electric Bass": NONE
   'I Don't Need No Doctor' (p.20) from "How to Play the Electric Bass": NONE
   'Peace of Mind' (pp. 24-25) from "How to Play the Electric Bass": NONE
-  # 'Out of this World' (pp. 26-27) from "How to Play the Electric Bass": NONE
+  'Out of this World' (pp. 26-27) from "How to Play the Electric Bass", last seen at 85% speed: NONE
 
 reviseOther:
   Bach I. Prelude, last played at ♩=76: NONE
