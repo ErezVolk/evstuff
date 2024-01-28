@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 """Practice Makes Perfect
 
-On nomenclature:
+Assuming you have more scales, drills, licks and etudes to practice regularly
+than you have time for each day, this utility will present them to you in
+random order.
+
+Sort of like spaced repetition, only _it never ends_.
+
+
+About the code:
 
 There are two different types of object identifiers:
 - "logo" is the name used by other parts of the system (references, config).
@@ -36,10 +43,46 @@ from typing import NoReturn
 from typing import TextIO
 from typing import TypeAlias
 
+
+DEFAULT_CONFIG = """
+note:  # Just pick a note
+  : ANY
+
+scale:  # Play a scale
+  -major: major
+  -major: major  # Duplicate an entry to give it more weight
+  -natural minor: minor
+  -harmonic minor: minor
+  -melodic minor: minor
+
+mode:  # Play a mode
+  ' ionian': ionian
+  ' dorian': dorian
+  ' phrygian': phrygian
+  ' lydian': lydian
+  ' mixolydian': mixolydian
+  ' aeolian': aeolian
+  ' locrian': locrian
+
+arp:  # Play an arpeggio
+  M: major
+  m: minor
+  ⁷: major
+  m⁷: minor
+  M⁷: major
+  -major pentatonic: major
+  -minor pentatonic: minor
+
+form:
+  Blues in {}: C|F|B♭
+  Beethoven's {} Symphony, {}: {1st|2nd|3rd} {I|II|III|IV}
+"""
+
+
 # TO DO:
-# - Modes of minor scales
-# - A UI to mark what was done?
+# - Modes of minor scales (which would entail a mode-making mechanism)
 # - "easy-major := C|F|G" etc.
+# - A UI to mark what was done? With a metronome? And a drone?
 
 
 SEP = " ‖ "
@@ -48,7 +91,7 @@ Logo: TypeAlias = str
 Layout: TypeAlias = str
 Playable: TypeAlias = "Etude | BookRef"
 TableOfContents: TypeAlias = list[Playable]
-PitchClass: TypeAlias = Sequence[str]
+PitchClass: TypeAlias = list[str, ...]
 
 
 class BadConfig(ValueError):
@@ -153,8 +196,8 @@ class Deck:
         if count < 1 or count > len(self):
             raise ValueError(f"Cannot draw {count} from {len(self)} cards")
 
-        if count <= len(self.queue):
-            return random.sample(self.queue, count)
+        if count <= len(self.queue):  # Enough lined up
+            return self.queue[:count]
 
         return random.sample(self.cards, count)
 
@@ -268,37 +311,6 @@ class BookRef:
         self.blurb = self.logo
 
 
-DEFAULT_CONFIG = """
-note:  # Just pick a note
-  : ANY
-
-scale:  # Play a scale
-  -major: major
-  -major: major  # Duplicate an entry to give it more weight
-  -natural minor: minor
-  -harmonic minor: minor
-  -melodic minor: minor
-
-mode:  # Play a mode
-  ' ionian': ionian
-  ' dorian': dorian
-  ' phrygian': phrygian
-  ' lydian': lydian
-  ' mixolydian': mixolydian
-  ' aeolian': aeolian
-  ' locrian': locrian
-
-arp:  # Play an arpeggio
-  M: major
-  m: minor
-  ⁷: major
-  m⁷: minor
-  M⁷: major
-  ' major pentatonic': major
-  ' minor pentatonic': minor
-"""
-
-
 @dataclasses.dataclass
 class Config:
     """The information from the config file"""
@@ -314,13 +326,16 @@ class PracticeMakesPerfect:
 
     def parse_command_line(self) -> None:
         """Command-line"""
-        parser = argparse.ArgumentParser(description=__doc__)
+        parser = argparse.ArgumentParser(description="Practice Makes Perfect")
         parser.add_argument(
             "books",
             metavar="BOOK",
             type=str,
             nargs="*",
-            help="Choose books from this list",
+            help=(
+                "Choose books from this list; specify 'default-config' to "
+                "print out the default configuration file"
+            ),
         )
 
         group = parser.add_mutually_exclusive_group()
@@ -341,7 +356,7 @@ class PracticeMakesPerfect:
             "-i",
             "--max-etudes",
             type=int,
-            help="Use at most this number of etudes",
+            help="Use at most MAX_ETUDES different etude types",
         )
         parser.add_argument(
             "-m",
@@ -453,12 +468,10 @@ class PracticeMakesPerfect:
         """Set logging format and level"""
         self.log = logging.getLogger("pmp")
         handler = logging.StreamHandler()
-        handler.setFormatter(
-            LevelFormatter({
-                logging.INFO: "%(message)s",
-                logging.DEBUG: "DEBUG [%(module)s:%(lineno)d] %(message)s",
-            })
-        )
+        handler.setFormatter(LevelFormatter({
+            logging.INFO: "%(message)s",
+            logging.DEBUG: "DEBUG [%(module)s:%(lineno)d] %(message)s",
+        }))
 
         if self.args.debug:
             level = logging.DEBUG
@@ -611,10 +624,7 @@ class PracticeMakesPerfect:
         self._finalize_books()
 
     def _load_state(self) -> None:
-        """Read saved state info `self.state`
-
-        Sets `self.state`.
-        """
+        """Read saved state info `self.state`"""
         try:
             with open(self.args.state_file, "rb") as fobj:
                 loaded = plistlib.load(fobj)
@@ -873,7 +883,20 @@ class ConfigParser:
 
 
 class LevelFormatter(logging.Formatter):
-    """Adapted from https://stackoverflow.com/questions/14844970"""
+    """Adapted from https://stackoverflow.com/questions/14844970
+
+    ```
+    log = logging.getLogger("hey")
+    handler = logging.StreamHandler()
+    handler.setFormatter(LevelFormatter({
+        logging.INFO: "%(message)s",
+        logging.DEBUG: "DEBUG [%(module)s:%(lineno)d] %(message)s",
+    }))
+    log.setLevel(logging.INFO)
+    log.addHandler(handler)
+    ```
+    """
+
     def __init__(self, formats: dict[int, str], **kwargs):
         super().__init__()
 
