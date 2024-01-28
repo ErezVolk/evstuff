@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
-"""Practice Makes Perfect"""
+"""Practice Makes Perfect
+
+On nomenclature:
+
+There are two different name types, which are sometimes equal:
+- The "logo" is the name used by other parts of the system (references, config)
+- The "layout" is used to identify saved states
+
+Most objects also have a "blurb", which is for displaying and debugging.
+
+For consistency, all of these are properties (real or @property).
+"""
 import argparse
 from bisect import bisect
 import contextlib
@@ -16,6 +27,7 @@ import re
 from collections import defaultdict
 from collections.abc import Iterable
 from collections.abc import Sequence
+from os import PathLike
 from typing import NamedTuple
 from typing import NoReturn
 from typing import TextIO
@@ -30,65 +42,50 @@ from typing import TypeVar
 
 SEP = " ‖ "
 T = TypeVar("T")
+Filename: TypeAlias = str | PathLike
+Logo: TypeAlias = str
+Layout: TypeAlias = str
 Playable: TypeAlias = "Etude | BookRef"
 TableOfContents: TypeAlias = list[Playable]
 PitchClass: TypeAlias = Sequence[str]
-
-
-class LevelFormatter(logging.Formatter):
-    """Adapted from https://stackoverflow.com/questions/14844970"""
-    def __init__(self, formats: dict[int, str], **kwargs):
-        super().__init__()
-
-        if "fmt" in kwargs:
-            raise ValueError("Use formats=, not fmt=")
-
-        self.formats = sorted(
-            (level, logging.Formatter(fmt, **kwargs))
-            for level, fmt in formats.items()
-        )
-
-    def format(self, record: logging.LogRecord) -> str:
-        idx = bisect(self.formats, (record.levelno,), hi=len(self.formats) - 1)
-        _, formatter = self.formats[idx]
-        return formatter.format(record)
 
 
 class BadConfig(ValueError):
     """Problem with config file"""
 
 
-class CannotRestore(ValueError):
+class SerializationError(ValueError):
     """Raised internally when a deck cannot be restored."""
 
 
 class Deck:
     """A deck of strings"""
-    cards: tuple[str, ...]  # The options
-    queue: list[str]  # Next in line
-    used: bool = False  # A "dirty" flag
-    guid: str  # Identifies this deck internally
-    name: str  # Identifies this deck in the config file
+    cards: tuple[str, ...]
+    queue: list[str]
+    used: bool = False
+    logo: Logo
+    layout: Layout
 
-    DESCRIPTION_KEY = "description"
+    BLURB_KEY = "blurb"
     MIN_SERIALIZABLE = 3
 
-    def __init__(self, cards: Sequence[str], name: str = "", guid: str = ""):
+    def __init__(self, cards: Sequence[str], logo="", layout=""):
         self.cards = tuple(cards)
-        if guid:
-            self.guid = guid
+        if layout:
+            self.layout = layout
         else:
             hashable = "\0".join(sorted(self.cards)).encode()
             hashed = hashlib.sha256(hashable).hexdigest()[:8]
-            self.guid = f":{hashed}:"
-        self.name = name or "|".join(self.cards)
+            self.layout = f":{hashed}:"
+        self.logo = logo or "|".join(self.cards)
         self.queue = []
 
-    def __repr__(self) -> str:
-        """Used only for display; use `.guid` when you need a stable hash"""
-        parts = [self.name]
-        if self.guid != self.name:
-            parts.append(f"({self.guid})")
+    @property
+    def blurb(self) -> str:
+        """A description of the deck in its current state"""
+        parts = [self.logo]
+        if self.layout != self.logo:
+            parts.append(f"({self.layout})")
         if self.queue:
             parts.append(f"{len(self.queue)} of {len(self)}")
         else:
@@ -98,41 +95,40 @@ class Deck:
     def __len__(self) -> int:
         return len(self.cards)
 
-    def serializable(self) -> bool:
-        """Should we serialize this deck in its current state"""
-        if not self.used:  # Never drawn
-            return False
-        if not self.queue:  # On the verge of a fresh shuffle
-            return False
+    def check_serializable(self):
+        """Make sure we want to serialize this deck"""
+        if not self.used:
+            raise SerializationError("Never drawn")
+        if not self.queue:
+            raise SerializationError("Starting new cycle")
         if len(self) < self.MIN_SERIALIZABLE:  # Too small
-            return False
-        return True
+            raise SerializationError("Too small")
 
     def serialize(self) -> dict:
         """Serialize"""
         return {
-            self.DESCRIPTION_KEY: repr(self),
-            "guid": self.guid,
+            self.BLURB_KEY: self.blurb,
+            "layout": self.layout,
             "queue": self.queue,
         }
 
     def deserialize(self, saved: object):
         """Validate and restore a saved queue"""
         if len(self) < self.MIN_SERIALIZABLE:
-            raise CannotRestore("Too few items to load state")
+            raise SerializationError("Too few items to load state")
         if not isinstance(saved, dict):
-            raise CannotRestore("Not a dict")
-        if saved.get("guid") != self.guid:
-            raise CannotRestore("GUID mismatch")
+            raise SerializationError("Not a dict")
+        if saved.get("layout") != self.layout:
+            raise SerializationError("Hash mismatch")
         queue = saved.get("queue")
         if not isinstance(queue, list):
-            raise CannotRestore("Not a list")
+            raise SerializationError("Not a list")
         if not queue:
-            raise CannotRestore("Empty list")
+            raise SerializationError("Empty list")
         if not all(isinstance(card, str) for card in queue):
-            raise CannotRestore("Not a list of strings")
+            raise SerializationError("Not a list of strings")
         if not set(queue).issubset(self.cards):
-            raise CannotRestore("List contains unknown cards")
+            raise SerializationError("List contains unknown cards")
         self._set_queue(queue)
 
     def draw(self) -> str:
@@ -142,15 +138,15 @@ class Deck:
         self.used = True
         return self.queue.pop()
 
-    def peek(self, num: int) -> list[str]:
-        """Draw `num` cards without affecting the queue."""
-        if num < 1 or num > len(self):
-            raise ValueError(f"Cannot draw {num} from a {len(self)}-card deck")
+    def peek(self, count: int) -> list[str]:
+        """Draw `count` cards without affecting the queue."""
+        if count < 1 or count > len(self):
+            raise ValueError(f"Cannot draw {count} from {len(self)} cards")
 
-        if num <= len(self.queue):
-            return random.sample(self.queue, num)
+        if count <= len(self.queue):
+            return random.sample(self.queue, count)
 
-        return random.sample(self.cards, num)
+        return random.sample(self.cards, count)
 
     def _set_queue(self, queue: Sequence[str]) -> None:
         """Set the queue"""
@@ -160,17 +156,22 @@ class Deck:
 
 @dataclasses.dataclass
 class Etude:
-    """A concrete etude, e.g., 'minor pentatonic'"""
-    name: str
-    elements: list[Deck]  # one or more template arguments
+    """A concrete etude, e.g., 'minor pentatonic'.
 
-    def ddesc(self) -> str:
-        """Debug description"""
-        return f"{self.name}={SEP.join(repr(deck) for deck in self.elements)}"
+    It is a kind of template string with one or more `Deck` variables.
 
-    def gist(self) -> str:
-        """A readable string unique enough for a shortlist"""
-        return f"{self.name}={SEP.join(deck.guid for deck in self.elements)}"
+    `Etude.logo` has the same meaning as `Deck.logo`; there is no need
+    for a layout member.
+    """
+    template: str
+    decks: list[Deck]
+    logo: Logo = dataclasses.field(init=False)
+    blurb: str = dataclasses.field(init=False)
+
+    def __post_init__(self):
+        pref = f"{self.template}="
+        self.logo = f"{pref}{SEP.join(deck.logo for deck in self.decks)}"
+        self.blurb = f"{pref}{SEP.join(deck.blurb for deck in self.decks)}"
 
 
 @dataclasses.dataclass
@@ -179,22 +180,15 @@ class Book:
     toc: TableOfContents
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
-    gists: list[str] = dataclasses.field(init=False)
-    shortlist: list[str] = dataclasses.field(init=False)
-
-    def ddesc(self) -> str:
-        """A debug description"""
-        parens = "[]" if self.sequential else "{}"
-        return (
-            f"({self.deck.guid}) "
-            f"{parens[0]}{len(self.deck)} of {len(self.toc)}{parens[1]}"
-        )
+    logos: list[Logo] = dataclasses.field(init=False)
+    shortlist: list[Logo] = dataclasses.field(init=False)
+    blurb: str = dataclasses.field(init=False)
 
     def draw(self) -> Playable:
         """Get the next random playable"""
-        while (gist := self.deck.draw()) not in self.shortlist:
+        while (logo := self.deck.draw()) not in self.shortlist:
             continue
-        return self.toc[self.gists.index(gist)]
+        return self.toc[self.logos.index(logo)]
 
     def num_active_etudes(self) -> int:
         """Return the number of different etudes currently drawable"""
@@ -210,48 +204,48 @@ class Book:
             book.draw()
         ```
         """
-        if max_etudes and 0 < max_etudes < len(self.gists):
+        if max_etudes and 0 < max_etudes < len(self.logos):
             self.shortlist = self.deck.peek(max_etudes)
         else:
-            self.shortlist = self.gists
+            self.shortlist = self.logos
 
         try:
             yield
         finally:
-            self.shortlist = self.gists
+            self.shortlist = self.logos
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
         self.toc.append(playable)
 
-    def finalize(self, name: str) -> Deck:
+    def finalize(self, logo: Logo) -> Deck:
         """(Re)create the deck"""
-        self.gists = [entry.gist() for entry in self.toc]
-        self.shortlist = self.gists
-        self.deck = Deck(self.shortlist, name=name)
+        self.logos = [entry.logo for entry in self.toc]
+        self.shortlist = self.logos
+        self.deck = Deck(self.shortlist, logo=logo)
+        parens = "[]" if self.sequential else "{}"
+        self.blurb = (
+            f"({self.deck.layout}) "
+            f"{parens[0]}{len(self.deck)} of {len(self.toc)}{parens[1]}"
+        )
         return self.deck
 
 
 @dataclasses.dataclass
 class BookRef:
     """A reference to a book"""
-    name: str
-    num_etudes: int | None = None
+    ref_logo: Logo
+    count: int | None = None
     book: Book = dataclasses.field(init=False)
+    logo: Logo = dataclasses.field(init=False)
+    blurb: str = dataclasses.field(init=False)
 
-    def ddesc(self) -> str:
-        """Debug description"""
-        return self.gist()
-
-    def gist(self) -> str:
-        """A readable string unique enough for a shortlist.
-
-        Note that we don't want the gist to change if the
-        referenced book changes, to avoid a domino effect.
-        """
-        if self.num_etudes:
-            return f"{self.num_etudes}@{self.name}"
-        return f"={self.name}"
+    def __post_init__(self):
+        if self.count:
+            self.logo = f"{self.count}@{self.ref_logo}"
+        else:
+            self.logo = "={self.ref_logo}"
+        self.blurb = self.logo
 
 
 DEFAULT_CONFIG = """
@@ -285,10 +279,10 @@ arp:  # Play an arpeggio
 """
 
 
-class Configuration(NamedTuple):
+class Config(NamedTuple):
     """The information from the config file"""
-    books: dict[str, Book]
-    starred: list[str]
+    books: dict[Logo, Book]
+    starred: list[Logo]
 
 
 # pylint: disable-next=too-many-instance-attributes
@@ -404,9 +398,9 @@ class PracticeMakesPerfect:
         }
     }
 
-    books: dict[str, Book]
-    decks: dict[str, Deck]
-    config: Configuration
+    books: dict[Logo, Book]
+    decks: dict[Layout, Deck]
+    config: Config
     log: logging.Logger
     state: dict
 
@@ -465,7 +459,7 @@ class PracticeMakesPerfect:
             if isinstance(entry, Etude):
                 print(self.make_track(entry))
             else:
-                self.run_book(entry.book, entry.num_etudes)
+                self.run_book(entry.book, entry.count)
             if spaced:
                 print("")
 
@@ -479,7 +473,6 @@ class PracticeMakesPerfect:
 
             etude_seq = self.choose_etudes(book, num_tracks)
         track_seq = self.make_tracks(etude_seq)
-
         print(self.get_sep(track_seq).join(track_seq))
 
     def choose_etudes(
@@ -493,21 +486,18 @@ class PracticeMakesPerfect:
             if isinstance(entry, Etude):
                 yield entry
             else:  # Recall: no cycles
-                yield from self.choose_etudes(
-                    self.books[entry.name],
-                    entry.num_etudes or 1
-                )
+                yield from self.choose_etudes(entry.book, entry.count or 1)
 
     def choose_book(self) -> Book:
         """Pick out a book"""
         if self.args.books:
-            names = self.args.books
-            if (unknown := set(names) - set(self.books)):
+            logos = self.args.books
+            if (unknown := set(logos) - set(self.books)):
                 self.fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
-            names = self.config.starred
-        name = random.choice(names)
-        return self.books[name]
+            logos = self.config.starred
+        logo = random.choice(logos)
+        return self.books[logo]
 
     def make_tracks(
         self,
@@ -522,19 +512,19 @@ class PracticeMakesPerfect:
     def make_track(self, etude: Etude) -> str:
         """Pick a key for one etude"""
         keys = []
-        for deck in etude.elements:
+        for deck in etude.decks:
             key = deck.draw()
             if "|" in key:  # Can only come from our pitch classes
                 key = random.choice(key.split("|"))
             keys.append(key)
 
-        if "{}" in etude.name:
+        if "{}" in etude.template:
             return "".join((
                 keys.pop(0) if part == "{}" else part
-                for part in re.split(r"({})", etude.name)
+                for part in re.split(r"({})", etude.template)
             ))
 
-        return f"{keys[0]}{etude.name}"
+        return f"{keys[0]}{etude.template}"
 
     def get_sep(self, tracks: list[str]) -> str:
         """Return space or newline separator"""
@@ -575,21 +565,21 @@ class PracticeMakesPerfect:
                     "|".join((fixes.get(note, note) for note in pitch_class))
                     for pitch_class in self.PITCH_CLASSES
                 ],
-                name=scale,
-                guid=scale,
+                logo=scale,
+                layout=scale,
             ))
-        self.have_deck(Deck(name="NONE", guid="NONE", cards=[""]))
+        self.have_deck(Deck(logo="NONE", layout="NONE", cards=[""]))
         self.log.debug("Key decks: %s", SEP.join(self.decks))
 
     def have_deck(self, deck: Deck) -> Deck:
         """Add a deck to our records"""
-        return self.decks.setdefault(deck.guid, deck)
+        return self.decks.setdefault(deck.layout, deck)
 
     def configure(self) -> None:
         """Fix configuration files, defaults, etc."""
         try:
             with open(self.args.config, "r", encoding="UTF-8") as fobj:
-                self.config = self.parse_config(str(self.args.config), fobj)
+                self.config = self.parse_config(self.args.config, fobj)
         except (FileNotFoundError, ValueError):
             self.config = self.parse_config("", io.StringIO(DEFAULT_CONFIG))
         self.books = self.config.books
@@ -611,32 +601,35 @@ class PracticeMakesPerfect:
     def save_state(self) -> None:
         """Save the queue state"""
         saveds = self.state["deck"]
-        for guid in list(saveds):
-            if not (deck := self.decks.get(guid)):
+        for layout in list(saveds):
+            if not (deck := self.decks.get(layout)):
                 try:
-                    description = saveds[guid][Deck.DESCRIPTION_KEY]
+                    description = saveds[layout][Deck.BLURB_KEY]
                     self.log.debug("%s is gone", description)
                 except (KeyError, TypeError):
-                    self.log.debug("%r is gone", guid)
-                del saveds[guid]
+                    self.log.debug("%r is gone", layout)
+                del saveds[layout]
 
         used = []
-        for key, deck in self.decks.items():
-            if deck.serializable():
-                saveds[key] = deck.serialize()
-                used.append(repr(deck))
+        for layout, deck in self.decks.items():
+            try:
+                deck.check_serializable()
+                saveds[layout] = deck.serialize()
+                used.append(deck.blurb)
+            except SerializationError as exc:
+                self.log.debug("Not serializing %s: %s", deck.blurb, exc)
         if used:
             self.log.debug("Saving %d: %s", len(used), SEP.join(used))
 
         # For the human reading that file
         self.state["debug"] = {
             "decks": {"n": len(self.decks)} | {
-                guid: deck.name
-                for guid, deck in self.decks.items()
+                layout: deck.blurb
+                for layout, deck in self.decks.items()
             },
             "books": {"n": len(self.books)} | {
-                f"{name} {book.ddesc()}": [entry.ddesc() for entry in book.toc]
-                for name, book in self.books.items()
+                f"{logo} {book.blurb}": [entry.blurb for entry in book.toc]
+                for logo, book in self.books.items()
             }
         }
 
@@ -654,33 +647,37 @@ class PracticeMakesPerfect:
         for book in self.books.values():
             for etude in book.toc:
                 if isinstance(etude, Etude):
-                    etude.elements = [
+                    etude.decks = [
                         self.have_deck(deck)
-                        for deck in etude.elements
+                        for deck in etude.decks
                     ]
 
         # Restore states for any eligible deck
         saveds = self.state["deck"]
         n_used = 0
-        for guid in list(self.decks):
-            if (saved := saveds.get(guid)) is None:
+        for layout in list(self.decks):
+            if (saved := saveds.get(layout)) is None:
                 continue
-            deck = self.decks[guid]
+            deck = self.decks[layout]
             try:
                 deck.deserialize(saved)
-                self.log.debug("Loaded %s -> %s", deck, SEP.join(deck.queue))
+                self.log.debug(
+                    "Loaded %s -> %s",
+                    deck.blurb,
+                    SEP.join(deck.queue),
+                )
                 n_used += 1
-            except CannotRestore as exc:
-                self.log.debug("Forgetting saved state for %s: %s", guid, exc)
-                del self.decks[guid]
+            except SerializationError as exc:
+                self.log.debug("Forgetting saved state of %s: %s", layout, exc)
+                del self.decks[layout]
 
         self.log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
-    def parse_config(self, filename: str, stream: TextIO) -> Configuration:
+    def parse_config(self, filename: Filename, stream: TextIO) -> Config:
         """Read configuration file"""
         try:
-            named_decks = {deck.name: deck for deck in self.decks.values()}
-            return ConfigParser(named_decks).parse(filename, stream)
+            logodecks = {deck.logo: deck for deck in self.decks.values()}
+            return ConfigParser(logodecks).parse(filename, stream)
         except BadConfig as err:
             self.fail(str(err))
             raise err  # Won't happen, just to appease pyright
@@ -688,17 +685,16 @@ class PracticeMakesPerfect:
     def finalize_books(self) -> None:
         """Check configured graph is legit and prepare all books for action"""
         graph = defaultdict(set)
-        for name, book in self.books.items():
+        for logo, book in self.books.items():
             for ref in book.toc:
-                if not isinstance(ref, BookRef):
-                    continue
-                graph[ref.name].add(name)
-                ref.book = self.books[ref.name]
+                if isinstance(ref, BookRef):
+                    graph[ref.ref_logo].add(logo)
+                    ref.book = self.books[ref.ref_logo]
 
         if (missing := graph.keys() - self.books.keys()):
             error = ", ".join(
-                f"{name} (used by {', '.join(graph[name])})"
-                for name in missing
+                f"{logo} (used by {', '.join(graph[logo])})"
+                for logo in missing
             )
             self.fail(f"Unknown reference(s): {error}")
 
@@ -708,11 +704,11 @@ class PracticeMakesPerfect:
         except graphlib.CycleError as exc:
             self.fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
 
-        # The hash of a book depends on the guids of book refs in the toc
+        # The hash of a book depends on the layouts of book refs in the toc
         order.extend(self.books.keys() - set(order))
-        for name in reversed(order):
-            book = self.books[name]
-            book.deck = self.have_deck(book.finalize(name))
+        for logo in reversed(order):
+            book = self.books[logo]
+            book.deck = self.have_deck(book.finalize(logo))
 
     def fail(self, message: str) -> NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
@@ -721,15 +717,15 @@ class PracticeMakesPerfect:
 
 class ConfigParser:
     """Read configuration file"""
-    books: dict[str, Book] = {}
-    starred: list[str] = []
+    books: dict[Logo, Book] = {}
+    starred: list[Logo] = []
     curr: Book | None = None
     line_num: int
     line: str
     mobj: re.Match | None
 
-    def __init__(self, named_decks: dict[str, Deck]):
-        self.named_decks = named_decks
+    def __init__(self, logodecks: dict[Logo, Deck]):
+        self.logodecks = logodecks
 
     def match(self, expr: str) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line"""
@@ -741,57 +737,57 @@ class ConfigParser:
         assert self.mobj is not None
         return self.mobj.group(group)
 
-    PART_RE = r"(?P<at>(?P<num>[1-9]\d*)?@)?(?P<book>\S+)"
+    PART_RE = r"(?P<at>(?P<count>[1-9]\d*)?@)?(?P<logo>\S+)"
 
-    def parse(self, filename: str, stream: TextIO) -> "Configuration":
+    def parse(self, filename: Filename, stream: TextIO) -> "Config":
         """Read configuration file"""
         try:
             return self.do_parse(stream)
         except BadConfig as exc:
             raise BadConfig(f"[{filename}:{self.line_num}] {exc}") from exc
 
-    def do_parse(self, stream: TextIO) -> "Configuration":
+    def do_parse(self, stream: TextIO) -> "Config":
         """The actual reading function"""
         for self.line_num, line in enumerate(stream, 1):
             self.line = re.sub(r"\s*(#.*)?$", "", line)
 
             if self.match(r"([*]?)(\S[^:]*):"):
-                self.enter_book(name=self.group(2).strip(), star=self.group(1))
+                self.enter_book(logo=self.group(2).strip(), star=self.group(1))
             elif self.match(r"\s+([^:]*):\s+(.*)"):
                 self.add_etude(
-                    name=self.group(1).strip(),
+                    template=self.group(1).strip(),
                     description=self.group(2).strip(),
                 )
             elif self.match(f"\\s+{self.PART_RE}\\s*") and self.group("at"):
                 self.add_ref()
-            elif self.match(r"(?P<name>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"):
+            elif self.match(r"(?P<logo>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"):
                 self.add_one_liner(sequential=False)
-            elif self.match(r"(?P<name>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
+            elif self.match(r"(?P<logo>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
                 self.add_one_liner(sequential=True)
             elif not self.match(r""):
                 raise BadConfig(f"Bad line: {repr(self.line)}")
 
-        return Configuration(
+        return Config(
             books=self.books,
             starred=self.starred or list(self.books),
         )
 
-    def enter_book(self, name: str, star: str) -> None:
+    def enter_book(self, logo: Logo, star: str) -> None:
         """Found a book line"""
-        if name in self.books:
-            raise BadConfig(f"Duplicate name: {repr(name)}")
+        if logo in self.books:
+            raise BadConfig(f"Duplicate book: {repr(logo)}")
 
-        self.books[name] = self.books[name] = self.curr = Book([])
+        self.books[logo] = self.books[logo] = self.curr = Book([])
         if star == "*":
-            self.starred.append(name)
+            self.starred.append(logo)
 
-    def add_etude(self, name: str, description: str) -> None:
+    def add_etude(self, template: str, description: str) -> None:
         """Found an etude line"""
         if self.curr is None:
             raise BadConfig("Bookless etude")
 
-        if name and name[0] in "'\"" and name[-1] == name[0]:
-            name = name[1:-1]
+        if template and template[0] in "'\"" and template[-1] == template[0]:
+            template = template[1:-1]
 
         if re.fullmatch(r"({[^}]*}\s*)+", description.strip()):
             parts = [
@@ -801,17 +797,17 @@ class ConfigParser:
         else:
             parts = [description]
 
-        num_placeholders = len(re.findall(r"{}", name)) or 1
+        num_placeholders = len(re.findall(r"{}", template)) or 1
         if len(parts) != num_placeholders:
             raise BadConfig("Placeholder mismatch")
 
-        elements: list[Deck] = []
+        decks: list[Deck] = []
         for part in parts:
             try:
-                elements.append(self.named_decks[part])
+                decks.append(self.logodecks[part])
             except KeyError:
-                elements.append(Deck([key.strip() for key in part.split("|")]))
-        self.curr.append(Etude(name=name, elements=elements))
+                decks.append(Deck([key.strip() for key in part.split("|")]))
+        self.curr.append(Etude(template=template, decks=decks))
 
     def add_ref(self) -> None:
         """Add book reference line (in self.mobj)"""
@@ -821,36 +817,55 @@ class ConfigParser:
         self.add_ref_to(self.curr.toc, self.mobj)
 
     def add_one_liner(self, sequential: bool) -> None:
-        """A one-liner is in `self.group("name" | "parts")`"""
-        name = self.group("name").strip()
-        if (starred := name.startswith("*")):
-            name = name[1:]
-        if name in self.books:
-            raise BadConfig(f"Duplicate {repr(name)}")
+        """A one-liner is in `self.group("logo" | "parts")`"""
+        logo = self.group("logo").strip()
+        if (starred := logo.startswith("*")):
+            logo = logo[1:]
+        if logo in self.books:
+            raise BadConfig(f"Duplicate book {repr(logo)}")
 
         parts = self.group("parts").split()
         if not parts:
-            raise BadConfig(f"Empty one-liner {name}")
+            raise BadConfig(f"Empty one-liner {logo}")
 
         toc: TableOfContents = []
         for part in parts:
             if not (mobj := re.fullmatch(self.PART_RE, part)):
                 raise BadConfig(f"Bad {repr(part)}")
             self.add_ref_to(toc, mobj)
-        self.books[name] = Book(toc=toc, sequential=sequential)
+        self.books[logo] = Book(toc=toc, sequential=sequential)
 
         if starred:
-            self.starred.append(name)
+            self.starred.append(logo)
 
     def add_ref_to(self, toc: TableOfContents, mobj: re.Match):
         """Add book reference to a given TOC"""
-        if (nstr := mobj.group("num")):
-            num = int(nstr)
+        if (nstr := mobj.group("count")):
+            count = int(nstr)
         elif mobj.group("at"):
-            num = 1
+            count = 1
         else:
-            num = None
-        toc.append(BookRef(num_etudes=num, name=mobj.group("book")))
+            count = None
+        toc.append(BookRef(count=count, ref_logo=mobj.group("logo")))
+
+
+class LevelFormatter(logging.Formatter):
+    """Adapted from https://stackoverflow.com/questions/14844970"""
+    def __init__(self, formats: dict[int, str], **kwargs):
+        super().__init__()
+
+        if "fmt" in kwargs:
+            raise ValueError("Use formats=, not fmt=")
+
+        self.formats = sorted(
+            (level, logging.Formatter(fmt, **kwargs))
+            for level, fmt in formats.items()
+        )
+
+    def format(self, record: logging.LogRecord) -> str:
+        idx = bisect(self.formats, (record.levelno,), hi=len(self.formats) - 1)
+        _, formatter = self.formats[idx]
+        return formatter.format(record)
 
 
 if __name__ == "__main__":
