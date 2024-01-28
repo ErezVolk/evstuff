@@ -11,12 +11,13 @@ Sort of like spaced repetition, only _it never ends_.
 About the code:
 
 There are two different types of object identifiers:
-- "logo" is the name used by other parts of the system (references, config).
+- "label" is the name used by other parts of the system (references, config).
 - "layout" is used to identify saved states.
 
-Sometimes (e.g., in "well-known" things like the major scale), the logo and the
-layout are equal and human-readable ("major", etc.). Other times, the layout is
-a hash of the different options, and the logo is the reference name.
+Sometimes (e.g., in "well-known" things like the major scale), the label and
+the layout are equal and human-readable ("major", etc.). Other times, the
+layout is a hash of the different options, and the label is the reference
+name.
 
 Most objects also have a "blurb", which is for display purposes only.
 
@@ -87,11 +88,11 @@ form:
 
 SEP = " ‖ "
 Filename: TypeAlias = str | PathLike
-Logo: TypeAlias = str
+Label: TypeAlias = str
 Layout: TypeAlias = str
 Playable: TypeAlias = "Etude | BookRef"
 TableOfContents: TypeAlias = list[Playable]
-PitchClass: TypeAlias = list[str, ...]
+PitchClass: TypeAlias = tuple[str, ...]
 
 
 class BadConfig(ValueError):
@@ -107,14 +108,14 @@ class Deck:
     cards: tuple[str, ...]
     queue: list[str]
     used: bool = False
-    logo: Logo
+    label: Label
     layout: Layout
     preblurb: str
 
     BLURB_KEY = "blurb"
     MIN_SERIALIZABLE = 3
 
-    def __init__(self, cards: Sequence[str], logo="", layout=""):
+    def __init__(self, cards: Sequence[str], label="", layout=""):
         if not cards:
             raise ValueError("Empty decks not supported")
         self.cards = tuple(cards)
@@ -124,14 +125,14 @@ class Deck:
             hashable = "\0".join(sorted(self.cards)).encode()
             hashed = hashlib.sha256(hashable).hexdigest()[:8]
             self.layout = f":{hashed}:"
-        if logo:
-            self.logo = logo
+        if label:
+            self.label = label
         else:
-            self.logo = "|".join(self.cards)
-        if self.layout == self.logo:
-            self.preblurb = f"{self.logo}"
+            self.label = "|".join(self.cards)
+        if self.layout == self.label:
+            self.preblurb = f"{self.label}"
         else:
-            self.preblurb = f"{self.logo} ({self.layout})"
+            self.preblurb = f"{self.label} ({self.layout})"
         self.queue = []
 
     def __len__(self) -> int:
@@ -210,7 +211,7 @@ class Deck:
 class NoneDeck(Deck):
     """The NONE deck doesn't really have cards, so make the blurb nicer"""
     def __init__(self):
-        super().__init__(cards=[""], logo="NONE", layout="NONE")
+        super().__init__(cards=[""], label="NONE", layout="NONE")
 
     @property
     def blurb(self) -> str:
@@ -223,17 +224,17 @@ class Etude:
 
     It is a kind of template string with one or more `Deck` variables.
 
-    `Etude.logo` has the same meaning as `Deck.logo`; there is no need
+    `Etude.label` has the same meaning as `Deck.label`; there is no need
     for a layout member.
     """
     template: str
     decks: list[Deck]
-    logo: Logo = dataclasses.field(init=False)
+    label: Label = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
 
     def __post_init__(self):
         pref = f"{self.template}="
-        self.logo = f"{pref}{SEP.join(deck.logo for deck in self.decks)}"
+        self.label = f"{pref}{SEP.join(deck.label for deck in self.decks)}"
         self.blurb = f"{pref}{SEP.join(deck.blurb for deck in self.decks)}"
 
 
@@ -243,15 +244,15 @@ class Book:
     toc: TableOfContents
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
-    logos: list[Logo] = dataclasses.field(init=False)
-    shortlist: list[Logo] = dataclasses.field(init=False)
+    labels: list[Label] = dataclasses.field(init=False)
+    shortlist: list[Label] = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
 
     def draw(self) -> Playable:
         """Get the next random playable"""
-        while (logo := self.deck.draw()) not in self.shortlist:
+        while (label := self.deck.draw()) not in self.shortlist:
             continue
-        return self.toc[self.logos.index(logo)]
+        return self.toc[self.labels.index(label)]
 
     def num_active_etudes(self) -> int:
         """Return the number of different etudes currently drawable"""
@@ -267,25 +268,23 @@ class Book:
             book.draw()
         ```
         """
-        if max_etudes and 0 < max_etudes < len(self.logos):
+        previous = self.shortlist
+        if max_etudes and 0 < max_etudes < len(self.labels):
             self.shortlist = self.deck.peek(max_etudes)
-        else:
-            self.shortlist = self.logos
-
         try:
             yield
         finally:
-            self.shortlist = self.logos
+            self.shortlist = previous
 
     def append(self, playable: Playable):
         """Add an entry to the TOC"""
         self.toc.append(playable)
 
-    def finalize(self, logo: Logo) -> Deck:
+    def finalize(self, label: Label) -> Deck:
         """(Re)create the deck"""
-        self.logos = [entry.logo for entry in self.toc]
-        self.shortlist = self.logos
-        self.deck = Deck(self.shortlist, logo=logo)
+        self.labels = [entry.label for entry in self.toc]
+        self.shortlist = self.labels
+        self.deck = Deck(self.shortlist, label=label)
         parens = "[]" if self.sequential else "{}"
         self.blurb = (
             f"({self.deck.layout}) "
@@ -297,25 +296,25 @@ class Book:
 @dataclasses.dataclass
 class BookRef:
     """A reference to a book"""
-    ref_logo: Logo
+    ref_label: Label
     count: int | None = None
     book: Book = dataclasses.field(init=False)
-    logo: Logo = dataclasses.field(init=False)
+    label: Label = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
 
     def __post_init__(self):
         if self.count:
-            self.logo = f"{self.count}@{self.ref_logo}"
+            self.label = f"{self.count}@{self.ref_label}"
         else:
-            self.logo = "={self.ref_logo}"
-        self.blurb = self.logo
+            self.label = "={self.ref_label}"
+        self.blurb = self.label
 
 
 @dataclasses.dataclass
 class Config:
     """The information from the config file"""
-    books: dict[Logo, Book]
-    starred: list[Logo]
+    books: dict[Label, Book]
+    starred: list[Label]
 
 
 class PracticeMakesPerfect:
@@ -433,7 +432,7 @@ class PracticeMakesPerfect:
         }
     }
 
-    books: dict[Logo, Book]
+    books: dict[Label, Book]
     decks: dict[Layout, Deck]
     config: Config
     log: logging.Logger
@@ -529,13 +528,13 @@ class PracticeMakesPerfect:
     def _choose_book(self) -> Book:
         """Pick out a book"""
         if self.args.books:
-            logos = self.args.books
-            if (unknown := set(logos) - set(self.books)):
+            labels = self.args.books
+            if (unknown := set(labels) - set(self.books)):
                 self._fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
-            logos = self.config.starred
-        logo = random.choice(logos)
-        return self.books[logo]
+            labels = self.config.starred
+        label = random.choice(labels)
+        return self.books[label]
 
     def _make_tracks(
         self,
@@ -603,7 +602,7 @@ class PracticeMakesPerfect:
                     "|".join((fixes.get(note, note) for note in pitch_class))
                     for pitch_class in self.PITCH_CLASSES
                 ],
-                logo=scale,
+                label=scale,
                 layout=scale,
             ))
         self._have_deck(NoneDeck())
@@ -662,8 +661,8 @@ class PracticeMakesPerfect:
                 for layout, deck in self.decks.items()
             },
             "books": {"n": len(self.books)} | {
-                f"{logo} {book.blurb}": [entry.blurb for entry in book.toc]
-                for logo, book in self.books.items()
+                f"{label} {book.blurb}": [entry.blurb for entry in book.toc]
+                for label, book in self.books.items()
             }
         }
 
@@ -709,8 +708,8 @@ class PracticeMakesPerfect:
     def _parse_config(self, filename: Filename, stream: TextIO) -> Config:
         """Read configuration file"""
         try:
-            logodecks = {deck.logo: deck for deck in self.decks.values()}
-            return ConfigParser(logodecks).parse(filename, stream)
+            labeldecks = {deck.label: deck for deck in self.decks.values()}
+            return ConfigParser(labeldecks).parse(filename, stream)
         except BadConfig as err:
             self._fail(str(err))
             raise err  # Won't happen, just to appease pyright
@@ -718,16 +717,16 @@ class PracticeMakesPerfect:
     def _finalize_books(self) -> None:
         """Check configured graph is legit and prepare all books for action"""
         graph = defaultdict(set)
-        for logo, book in self.books.items():
+        for label, book in self.books.items():
             for ref in book.toc:
                 if isinstance(ref, BookRef):
-                    graph[ref.ref_logo].add(logo)
-                    ref.book = self.books[ref.ref_logo]
+                    graph[ref.ref_label].add(label)
+                    ref.book = self.books[ref.ref_label]
 
         if (missing := graph.keys() - self.books.keys()):
             error = ", ".join(
-                f"{logo} (used by {', '.join(graph[logo])})"
-                for logo in missing
+                f"{label} (used by {', '.join(graph[label])})"
+                for label in missing
             )
             self._fail(f"Unknown reference(s): {error}")
 
@@ -739,9 +738,9 @@ class PracticeMakesPerfect:
 
         # The hash of a book depends on the layouts of book refs in the toc
         order.extend(self.books.keys() - set(order))
-        for logo in reversed(order):
-            book = self.books[logo]
-            book.deck = self._have_deck(book.finalize(logo))
+        for label in reversed(order):
+            book = self.books[label]
+            book.deck = self._have_deck(book.finalize(label))
 
     def _fail(self, message: str) -> NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
@@ -750,15 +749,15 @@ class PracticeMakesPerfect:
 
 class ConfigParser:
     """Read configuration file"""
-    books: dict[Logo, Book] = {}
-    starred: list[Logo] = []
+    books: dict[Label, Book] = {}
+    starred: list[Label] = []
     curr: Book | None = None
     line_num: int
     line: str
     mobj: re.Match | None
 
-    def __init__(self, logodecks: dict[Logo, Deck]):
-        self.logodecks = logodecks
+    def __init__(self, labeldecks: dict[Label, Deck]):
+        self.labeldecks = labeldecks
 
     def match(self, expr: str) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line"""
@@ -770,7 +769,7 @@ class ConfigParser:
         assert self.mobj is not None
         return self.mobj.group(group)
 
-    PART_RE = r"(?P<at>(?P<count>[1-9]\d*)?@)?(?P<logo>\S+)"
+    PART_RE = r"(?P<at>(?P<count>[1-9]\d*)?@)?(?P<label>\S+)"
 
     def parse(self, filename: Filename, stream: TextIO) -> "Config":
         """Read configuration file"""
@@ -785,7 +784,10 @@ class ConfigParser:
             self.line = re.sub(r"\s*(#.*)?$", "", line)
 
             if self.match(r"([*]?)(\S[^:]*):"):
-                self.enter_book(logo=self.group(2).strip(), star=self.group(1))
+                self.enter_book(
+                    label=self.group(2).strip(),
+                    star=self.group(1),
+                )
             elif self.match(r"\s+([^:]*):\s+(.*)"):
                 self.add_etude(
                     template=self.group(1).strip(),
@@ -793,9 +795,9 @@ class ConfigParser:
                 )
             elif self.match(f"\\s+{self.PART_RE}\\s*") and self.group("at"):
                 self.add_ref()
-            elif self.match(r"(?P<logo>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"):
+            elif self.match(r"(?P<label>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"):
                 self.add_one_liner(sequential=False)
-            elif self.match(r"(?P<logo>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
+            elif self.match(r"(?P<label>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
                 self.add_one_liner(sequential=True)
             elif not self.match(r""):
                 raise BadConfig(f"Bad line: {repr(self.line)}")
@@ -805,14 +807,14 @@ class ConfigParser:
             starred=self.starred or list(self.books),
         )
 
-    def enter_book(self, logo: Logo, star: str) -> None:
+    def enter_book(self, label: Label, star: str) -> None:
         """Found a book line"""
-        if logo in self.books:
-            raise BadConfig(f"Duplicate book: {repr(logo)}")
+        if label in self.books:
+            raise BadConfig(f"Duplicate book: {repr(label)}")
 
-        self.books[logo] = self.books[logo] = self.curr = Book([])
+        self.books[label] = self.books[label] = self.curr = Book([])
         if star == "*":
-            self.starred.append(logo)
+            self.starred.append(label)
 
     def add_etude(self, template: str, description: str) -> None:
         """Found an etude line"""
@@ -837,7 +839,7 @@ class ConfigParser:
         decks: list[Deck] = []
         for part in parts:
             try:
-                decks.append(self.logodecks[part])
+                decks.append(self.labeldecks[part])
             except KeyError:
                 decks.append(Deck([key.strip() for key in part.split("|")]))
         self.curr.append(Etude(template=template, decks=decks))
@@ -850,26 +852,26 @@ class ConfigParser:
         self.add_ref_to(self.curr.toc, self.mobj)
 
     def add_one_liner(self, sequential: bool) -> None:
-        """A one-liner is in `self.group("logo" | "parts")`"""
-        logo = self.group("logo").strip()
-        if (starred := logo.startswith("*")):
-            logo = logo[1:]
-        if logo in self.books:
-            raise BadConfig(f"Duplicate book {repr(logo)}")
+        """A one-liner is in `self.group("label" | "parts")`"""
+        label = self.group("label").strip()
+        if (starred := label.startswith("*")):
+            label = label[1:]
+        if label in self.books:
+            raise BadConfig(f"Duplicate book {repr(label)}")
 
         parts = self.group("parts").split()
         if not parts:
-            raise BadConfig(f"Empty one-liner {logo}")
+            raise BadConfig(f"Empty one-liner {label}")
 
         toc: TableOfContents = []
         for part in parts:
             if not (mobj := re.fullmatch(self.PART_RE, part)):
                 raise BadConfig(f"Bad {repr(part)}")
             self.add_ref_to(toc, mobj)
-        self.books[logo] = Book(toc=toc, sequential=sequential)
+        self.books[label] = Book(toc=toc, sequential=sequential)
 
         if starred:
-            self.starred.append(logo)
+            self.starred.append(label)
 
     def add_ref_to(self, toc: TableOfContents, mobj: re.Match):
         """Add book reference to a given TOC"""
@@ -879,7 +881,7 @@ class ConfigParser:
             count = 1
         else:
             count = None
-        toc.append(BookRef(count=count, ref_logo=mobj.group("logo")))
+        toc.append(BookRef(count=count, ref_label=mobj.group("label")))
 
 
 class LevelFormatter(logging.Formatter):
