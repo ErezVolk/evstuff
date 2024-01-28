@@ -82,7 +82,6 @@ form:
 
 # TO DO:
 # - Modes of minor scales (which would entail a mode-making mechanism)
-# - "easy-major := C|F|G" etc.
 # - A UI to mark what was done? With a metronome? And a drone?
 
 
@@ -752,7 +751,7 @@ class ConfigParser:
     mobj: re.Match | None
 
     def __init__(self, labeldecks: dict[Label, Deck]):
-        self.labeldecks = labeldecks
+        self.labeldecks = dict(labeldecks)
 
     def match(self, expr: str) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line"""
@@ -778,7 +777,12 @@ class ConfigParser:
         for self.line_num, line in enumerate(stream, 1):
             self.line = re.sub(r"\s*(#.*)?$", "", line)
 
-            if self.match(r"([*]?)(\S[^:]*):"):
+            if self.match(r"([^:|]+):=(.*)"):
+                self.add_deck(
+                    label=self.group(1).strip(),
+                    keys=self.group(2).strip(),
+                )
+            elif self.match(r"([*]?)(\S[^:]*):"):
                 self.enter_book(
                     label=self.group(2).strip(),
                     star=self.group(1),
@@ -811,6 +815,17 @@ class ConfigParser:
         if star == "*":
             self.starred.append(label)
 
+    def add_deck(self, label: str, keys: str) -> None:
+        """Found a deck line, e.g.,
+
+        easy-major := C|F|G
+        """
+        if label in self.labeldecks:
+            raise BadConfig(f"Duplicate deck: {repr(label)}")
+
+        cards = [key.strip() for key in keys.split("|")]
+        self.labeldecks[label] = Deck(label=label, cards=cards)
+
     def add_etude(self, template: str, description: str) -> None:
         """Found an etude line"""
         if self.curr is None:
@@ -819,13 +834,7 @@ class ConfigParser:
         if template and template[0] in "'\"" and template[-1] == template[0]:
             template = template[1:-1]
 
-        if re.fullmatch(r"({[^}]*}\s*)+", description.strip()):
-            parts = [
-                substr[1:-1] for substr in re.findall(r"{[^{}]*}", description)
-            ]
-        else:
-            parts = [description]
-
+        parts = self._description_to_parts(description)
         num_placeholders = len(re.findall(r"{}", template)) or 1
         if len(parts) != num_placeholders:
             raise BadConfig("Placeholder mismatch")
@@ -837,6 +846,12 @@ class ConfigParser:
             except KeyError:
                 decks.append(Deck([key.strip() for key in part.split("|")]))
         self.curr.append(Etude(template=template, decks=decks))
+
+    def _description_to_parts(self, description: str) -> list[str]:
+        """Parse an etude description"""
+        if not re.fullmatch(r"({[^}]*}\s*)+", description):
+            return [description]
+        return [part[1:-1] for part in re.findall(r"{[^{}]*}", description)]
 
     def add_ref(self) -> None:
         """Add book reference line (in self.mobj)"""
