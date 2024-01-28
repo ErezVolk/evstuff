@@ -3,11 +3,15 @@
 
 On nomenclature:
 
-There are two different name types, which are sometimes equal:
-- The "logo" is the name used by other parts of the system (references, config)
-- The "layout" is used to identify saved states
+There are two different types of object identifiers:
+- "logo" is the name used by other parts of the system (references, config).
+- "layout" is used to identify saved states.
 
-Most objects also have a "blurb", which is for displaying and debugging.
+Sometimes (e.g., in "well-known" things like the major scale), the logo and the
+layout are equal and human-readable ("major", etc.). Other times, the layout is
+a hash of the different options, and the logo is the reference name.
+
+Most objects also have a "blurb", which is for display purposes only.
 
 For consistency, all of these are properties (real or @property).
 """
@@ -285,7 +289,6 @@ class Config(NamedTuple):
     starred: list[Logo]
 
 
-# pylint: disable-next=too-many-instance-attributes
 class PracticeMakesPerfect:
     """Practice Makes Perfect"""
 
@@ -409,26 +412,27 @@ class PracticeMakesPerfect:
     def main(self) -> None:
         """Practice Makes Perfect"""
         self.parse_command_line()
-        self.configure_logging()
+        self._configure_logging()
 
         if self.args.books == ["default-config"]:
-            print(DEFAULT_CONFIG)
+            self.log.info(DEFAULT_CONFIG)
             return
 
-        self.make_mode_decks()
-        self.configure()
-        self.load_state()
-        self.make_all_decks()
+        self._make_mode_decks()
+        self._configure()
+        self._load_state()
+        self._make_all_decks()
+        self._restore_state()
 
-        self.run_book(
-            self.choose_book(),
+        self._run_book(
+            self._choose_book(),
             None if self.args.one_of_each else self.args.num_tracks,
             spaced=True,
         )
         if not self.args.saveless:
-            self.save_state()
+            self._save_state()
 
-    def configure_logging(self):
+    def _configure_logging(self):
         """Set logging format and level"""
         self.log = logging.getLogger("pmp")
         handler = logging.StreamHandler()
@@ -446,24 +450,24 @@ class PracticeMakesPerfect:
         self.log.setLevel(level)
         self.log.addHandler(handler)
 
-    def run_book(self, book: Book, num_tracks: int | None, spaced=False):
+    def _run_book(self, book: Book, num_tracks: int | None, spaced=False):
         """Run any book"""
         if book.sequential:
-            self.run_sequential(book, spaced=spaced)
+            self._run_sequential(book, spaced=spaced)
         else:
-            self.run_plain(book, num_tracks)
+            self._run_plain(book, num_tracks)
 
-    def run_sequential(self, book: Book, spaced: bool) -> None:
+    def _run_sequential(self, book: Book, spaced: bool) -> None:
         """Run a sequence of items"""
         for entry in book.toc:
             if isinstance(entry, Etude):
-                print(self.make_track(entry))
+                self.log.info(self._make_track(entry))
             else:
-                self.run_book(entry.book, entry.count)
+                self._run_book(entry.book, entry.count)
             if spaced:
-                print("")
+                self.log.info("")
 
-    def run_plain(self, book: Book, num_tracks: int | None):
+    def _run_plain(self, book: Book, num_tracks: int | None):
         """Run a "simple" book, choosing etudes and assigining keys"""
         with book.limit_etudes(self.args.max_etudes):
             if num_tracks is None:
@@ -471,45 +475,49 @@ class PracticeMakesPerfect:
             elif num_tracks == 0:
                 num_tracks = len(self.PITCH_CLASSES)
 
-            etude_seq = self.choose_etudes(book, num_tracks)
-        track_seq = self.make_tracks(etude_seq)
-        print(self.get_sep(track_seq).join(track_seq))
+            etude_seq = self._choose_etudes(book, num_tracks)
+        track_seq = self._make_tracks(etude_seq)
+        self.log.info(self._get_sep(track_seq).join(track_seq))
 
-    def choose_etudes(
+    def _choose_etudes(
         self,
         book: Book,
         count: int
     ) -> Iterable[Etude]:
-        """Yields chosen etudes"""
+        """Yields chosen etudes.
+
+        This method can call itself recursively, since we used
+        `TopologicalSorter` to make sure the graph is cycle-free.
+        """
         for _ in range(count):
             entry = book.draw()
             if isinstance(entry, Etude):
                 yield entry
-            else:  # Recall: no cycles
-                yield from self.choose_etudes(entry.book, entry.count or 1)
+            else:
+                yield from self._choose_etudes(entry.book, entry.count or 1)
 
-    def choose_book(self) -> Book:
+    def _choose_book(self) -> Book:
         """Pick out a book"""
         if self.args.books:
             logos = self.args.books
             if (unknown := set(logos) - set(self.books)):
-                self.fail(f"Unknown book(s): {' '.join(unknown)}")
+                self._fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
             logos = self.config.starred
         logo = random.choice(logos)
         return self.books[logo]
 
-    def make_tracks(
+    def _make_tracks(
         self,
         etude_seq: Iterable[Etude],
     ) -> list[str]:
         """Pick a key (or selection of keys) for each etude"""
         return [
-            self.make_track(etude)
+            self._make_track(etude)
             for etude in etude_seq
         ]
 
-    def make_track(self, etude: Etude) -> str:
+    def _make_track(self, etude: Etude) -> str:
         """Pick a key for one etude"""
         keys = []
         for deck in etude.decks:
@@ -526,7 +534,7 @@ class PracticeMakesPerfect:
 
         return f"{keys[0]}{etude.template}"
 
-    def get_sep(self, tracks: list[str]) -> str:
+    def _get_sep(self, tracks: list[str]) -> str:
         """Return space or newline separator"""
         if self.args.multiline:
             return "\n"
@@ -536,7 +544,7 @@ class PracticeMakesPerfect:
             return "\n"
         return " "
 
-    def make_mode_decks(self) -> None:
+    def _make_mode_decks(self) -> None:
         """Start `self.decks` with the Greek modes and their hypotheticals"""
         model = self.SCALE_FIX["major"]
         mapping: dict[str, str]
@@ -560,7 +568,7 @@ class PracticeMakesPerfect:
 
         self.decks = {}
         for scale, fixes in self.SCALE_FIX.items():
-            self.have_deck(Deck(
+            self._have_deck(Deck(
                 [
                     "|".join((fixes.get(note, note) for note in pitch_class))
                     for pitch_class in self.PITCH_CLASSES
@@ -568,24 +576,24 @@ class PracticeMakesPerfect:
                 logo=scale,
                 layout=scale,
             ))
-        self.have_deck(Deck(logo="NONE", layout="NONE", cards=[""]))
+        self._have_deck(Deck(logo="NONE", layout="NONE", cards=[""]))
         self.log.debug("Key decks: %s", SEP.join(self.decks))
 
-    def have_deck(self, deck: Deck) -> Deck:
+    def _have_deck(self, deck: Deck) -> Deck:
         """Add a deck to our records"""
         return self.decks.setdefault(deck.layout, deck)
 
-    def configure(self) -> None:
+    def _configure(self) -> None:
         """Fix configuration files, defaults, etc."""
         try:
             with open(self.args.config, "r", encoding="UTF-8") as fobj:
-                self.config = self.parse_config(self.args.config, fobj)
+                self.config = self._parse_config(self.args.config, fobj)
         except (FileNotFoundError, ValueError):
-            self.config = self.parse_config("", io.StringIO(DEFAULT_CONFIG))
+            self.config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
         self.books = self.config.books
-        self.finalize_books()
+        self._finalize_books()
 
-    def load_state(self) -> None:
+    def _load_state(self) -> None:
         """Read saved state info `self.state`
 
         Sets `self.state`.
@@ -598,7 +606,7 @@ class PracticeMakesPerfect:
             self.state = {}
         self.state.setdefault("deck", {})
 
-    def save_state(self) -> None:
+    def _save_state(self) -> None:
         """Save the queue state"""
         saveds = self.state["deck"]
         for layout in list(saveds):
@@ -621,7 +629,6 @@ class PracticeMakesPerfect:
         if used:
             self.log.debug("Saving %d: %s", len(used), SEP.join(used))
 
-        # For the human reading that file
         self.state["debug"] = {
             "decks": {"n": len(self.decks)} | {
                 layout: deck.blurb
@@ -640,19 +647,19 @@ class PracticeMakesPerfect:
                 sort_keys=False,
             )
 
-    def make_all_decks(self) -> None:
-        """Prepare randomizers"""
-        # Make sure all etude and book decks are registered
+    def _make_all_decks(self) -> None:
+        """Make sure every deck is created and registered"""
         self.log.debug("All books: %s", SEP.join(self.books))
         for book in self.books.values():
             for etude in book.toc:
                 if isinstance(etude, Etude):
                     etude.decks = [
-                        self.have_deck(deck)
+                        self._have_deck(deck)
                         for deck in etude.decks
                     ]
 
-        # Restore states for any eligible deck
+    def _restore_state(self) -> None:
+        """Restore states for any eligible deck"""
         saveds = self.state["deck"]
         n_used = 0
         for layout in list(self.decks):
@@ -670,19 +677,18 @@ class PracticeMakesPerfect:
             except SerializationError as exc:
                 self.log.debug("Forgetting saved state of %s: %s", layout, exc)
                 del self.decks[layout]
-
         self.log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
-    def parse_config(self, filename: Filename, stream: TextIO) -> Config:
+    def _parse_config(self, filename: Filename, stream: TextIO) -> Config:
         """Read configuration file"""
         try:
             logodecks = {deck.logo: deck for deck in self.decks.values()}
             return ConfigParser(logodecks).parse(filename, stream)
         except BadConfig as err:
-            self.fail(str(err))
+            self._fail(str(err))
             raise err  # Won't happen, just to appease pyright
 
-    def finalize_books(self) -> None:
+    def _finalize_books(self) -> None:
         """Check configured graph is legit and prepare all books for action"""
         graph = defaultdict(set)
         for logo, book in self.books.items():
@@ -696,21 +702,21 @@ class PracticeMakesPerfect:
                 f"{logo} (used by {', '.join(graph[logo])})"
                 for logo in missing
             )
-            self.fail(f"Unknown reference(s): {error}")
+            self._fail(f"Unknown reference(s): {error}")
 
         try:
             topo = graphlib.TopologicalSorter(graph)
             order = list(topo.static_order())
         except graphlib.CycleError as exc:
-            self.fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
+            self._fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
 
         # The hash of a book depends on the layouts of book refs in the toc
         order.extend(self.books.keys() - set(order))
         for logo in reversed(order):
             book = self.books[logo]
-            book.deck = self.have_deck(book.finalize(logo))
+            book.deck = self._have_deck(book.finalize(logo))
 
-    def fail(self, message: str) -> NoReturn:
+    def _fail(self, message: str) -> NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
         self.parser.error(message)
 
