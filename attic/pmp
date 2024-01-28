@@ -105,6 +105,7 @@ class SerializationError(ValueError):
 
 class Deck:
     """A deck of strings"""
+
     cards: tuple[str, ...]
     queue: list[str]
     used: bool = False
@@ -210,6 +211,7 @@ class Deck:
 
 class NoneDeck(Deck):
     """The NONE deck doesn't really have cards, so make the blurb nicer"""
+
     def __init__(self):
         super().__init__(cards=[""], label="NONE", layout="NONE")
 
@@ -227,6 +229,7 @@ class Etude:
     `Etude.label` has the same meaning as `Deck.label`; there is no need
     for a layout member.
     """
+
     template: str
     decks: list[Deck]
     label: Label = dataclasses.field(init=False)
@@ -241,6 +244,7 @@ class Etude:
 @dataclasses.dataclass
 class Book:
     """A collection of etudes or pointers to other books"""
+
     toc: TableOfContents
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
@@ -296,6 +300,7 @@ class Book:
 @dataclasses.dataclass
 class BookRef:
     """A reference to a book"""
+
     ref_label: Label
     count: int | None = None
     book: Book = dataclasses.field(init=False)
@@ -313,6 +318,7 @@ class BookRef:
 @dataclasses.dataclass
 class Config:
     """The information from the config file"""
+
     books: dict[Label, Book]
     starred: list[Label]
 
@@ -429,7 +435,7 @@ class PracticeMakesPerfect:
             "G♭": "F♯",
             "D♭": "C♯",
             "A♭": "G♯",
-        }
+        },
     }
 
     books: dict[Label, Book]
@@ -467,10 +473,11 @@ class PracticeMakesPerfect:
         """Set logging format and level"""
         self.log = logging.getLogger("pmp")
         handler = logging.StreamHandler()
-        handler.setFormatter(LevelFormatter({
+        formats = {
             logging.INFO: "%(message)s",
             logging.DEBUG: "DEBUG [%(module)s:%(lineno)d] %(message)s",
-        }))
+        }
+        handler.setFormatter(LevelFormatter(formats))
 
         if self.args.debug:
             level = logging.DEBUG
@@ -508,11 +515,7 @@ class PracticeMakesPerfect:
         track_seq = self._make_tracks(etude_seq)
         self.log.info(self._get_sep(track_seq).join(track_seq))
 
-    def _choose_etudes(
-        self,
-        book: Book,
-        count: int
-    ) -> Iterable[Etude]:
+    def _choose_etudes(self, book: Book, count: int) -> Iterable[Etude]:
         """Yields chosen etudes.
 
         This method can call itself recursively, since we used
@@ -529,7 +532,8 @@ class PracticeMakesPerfect:
         """Pick out a book"""
         if self.args.books:
             labels = self.args.books
-            if (unknown := set(labels) - set(self.books)):
+            unknown = set(labels) - set(self.books)
+            if unknown:
                 self._fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
             labels = self.config.starred
@@ -541,10 +545,7 @@ class PracticeMakesPerfect:
         etude_seq: Iterable[Etude],
     ) -> list[str]:
         """Pick a key (or selection of keys) for each etude"""
-        return [
-            self._make_track(etude)
-            for etude in etude_seq
-        ]
+        return [self._make_track(etude) for etude in etude_seq]
 
     def _make_track(self, etude: Etude) -> str:
         """Pick a key for one etude"""
@@ -555,13 +556,12 @@ class PracticeMakesPerfect:
                 key = random.choice(key.split("|"))
             keys.append(key)
 
-        if "{}" in etude.template:
-            return "".join((
-                keys.pop(0) if part == "{}" else part
-                for part in re.split(r"({})", etude.template)
-            ))
+        if "{}" not in etude.template:
+            return f"{keys[0]}{etude.template}"
 
-        return f"{keys[0]}{etude.template}"
+        parts = re.split(r"({})", etude.template)
+        ikey = iter(keys)
+        return "".join(next(ikey) if part == "{}" else part for part in parts)
 
     def _get_sep(self, tracks: list[str]) -> str:
         """Return space or newline separator"""
@@ -591,20 +591,16 @@ class PracticeMakesPerfect:
                     return note
 
             self.SCALE_FIX[mode] = {
-                modify(key): modify(value)
-                for key, value in model.items()
+                modify(key): modify(value) for key, value in model.items()
             }
 
         self.decks = {}
         for scale, fixes in self.SCALE_FIX.items():
-            self._have_deck(Deck(
-                [
-                    "|".join((fixes.get(note, note) for note in pitch_class))
-                    for pitch_class in self.PITCH_CLASSES
-                ],
-                label=scale,
-                layout=scale,
-            ))
+            cards = [
+                "|".join((fixes.get(note, note) for note in pitch_class))
+                for pitch_class in self.PITCH_CLASSES
+            ]
+            self._have_deck(Deck(cards=cards, label=scale, layout=scale))
         self._have_deck(NoneDeck())
         self.log.debug("Key decks: %s", SEP.join(self.decks))
 
@@ -656,14 +652,13 @@ class PracticeMakesPerfect:
             self.log.debug("Saving %d: %s", len(used), SEP.join(used))
 
         self.state["debug"] = {
-            "decks": {"n": len(self.decks)} | {
-                layout: deck.blurb
-                for layout, deck in self.decks.items()
-            },
-            "books": {"n": len(self.books)} | {
+            "decks": {"n": len(self.decks)}
+            | {layout: deck.blurb for layout, deck in self.decks.items()},
+            "books": {"n": len(self.books)}
+            | {
                 f"{label} {book.blurb}": [entry.blurb for entry in book.toc]
                 for label, book in self.books.items()
-            }
+            },
         }
 
         with open(self.args.state_file, "wb") as fobj:
@@ -680,8 +675,7 @@ class PracticeMakesPerfect:
             for etude in book.toc:
                 if isinstance(etude, Etude):
                     etude.decks = [
-                        self._have_deck(deck)
-                        for deck in etude.decks
+                        self._have_deck(deck) for deck in etude.decks
                     ]
 
     def _restore_state(self) -> None:
@@ -723,7 +717,8 @@ class PracticeMakesPerfect:
                     graph[ref.ref_label].add(label)
                     ref.book = self.books[ref.ref_label]
 
-        if (missing := graph.keys() - self.books.keys()):
+        missing = graph.keys() - self.books.keys()
+        if missing:
             error = ", ".join(
                 f"{label} (used by {', '.join(graph[label])})"
                 for label in missing
@@ -749,6 +744,7 @@ class PracticeMakesPerfect:
 
 class ConfigParser:
     """Read configuration file"""
+
     books: dict[Label, Book] = {}
     starred: list[Label] = []
     curr: Book | None = None
@@ -826,8 +822,7 @@ class ConfigParser:
 
         if re.fullmatch(r"({[^}]*}\s*)+", description.strip()):
             parts = [
-                substr[1:-1]
-                for substr in re.findall(r"{[^{}]*}", description)
+                substr[1:-1] for substr in re.findall(r"{[^{}]*}", description)
             ]
         else:
             parts = [description]
@@ -854,7 +849,8 @@ class ConfigParser:
     def add_one_liner(self, sequential: bool) -> None:
         """A one-liner is in `self.group("label" | "parts")`"""
         label = self.group("label").strip()
-        if (starred := label.startswith("*")):
+        starred = label.startswith("*")
+        if starred:
             label = label[1:]
         if label in self.books:
             raise BadConfig(f"Duplicate book {repr(label)}")
@@ -875,7 +871,8 @@ class ConfigParser:
 
     def add_ref_to(self, toc: TableOfContents, mobj: re.Match):
         """Add book reference to a given TOC"""
-        if (nstr := mobj.group("count")):
+        nstr = mobj.group("count")
+        if nstr:
             count = int(nstr)
         elif mobj.group("at"):
             count = 1
