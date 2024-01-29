@@ -15,7 +15,7 @@ twoSubjacentStrings := E+D|A+G
 homeworkTechnical:
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
-  {}-major Diatonic Slides combination up to 5ths (Ex. 2 on page 26): major
+  {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
 
 homeworkMusic:  # Try to keep this to one!
   JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
@@ -395,9 +395,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  {}-major Diatonic Slides combination variation (Ex. 2A on page 27): major
-  {}-major Diatonic Slides combination variation (Ex. 2B on page 27): major
-  {}-major Diatonic Slides combination variation (Ex. 2C on page 27): major
   Diatonic Slides combination exercise (Ex. 3 on page 27): NONE
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
   {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): major
