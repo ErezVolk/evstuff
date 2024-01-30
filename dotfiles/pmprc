@@ -15,7 +15,7 @@ twoSubjacentStrings := E+D|A+G
 homeworkTechnical:
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
   Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
-  {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
+  {}-natural minor Diatonic Slides of up to a 5ths ({}): {minor} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
 
 homeworkMusic:  # Try to keep this to one!
   JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
@@ -115,18 +115,18 @@ chopsRight:
   R-grace-8th-16ths-3 (p33) (♪̵♪♬ ₁211...): NONE
   R-grace-8th-16ths-4 (p33) (♪̵♪♬ ₂121...): NONE
   R-grace-8th-16ths-5 (p34) (♪̵♪♬ ₂121.₁212...): NONE
-  R-grace-8th-16ths-6 (p34) (♪̵♪♬ ₂122.₁211...: NONE
-  R-grace-8th-16ths-7 (p34) (♪̵♪♬ ₂122.₂121.₁211.₁212...: NONE
-  R-grace-8th-16ths-8 (p34) (♪̵♪♬ ₂112.₂121.₁221.₁212...: NONE
+  R-grace-8th-16ths-6 (p34) (♪̵♪♬ ₂122.₁211...): NONE
+  R-grace-8th-16ths-7 (p34) (♪̵♪♬ ₂122.₂121.₁211.₁212...): NONE
+  R-grace-8th-16ths-8 (p34) (♪̵♪♬ ₂112.₂121.₁221.₁212...): NONE
 
   R-grace-16ths-8th-9 (p35) (♪̵♬♪ ₂122...): NONE
   R-grace-16ths-8th-10 (p35) (♪̵♬♪ ₂122...): NONE
   R-grace-16ths-8th-11 (p35) (♪̵♬♪ ₁211...): NONE
   R-grace-16ths-8th-12 (p35) (♪̵♬♪ ₂121...): NONE
   R-grace-16ths-8th-13 (p36) (♪̵♬♪ ₂121.₁212...): NONE
-  R-grace-16ths-8th-14 (p36) (♪̵♬♪ ₂122.₁211...: NONE
-  R-grace-16ths-8th-15 (p36) (♪̵♬♪ ₂122.₂121.₁211.₁212...: NONE
-  R-grace-16ths-8th-16 (p36) (♪̵♬♪ ₂112.₂121.₁221.₁212...: NONE
+  R-grace-16ths-8th-14 (p36) (♪̵♬♪ ₂122.₁211...): NONE
+  R-grace-16ths-8th-15 (p36) (♪̵♬♪ ₂122.₂121.₁211.₁212...): NONE
+  R-grace-16ths-8th-16 (p36) (♪̵♬♪ ₂112.₂121.₁221.₁212...): NONE
 
   R-grace-16th-8th-16th-17 (p37) (₂122...): NONE
   R-grace-16th-8th-16th-18 (p37) (₁211...): NONE
@@ -398,7 +398,18 @@ _steveToDo:
   Diatonic Slides combination exercise (Ex. 3 on page 27): NONE
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
   {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): major
-  # Add more as I play them
+  Slide blending exercises on page 30: NONE
+  Slide blending etude on page 31: NONE
+  'Ryan's Hope' blending etude on page 32: NONE
+  Slides of a 7th exercise on page 33: NONE
+  Octave slide exercise on page 34: NONE
+  # Bailey says to start over here
+  'Stella by Starlight' vibrato+legato exercise on page 35: NONE
+  Harmonic slides exercise on page 35: NONE
+  Exercise 3 on page 36: NONE
+  Exercise 4 on page 37: NONE
+  Exercise 5 on page 38: NONE
+  Exercise 6 on page 39: NONE
 
 _bachToDo:
   # Needs to be done seriously, but I could work on it
