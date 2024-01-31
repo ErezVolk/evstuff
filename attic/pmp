@@ -82,8 +82,9 @@ form:
 
 # TO DO:
 # - Something like "locrian := major@7"
-# - "major := 1 2 3 4 5 6 7", "h.minor := 1 2 3- 4 5 6- 7"?
-# - "major := 0 2 4 5 7 8 11"?
+#   - "major := 1 2 3 4 5 6 7", "h.minor := 1 2 3- 4 5 6- 7"?
+#   - "major := 0 2 4 5 7 8 11"? But then we can't rule out G-sharp major
+#   - https://en.wikipedia.org/wiki/List_of_musical_scales_and_modes
 # - A UI to mark what was done? With a metronome? And a drone?
 
 
