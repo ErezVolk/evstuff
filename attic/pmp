@@ -56,15 +56,6 @@ scale:  # Play a scale
   -harmonic minor: minor
   -melodic minor: minor
 
-mode:  # Play a mode
-  ' ionian': ionian
-  ' dorian': dorian
-  ' phrygian': phrygian
-  ' lydian': lydian
-  ' mixolydian': mixolydian
-  ' aeolian': aeolian
-  ' locrian': locrian
-
 arp:  # Play an arpeggio
   M: major
   m: minor
@@ -82,7 +73,7 @@ form:
 
 # TO DO:
 # - "ANY := C||C#|Db||D#|Eb||...||B" "major := C#|Db‖...‖B"
-# - Something like "locrian := major@7"
+# - Redo the modes (I think they were buggy). Maybe "locrian := major@7"
 #   - Why doesn't "minor := major+6" work?
 #     - The aeolean of *G#-major is *E#-minor
 #     - The major of G#-minor is B-major
@@ -462,7 +453,7 @@ class PracticeMakesPerfect:
             self.log.info(DEFAULT_CONFIG)
             return
 
-        self._make_mode_decks()
+        self._make_basic_decks()
         self._configure()
         self._load_state()
         self._make_all_decks()
@@ -580,27 +571,8 @@ class PracticeMakesPerfect:
             return "\n"
         return " "
 
-    def _make_mode_decks(self) -> None:
-        """Start `self.decks` with the Greek modes and their hypotheticals"""
-        model = self.SCALE_FIX["major"]
-        mapping: dict[str, str]
-
-        for offset, mode in enumerate(self._MODES):
-            mapping = {
-                note: self._LETTERS[(idx + offset) % len(self._LETTERS)]
-                for idx, note in enumerate(self._LETTERS)
-            }
-
-            def modify(note: str) -> str:
-                try:
-                    return mapping[note[0]] + note[1:]
-                except KeyError:
-                    return note
-
-            self.SCALE_FIX[mode] = {
-                modify(key): modify(value) for key, value in model.items()
-            }
-
+    def _make_basic_decks(self) -> None:
+        """Start `self.decks` with the basic scales"""
         self.decks = {}
         for scale, fixes in self.SCALE_FIX.items():
             cards = [
