@@ -72,8 +72,8 @@ form:
 
 
 TO_DO = """
-- "ANY := C||C#|Db||D#|Eb||...||B" "major := C#|Db‖...‖B"
-- Redo the modes (I think they were buggy). Maybe "locrian := major@7"
+- "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
+- Modes. Maybe "locrian := major@7"
   - Why doesn't "minor := major+6" work?
     - The aeolean of *G#-major is *E#-minor
     - The major of G#-minor is B-major
