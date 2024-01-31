@@ -396,17 +396,6 @@ class PracticeMakesPerfect:
         self.args = parser.parse_args()
         self.parser = parser
 
-    _LETTERS = "CDEFGAB"
-    _MODES = (
-        "ionian",
-        "dorian",
-        "phrygian",
-        "lydian",
-        "mixolydian",
-        "aeolian",
-        "locrian",
-    )
-
     PITCH_CLASSES: tuple[PitchClass, ...] = (
         ("C",),
         ("C♯", "D♭"),
