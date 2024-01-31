@@ -81,10 +81,16 @@ form:
 
 
 # TO DO:
+# - "ANY := C||C#|Db||D#|Eb||...||B" "major := C#|Db‖...‖B"
 # - Something like "locrian := major@7"
+#   - Why doesn't "minor := major+6" work?
+#     - The aeolean of *G#-major is *E#-minor
+#     - The major of G#-minor is B-major
+#     - Hm, I can generate every major key...
 #   - "major := 1 2 3 4 5 6 7", "h.minor := 1 2 3- 4 5 6- 7"?
 #   - "major := 0 2 4 5 7 8 11"? But then we can't rule out G-sharp major
 #   - https://en.wikipedia.org/wiki/List_of_musical_scales_and_modes
+#   - http://bspaans.github.io/python-mingus/
 # - A UI to mark what was done? With a metronome? And a drone?
 
 
@@ -628,18 +634,20 @@ class PracticeMakesPerfect:
         except (FileNotFoundError, plistlib.InvalidFileException, KeyError):
             self.state = {}
         self.state.setdefault("deck", {})
+        self.state["debug"] = {"gone": {}}
 
     def _save_state(self) -> None:
         """Save the queue state"""
         saveds = self.state["deck"]
+        gones = self.state["debug"]["gone"]
         for layout in list(saveds):
             if not (deck := self.decks.get(layout)):
                 try:
                     description = saveds[layout]["blurb"]
                     self.log.debug("%s is gone", description)
                 except (KeyError, TypeError):
-                    self.log.debug("%r is gone", layout)
-                del saveds[layout]
+                    self.log.debug("%r is gone bad", layout)
+                gones[layout] = saveds.pop(layout)
 
         used = []
         for layout, deck in self.decks.items():
@@ -652,14 +660,14 @@ class PracticeMakesPerfect:
         if used:
             self.log.debug("Saving %d: %s", len(used), SEP.join(used))
 
-        self.state["debug"] = {
-            "decks": {"n": len(self.decks)}
-            | {layout: deck.blurb for layout, deck in self.decks.items()},
-            "books": {"n": len(self.books)}
-            | {
-                f"{label} {book.blurb}": [entry.blurb for entry in book.toc]
-                for label, book in self.books.items()
-            },
+        self.state["n_decks"] = len(self.decks)
+        self.state["debug"]["decks"] = {
+            layout: deck.blurb for layout, deck in self.decks.items()
+        }
+        self.state["n_books"] = len(self.books)
+        self.state["debug"]["books"] = {
+            f"{label} {book.blurb}": [entry.blurb for entry in book.toc]
+            for label, book in self.books.items()
         }
 
         with open(self.args.state_file, "wb") as fobj:
