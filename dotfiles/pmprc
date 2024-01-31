@@ -13,9 +13,9 @@ twoSubjacentStrings := E+D|A+G
 # Currently working on
 #
 homeworkTechnical:
-  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70): NONE
-  Ray Brown's 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.60): NONE
   {}-natural minor Diatonic Slides of up to a 5ths ({}): {minor} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
+  Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
+  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
 
 homeworkMusic:  # Try to keep this to one!
   JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
@@ -43,14 +43,13 @@ warmupHarvey:
   # ' Minor Harvey from C': Natural|Harmonic|Melodic  # Not a good idea, because Harvey needs to be sung!
   Harvey from {}Δ: G|C
 
-warmupMode:
-  -major modes: major
+warmupMode = { @chopsLeftModish }
 
 warmupOtherScale:
   -Melodic Minor Scale: minor
   -Harmonic Minor Scale: minor
-  -Natural Minor Scale: minor
   Whole Tone Scale from {}: ANY
+  # -Natural Minor Scale: minor
   # Modes of the ascending minor (https://en.wikipedia.org/wiki/Jazz_minor_scale#Modes_of_jazz_minor_scale) ?
   # 8-tone diminished scale (alternating whole steps and half steps, C D E- F G- A- A B, Di Bartolo p.232)
 
@@ -66,7 +65,7 @@ chopsLeft:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
   L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
   L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42₆₇: NONE
-  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75₇₂: NONE
+  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75₇2: NONE
   L-Dexterity I.5 (p5) ♫@80~120 1365.2465|3565.7542: NONE
   L-Dexterity I.6 (p5) ♫@80~120 1365.4265|3165.42₆₇: NONE
   L-Dexterity I.7 (p5) ♫@80~120 1867.5645|3823.18₇2: NONE
@@ -75,26 +74,28 @@ chopsLeft:
   L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
   L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
   L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
-  #TBD# L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
-  #TBD# L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
-  #TBD# L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
-  #TBD# L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
-  #TBD# L-Modes 5 (♬@60 132435465768 p.15): NONE
-  #TBD# L-Modes 6 (♬@60 867564534231 p.16): NONE
-  #TBD# L-Modes 7 (♬@60 134235645786 p.17): NONE
-  #TBD# L-Modes 8 (♫ 13576421⇗ p.18): NONE
-  #TBD# L-Modes 9 (♫ 13576421⇘ p.19): NONE
-  #TBD# L-Modes 10 (♫ 12348675 p.20): NONE
-  #TBD# L-Modes 11 (♫ 13248765 p.21): NONE
-  #TBD# L-Modes 12 (♫ 43215768 p.22): NONE
-  #TBD# L-Modes 13 (♫ 42315678 p.23): NONE
-  #TBD# L-Modes 14 (♫ 12346421 p.24): NONE
-  #TBD# L-Modes 15 (♫ 45676421 p.25): NONE
-  #TBD# L-Modes 16 (♫ 13574321 p.26): NONE
-  #TBD# L-Modes 17 (♫ 13578765 p.27): NONE
   #TBD# L-Dexterity II.1 (p7): NONE  # Too shifty for now
   #TBD# L-Dexterity II.2 (p8): NONE  # Too shifty for now
   #TBD# L-Dexterity II.3 (p9): NONE  # Too shifty for now
+
+chopsLeftModish:
+  L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
+  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
+  L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
+  L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
+  L-Modes 5 (♬@60 132435465768 p.15): NONE
+  L-Modes 6 (♬@60 867564534231 p.16): NONE
+  L-Modes 7 (♬@60 134235645786 p.17): NONE
+  L-Modes 8 (♫ 13576421⇗ p.18): NONE
+  L-Modes 9 (♫ 13576421⇘ p.19): NONE
+  L-Modes 10 (♫ 12348675 p.20): NONE
+  L-Modes 11 (♫ 13248765 p.21): NONE
+  L-Modes 12 (♫ 43215768 p.22): NONE
+  L-Modes 13 (♫ 42315678 p.23): NONE
+  L-Modes 14 (♫ 12346421 p.24): NONE
+  L-Modes 15 (♫ 45676421 p.25): NONE
+  L-Modes 16 (♫ 13574321 p.26): NONE
+  L-Modes 17 (♫ 13578765 p.27): NONE
 
 chopsRight:
   R-16th-1 (p29) ♬ 1212...: NONE
@@ -182,10 +183,11 @@ keepRayBrown:
   Ray Brown's minor 10ths with a 5th, {}: rayBrown10thKeys
   Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
   Ray Brown's minor 10ths with a 6th: rayBrown10thKeys
-  Ray Brown's 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.59): NONE  # rayBrown10thKeys when the next is done
+  Ray Brown's 10ths with a 7th: (E↗B) ↗ (E♭↗B♭) (p.59)|(B↘E) ↗ (B♭↘E♭) (p.60)
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): rayBrownDrillKeys
-  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), start on {}: rayBrownDrillKeys
+  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), start on {}: rayBrownDrillKeys
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -198,7 +200,7 @@ keepSteveInterval:
 
 keepSteveHazard:
   Hazard 3rds, {}: 2-1-4-3 (Ex. 2 on page 11)|4-1-2-3 (Ex. 3A on page 12)|1-3-4-2 (Ex. 3B on page 12)|1-4-3-2 (Ex. 3C on page 12)
-  Hazard minor 3rds (p.12), {}: 1-4-3-1 (Ex.4)|1-4-1-3 (Ex.4A)|3-1-4-1 (Ex.4B)
+  Hazard minor 3rds (p.12), {}: ₁-4-3-1 (Ex.4)|₁-4-1-3 (Ex.4A)|3-1-4-₁ (Ex.4B)
   Hazard 6ths, {}: 2-1-4-3 (Ex. 2 on page 14)|1-2-3-4 (Ex. 3A on page 15)|4-3-2-1 (Ex. 3B on page 15)
   Hazard minor 6ths, {}: 1-4-3-1 (Ex. 4A on page 15)
 
@@ -363,9 +365,7 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
-  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
   Ray Brown's Diminished Exercise (p.79): NONE
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   Ray Brown's Diminished Exercise (p.82): NONE
