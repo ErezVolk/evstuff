@@ -43,7 +43,8 @@ warmupHarvey:
   # ' Minor Harvey from C': Natural|Harmonic|Melodic  # Not a good idea, because Harvey needs to be sung!
   Harvey from {}Δ: G|C
 
-warmupMode = { @chopsLeftModish }
+warmupMode:
+  -major modes: major
 
 warmupOtherScale:
   -Melodic Minor Scale: minor
