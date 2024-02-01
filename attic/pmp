@@ -72,7 +72,7 @@ form:
 
 
 TO_DO = """
-- A cumulative report of some sort (csv?)
+- A cumulative report of some sort (csv: label / layout / born / died / ... ?)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Modes. Maybe "locrian := major@7" or "locrian :+ major@11"
   - degrees? "major := 1 2 3 4 5 6 7", "h.minor := 1 2 3- 4 5 6- 7"
