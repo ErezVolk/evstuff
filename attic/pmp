@@ -74,8 +74,7 @@ form:
 """
 
 
-TO_DO = """
-- A cumulative report of some sort (csv: label / layout / born / died / ... ?)
+__TODO__ = """
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Modes. Maybe "locrian := major@7" or "locrian :+ major@11"
   - degrees? "major := 1 2 3 4 5 6 7", "h.minor := 1 2 3- 4 5 6- 7"
@@ -867,13 +866,16 @@ class ConfigParser:
 
 class PmpReporter:
     """In charge of debug and statistics"""
+
     path: Path
     debug: dict[str, Any]
     report: dict[Layout, dict]
-    timestamp: str
+    now: str
+    then: str
 
     def __init__(self, report_file: Path):
-        self.timestamp = datetime.datetime.utcnow().isoformat()
+        self.now = str(now := datetime.date.today())
+        self.then = str(now - datetime.timedelta(days=30))
         self.debug = {"gone": {}}
         self.path = report_file
         self._read()
@@ -883,8 +885,7 @@ class PmpReporter:
         try:
             with open(self.path, encoding="utf-8", newline="") as csvfo:
                 self.report = {
-                    row["layout"]: row
-                    for row in csv.DictReader(csvfo)
+                    row["layout"]: row for row in csv.DictReader(csvfo)
                 }
         except (FileNotFoundError, ValueError, KeyError, csv.Error):
             self.report = {}
@@ -905,16 +906,18 @@ class PmpReporter:
     def in_use(self, drawable: Deck | Book) -> None:
         """Note that something has been used in the present run"""
         deck = drawable if isinstance(drawable, Deck) else drawable.deck
-        self._deck_row(deck).update(
-            used=self.timestamp,
+        row = self._deck_row(deck)
+        row.update(
+            used=self.now,
             length=len(deck),
             blurb=deck.blurb,
         )
+        row.pop("gone", None)
 
     def deck_gone(self, layout: Layout, serialized: dict) -> None:
         """A deck serialized in a previous run is no more."""
-        row = self._row(layout=layout, label=serialized.get("label", "<N/A>"))
-        row["gone"] = self.timestamp
+        row = self._row(layout=layout, label=serialized.get("label", "N/A"))
+        row["gone"] = self.now
         self.debug["gone"] = serialized
         try:
             row["blurb"] = description = serialized["blurb"]
@@ -938,15 +941,17 @@ class PmpReporter:
 
     def _write(self) -> None:
         """Write the updated report"""
+        rows = [
+            row
+            for row in self.report.values()
+            if (row.get("used") or row.get("gone") or self.then) >= self.then
+        ]
+        colset = set.union(*[set(row) for row in rows])
+        cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
+
         log.debug("Write %s (N = %d)", self.path, len(self.report))
         with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
-            rows = sorted(
-                self.report.values(),
-                key=lambda row: (row["label"], row.get("used")),
-            )
-            cols = ["label", "layout"]
-            colset = set.union(*[set(row) for row in rows]) - set(cols)
-            cols.extend(colset)
+            rows = sorted(rows, key=lambda row: row["label"])
             writer = csv.DictWriter(csvfo, fieldnames=cols)
             writer.writeheader()
             for row in rows:
