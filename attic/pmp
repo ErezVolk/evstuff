@@ -26,7 +26,9 @@ For consistency, all of these are properties (real or @property).
 import argparse
 from bisect import bisect
 import contextlib
+import csv
 import dataclasses
+import datetime
 import graphlib
 import hashlib
 import io
@@ -163,6 +165,7 @@ class Deck:
         """Serialize"""
         return {
             "blurb": self.blurb,
+            "label": self.label,
             "layout": self.layout,
             "queue": self.queue,
         }
@@ -390,10 +393,17 @@ class PracticeMakesPerfect:
             help="Path for state file",
         )
         parser.add_argument(
+            "-r",
+            "--report-file",
+            type=Path,
+            default=Path.home() / ".pmpreport.csv",
+            help="Path for report file",
+        )
+        parser.add_argument(
             "-S",
             "--saveless",
             action="store_true",
-            help="Don't save state file",
+            help="Don't save state/report files",
         )
         self.args = parser.parse_args()
         self.parser = parser
@@ -444,7 +454,6 @@ class PracticeMakesPerfect:
             log.info(DEFAULT_CONFIG)
             return
 
-        self._initialize()
         self._make_basic_decks()
         self._configure()
         self._load_state()
@@ -511,6 +520,7 @@ class PracticeMakesPerfect:
         `TopologicalSorter` to make sure the graph is cycle-free.
         """
         for _ in range(count):
+            self.reporter.in_use(book)
             entry = book.draw()
             if isinstance(entry, Etude):
                 yield entry
@@ -540,6 +550,7 @@ class PracticeMakesPerfect:
         """Pick a key for one etude"""
         keys = []
         for deck in etude.decks:
+            self.reporter.in_use(deck)
             key = deck.draw()
             if "|" in key:  # Can only come from our pitch classes
                 key = random.choice(key.split("|"))
@@ -561,10 +572,6 @@ class PracticeMakesPerfect:
         if sum(len(track) for track in tracks) + len(tracks) >= 80:
             return "\n"
         return " "
-
-    def _initialize(self):
-        """Prepare to actually work"""
-        self.reporter = PmpReporter()
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales"""
@@ -589,6 +596,7 @@ class PracticeMakesPerfect:
                 self.config = self._parse_config(self.args.config, fobj)
         except (FileNotFoundError, ValueError):
             self.config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
+        self.reporter = PmpReporter(self.args.report_file)
         self.books = self.config.books
         self._finalize_books()
 
@@ -859,21 +867,64 @@ class ConfigParser:
 
 class PmpReporter:
     """In charge of debug and statistics"""
+    path: Path
     debug: dict[str, Any]
+    report: dict[Layout, dict]
+    timestamp: str
 
-    def __init__(self):
+    def __init__(self, report_file: Path):
+        self.timestamp = datetime.datetime.utcnow().isoformat()
         self.debug = {"gone": {}}
+        self.path = report_file
+        self._read()
+
+    def _read(self) -> None:
+        """Read the old report, or create an empty one"""
+        try:
+            with open(self.path, encoding="utf-8", newline="") as csvfo:
+                self.report = {
+                    row["layout"]: row
+                    for row in csv.DictReader(csvfo)
+                }
+        except (FileNotFoundError, ValueError, KeyError, csv.Error):
+            self.report = {}
+        log.debug("Read %s (N = %d)", self.path, len(self.report))
+
+    def _row(self, label: Label, layout: Layout) -> dict:
+        """Get the report row for a deck"""
+        try:
+            return self.report[layout]
+        except KeyError:
+            self.report[layout] = row = {"label": label, "layout": layout}
+            return row
+
+    def _deck_row(self, deck: Deck) -> dict:
+        """Get the report row for a deck"""
+        return self._row(label=deck.label, layout=deck.layout)
+
+    def in_use(self, drawable: Deck | Book) -> None:
+        """Note that something has been used in the present run"""
+        deck = drawable if isinstance(drawable, Deck) else drawable.deck
+        self._deck_row(deck).update(
+            used=self.timestamp,
+            length=len(deck),
+            blurb=deck.blurb,
+        )
 
     def deck_gone(self, layout: Layout, serialized: dict) -> None:
         """A deck serialized in a previous run is no more."""
+        row = self._row(layout=layout, label=serialized.get("label", "<N/A>"))
+        row["gone"] = self.timestamp
         self.debug["gone"] = serialized
         try:
-            log.debug("%s is gone", serialized["blurb"])
+            row["blurb"] = description = serialized["blurb"]
         except (KeyError, TypeError):
-            log.debug("%r is gone bad", layout)
+            description = layout
+        log.debug("%s is gone", description)
 
     def finish(self, decks: Decks, books: Books) -> dict[str, str]:
         """Make the stuff that goes in the debug part of the state"""
+        self._write()
         self.debug["n_decks"] = len(decks)
         self.debug["decks"] = {
             layout: deck.blurb for layout, deck in decks.items()
@@ -884,6 +935,22 @@ class PmpReporter:
             for label, book in books.items()
         }
         return self.debug
+
+    def _write(self) -> None:
+        """Write the updated report"""
+        log.debug("Write %s (N = %d)", self.path, len(self.report))
+        with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
+            rows = sorted(
+                self.report.values(),
+                key=lambda row: (row["label"], row.get("used")),
+            )
+            cols = ["label", "layout"]
+            colset = set.union(*[set(row) for row in rows]) - set(cols)
+            cols.extend(colset)
+            writer = csv.DictWriter(csvfo, fieldnames=cols)
+            writer.writeheader()
+            for row in rows:
+                writer.writerow(row)
 
 
 class LevelFormatter(logging.Formatter):
