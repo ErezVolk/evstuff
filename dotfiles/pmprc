@@ -19,7 +19,8 @@ homeworkTechnical:
 
 homeworkMusic:  # Try to keep this to one!
   Melodic Étude in A♭ Major (p.11): NONE
-  JP@AW 1.47 Basic Etude in D Minor (2. ballad bass line): NONE
+  JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
+  Bach I. Allemande: NONE
 
 book:
   Radley ctd.: NONE
@@ -346,7 +347,7 @@ reviseJP@AW:
   JP@AW 1.44 Basic Etude in B Minor (2. two-feel, 3. solo): NONE
   JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
   JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
-  #TBD# JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
+  JP@AW 1.47 Basic Etude in D Minor (2. ballad bass line): NONE
   #TBD# JP@AW 1.49 Bolero (Slow): NONE
   #TBD# JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
   #TBD# JP@AW 1.52 Bossa Nova (Slow): NONE
@@ -418,7 +419,6 @@ _steveToDo:
 
 _bachToDo:
   # Needs to be done seriously, but I could work on it
-  Bach I. Allemande: NONE
   Bach I. Courante: NONE
   Bach I. Sarabande: NONE
   Bach I. Menuet I: NONE
