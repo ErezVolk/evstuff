@@ -40,6 +40,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from collections.abc import Sequence
 from os import PathLike
+from typing import Any
 from typing import NoReturn
 from typing import TextIO
 from typing import TypeAlias
@@ -89,6 +90,10 @@ Layout: TypeAlias = str
 Playable: TypeAlias = "Etude | BookRef"
 TableOfContents: TypeAlias = list[Playable]
 PitchClass: TypeAlias = tuple[str, ...]
+Books: TypeAlias = dict[Label, "Book"]
+Decks: TypeAlias = dict[Layout, "Deck"]
+
+log = logging.getLogger("pmp")
 
 
 class BadConfig(ValueError):
@@ -314,7 +319,7 @@ class BookRef:
 class Config:
     """The information from the config file"""
 
-    books: dict[Label, Book]
+    books: Books
     starred: list[Label]
 
 
@@ -422,11 +427,11 @@ class PracticeMakesPerfect:
         },
     }
 
-    books: dict[Label, Book]
-    decks: dict[Layout, Deck]
+    books: Books
+    decks: Decks
     config: Config
-    log: logging.Logger
     state: dict
+    reporter: "PmpReporter"
 
     STATE_VERSION = "v4"
 
@@ -436,9 +441,10 @@ class PracticeMakesPerfect:
         self._configure_logging()
 
         if self.args.books == ["default-config"]:
-            self.log.info(DEFAULT_CONFIG)
+            log.info(DEFAULT_CONFIG)
             return
 
+        self._initialize()
         self._make_basic_decks()
         self._configure()
         self._load_state()
@@ -454,21 +460,20 @@ class PracticeMakesPerfect:
             self._save_state()
 
     def _configure_logging(self):
-        """Set logging format and level"""
-        self.log = logging.getLogger("pmp")
+        """Set logging format(s) and level"""
         handler = logging.StreamHandler()
         formats = {
             logging.INFO: "%(message)s",
             logging.DEBUG: "DEBUG [%(module)s:%(lineno)d] %(message)s",
         }
         handler.setFormatter(LevelFormatter(formats))
+        log.addHandler(handler)
 
         if self.args.debug:
             level = logging.DEBUG
         else:
             level = logging.INFO
-        self.log.setLevel(level)
-        self.log.addHandler(handler)
+        log.setLevel(level)
 
     def _run_book(self, book: Book, num_tracks: int | None, spaced=False):
         """Run any book"""
@@ -481,11 +486,11 @@ class PracticeMakesPerfect:
         """Run a sequence of items"""
         for entry in book.toc:
             if isinstance(entry, Etude):
-                self.log.info(self._make_track(entry))
+                log.info(self._make_track(entry))
             else:
                 self._run_book(entry.book, entry.count)
             if spaced:
-                self.log.info("")
+                log.info("")
 
     def _run_plain(self, book: Book, num_tracks: int | None):
         """Run a "simple" book, choosing etudes and assigining keys"""
@@ -497,7 +502,7 @@ class PracticeMakesPerfect:
 
             etude_seq = self._choose_etudes(book, num_tracks)
         track_seq = self._make_tracks(etude_seq)
-        self.log.info(self._get_sep(track_seq).join(track_seq))
+        log.info(self._get_sep(track_seq).join(track_seq))
 
     def _choose_etudes(self, book: Book, count: int) -> Iterable[Etude]:
         """Yields chosen etudes.
@@ -557,6 +562,10 @@ class PracticeMakesPerfect:
             return "\n"
         return " "
 
+    def _initialize(self):
+        """Prepare to actually work"""
+        self.reporter = PmpReporter()
+
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales"""
         self.decks = {}
@@ -567,7 +576,7 @@ class PracticeMakesPerfect:
             ]
             self._have_deck(Deck(cards=cards, label=scale, layout=scale))
         self._have_deck(NoneDeck())
-        self.log.debug("Key decks: %s", SEP.join(self.decks))
+        log.debug("Key decks: %s", SEP.join(self.decks))
 
     def _have_deck(self, deck: Deck) -> Deck:
         """Add a deck to our records"""
@@ -592,20 +601,12 @@ class PracticeMakesPerfect:
         except (FileNotFoundError, plistlib.InvalidFileException, KeyError):
             self.state = {}
         self.state.setdefault("deck", {})
-        self.state["debug"] = {"gone": {}}
 
     def _save_state(self) -> None:
         """Save the queue state"""
         saveds = self.state["deck"]
-        gones = self.state["debug"]["gone"]
-        for layout in list(saveds):
-            if not (deck := self.decks.get(layout)):
-                try:
-                    description = saveds[layout]["blurb"]
-                    self.log.debug("%s is gone", description)
-                except (KeyError, TypeError):
-                    self.log.debug("%r is gone bad", layout)
-                gones[layout] = saveds.pop(layout)
+        for layout in saveds.keys() - self.decks.keys():
+            self.reporter.deck_gone(layout, saveds.pop(layout))
 
         used = []
         for layout, deck in self.decks.items():
@@ -614,19 +615,11 @@ class PracticeMakesPerfect:
                 saveds[layout] = deck.serialize()
                 used.append(deck.blurb)
             except SerializationError as exc:
-                self.log.debug("Not serializing %s: %s", deck.blurb, exc)
+                log.debug("Not serializing %s: %s", deck.blurb, exc)
         if used:
-            self.log.debug("Saving %d: %s", len(used), SEP.join(used))
+            log.debug("Saving %d: %s", len(used), SEP.join(used))
 
-        self.state["n_decks"] = len(self.decks)
-        self.state["debug"]["decks"] = {
-            layout: deck.blurb for layout, deck in self.decks.items()
-        }
-        self.state["n_books"] = len(self.books)
-        self.state["debug"]["books"] = {
-            f"{label} {book.blurb}": [entry.blurb for entry in book.toc]
-            for label, book in self.books.items()
-        }
+        self.state["debug"] = self.reporter.finish(self.decks, self.books)
 
         with open(self.args.state_file, "wb") as fobj:
             plistlib.dump(
@@ -637,7 +630,7 @@ class PracticeMakesPerfect:
 
     def _make_all_decks(self) -> None:
         """Make sure every deck is created and registered"""
-        self.log.debug("All books: %s", SEP.join(self.books))
+        log.debug("All books: %s", SEP.join(self.books))
         for book in self.books.values():
             for etude in book.toc:
                 if isinstance(etude, Etude):
@@ -655,16 +648,16 @@ class PracticeMakesPerfect:
             deck = self.decks[layout]
             try:
                 deck.deserialize(saved)
-                self.log.debug(
+                log.debug(
                     "Loaded %s -> %s",
                     deck.blurb,
                     SEP.join(deck.queue),
                 )
                 n_used += 1
             except SerializationError as exc:
-                self.log.debug("Forgetting saved state of %s: %s", layout, exc)
+                log.debug("Forgetting saved state of %s: %s", layout, exc)
                 del self.decks[layout]
-        self.log.debug("Resuming %d of %d decks", n_used, len(self.decks))
+        log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
     def _parse_config(self, filename: Filename, stream: TextIO) -> Config:
         """Read configuration file"""
@@ -712,7 +705,7 @@ class PracticeMakesPerfect:
 class ConfigParser:
     """Read configuration file"""
 
-    books: dict[Label, Book] = {}
+    books: Books = {}
     starred: list[Label] = []
     curr: Book | None = None
     line_num: int
@@ -862,6 +855,35 @@ class ConfigParser:
         else:
             count = None
         toc.append(BookRef(count=count, ref_label=mobj.group("label")))
+
+
+class PmpReporter:
+    """In charge of debug and statistics"""
+    debug: dict[str, Any]
+
+    def __init__(self):
+        self.debug = {"gone": {}}
+
+    def deck_gone(self, layout: Layout, serialized: dict) -> None:
+        """A deck serialized in a previous run is no more."""
+        self.debug["gone"] = serialized
+        try:
+            log.debug("%s is gone", serialized["blurb"])
+        except (KeyError, TypeError):
+            log.debug("%r is gone bad", layout)
+
+    def finish(self, decks: Decks, books: Books) -> dict[str, str]:
+        """Make the stuff that goes in the debug part of the state"""
+        self.debug["n_decks"] = len(decks)
+        self.debug["decks"] = {
+            layout: deck.blurb for layout, deck in decks.items()
+        }
+        self.debug["n_books"] = len(books)
+        self.debug["books"] = {
+            f"{label} {book.blurb}": [entry.blurb for entry in book.toc]
+            for label, book in books.items()
+        }
+        return self.debug
 
 
 class LevelFormatter(logging.Formatter):
