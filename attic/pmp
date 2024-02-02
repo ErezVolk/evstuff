@@ -684,8 +684,7 @@ class PracticeMakesPerfect:
                     graph[ref.ref_label].add(label)
                     ref.book = self.books[ref.ref_label]
 
-        missing = graph.keys() - self.books.keys()
-        if missing:
+        if (missing := graph.keys() - self.books.keys()):
             error = ", ".join(
                 f"{label} (used by {', '.join(graph[label])})"
                 for label in missing
@@ -693,8 +692,7 @@ class PracticeMakesPerfect:
             self._fail(f"Unknown reference(s): {error}")
 
         try:
-            topo = graphlib.TopologicalSorter(graph)
-            order = list(topo.static_order())
+            order = list(graphlib.TopologicalSorter(graph).static_order())
         except graphlib.CycleError as exc:
             self._fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
 
