@@ -41,7 +41,7 @@ warmupInterval:
 
 warmupHarvey:
   # ' Minor Harvey from C': Natural|Harmonic|Melodic  # Not a good idea, because Harvey needs to be sung!
-  Harvey from {}Δ: G|C
+  Harvey from {}: G|C
 
 warmupMode:
   -major modes: major
@@ -56,6 +56,7 @@ warmupOtherScale:
 
 warmupOneStringScale:
   {}-major on the {} string: {major} {oneString}
+  Chromatic scale on the {} string: {oneString}
 
 #
 # JdP's "Daily Chop-Builders for Bass"
@@ -218,10 +219,10 @@ keepSteveScaleIn5ths:
   -melodic minor in 5th double stops (Ex 6 on p.7): minor
 
 keepSteveSlide2nd:
-  -melodic minor linear slides of a second in octave double steps (Ex 4A on p.19): minor
-  -melodic minor zig-zag slides of a third in octave double steps (Ex 4B on p.19): minor
-  -melodic minor linear slides of a second in fifth double steps (Ex 5A on p.19): minor
-  -*natural* minor zig-zag slides of a third in fifth double steps (Ex 5B on p.19, use 4B as model!): minor
+  -melodic minor linear slides of a second in octave double stops (Ex 4A on p.19): minor
+  -melodic minor zig-zag slides of a third in octave double stops (Ex 4B on p.19): minor
+  -melodic minor linear slides of a second in fifth double stops (Ex 5A on p.19): minor
+  -*natural* minor zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): minor
 
 keepSteveSlide3rd:
   Slides in 3rds (Ex. 3 on page 21) on the {} strings: twoAdjacentStrings

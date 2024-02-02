@@ -907,11 +907,13 @@ class PmpReporter:
         """Note that something has been used in the present run"""
         deck = drawable if isinstance(drawable, Deck) else drawable.deck
         row = self._deck_row(deck)
-        row.update(
-            used=self.now,
-            length=len(deck),
-            blurb=deck.blurb,
-        )
+        row["used"] = self.now
+        row["length"] = len(deck)
+        row["blurb"] = deck.blurb
+        try:
+            row["drawn"] = int(row["drawn"]) + 1
+        except (KeyError, ValueError):
+            row["drawn"] = 1
         row.pop("gone", None)
 
     def deck_gone(self, layout: Layout, serialized: dict) -> None:
