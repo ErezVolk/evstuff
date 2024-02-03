@@ -80,8 +80,6 @@ __TODO__ = """
   - degrees? "major := 1 2 3 4 5 6 7", "h.minor := 1 2 3- 4 5 6- 7"
   - semitones? "major := 0 2 4 5 7 8 11"? But how rule to out G-sharp major?
   - https://en.wikipedia.org/wiki/List_of_musical_scales_and_modes
-  - wiki "Scale (music)": "In naming the notes of a scale, it is
-    customary that each scale degree be assigned its own letter name"
 - A UI to mark what was done? With a metronome? And a drone?
 """
 
@@ -92,7 +90,6 @@ Label: TypeAlias = str
 Layout: TypeAlias = str
 Playable: TypeAlias = "Etude | BookRef"
 TableOfContents: TypeAlias = list[Playable]
-PitchClass: TypeAlias = tuple[str, ...]
 Books: TypeAlias = dict[Label, "Book"]
 Decks: TypeAlias = dict[Layout, "Deck"]
 
@@ -408,25 +405,10 @@ class PracticeMakesPerfect:
         self.args = parser.parse_args()
         self.parser = parser
 
-    PITCH_CLASSES: tuple[PitchClass, ...] = (
-        ("C",),
-        ("C♯", "D♭"),
-        ("D",),
-        ("D♯", "E♭"),
-        ("E",),
-        ("F",),
-        ("F♯", "G♭"),
-        ("G",),
-        ("G♯", "A♭"),
-        ("A",),
-        ("A♯", "B♭"),
-        ("B",),
-    )
-
-    SCALE_FIX: dict[str, dict[str, str]] = {
-        "ANY": {},
-        "major": {"G♯": "A♭", "D♯": "E♭", "A♯": "B♭"},
-        "minor": {"G♭": "F♯", "D♭": "C♯", "A♭": "G♯"},
+    KNOWN_SCALES = {
+        "ANY": "C‖C♯|D♭‖D‖D♯|E♭‖E‖F‖F♯|G♭‖G‖G♯|A♭‖A‖A♯|B♭‖B",
+        "major": "C‖C♯|D♭‖D‖E♭‖E‖F‖F♯|G♭‖G‖A♭‖A‖B♭‖B",
+        "minor": "C‖C♯‖D‖D♯|E♭‖E‖F‖F♯‖G‖G♯‖A‖A♯|B♭‖B",
     }
 
     books: Books
@@ -499,7 +481,7 @@ class PracticeMakesPerfect:
             if num_tracks is None:
                 num_tracks = book.num_active_etudes()
             elif num_tracks == 0:
-                num_tracks = len(self.PITCH_CLASSES)
+                num_tracks = len(self.decks["ANY"])
 
             etude_seq = self._choose_etudes(book, num_tracks)
         track_seq = self._make_tracks(etude_seq)
@@ -567,13 +549,10 @@ class PracticeMakesPerfect:
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales"""
-        self.decks = {}
-        for scale, fixes in self.SCALE_FIX.items():
-            cards = [
-                "|".join((fixes.get(note, note) for note in pitch_class))
-                for pitch_class in self.PITCH_CLASSES
-            ]
-            self._have_deck(Deck(cards=cards, label=scale, layout=scale))
+        self.decks = {
+            label: Deck(label=label, layout=label, cards=cards.split("‖"))
+            for label, cards in self.KNOWN_SCALES.items()
+        }
         self._have_deck(NoneDeck())
         log.debug("Key decks: %s", SEP.join(self.decks))
 
