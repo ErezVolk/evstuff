@@ -75,7 +75,6 @@ form:
 
 
 __TODO__ = """
-- Printable but unhashable note
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Modes. Maybe "locrian := major@7" or "locrian :+ major@11"
   - degrees? "major := 1 2 3 4 5 6 7", "h.minor := 1 2 3- 4 5 6- 7"
@@ -230,9 +229,6 @@ class Etude:
     """A concrete etude, e.g., 'minor pentatonic'.
 
     It is a kind of template string with one or more `Deck` variables.
-
-    `Etude.label` has the same meaning as `Deck.label`; there is no need
-    for a layout member.
     """
 
     template: str
@@ -241,9 +237,12 @@ class Etude:
     blurb: str = dataclasses.field(init=False)
 
     def __post_init__(self):
-        for key in ("label", "blurb"):
-            vals = (getattr(deck, key) for deck in self.decks)
-            setattr(self, key, f"{self.template}={SEP.join(vals)}")
+        vals = (deck.blurb for deck in self.decks)
+        self.blurb = f"{self.template}={SEP.join(vals)}"
+
+        meat = re.sub(r"\s*\[.*\]$", "", self.template)
+        vals = (deck.blurb for deck in self.decks)
+        self.label = f"{meat}={SEP.join(vals)}"
 
 
 @dataclasses.dataclass
@@ -291,9 +290,8 @@ class Book:
 
     def finalize(self, label: Label) -> Deck:
         """(Re)create the deck"""
-        self.labels = [entry.label for entry in self.toc]
-        self.shortlist = self.labels
-        self.deck = Deck(self.shortlist, label=label)
+        self.shortlist = self.labels = [entry.label for entry in self.toc]
+        self.deck = Deck(self.labels, label=label)
         parens = "[]" if self.sequential else "{}"
         self.blurb = (
             f"({self.deck.layout}) "
@@ -316,7 +314,7 @@ class BookRef:
         if self.count:
             self.label = f"{self.count}@{self.ref_label}"
         else:
-            self.label = "={self.ref_label}"
+            self.label = f"={self.ref_label}"
         self.blurb = self.label
 
 
@@ -427,16 +425,8 @@ class PracticeMakesPerfect:
 
     SCALE_FIX: dict[str, dict[str, str]] = {
         "ANY": {},
-        "major": {
-            "G♯": "A♭",
-            "D♯": "E♭",
-            "A♯": "B♭",
-        },
-        "minor": {
-            "G♭": "F♯",
-            "D♭": "C♯",
-            "A♭": "G♯",
-        },
+        "major": {"G♯": "A♭", "D♯": "E♭", "A♯": "B♭"},
+        "minor": {"G♭": "F♯", "D♭": "C♯", "A♭": "G♯"},
     }
 
     books: Books
@@ -687,7 +677,7 @@ class PracticeMakesPerfect:
                     graph[ref.ref_label].add(label)
                     ref.book = self.books[ref.ref_label]
 
-        if (missing := graph.keys() - self.books.keys()):
+        if missing := graph.keys() - self.books.keys():
             error = ", ".join(
                 f"{label} (used by {', '.join(graph[label])})"
                 for label in missing
