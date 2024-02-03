@@ -18,7 +18,7 @@ homeworkTechnical:
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
 
 homeworkMusic:  # Try to keep this to one!
-  Melodic Étude in A♭ Major (p.11): NONE
+  Melodic Étude in D♭ Major (p.12): NONE
   JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
   Bach I. Allemande: NONE
 
@@ -257,6 +257,9 @@ keepCarolKaye:  # When I'm done
   Page 4 in "Bass Lines Book 1": NONE
   Page 5 in "Bass Lines Book 1": NONE
   Page 6 in "Bass Lines Book 1": NONE
+  Page 7 in "Bass Lines Book 1": NONE
+  Page 8 in "Bass Lines Book 1": NONE
+  Page 9 in "Bass Lines Book 1": NONE
   # TODO: rest of "Bass Lines Book 1"
   # TODO: "Bass Lines Book 2"
   # TODO: "Bass Lines Book 3"
@@ -293,6 +296,7 @@ reviseMelodic:
   Melodic Etude in F Major (p.8): NONE
   Melodic Étude in B♭ Major (p.9) [last played at ♩=69 of 86]: NONE
   Melodic Étude in E♭ Major (p.10) [last played at ♩=92]: NONE
+  Melodic Étude in A♭ Major (p.11): NONE
 
 reviseSimandl:
   Simandl Étude 1 (p.3): NONE
@@ -369,7 +373,15 @@ reviseOther:
 #
 
 _melodicToDo:
-  Melodic Étude in D♭ Major (p.12): NONE
+  Melodic Étude in G♭ Major (p.13): NONE
+  Melodic Étude in B Major (p.14): NONE
+  Melodic Étude in E Major (p.15): NONE
+  Melodic Étude in A Major (p.16): NONE
+  Melodic Étude in D Major (p.17): NONE
+  Melodic Étude in G Major (p.18): NONE
+  Melodic Étude in C Aeolian (p.19): NONE
+  Melodic Étude in D Dorian (p.20): NONE
+  Melodic Étude in D♭ Aeolian (p.32): NONE
   # Add more as I play them
 
 _rayBrownToDo:
