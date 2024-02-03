@@ -13,9 +13,9 @@ twoSubjacentStrings := E+D|A+G
 # Currently working on
 #
 homeworkTechnical:
-  {}-natural minor Diatonic Slides of up to a 5ths ({}): {minor} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
-  Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
-  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
+  {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
+  Ray Brown's Diminished Exercise (p.79): NONE
+  Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
 
 homeworkMusic:  # Try to keep this to one!
   Melodic Étude in A♭ Major (p.11): NONE
@@ -186,11 +186,13 @@ keepRayBrown:
   Ray Brown's minor 10ths with a 5th, {}: rayBrown10thKeys
   Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
   Ray Brown's minor 10ths with a 6th: rayBrown10thKeys
-  Ray Brown's 10ths with a 7th: (E↗B) ↗ (E♭↗B♭) (p.59)|(B↘E) ↗ (B♭↘E♭) (p.60)
+  Ray Brown's 10ths with a 7th: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), start on {}: rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), start on {}: rayBrownDrillKeys
+  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -371,8 +373,6 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
-  Ray Brown's Diminished Exercise (p.79): NONE
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   Ray Brown's Diminished Exercise (p.82): NONE
   Ray Brown's Diminished Exercise (p.83): NONE
