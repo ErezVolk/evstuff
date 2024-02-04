@@ -18,9 +18,9 @@ homeworkTechnical:
   Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
 
 homeworkMusic:  # Try to keep this to one!
-  Melodic Étude in D♭ Major (p.12): NONE
-  JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
-  Bach I. Allemande: NONE
+  Melodic Étude in D♭ Major (p.12) [last seen at MM=72/2; N.B. bars 13-16, 17-end]: NONE
+  Bach I. Allemande [last played first half at MM=42, N.B. bars 9-11]: NONE
+  JP@AW 1.49 Bolero (Slow): NONE
 
 book:
   Radley ctd.: NONE
@@ -51,9 +51,9 @@ warmupOtherScale:
   -Melodic Minor Scale: minor
   -Harmonic Minor Scale: minor
   Whole Tone Scale from {}: ANY
+  Diminished Scale from {}: ANY
   # -Natural Minor Scale: minor
-  # Modes of the ascending minor (https://en.wikipedia.org/wiki/Jazz_minor_scale#Modes_of_jazz_minor_scale) ?
-  # 8-tone diminished scale (alternating whole steps and half steps, C D E- F G- A- A B, Di Bartolo p.232)
+  # Modes of the ascending melodic minor (https://en.wikipedia.org/wiki/Jazz_minor_scale#Modes_of_jazz_minor_scale) ?
 
 warmupOneStringScale:
   {}-major on the {} string: {major} {oneString}
@@ -279,14 +279,14 @@ reviseSteve:
   Steve's Triads 1 (page 17) [last played at ♩=66]: NONE
   Steve's linear Slides (Ex 3 on page 8) using the {} finger: 1st|2nd|3rd|4th
   Steve's Ex 1 on page 20: NONE
-  Steve's "Slow and Bluesy" (Ex 2 on page 20): NONE
+  Steve's "Slow and Bluesy" (Ex 2 on page 20) [N.B. bars 8-9]: NONE
   {}-major Diatonic slides of 4th in ♫ 1₅₆2.3₇14... (Ex. 2B on page 23): major
   Steve's 4th slide etude (Ex. 3 on page 24): NONE
   Steve's 4th slide etude (Ex. 4 on page 24) [last played at ♩=60]: NONE
 
 reviseBaroque:
   Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
-  Baroque Étude No. 2 (p.3): NONE
+  Baroque Étude No. 2 (p.3) [last played at ♩=92 of 126; N.B. bars 20-24]: NONE
   Baroque Étude No. 3 (p.4): NONE
   Baroque Étude No. 4 (p.4-5): NONE
   Baroque Étude No. 6 (p.6) [last played at ♩=72 of 72]: NONE
@@ -354,7 +354,7 @@ reviseJP@AW:
   JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
   JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
   JP@AW 1.47 Basic Etude in D Minor (2. ballad bass line): NONE
-  #TBD# JP@AW 1.49 Bolero (Slow): NONE
+  JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
   #TBD# JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
   #TBD# JP@AW 1.52 Bossa Nova (Slow): NONE
 
@@ -438,15 +438,16 @@ _bachToDo:
   Bach I. Gigue: NONE
 
 _bookToDo:  # When I'm good enough?
-  JP's Walking Bass: NONE  # After his course? Or maybe instead?
+  JP's Walking Bass: NONE  # After his course?
   Mike Downes: NONE  # Too much self-reliance? Or maybe it eats up all the rest?
   Blues Grooves: NONE  # Take a look?
   Improviser's Bass Book: NONE  # Loses to JP+Dones? But Harvey likes it
+  Ron Carter's "Building Jazz Bass Lines": NONE  # Try it?
 
   Stuart Clayton's Guide to Scales and Modes: NONE  # Hm, pretty comprehensive
   Di Bartolo's Complete Guide to Scales and Chords: NONE  # Hm, quite comprehensive
 
-  Connecting Chords with Linear Harmony by Bert Ligon: NONE  # Check it out? For improvising
+  Connecting Chords with Linear Harmony by Bert Ligon: NONE  # Check it out? See https://www.youtube.com/watch?v=W4RkIVTbezs
   Coker's Patterns for Jazz: NONE  # Pretty serious stuff, for improvising
   Comprehensive Technique for Jazz Musicians by Bert Ligon: NONE  # Maybe in the distant future
 
