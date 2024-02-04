@@ -76,10 +76,7 @@ form:
 
 __TODO__ = """
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
-- Modes. Maybe "locrian := major@7" or "locrian :+ major@11"
-  - degrees? "major := 1 2 3 4 5 6 7", "h.minor := 1 2 3- 4 5 6- 7"
-  - semitones? "major := 0 2 4 5 7 8 11"? But how rule to out G-sharp major?
-  - https://en.wikipedia.org/wiki/List_of_musical_scales_and_modes
+- Build modes, e.g., "locrian := major+7" and the minors
 - A UI to mark what was done? With a metronome? And a drone?
 """
 
@@ -116,20 +113,19 @@ class Deck:
 
     MIN_SERIALIZABLE = 3
 
-    def __init__(self, cards: Sequence[str], label="", layout=""):
+    def __init__(self, cards: list[str], label="", layout=""):
         if not cards:
             raise ValueError("Empty decks not supported")
         self.cards = tuple(cards)
         if layout:
-            self.layout = layout
+            if label and label != layout:
+                raise ValueError("Cannot specify both label and layout")
+            self.layout = self.label = layout
         else:
+            self.label = label or "|".join(self.cards)
             hashable = "\0".join(sorted(self.cards)).encode()
             hashed = hashlib.sha256(hashable).hexdigest()[:8]
             self.layout = f":{hashed}:"
-        if label:
-            self.label = label
-        else:
-            self.label = "|".join(self.cards)
         if self.layout == self.label:
             self.preblurb = f"{self.label}"
         else:
@@ -214,7 +210,7 @@ class NoneDeck(Deck):
     """The NONE deck doesn't really have cards, so make the blurb nicer"""
 
     def __init__(self):
-        super().__init__(cards=[""], label="NONE", layout="NONE")
+        super().__init__(cards=[""], layout="NONE")
 
     @property
     def blurb(self) -> str:
@@ -407,8 +403,16 @@ class PracticeMakesPerfect:
 
     KNOWN_SCALES = {
         "ANY": "C‖C♯|D♭‖D‖D♯|E♭‖E‖F‖F♯|G♭‖G‖G♯|A♭‖A‖A♯|B♭‖B",
-        "major": "C‖C♯|D♭‖D‖E♭‖E‖F‖F♯|G♭‖G‖A♭‖A‖B♭‖B",
-        "minor": "C‖C♯‖D‖D♯|E♭‖E‖F‖F♯‖G‖G♯‖A‖A♯|B♭‖B",
+        "major": "C ‖ C♯|D♭ ‖ D ‖ E♭ ‖ E ‖ F ‖ F♯|G♭ ‖ G ‖ A♭ ‖ A ‖ B♭ ‖ B|C♭",
+        "minor": "C ‖ C♯ ‖ D ‖ D♯|E♭ ‖ E ‖ F ‖ F♯ ‖ G ‖ G♯|A♭ ‖ A ‖ A♯|B♭ ‖ B",
+
+        "ionian": "C‖C♯|D♭‖D‖E♭‖E‖F‖F♯|G♭‖G‖A♭‖A‖B♭‖B|C♭",
+        "dorian": "D‖D♯|E♭‖E‖F♯‖F‖G‖G♯|A♭‖A‖B♭‖B‖C‖C♯|D♭",
+        "phrygian": "E‖E♯|F‖F♯‖G‖G♯‖A‖A♯|B♭‖B‖C‖C♯‖D‖D♯|E♭",
+        "lydian": "F‖F♯|G♭‖G‖A♭‖A‖B♭‖B|C♭‖C‖D♭‖D‖E♭‖E|F♭",
+        "mixolydian": "G‖G♯|A♭‖A‖B♭‖B‖C‖C♯|D♭‖D‖E♭‖E‖F‖F♯|G♭",
+        "aeolian": "A‖A♯|B♭‖B‖C‖C♯‖D‖D♯|E♭‖E‖F‖F♯‖G‖G♯|A♭",
+        "locrian": "B‖B♯|C‖C♯‖D‖D♯‖E‖E♯|F‖F♯‖G‖G♯‖A‖A♯|B♭",
     }
 
     books: Books
@@ -550,11 +554,24 @@ class PracticeMakesPerfect:
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales"""
         self.decks = {
-            label: Deck(label=label, layout=label, cards=cards.split("‖"))
-            for label, cards in self.KNOWN_SCALES.items()
+            label: Deck(layout=label, cards=self._prep_scale(label, cardstr))
+            for label, cardstr in self.KNOWN_SCALES.items()
         }
         self._have_deck(NoneDeck())
         log.debug("Key decks: %s", SEP.join(self.decks))
+
+    def _prep_scale(self, label: str, cardstr: str) -> list[str]:
+        """Split, strip, and validate a known scale"""
+        cards = [card.strip() for card in cardstr.split("‖")]
+        notes = [note for card in cards for note in card.split("|")]
+        if len(noteset := set(notes)) < len(notes):
+            raise ValueError(f"{label}: Not unique: {' '.join(sorted(notes))}")
+        note_re = re.compile("[A-G](|♯|♯♯|♭|♭♭|𝄪|𝄫)", re.IGNORECASE)
+        if bad := [note for note in notes if not note_re.fullmatch(note)]:
+            raise ValueError(f"{label}: Bad {sorted(bad)}")
+        if missing := set("ABCDEFG") - noteset:
+            raise ValueError(f"{label}: Missing {' '.join(sorted(missing))}")
+        return cards
 
     def _have_deck(self, deck: Deck) -> Deck:
         """Add a deck to our records"""
