@@ -75,8 +75,8 @@ form:
 
 
 __TODO__ = """
-- Identify adding a card (reset without used ones?)
-- Identify changing/replacing a card
+- Identify adding a card (but what about "E|A|D" vs. "E|A|D|G"? only books?)
+- Identify changing/replacing a card (same caveat as above)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
@@ -115,7 +115,7 @@ class Deck:
 
     MIN_SERIALIZABLE = 3
 
-    def __init__(self, cards: list[str], label="", layout=""):
+    def __init__(self, cards: Sequence[str], label="", layout=""):
         if not cards:
             raise ValueError("Empty decks not supported")
         self.cards = tuple(cards)
@@ -403,13 +403,13 @@ class PracticeMakesPerfect:
         self.args = parser.parse_args()
         self.parser = parser
 
-    KNOWN_SCALES = {
+    GOOD_SCALE_KEYS = {  # Not the scales, but the keys for those scales
         "ANY": "C‖C♯|D♭‖D‖D♯|E♭‖E‖F‖F♯|G♭‖G‖G♯|A♭‖A‖A♯|B♭‖B",
         "major": "C ‖ C♯|D♭ ‖ D ‖ E♭ ‖ E ‖ F ‖ F♯|G♭ ‖ G ‖ A♭ ‖ A ‖ B♭ ‖ B|C♭",
         "minor": "C ‖ C♯ ‖ D ‖ D♯|E♭ ‖ E ‖ F ‖ F♯ ‖ G ‖ G♯|A♭ ‖ A ‖ A♯|B♭ ‖ B",
 
         "ionian": "C‖C♯|D♭‖D‖E♭‖E‖F‖F♯|G♭‖G‖A♭‖A‖B♭‖B|C♭",
-        "dorian": "D‖D♯|E♭‖E‖F♯‖F‖G‖G♯|A♭‖A‖B♭‖B‖C‖C♯|D♭",
+        "dorian": "D‖D♯|E♭‖E‖F‖F♯‖G‖G♯|A♭‖A‖B♭‖B‖C‖C♯|D♭",
         "phrygian": "E‖E♯|F‖F♯‖G‖G♯‖A‖A♯|B♭‖B‖C‖C♯‖D‖D♯|E♭",
         "lydian": "F‖F♯|G♭‖G‖A♭‖A‖B♭‖B|C♭‖C‖D♭‖D‖E♭‖E|F♭",
         "mixolydian": "G‖G♯|A♭‖A‖B♭‖B‖C‖C♯|D♭‖D‖E♭‖E‖F‖F♯|G♭",
@@ -557,7 +557,7 @@ class PracticeMakesPerfect:
         """Start `self.decks` with the basic scales"""
         self.decks = {
             label: Deck(layout=label, cards=self._prep_scale(label, cardstr))
-            for label, cardstr in self.KNOWN_SCALES.items()
+            for label, cardstr in self.GOOD_SCALE_KEYS.items()
         }
         self._have_deck(NoneDeck())
         log.debug("Key decks: %s", SEP.join(self.decks))
