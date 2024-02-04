@@ -76,7 +76,7 @@ form:
 
 __TODO__ = """
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
-- Build modes, e.g., "locrian := major+7" and the minors
+- Build modes, e.g., "altered := minor+7"
 - A UI to mark what was done? With a metronome? And a drone?
 """
 
