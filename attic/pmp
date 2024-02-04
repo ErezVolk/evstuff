@@ -75,8 +75,10 @@ form:
 
 
 __TODO__ = """
+- Identify adding a card (reset without used ones?)
+- Identify changing/replacing a card
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
-- Build modes, e.g., "altered := minor+7"
+- Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
 """
 
