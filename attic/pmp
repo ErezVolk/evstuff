@@ -581,7 +581,8 @@ class PracticeMakesPerfect:
             self.state = loaded[self.STATE_VERSION]
         except (FileNotFoundError, plistlib.InvalidFileException, KeyError):
             self.state = {}
-        self.state.setdefault("deck", {})
+        if not isinstance(self.state.get("deck"), dict):
+            self.state["deck"] = {}
 
     def _save_state(self) -> None:
         """Save the queue state"""
