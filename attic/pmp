@@ -8,17 +8,15 @@ random order. Sort of like spaced repetition, only _it never ends_.
 
 About the code:
 There are two different types of object identifiers:
-- "label" is the name used by other parts of the system (references, config).
-- "layout" is used to identify saved states.
+- `x.label` is the name used by other parts of the system (references, config).
+- `x.layout` is used to identify saved states.
 
 Sometimes (e.g., in "well-known" things like the major scale), the label and
 the layout are equal and human-readable ("major", etc.). Other times, the
 layout is a hash of the different options, and the label is the reference
 name.
 
-Most objects also have a "blurb", which is for display purposes only.
-
-For consistency, all of these are properties (real or @property).
+Most objects also have `x.blurb`, which is for display purposes only.
 """
 import argparse
 from bisect import bisect
@@ -37,7 +35,6 @@ import re
 
 from collections import defaultdict
 from collections.abc import Iterable
-from os import PathLike
 from typing import Any
 from typing import NoReturn
 from typing import TextIO
@@ -73,7 +70,7 @@ __TODO__ = """
 
 
 SEP = " ‖ "
-Filename: TypeAlias = str | PathLike
+Filename: TypeAlias = str | Path
 Label: TypeAlias = str
 Layout: TypeAlias = str
 Playable: TypeAlias = "Etude | BookRef"
@@ -107,24 +104,17 @@ class Deck:
     def __init__(self, cards: Iterable[str], label="", layout=""):
         if not cards:
             raise ValueError("Empty decks not supported")
+        if layout and label and label != layout:
+            raise ValueError("Cannot specify both label and layout")
         self.cards = tuple(cards)
         if layout:
-            if label and label != layout:
-                raise ValueError("Cannot specify both label and layout")
-            self.layout = self.label = layout
+            self.preblurb = self.layout = self.label = layout
         else:
             self.label = label or "|".join(self.cards)
-            self.layout = f":{self._hash(self.cards)}:"
-        if self.layout == self.label:
-            self.preblurb = f"{self.label}"
-        else:
+            hashobj = hashlib.sha256("\0".join(sorted(self.cards)).encode())
+            self.layout = f":{hashobj.hexdigest()[:8]}:"
             self.preblurb = f"{self.label} ({self.layout})"
         self.queue = []
-
-    def _hash(self, strings: Iterable[str]) -> str:
-        """Orderless hash"""
-        hashable = "\0".join(sorted(strings)).encode()
-        return hashlib.sha256(hashable).hexdigest()[:8]
 
     def __len__(self) -> int:
         return len(self.cards)
@@ -187,13 +177,13 @@ class Deck:
             raise SerializationError("Too few items to load state")
         if not isinstance(saved, dict):
             raise SerializationError("Not a dict")
-        if not isinstance(value := saved.get(key), list):
+        if not isinstance(cards := saved.get(key), list):
             raise SerializationError("Not a list")
-        if not value:
+        if not cards:
             raise SerializationError("Empty list")
-        if not all(isinstance(card, str) for card in value):
+        if not all(isinstance(card, str) for card in cards):
             raise SerializationError("Not a list of strings")
-        return value
+        return cards
 
     def draw(self) -> str:
         """Get the next card"""
@@ -233,7 +223,7 @@ class NoneDeck(Deck):
 class Etude:
     """A concrete etude, e.g., 'minor pentatonic'.
 
-    It is a kind of template string with one or more `Deck` variables.
+    A template string with one or more `Deck` variables.
     """
 
     template: str
@@ -242,12 +232,12 @@ class Etude:
     blurb: str = dataclasses.field(init=False)
 
     def __post_init__(self):
-        vals = (deck.blurb for deck in self.decks)
-        self.blurb = f"{self.template}={SEP.join(vals)}"
+        blurbs = (deck.blurb for deck in self.decks)
+        self.blurb = f"{self.template}={SEP.join(blurbs)}"
 
         meat = re.sub(r"\s*\[.*\]$", "", self.template)
-        vals = (deck.blurb for deck in self.decks)
-        self.label = f"{meat}={SEP.join(vals)}"
+        labels = (deck.label for deck in self.decks)
+        self.label = f"{meat}={SEP.join(labels)}"
 
 
 @dataclasses.dataclass
@@ -449,11 +439,8 @@ class PracticeMakesPerfect:
         self._make_all_decks()
         self._restore_state()
 
-        self._run_book(
-            self._choose_book(),
-            None if self.args.one_of_each else self.args.num_tracks,
-            spaced=True,
-        )
+        count = None if self.args.one_of_each else self.args.num_tracks
+        self._run_book(self._choose_book(), count=count, spaced=True)
         if not self.args.saveless:
             self._save_state()
 
@@ -466,12 +453,7 @@ class PracticeMakesPerfect:
         }
         handler.setFormatter(LevelFormatter(formats))
         log.addHandler(handler)
-
-        if self.args.debug:
-            level = logging.DEBUG
-        else:
-            level = logging.INFO
-        log.setLevel(level)
+        log.setLevel(logging.DEBUG if self.args.debug else logging.INFO)
 
     def _run_book(self, book: Book, count: int | None, spaced=False) -> None:
         """Run any book"""
