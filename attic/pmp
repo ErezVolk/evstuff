@@ -23,6 +23,7 @@ Most objects also have a "blurb", which is for display purposes only.
 
 For consistency, all of these are properties (real or @property).
 """
+# pylint: disable=too-many-lines
 import argparse
 from bisect import bisect
 import contextlib
@@ -40,7 +41,6 @@ import re
 
 from collections import defaultdict
 from collections.abc import Iterable
-from collections.abc import Sequence
 from os import PathLike
 from typing import Any
 from typing import NoReturn
@@ -75,8 +75,6 @@ form:
 
 
 __TODO__ = """
-- Identify adding a card (but what about "E|A|D" vs. "E|A|D|G"? only books?)
-- Identify changing/replacing a card (same caveat as above)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
@@ -115,7 +113,7 @@ class Deck:
 
     MIN_SERIALIZABLE = 3
 
-    def __init__(self, cards: Sequence[str], label="", layout=""):
+    def __init__(self, cards: Iterable[str], label="", layout=""):
         if not cards:
             raise ValueError("Empty decks not supported")
         self.cards = tuple(cards)
@@ -132,7 +130,7 @@ class Deck:
             self.preblurb = f"{self.label} ({self.layout})"
         self.queue = []
 
-    def _hash(self, strings: Sequence[str]) -> str:
+    def _hash(self, strings: Iterable[str]) -> str:
         """Orderless hash"""
         hashable = "\0".join(sorted(strings)).encode()
         return hashlib.sha256(hashable).hexdigest()[:8]
@@ -151,7 +149,7 @@ class Deck:
         """Is a queue currently being dealt?"""
         return 0 < len(self.queue) < len(self)
 
-    def check_serializable(self):
+    def check_serializable(self) -> None:
         """Make sure we want to serialize this deck"""
         if not self.used:
             raise SerializationError("Never drawn")
@@ -170,24 +168,41 @@ class Deck:
             "queue": self.queue,
         }
 
-    def deserialize(self, saved: object):
+    def adapt(self, saved: Any) -> None:
+        """Try to deserialized a deck which has been modified"""
+        that = set(self._get_list(saved, "cards"))
+        this = set(self.cards)
+        if len(shared := that & this) < self.MIN_SERIALIZABLE:
+            raise SerializationError("Not enough shared cards to adapt")
+        come = this - that
+        gone = that - this
+        log.debug("Adapted %s +%s -%s", self.label, list(come), list(gone))
+        if not (left := set(self._get_list(saved, "queue")) & shared):
+            raise SerializationError("No shared cards in queue")
+        self._set_queue(left & come)
+
+    def deserialize(self, saved: Any) -> None:
         """Validate and restore a saved queue"""
+        queue = self._get_list(saved, "queue")
+        if not set(queue).issubset(self.cards):
+            raise SerializationError("List contains unknown cards")
+        if saved.get("layout") != self.layout:
+            raise SerializationError("Hash mismatch")
+        self._set_queue(queue)
+
+    def _get_list(self, saved: Any, key: str) -> list[str]:
+        """Validate a serialized object and get a list[str] member"""
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too few items to load state")
         if not isinstance(saved, dict):
             raise SerializationError("Not a dict")
-        if saved.get("layout") != self.layout:
-            raise SerializationError("Hash mismatch")
-        queue = saved.get("queue")
-        if not isinstance(queue, list):
+        if not isinstance(value := saved.get(key), list):
             raise SerializationError("Not a list")
-        if not queue:
+        if not value:
             raise SerializationError("Empty list")
-        if not all(isinstance(card, str) for card in queue):
+        if not all(isinstance(card, str) for card in value):
             raise SerializationError("Not a list of strings")
-        if not set(queue).issubset(self.cards):
-            raise SerializationError("List contains unknown cards")
-        self._set_queue(queue)
+        return value
 
     def draw(self) -> str:
         """Get the next card"""
@@ -206,7 +221,7 @@ class Deck:
 
         return random.sample(self.cards, count)
 
-    def _set_queue(self, queue: Sequence[str]) -> None:
+    def _set_queue(self, queue: Iterable[str]) -> None:
         """Set the queue"""
         self.queue = list(queue)
         random.shuffle(self.queue)
@@ -283,7 +298,7 @@ class Book:
         finally:
             self.shortlist = previous
 
-    def append(self, playable: Playable):
+    def append(self, playable: Playable) -> None:
         """Add an entry to the TOC"""
         self.toc.append(playable)
 
@@ -452,7 +467,7 @@ class PracticeMakesPerfect:
         if not self.args.saveless:
             self._save_state()
 
-    def _configure_logging(self):
+    def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
         handler = logging.StreamHandler()
         formats = {
@@ -468,12 +483,12 @@ class PracticeMakesPerfect:
             level = logging.INFO
         log.setLevel(level)
 
-    def _run_book(self, book: Book, num_tracks: int | None, spaced=False):
+    def _run_book(self, book: Book, count: int | None, spaced=False) -> None:
         """Run any book"""
         if book.sequential:
             self._run_sequential(book, spaced=spaced)
         else:
-            self._run_plain(book, num_tracks)
+            self._run_plain(book, count)
 
     def _run_sequential(self, book: Book, spaced: bool) -> None:
         """Run a sequence of items"""
@@ -485,7 +500,7 @@ class PracticeMakesPerfect:
             if spaced:
                 log.info("")
 
-    def _run_plain(self, book: Book, num_tracks: int | None):
+    def _run_plain(self, book: Book, num_tracks: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys"""
         with book.limit_etudes(self.args.max_etudes):
             if num_tracks is None:
@@ -642,22 +657,32 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore states for any eligible deck"""
-        saveds = self.state["deck"]
+        by_layout = self.state["deck"]
+        by_label = {
+            label: saved
+            for saved in by_layout.values()
+            if not (label := saved.get("label", ":")).startswith(":")
+        }
+
         n_used = 0
         for layout, deck in self.decks.items():
-            if (saved := saveds.get(layout)) is None:
-                continue
             try:
-                deck.deserialize(saved)
-                log.debug(
-                    "Loaded %s -> %s",
-                    deck.blurb,
-                    SEP.join(deck.queue),
-                )
-                n_used += 1
+                if saved := by_layout.get(layout):
+                    deck.deserialize(saved)
+                elif saved := by_label.get(deck.label):
+                    deck.adapt(saved)
+                else:
+                    continue
+                if deck.queue:
+                    log.debug(
+                        "Loaded %s -> %s",
+                        deck.blurb,
+                        SEP.join(deck.queue),
+                    )
+                    n_used += 1
             except SerializationError as exc:
-                log.debug("Forgetting saved state of %s: %s", layout, exc)
-                del saveds[layout]
+                log.debug("Not restoring %s: %s", deck.label, exc)
+                by_layout.pop(layout, None)
         log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
     def _parse_config(self, filename: Filename, stream: TextIO) -> Config:
@@ -844,7 +869,7 @@ class ConfigParser:
         if starred:
             self.starred.append(label)
 
-    def add_ref_to(self, toc: TableOfContents, mobj: re.Match):
+    def add_ref_to(self, toc: TableOfContents, mobj: re.Match) -> None:
         """Add book reference to a given TOC"""
         nstr = mobj.group("count")
         if nstr:
