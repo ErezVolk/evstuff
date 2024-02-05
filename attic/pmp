@@ -3,13 +3,10 @@
 
 Assuming you have more scales, drills, licks and etudes to practice regularly
 than you have time for each day, this utility will present them to you in
-random order.
-
-Sort of like spaced repetition, only _it never ends_.
+random order. Sort of like spaced repetition, only _it never ends_.
 
 
 About the code:
-
 There are two different types of object identifiers:
 - "label" is the name used by other parts of the system (references, config).
 - "layout" is used to identify saved states.
@@ -23,7 +20,6 @@ Most objects also have a "blurb", which is for display purposes only.
 
 For consistency, all of these are properties (real or @property).
 """
-# pylint: disable=too-many-lines
 import argparse
 from bisect import bisect
 import contextlib
@@ -54,10 +50,7 @@ note:  # Just pick a note
 
 scale:  # Play a scale
   -major: major
-  -major: major  # Duplicate an entry to give it more weight
   -natural minor: minor
-  -harmonic minor: minor
-  -melodic minor: minor
 
 arp:  # Play an arpeggio
   M: major
@@ -65,8 +58,6 @@ arp:  # Play an arpeggio
   ⁷: major
   m⁷: minor
   M⁷: major
-  -major pentatonic: major
-  -minor pentatonic: minor
 
 form:
   Blues in {}: C|F|G
