@@ -577,7 +577,7 @@ class PracticeMakesPerfect:
             label: Deck(layout=label, cards=self._prep_scale(label, cardstr))
             for label, cardstr in self.GOOD_SCALE_KEYS.items()
         }
-        self._have_deck(NoneDeck())
+        self._have(NoneDeck())
         log.debug("Key decks: %s", SEP.join(self.decks))
 
     def _prep_scale(self, label: str, cardstr: str) -> list[str]:
@@ -593,7 +593,7 @@ class PracticeMakesPerfect:
             raise ValueError(f"{label}: Missing {' '.join(sorted(missing))}")
         return cards
 
-    def _have_deck(self, deck: Deck) -> Deck:
+    def _have(self, deck: Deck) -> Deck:
         """Add a deck to our records"""
         return self.decks.setdefault(deck.layout, deck)
 
@@ -650,9 +650,7 @@ class PracticeMakesPerfect:
         for book in self.books.values():
             for etude in book.toc:
                 if isinstance(etude, Etude):
-                    etude.decks = [
-                        self._have_deck(deck) for deck in etude.decks
-                    ]
+                    etude.decks = [self._have(deck) for deck in etude.decks]
 
     def _restore_state(self) -> None:
         """Restore states for any eligible deck"""
@@ -715,7 +713,7 @@ class PracticeMakesPerfect:
         order.extend(self.books.keys() - set(order))
         for label in reversed(order):
             book = self.books[label]
-            book.deck = self._have_deck(book.finalize(label))
+            book.deck = self._have(book.finalize(label))
 
     def _fail(self, message: str) -> NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
