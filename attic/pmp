@@ -631,8 +631,6 @@ class PracticeMakesPerfect:
                     deck.deserialize(saved)
                 elif saved := by_label.get(deck.label):
                     deck.adapt(saved)
-                else:
-                    continue
                 if queue := SEP.join(deck.queue):
                     log.debug("Loaded %s -> %s", deck.blurb, queue)
                     n_used += 1
