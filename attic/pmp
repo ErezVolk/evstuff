@@ -297,7 +297,7 @@ class Book:
 class BookRef:
     """A reference to a book"""
 
-    ref_label: Label
+    book_label: Label
     count: int | None = None
     book: Book = dataclasses.field(init=False)
     label: Label = dataclasses.field(init=False)
@@ -305,9 +305,9 @@ class BookRef:
 
     def __post_init__(self):
         if self.count:
-            self.label = f"{self.count}@{self.ref_label}"
+            self.label = f"{self.count}@{self.book_label}"
         else:
-            self.label = f"={self.ref_label}"
+            self.label = f"={self.book_label}"
         self.blurb = self.label
 
 
@@ -655,8 +655,8 @@ class PracticeMakesPerfect:
         for label, book in self.books.items():
             for ref in book.toc:
                 if isinstance(ref, BookRef):
-                    graph[ref.ref_label].add(label)
-                    ref.book = self.books[ref.ref_label]
+                    graph[ref.book_label].add(label)
+                    ref.book = self.books[ref.book_label]
 
         if missing := graph.keys() - self.books.keys():
             error = ", ".join(
@@ -833,7 +833,7 @@ class ConfigParser:
             count = 1
         else:
             count = None
-        toc.append(BookRef(count=count, ref_label=mobj.group("label")))
+        toc.append(BookRef(count=count, book_label=mobj.group("label")))
 
 
 class PmpReporter:
