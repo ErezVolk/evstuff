@@ -479,10 +479,9 @@ class PracticeMakesPerfect:
                 num_tracks = book.num_active_etudes()
             elif num_tracks == 0:
                 num_tracks = len(self.decks["ANY"])
-
-            etude_seq = self._choose_etudes(book, num_tracks)
-        track_seq = self._make_tracks(etude_seq)
-        log.info(self._get_sep(track_seq).join(track_seq))
+            etudes = self._choose_etudes(book, num_tracks)
+        tracks = self._make_tracks(etudes)
+        log.info(self._get_sep(tracks).join(tracks))
 
     def _choose_etudes(self, book: Book, count: int) -> Iterable[Etude]:
         """Yields chosen etudes.
