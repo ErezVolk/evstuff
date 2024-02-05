@@ -633,8 +633,7 @@ class PracticeMakesPerfect:
                     deck.adapt(saved)
                 else:
                     continue
-                if deck.queue:
-                    queue = SEP.join(deck.queue)
+                if queue := SEP.join(deck.queue):
                     log.debug("Loaded %s -> %s", deck.blurb, queue)
                     n_used += 1
             except SerializationError as exc:
@@ -649,7 +648,6 @@ class PracticeMakesPerfect:
             return ConfigParser(labeldecks).parse(filename, stream)
         except BadConfig as err:
             self._fail(str(err))
-            raise err  # Won't happen, just to appease pyright
 
     def _finalize_books(self) -> None:
         """Check configured graph is legit and prepare all books for action"""
