@@ -125,14 +125,17 @@ class Deck:
             self.layout = self.label = layout
         else:
             self.label = label or "|".join(self.cards)
-            hashable = "\0".join(sorted(self.cards)).encode()
-            hashed = hashlib.sha256(hashable).hexdigest()[:8]
-            self.layout = f":{hashed}:"
+            self.layout = f":{self._hash(self.cards)}:"
         if self.layout == self.label:
             self.preblurb = f"{self.label}"
         else:
             self.preblurb = f"{self.label} ({self.layout})"
         self.queue = []
+
+    def _hash(self, strings: Sequence[str]) -> str:
+        """Orderless hash"""
+        hashable = "\0".join(sorted(strings)).encode()
+        return hashlib.sha256(hashable).hexdigest()[:8]
 
     def __len__(self) -> int:
         return len(self.cards)
