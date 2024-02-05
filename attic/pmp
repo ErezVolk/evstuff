@@ -619,11 +619,12 @@ class PracticeMakesPerfect:
     def _restore_state(self) -> None:
         """Restore states for any eligible deck"""
         by_layout = self.state["deck"]
-        by_label = {
-            label: saved
-            for saved in by_layout.values()
-            if isinstance(label := saved.get("label"), str)
-        }
+        by_label = {}
+        for layout in list(by_layout):
+            if not isinstance(saved := by_layout[layout], dict):
+                by_layout.pop(layout)
+            elif isinstance(label := saved.get("label"), str):
+                by_label[label] = saved
 
         n_used = 0
         for layout, deck in self.decks.items():
