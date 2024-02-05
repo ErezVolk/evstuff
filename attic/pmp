@@ -166,6 +166,7 @@ class Deck:
             "blurb": self.blurb,
             "label": self.label,
             "layout": self.layout,
+            "cards": self.cards,
             "queue": self.queue,
         }
 
@@ -643,10 +644,9 @@ class PracticeMakesPerfect:
         """Restore states for any eligible deck"""
         saveds = self.state["deck"]
         n_used = 0
-        for layout in list(self.decks):
+        for layout, deck in self.decks.items():
             if (saved := saveds.get(layout)) is None:
                 continue
-            deck = self.decks[layout]
             try:
                 deck.deserialize(saved)
                 log.debug(
@@ -657,7 +657,7 @@ class PracticeMakesPerfect:
                 n_used += 1
             except SerializationError as exc:
                 log.debug("Forgetting saved state of %s: %s", layout, exc)
-                del self.decks[layout]
+                del saveds[layout]
         log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
     def _parse_config(self, filename: Filename, stream: TextIO) -> Config:
