@@ -151,14 +151,14 @@ class Deck:
         """Try to deserialized a deck which has been modified"""
         that = set(self._get_list(saved, "cards"))
         this = set(self.cards)
-        if len(shared := that & this) < self.MIN_SERIALIZABLE:
+        if len(that & this) < self.MIN_SERIALIZABLE:
             raise SerializationError("Not enough shared cards to adapt")
         came = this - that
         went = that - this
         log.debug("Adapted %s +%s -%s", self.label, list(came), list(went))
-        if not (left := set(self._get_list(saved, "queue")) & shared):
+        if not (queued := set(self._get_list(saved, "queue")) & this):
             raise SerializationError("No shared cards in queue")
-        self._set_queue(left & came)
+        self._set_queue(queued & came)
 
     def deserialize(self, saved: Any) -> None:
         """Validate and restore a saved queue"""
