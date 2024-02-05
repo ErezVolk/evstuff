@@ -174,12 +174,12 @@ class Deck:
         this = set(self.cards)
         if len(shared := that & this) < self.MIN_SERIALIZABLE:
             raise SerializationError("Not enough shared cards to adapt")
-        come = this - that
-        gone = that - this
-        log.debug("Adapted %s +%s -%s", self.label, list(come), list(gone))
+        came = this - that
+        went = that - this
+        log.debug("Adapted %s +%s -%s", self.label, list(came), list(went))
         if not (left := set(self._get_list(saved, "queue")) & shared):
             raise SerializationError("No shared cards in queue")
-        self._set_queue(left & come)
+        self._set_queue(left & came)
 
     def deserialize(self, saved: Any) -> None:
         """Validate and restore a saved queue"""
