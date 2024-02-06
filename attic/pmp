@@ -533,7 +533,7 @@ class PracticeMakesPerfect:
         return [self._make_track(etude) for etude in etude_seq]
 
     def _make_track(self, etude: Etude) -> str:
-        """Pick a key for one etude"""
+        """Fill in the template for one etude"""
         keys = []
         for deck in etude.decks:
             self.reporter.in_use(deck)
