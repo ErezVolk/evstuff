@@ -72,6 +72,7 @@ Entry: t.TypeAlias = "Etude | BookRef"
 TableOfContents: t.TypeAlias = list[Entry]
 Books: t.TypeAlias = dict[Label, "Book"]
 Decks: t.TypeAlias = dict[Layout, "Deck"]
+StringDict: t.TypeAlias = dict[str, t.Any]
 
 log = logging.getLogger("pmp")
 tracked: set[Layout] = set()
@@ -126,7 +127,7 @@ class Deck:
         """Is a queue currently being dealt?"""
         return 0 < len(self.queue) < len(self)
 
-    def serialize(self) -> dict:
+    def serialize(self) -> StringDict:
         """Serialize"""
         if not self.used:
             raise SerializationError("Never drawn")
@@ -134,7 +135,7 @@ class Deck:
             raise SerializationError("Too small")
         return {key: getattr(self, key) for key in self.SERIALIZEES}
 
-    def adapt(self, saved: dict[str, t.Any]) -> None:
+    def adapt(self, saved: StringDict) -> None:
         """Try to deserialized a deck which has been modified"""
         that = set(self._get_list(saved, "cards"))
         this = set(self.cards)
@@ -639,7 +640,7 @@ class PracticeMakesPerfect:
         class OldSaved(t.NamedTuple):
             """An old deck found in the state file"""
             layout: Layout
-            saved: dict[str, t.Any]
+            saved: StringDict
 
         by_layout: dict[Layout, t.Any] = self.state["deck"]
         by_label: dict[Label, OldSaved] = {}
@@ -870,20 +871,18 @@ class PmpReporter:
     """In charge of debug and statistics"""
 
     path: Path
-    debug: dict[str, t.Any]
-    report: dict[Layout, dict]
+    debug: StringDict
+    report: dict[Layout, StringDict]
     now: str
     then: str
 
     def __init__(self, report_file: Path):
+        """Initialize, read old report if possible"""
         self.now = str(now := datetime.date.today())
         self.then = str(now - datetime.timedelta(days=30))
         self.debug = {"gone": {}}
         self.path = report_file
-        self._read()
 
-    def _read(self) -> None:
-        """Read the old report, or create an empty one"""
         try:
             with open(self.path, encoding="utf-8", newline="") as csvfo:
                 reader = csv.DictReader(csvfo)
@@ -892,17 +891,13 @@ class PmpReporter:
             self.report = {}
         log.debug("Read %s (N = %d)", self.path, len(self.report))
 
-    def _row(self, label: Label, layout: Layout) -> dict:
-        """Get the report row for a deck"""
+    def _row(self, label: Label, layout: Layout) -> StringDict:
+        """Get/create the report row for a deck"""
         try:
             return self.report[layout]
         except KeyError:
             self.report[layout] = row = {"label": label, "layout": layout}
             return row
-
-    def _deck_row(self, deck: Deck) -> dict:
-        """Get the report row for a deck"""
-        return self._row(label=deck.label, layout=deck.layout)
 
     def exists(self, deck: Deck) -> None:
         """Note that a deck exists"""
@@ -912,7 +907,7 @@ class PmpReporter:
     def in_use(self, drawable: Deck | Book) -> None:
         """Note that something has been used in the present run"""
         deck = drawable if isinstance(drawable, Deck) else drawable.deck
-        row = self._deck_row(deck)
+        row = self._row(label=deck.label, layout=deck.layout)
         self._update(row, deck, used=self.now)
         try:
             row["drawn"] = int(row["drawn"]) + 1
@@ -925,26 +920,24 @@ class PmpReporter:
             if (layout := deck.layout) not in self.report:
                 self.report[layout] = self._update(row, deck, layout=layout)
 
-    def _update(self, row: dict, deck: Deck, **kwargs) -> dict:
+    def _update(self, row: StringDict, deck: Deck, **kwargs) -> StringDict:
         """Update some key fields in a row"""
-        row["length"] = len(deck)
-        row["blurb"] = deck.blurb
+        row.update(kwargs, length=len(deck), blurb=deck.blurb)
         row.pop("gone", None)
-        row.update(kwargs)
         return row
 
-    def deck_gone(self, layout: Layout, serialized: dict) -> None:
+    def deck_gone(self, layout: Layout, serialized: StringDict) -> None:
         """A deck serialized in a previous run is no more."""
         row = self._row(layout=layout, label=serialized.get("label", "N/A"))
         row["gone"] = self.now
         self.debug["gone"] = serialized
         try:
-            row["blurb"] = description = serialized["blurb"]
+            row["blurb"] = blurb = serialized["blurb"]
         except (KeyError, TypeError):
-            description = layout
-        log.debug("%s is gone", description)
+            blurb = layout
+        log.debug("%s is gone", blurb)
 
-    def finish(self, decks: Decks, books: Books) -> dict[str, str]:
+    def finish(self, decks: Decks, books: Books) -> StringDict:
         """Make the stuff that goes in the debug part of the state"""
         self._write()
         self.debug["n_decks"] = len(decks)
