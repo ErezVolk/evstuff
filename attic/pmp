@@ -601,9 +601,8 @@ class PracticeMakesPerfect:
                 self.config = self._parse_config(self.args.config, fobj)
         except (FileNotFoundError, ValueError):
             self.config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
-        self.reporter = PmpReporter(self.args.report_file)
-        self.books = self.config.books
         self._finalize_books()
+        self._start_reporter()
 
     def _load_state(self) -> None:
         """Read saved state info `self.state`"""
@@ -660,6 +659,7 @@ class PracticeMakesPerfect:
 
         n_used = 0
         for layout, deck in self.decks.items():
+            self.reporter.exists(deck)
             try:
                 if saved := by_layout.get(layout):
                     deck.deserialize(saved)
@@ -684,6 +684,7 @@ class PracticeMakesPerfect:
 
     def _finalize_books(self) -> None:
         """Check configured graph is legit and prepare all books for action"""
+        self.books = self.config.books
         graph = collections.defaultdict(set)
         for label, book in self.books.items():
             for ref in book.toc:
@@ -708,6 +709,10 @@ class PracticeMakesPerfect:
         for label in reversed(order):
             book = self.books[label]
             book.deck = self._have(book.finalize(label))
+
+    def _start_reporter(self) -> None:
+        """Create reporter object"""
+        self.reporter = PmpReporter(self.args.report_file)
 
     def _fail(self, message: str) -> NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
@@ -892,9 +897,8 @@ class PmpReporter:
         """Read the old report, or create an empty one"""
         try:
             with open(self.path, encoding="utf-8", newline="") as csvfo:
-                self.report = {
-                    row["layout"]: row for row in csv.DictReader(csvfo)
-                }
+                reader = csv.DictReader(csvfo)
+                self.report = {row["layout"]: row for row in reader}
         except (FileNotFoundError, ValueError, KeyError, csv.Error):
             self.report = {}
         log.debug("Read %s (N = %d)", self.path, len(self.report))
@@ -910,6 +914,11 @@ class PmpReporter:
     def _deck_row(self, deck: Deck) -> dict:
         """Get the report row for a deck"""
         return self._row(label=deck.label, layout=deck.layout)
+
+    def exists(self, deck: Deck) -> None:
+        """Note that a deck exists"""
+        row = self._update(self._row(deck.label, deck.layout), deck)
+        row.setdefault("since", self.now)
 
     def in_use(self, drawable: Deck | Book) -> None:
         """Note that something has been used in the present run"""
