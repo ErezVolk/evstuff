@@ -73,8 +73,8 @@ SEP = " ‖ "
 Filename: TypeAlias = str | Path
 Label: TypeAlias = str
 Layout: TypeAlias = str
-Playable: TypeAlias = "Etude | BookRef"
-TableOfContents: TypeAlias = list[Playable]
+Entry: TypeAlias = "Etude | BookRef"
+TableOfContents: TypeAlias = list[Entry]
 Books: TypeAlias = dict[Label, "Book"]
 Decks: TypeAlias = dict[Layout, "Deck"]
 
@@ -261,8 +261,8 @@ class Book:
     shortlist: list[Label] = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
 
-    def draw(self) -> Playable:
-        """Get the next random playable"""
+    def draw(self) -> Entry:
+        """Get the next random ToC entry"""
         while (label := self.deck.draw()) not in self.shortlist:
             continue
         return self.toc[self.labels.index(label)]
@@ -289,9 +289,9 @@ class Book:
         finally:
             self.shortlist = previous
 
-    def append(self, playable: Playable) -> None:
+    def append(self, entry: Entry) -> None:
         """Add an entry to the TOC"""
-        self.toc.append(playable)
+        self.toc.append(entry)
 
     def finalize(self, label: Label) -> Deck:
         """(Re)create the deck"""
