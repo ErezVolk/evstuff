@@ -15,7 +15,6 @@ twoSubjacentStrings := E+D|A+G
 homeworkTechnical:
   {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
   Ray Brown's Diminished Exercise (p.79): NONE
-  Ray Brown's minor 10ths with a 7th (B↘E) ↗ (B♭↘E♭) (p.62): NONE
 
 homeworkMusic:  # Try to keep this to one!
   Melodic Étude in D♭ Major (p.12) [last seen at MM=72/2; N.B. bars 13-16, 17-end]: NONE
@@ -187,7 +186,7 @@ keepRayBrown:
   Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
   Ray Brown's minor 10ths with a 6th: rayBrown10thKeys
   Ray Brown's 10ths with a 7th: rayBrown10thKeys
-  Ray Brown's minor 10ths with a 7th, (E↗B) ↗ (E♭↗B♭) (p.61): NONE
+  Ray Brown's minor 10ths with a 7th: rayBrown10thKeys
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), start on {}: rayBrownDrillKeys
