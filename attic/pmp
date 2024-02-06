@@ -19,7 +19,6 @@ name.
 Most objects also have `x.blurb`, which is for display purposes only.
 """
 import argparse
-from bisect import bisect
 import contextlib
 import csv
 import dataclasses
@@ -79,7 +78,7 @@ Books: TypeAlias = dict[Label, "Book"]
 Decks: TypeAlias = dict[Layout, "Deck"]
 
 log = logging.getLogger("pmp")
-tracked_layouts: set[Layout] = set()
+_tracked: set[Layout] = set()
 
 
 class BadConfig(ValueError):
@@ -211,7 +210,7 @@ class Deck:
 
     def _track(self, fmt: str, *args) -> None:
         """Print special tracking info if we're in the list"""
-        if self.layout in tracked_layouts:
+        if self.layout in _tracked:
             log.info(f"{repr(self.layout)}: {fmt}", *args)
 
 
@@ -380,7 +379,9 @@ class PracticeMakesPerfect:
         parser.add_argument(
             "-d",
             "--debug",
-            action="store_true",
+            nargs="?",
+            const="-",
+            metavar="FILE",
             help="Print lots of debugging information",
         )
         parser.add_argument(
@@ -446,7 +447,7 @@ class PracticeMakesPerfect:
         self._configure_logging()
 
         if self.args.books == ["default-config"]:
-            log.info(DEFAULT_CONFIG)
+            print(DEFAULT_CONFIG)
             return
 
         self._make_basic_decks()
@@ -462,16 +463,20 @@ class PracticeMakesPerfect:
 
     def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
-        handler = logging.StreamHandler()
-        formats = {
-            logging.INFO: "%(message)s",
-            logging.DEBUG: "DEBUG [%(module)s:%(lineno)d] %(message)s",
-        }
-        handler.setFormatter(LevelFormatter(formats))
-        log.addHandler(handler)
-        log.setLevel(logging.DEBUG if self.args.debug else logging.INFO)
         if self.args.track_decks:
-            tracked_layouts.update(self.args.track_decks)
+            _tracked.update(self.args.track_decks)
+        if self.args.debug is None:
+            logging.basicConfig(format="INFO: %(message)s", level=logging.INFO)
+            return
+
+        if self.args.debug == "-":
+            handler: logging.Handler = logging.StreamHandler()
+        else:
+            handler = logging.FileHandler(self.args.debug)
+            handler.setLevel(logging.DEBUG)
+        handler.setFormatter(logging.Formatter("[pmp:%(lineno)d] %(message)s"))
+        log.addHandler(handler)
+        log.setLevel(logging.DEBUG)
 
     def _run_book(self, book: Book, count: int | None, spaced=False) -> None:
         """Run any book"""
@@ -484,11 +489,11 @@ class PracticeMakesPerfect:
         """Run a sequence of items"""
         for entry in book.toc:
             if isinstance(entry, Etude):
-                log.info(self._make_track(entry))
+                print(self._make_track(entry))
             else:
                 self._run_book(entry.book, entry.count)
             if spaced:
-                log.info("")
+                print("")
 
     def _run_plain(self, book: Book, num_tracks: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys"""
@@ -499,7 +504,7 @@ class PracticeMakesPerfect:
                 num_tracks = len(self.decks["ANY"])
             etudes = self._choose_etudes(book, num_tracks)
         tracks = self._make_tracks(etudes)
-        log.info(self._get_sep(tracks).join(tracks))
+        print(self._get_sep(tracks).join(tracks))
 
     def _choose_etudes(self, book: Book, count: int) -> Iterable[Etude]:
         """Yields chosen etudes.
@@ -962,38 +967,6 @@ class PmpReporter:
             writer.writeheader()
             for row in rows:
                 writer.writerow(row)
-
-
-class LevelFormatter(logging.Formatter):
-    """Adapted from https://stackoverflow.com/questions/14844970
-
-    ```
-    log = logging.getLogger("hey")
-    handler = logging.StreamHandler()
-    handler.setFormatter(LevelFormatter({
-        logging.INFO: "%(message)s",
-        logging.DEBUG: "DEBUG [%(module)s:%(lineno)d] %(message)s",
-    }))
-    log.setLevel(logging.INFO)
-    log.addHandler(handler)
-    ```
-    """
-
-    def __init__(self, formats: dict[int, str], **kwargs):
-        super().__init__()
-
-        if "fmt" in kwargs:
-            raise ValueError("Use formats=, not fmt=")
-
-        self.formats = sorted(
-            (level, logging.Formatter(fmt, **kwargs))
-            for level, fmt in formats.items()
-        )
-
-    def format(self, record: logging.LogRecord) -> str:
-        idx = bisect(self.formats, (record.levelno,), hi=len(self.formats) - 1)
-        _, formatter = self.formats[idx]
-        return formatter.format(record)
 
 
 if __name__ == "__main__":
