@@ -21,9 +21,9 @@ homeworkTechnical:
   Ray Brown's Diminished Exercise (p.79): NONE
 
 homeworkMusic:  # Try to keep this to one!
-  Melodic Étude in D♭ Major (p.12) [last seen at MM=72/2; N.B. bars 13-16, 17-end]: NONE
-  Bach I. Allemande [last played first half at MM=42, N.B. bars 9-11]: NONE
-  JP@AW 1.49 Bolero (Slow): NONE
+  Melodic Étude in D♭ Major (p.12) [first half last seen at MM=80]: NONE
+  Bach I. Allemande [last played first half at MM=36, N.B. bars 9-11, 13-16]: NONE
+  JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
 
 book:
   Radley ctd.: NONE
@@ -263,6 +263,10 @@ keepCarolKaye:  # When I'm done
   Page 7 in "Bass Lines Book 1": NONE
   Page 8 in "Bass Lines Book 1": NONE
   Page 9 in "Bass Lines Book 1": NONE
+  Page 10 in "Bass Lines Book 1": NONE
+  Page 11 in "Bass Lines Book 1": NONE
+  Fills on page 13-14 in "Bass Lines Book 1": NONE
+  # TODO: Double Stop Studies on page 14 in "Bass Lines Book 1": NONE
   # TODO: rest of "Bass Lines Book 1"
   # TODO: "Bass Lines Book 2"
   # TODO: "Bass Lines Book 3"
@@ -358,7 +362,7 @@ reviseJP@AW:
   JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
   JP@AW 1.47 Basic Etude in D Minor (2. ballad bass line): NONE
   JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
-  #TBD# JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
+  JP@AW 1.49 Bolero (Slow): NONE
   #TBD# JP@AW 1.52 Bossa Nova (Slow): NONE
 
 reviseCarol:
