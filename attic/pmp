@@ -19,6 +19,8 @@ name.
 Most objects also have `x.blurb`, which is for display purposes only.
 """
 import argparse
+import collections
+from collections.abc import Iterable
 import contextlib
 import csv
 import dataclasses
@@ -31,13 +33,7 @@ from pathlib import Path
 import plistlib
 import random
 import re
-
-import collections
-from collections.abc import Iterable
-from typing import Any
-from typing import NoReturn
-from typing import TextIO
-from typing import TypeAlias
+import typing as t
 
 
 DEFAULT_CONFIG = """
@@ -69,13 +65,13 @@ __TODO__ = """
 
 
 SEP = " ‖ "
-Filename: TypeAlias = str | Path
-Label: TypeAlias = str
-Layout: TypeAlias = str
-Entry: TypeAlias = "Etude | BookRef | Heading"
-TableOfContents: TypeAlias = list[Entry]
-Books: TypeAlias = dict[Label, "Book"]
-Decks: TypeAlias = dict[Layout, "Deck"]
+Filename: t.TypeAlias = str | Path
+Label: t.TypeAlias = str
+Layout: t.TypeAlias = str
+Entry: t.TypeAlias = "Etude | BookRef | Heading"
+TableOfContents: t.TypeAlias = list[Entry]
+Books: t.TypeAlias = dict[Label, "Book"]
+Decks: t.TypeAlias = dict[Layout, "Deck"]
 
 log = logging.getLogger("pmp")
 tracked: set[Layout] = set()
@@ -138,7 +134,7 @@ class Deck:
             raise SerializationError("Too small")
         return {key: getattr(self, key) for key in self.SERIALIZEES}
 
-    def adapt(self, saved: dict[str, Any]) -> None:
+    def adapt(self, saved: dict[str, t.Any]) -> None:
         """Try to deserialized a deck which has been modified"""
         that = set(self._get_list(saved, "cards"))
         this = set(self.cards)
@@ -152,7 +148,7 @@ class Deck:
         self._track("Adapting from old layout %r", saved.get("layout", "N/A"))
         self._set_queue(queued & added)
 
-    def deserialize(self, saved: Any) -> None:
+    def deserialize(self, saved: t.Any) -> None:
         """Validate and restore a saved queue"""
         queue = self._get_list(saved, "queue")
         if not set(queue).issubset(self.cards):
@@ -162,7 +158,7 @@ class Deck:
         self._track("Deserializing")
         self._set_queue(queue)
 
-    def _get_list(self, saved: Any, key: str) -> list[str]:
+    def _get_list(self, saved: t.Any, key: str) -> list[str]:
         """Validate a serialized object and get a list[str] member"""
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too few items to load state")
@@ -649,8 +645,12 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore states for any eligible deck"""
-        OldSaved = collections.namedtuple("OldSaved", ["layout", "saved"])
-        by_layout: dict[Layout, Any] = self.state["deck"]
+        class OldSaved(t.NamedTuple):
+            """An old deck found in the state file"""
+            layout: Layout
+            saved: dict[str, t.Any]
+
+        by_layout: dict[Layout, t.Any] = self.state["deck"]
         by_label: dict[Label, OldSaved] = {}
         for layout in by_layout.keys() - self.decks.keys():
             if isinstance(saved := by_layout[layout], dict):
@@ -674,7 +674,7 @@ class PracticeMakesPerfect:
                 by_layout.pop(layout, None)
         log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
-    def _parse_config(self, filename: Filename, stream: TextIO) -> Config:
+    def _parse_config(self, filename: Filename, stream: t.TextIO) -> Config:
         """Read configuration file"""
         try:
             labeldecks = {deck.label: deck for deck in self.decks.values()}
@@ -714,7 +714,7 @@ class PracticeMakesPerfect:
         """Create reporter object"""
         self.reporter = PmpReporter(self.args.report_file)
 
-    def _fail(self, message: str) -> NoReturn:
+    def _fail(self, message: str) -> t.NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
         self.parser.error(message)
 
@@ -744,14 +744,14 @@ class ConfigParser:
 
     PART_RE = r"(?P<at>(?P<count>[1-9]\d*)?@)?(?P<label>\S+)"
 
-    def parse(self, filename: Filename, stream: TextIO) -> "Config":
+    def parse(self, filename: Filename, stream: t.TextIO) -> "Config":
         """Read configuration file"""
         try:
             return self.do_parse(stream)
         except BadConfig as exc:
             raise BadConfig(f"[{filename}:{self.line_num}] {exc}") from exc
 
-    def do_parse(self, stream: TextIO) -> "Config":
+    def do_parse(self, stream: t.TextIO) -> "Config":
         """The actual reading function"""
         for self.line_num, line in enumerate(stream, 1):
             self.line = re.sub(r"\s*(#.*)?$", "", line)
@@ -881,7 +881,7 @@ class PmpReporter:
     """In charge of debug and statistics"""
 
     path: Path
-    debug: dict[str, Any]
+    debug: dict[str, t.Any]
     report: dict[Layout, dict]
     now: str
     then: str
