@@ -443,6 +443,8 @@ class PracticeMakesPerfect:
 
         self._make_basic_decks()
         self._configure()
+        self._finalize_books()
+        self._start_reporter()
         self._load_state()
         self._make_all_decks()
         self._restore_state()
@@ -589,15 +591,12 @@ class PracticeMakesPerfect:
                 self.config = self._parse_config(self.args.config, fobj)
         except (FileNotFoundError, ValueError):
             self.config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
-        self._finalize_books()
-        self._start_reporter()
 
     def _load_state(self) -> None:
         """Read saved state info `self.state`"""
         try:
             with open(self.args.state_file, "rb") as fobj:
-                loaded = plistlib.load(fobj)
-            self.state = loaded[self.STATE_VERSION]
+                self.state = plistlib.load(fobj)[self.STATE_VERSION]
         except (FileNotFoundError, plistlib.InvalidFileException, KeyError):
             self.state = {}
         if not isinstance(self.state.get("deck"), dict):
@@ -621,11 +620,8 @@ class PracticeMakesPerfect:
         self.state["debug"] = self.reporter.finish(self.decks, self.books)
 
         with open(self.args.state_file, "wb") as fobj:
-            plistlib.dump(
-                {self.STATE_VERSION: self.state},
-                fobj,
-                sort_keys=False,
-            )
+            to_write = {self.STATE_VERSION: self.state}
+            plistlib.dump(to_write, fobj, sort_keys=False)
 
     def _make_all_decks(self) -> None:
         """Make sure every deck is created and registered"""
