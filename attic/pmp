@@ -62,7 +62,6 @@ form:
 
 
 __TODO__ = """
-- "Print heading" action: «hey»? ===hey===? :hey:? special bookref?
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
@@ -73,13 +72,13 @@ SEP = " ‖ "
 Filename: TypeAlias = str | Path
 Label: TypeAlias = str
 Layout: TypeAlias = str
-Entry: TypeAlias = "Etude | BookRef"
+Entry: TypeAlias = "Etude | BookRef | Heading"
 TableOfContents: TypeAlias = list[Entry]
 Books: TypeAlias = dict[Label, "Book"]
 Decks: TypeAlias = dict[Layout, "Deck"]
 
 log = logging.getLogger("pmp")
-_tracked: set[Layout] = set()
+tracked: set[Layout] = set()
 
 
 class BadConfig(ValueError):
@@ -211,7 +210,7 @@ class Deck:
 
     def _track(self, fmt: str, *args) -> None:
         """Print special tracking info if we're in the list"""
-        if self.layout in _tracked:
+        if self.layout in tracked:
             log.info(f"{repr(self.layout)}: {fmt}", *args)
 
 
@@ -295,12 +294,16 @@ class Book:
 
     def finalize(self, label: Label) -> Deck:
         """(Re)create the deck"""
-        self.shortlist = self.labels = [entry.label for entry in self.toc]
+        self.shortlist = self.labels = [
+            entry.label
+            for entry in self.toc
+            if isinstance(entry, (Etude, BookRef))
+        ]
         self.deck = Deck(self.labels, label=label)
         parens = "[]" if self.sequential else "{}"
         self.blurb = (
             f"({self.deck.layout}) "
-            f"{parens[0]}{len(self.deck)} of {len(self.toc)}{parens[1]}"
+            f"{parens[0]}{len(self.deck)} of {len(self.labels)}{parens[1]}"
         )
         return self.deck
 
@@ -321,6 +324,12 @@ class BookRef:
         else:
             self.label = f"={self.book_label}"
         self.blurb = self.label
+
+
+@dataclasses.dataclass
+class Heading:
+    """Just a heading to print"""
+    blurb: str
 
 
 @dataclasses.dataclass
@@ -458,14 +467,14 @@ class PracticeMakesPerfect:
         self._restore_state()
 
         count = None if self.args.one_of_each else self.args.num_tracks
-        self._run_book(self._choose_book(), count=count, spaced=True)
+        self._run_book(self._choose_book(), count=count)
         if not self.args.saveless:
             self._save_state()
 
     def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
         if self.args.track_decks:
-            _tracked.update(self.args.track_decks)
+            tracked.update(self.args.track_decks)
         if self.args.debug is None:
             logging.basicConfig(format="INFO: %(message)s", level=logging.INFO)
             return
@@ -479,22 +488,22 @@ class PracticeMakesPerfect:
         log.addHandler(handler)
         log.setLevel(logging.DEBUG)
 
-    def _run_book(self, book: Book, count: int | None, spaced=False) -> None:
+    def _run_book(self, book: Book, count: int | None) -> None:
         """Run any book"""
         if book.sequential:
-            self._run_sequential(book, spaced=spaced)
+            self._run_sequential(book)
         else:
             self._run_plain(book, count)
 
-    def _run_sequential(self, book: Book, spaced: bool) -> None:
+    def _run_sequential(self, book: Book) -> None:
         """Run a sequence of items"""
         for entry in book.toc:
             if isinstance(entry, Etude):
                 print(self._make_track(entry))
-            else:
+            elif isinstance(entry, BookRef):
                 self._run_book(entry.book, entry.count)
-            if spaced:
-                print("")
+            elif isinstance(entry, Heading):
+                print(f"\n{entry.blurb}")
 
     def _run_plain(self, book: Book, num_tracks: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys"""
@@ -513,13 +522,17 @@ class PracticeMakesPerfect:
         Recursion is safe here, since we used `TopologicalSorter`
         to make sure the graph is cycle-free.
         """
-        for _ in range(count):
+        drawn = 0
+        while drawn < count:
             self.reporter.in_use(book)
             entry = book.draw()
             if isinstance(entry, Etude):
                 yield entry
-            else:
+            elif isinstance(entry, BookRef):
                 yield from self._choose_etudes(entry.book, entry.count or 1)
+            else:
+                continue
+            drawn += 1
 
     def _choose_book(self) -> Book:
         """Pick out a book"""
@@ -837,15 +850,18 @@ class ConfigParser:
         if label in self.books:
             raise BadConfig(f"Duplicate book {repr(label)}")
 
-        parts = self.group("parts").split()
+        parts = re.findall(r"(?!<\S)(:[^:]*:|\S+)(?!\S)", self.group("parts"))
         if not parts:
             raise BadConfig(f"Empty one-liner {label}")
 
         toc: TableOfContents = []
         for part in parts:
-            if not (mobj := re.fullmatch(self.PART_RE, part)):
+            if part[0] == ":" and part[-1] == ":":
+                toc.append(Heading(f"[{part[1:-1]}]"))
+            elif mobj := re.fullmatch(self.PART_RE, part):
+                self.add_ref_to(toc, mobj)
+            else:
                 raise BadConfig(f"Bad {repr(part)}")
-            self.add_ref_to(toc, mobj)
         self.books[label] = Book(toc=toc, sequential=sequential)
 
         if starred:

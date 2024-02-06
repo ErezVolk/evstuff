@@ -1,6 +1,6 @@
 all = [ morn eve ]
 
-*morn = [ warmup chops @warmupOneStringScale @arpeggio 3@keep homeworkTechnical ]
+*morn = [ :WARM UP: warmup chops @warmupOneStringScale :PRACTICE: @arpeggio 3@keep :HOMEWORK: homeworkTechnical ]
 eve = [ homeworkMusic 3@book 2@revise ]
 
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol }
