@@ -79,6 +79,7 @@ Books: TypeAlias = dict[Label, "Book"]
 Decks: TypeAlias = dict[Layout, "Deck"]
 
 log = logging.getLogger("pmp")
+tracked_layouts: set[Layout] = set()
 
 
 class BadConfig(ValueError):
@@ -134,8 +135,6 @@ class Deck:
         """Serialize"""
         if not self.used:
             raise SerializationError("Never drawn")
-        if not self._midway():
-            raise SerializationError("Starting new cycle")
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too small")
 
@@ -158,6 +157,7 @@ class Deck:
         log.debug("Adapted %s +%s -%s", self.label, list(added), list(gone))
         if not (queued := set(self._get_list(saved, "queue")) & this):
             raise SerializationError("No shared cards in queue")
+        self._track("Adapting from old layout %r", saved.get("layout", "N/A"))
         self._set_queue(queued & added)
 
     def deserialize(self, saved: Any) -> None:
@@ -167,6 +167,7 @@ class Deck:
             raise SerializationError("List contains unknown cards")
         if saved.get("layout") != self.layout:
             raise SerializationError("Hash mismatch")
+        self._track("Deserializing")
         self._set_queue(queue)
 
     def _get_list(self, saved: Any, key: str) -> list[str]:
@@ -188,7 +189,9 @@ class Deck:
         if not self.queue:
             self._set_queue(self.cards)
         self.used = True
-        return self.queue.pop()
+        card = self.queue.pop()
+        self._track("%d after drawing %r", len(self.queue), card)
+        return card
 
     def peek(self, count: int) -> list[str]:
         """Draw `count` cards without affecting the queue."""
@@ -204,6 +207,12 @@ class Deck:
         """Set the queue"""
         self.queue = list(queue)
         random.shuffle(self.queue)
+        self._track("Queue set to %s", self.queue)
+
+    def _track(self, fmt: str, *args) -> None:
+        """Print special tracking info if we're in the list"""
+        if self.layout in tracked_layouts:
+            log.info(f"{repr(self.layout)}: {fmt}", *args)
 
 
 class NoneDeck(Deck):
@@ -215,6 +224,9 @@ class NoneDeck(Deck):
     @property
     def blurb(self) -> str:
         return "NONE"
+
+    def draw(self) -> str:
+        return ""
 
 
 @dataclasses.dataclass
@@ -372,6 +384,12 @@ class PracticeMakesPerfect:
             help="Print lots of debugging information",
         )
         parser.add_argument(
+            "-D",
+            "--track-decks",
+            nargs="+",
+            help="Print debugging info on specific deck",
+        )
+        parser.add_argument(
             "-c",
             "--config",
             type=Path,
@@ -452,6 +470,8 @@ class PracticeMakesPerfect:
         handler.setFormatter(LevelFormatter(formats))
         log.addHandler(handler)
         log.setLevel(logging.DEBUG if self.args.debug else logging.INFO)
+        if self.args.track_decks:
+            tracked_layouts.update(self.args.track_decks)
 
     def _run_book(self, book: Book, count: int | None, spaced=False) -> None:
         """Run any book"""
