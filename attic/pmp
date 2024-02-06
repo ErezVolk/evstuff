@@ -93,20 +93,21 @@ class Deck:
     """A deck of strings"""
 
     cards: tuple[str, ...]
-    queue: list[str]
+    queue: list[str] = []
     used: bool = False
     label: Label
     layout: Layout
     preblurb: str
 
     MIN_SERIALIZABLE = 3
+    SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
 
     def __init__(self, cards: Iterable[str], label="", layout=""):
-        if not cards:
-            raise ValueError("Empty decks not supported")
         if layout and label and label != layout:
             raise ValueError("Cannot specify both label and layout")
         self.cards = tuple(cards)
+        if not self.cards:
+            raise ValueError("Empty decks not supported")
         if layout:
             self.preblurb = self.layout = self.label = layout
         else:
@@ -114,7 +115,6 @@ class Deck:
             hashobj = hashlib.sha256("\0".join(sorted(self.cards)).encode())
             self.layout = f":{hashobj.hexdigest()[:8]}:"
             self.preblurb = f"{self.label} ({self.layout})"
-        self.queue = []
 
     def __len__(self) -> int:
         return len(self.cards)
@@ -136,14 +136,7 @@ class Deck:
             raise SerializationError("Never drawn")
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too small")
-
-        return {
-            "blurb": self.blurb,
-            "label": self.label,
-            "layout": self.layout,
-            "cards": self.cards,
-            "queue": self.queue,
-        }
+        return {key: getattr(self, key) for key in self.SERIALIZEES}
 
     def adapt(self, saved: dict[str, Any]) -> None:
         """Try to deserialized a deck which has been modified"""
@@ -223,9 +216,6 @@ class NoneDeck(Deck):
     @property
     def blurb(self) -> str:
         return "NONE"
-
-    def draw(self) -> str:
-        return ""
 
 
 @dataclasses.dataclass
@@ -328,7 +318,8 @@ class BookRef:
 
 @dataclasses.dataclass
 class Heading:
-    """Just a heading to print"""
+    """All blurb and no action"""
+
     blurb: str
 
 
