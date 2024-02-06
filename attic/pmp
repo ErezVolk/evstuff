@@ -497,13 +497,15 @@ class PracticeMakesPerfect:
 
     def _run_sequential(self, book: Book) -> None:
         """Run a sequence of items"""
-        for entry in book.toc:
+        for idx, entry in enumerate(book.toc):
             if isinstance(entry, Etude):
                 print(self._make_track(entry))
             elif isinstance(entry, BookRef):
                 self._run_book(entry.book, entry.count)
             elif isinstance(entry, Heading):
-                print(f"\n{entry.blurb}")
+                if idx > 0:
+                    print()
+                print(entry.blurb)
 
     def _run_plain(self, book: Book, num_tracks: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys"""
