@@ -68,7 +68,7 @@ SEP = " ‖ "
 Filename: t.TypeAlias = str | Path
 Label: t.TypeAlias = str
 Layout: t.TypeAlias = str
-Entry: t.TypeAlias = "Etude | BookRef | Heading"
+Entry: t.TypeAlias = "Etude | BookRef"
 TableOfContents: t.TypeAlias = list[Entry]
 Books: t.TypeAlias = dict[Label, "Book"]
 Decks: t.TypeAlias = dict[Layout, "Deck"]
@@ -299,7 +299,7 @@ class BookRef:
     """A reference to a book"""
 
     book_label: Label
-    count: int | None = None
+    count: int | None
     book: Book = dataclasses.field(init=False)
     label: Label = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
@@ -310,13 +310,6 @@ class BookRef:
         else:
             self.label = f"={self.book_label}"
         self.blurb = self.label
-
-
-@dataclasses.dataclass
-class Heading:
-    """All blurb and no action"""
-
-    blurb: str
 
 
 @dataclasses.dataclass
@@ -454,7 +447,7 @@ class PracticeMakesPerfect:
         self._restore_state()
 
         count = None if self.args.one_of_each else self.args.num_tracks
-        self._run_book(self._choose_book(), count=count)
+        self._run_book(self._choose_book(), count=count, top=True)
         if not self.args.saveless:
             self._save_state()
 
@@ -475,24 +468,22 @@ class PracticeMakesPerfect:
         log.addHandler(handler)
         log.setLevel(logging.DEBUG)
 
-    def _run_book(self, book: Book, count: int | None) -> None:
+    def _run_book(self, book: Book, count: int | None, top=False) -> None:
         """Run any book"""
         if book.sequential:
-            self._run_sequential(book)
+            self._run_sequential(book, top=top)
         else:
             self._run_plain(book, count)
 
-    def _run_sequential(self, book: Book) -> None:
+    def _run_sequential(self, book: Book, top=False) -> None:
         """Run a sequence of items"""
         for idx, entry in enumerate(book.toc):
+            if top:
+                print("%s[%s]" % ("\n" if idx else "", entry.label))
             if isinstance(entry, Etude):
                 print(self._make_track(entry))
             elif isinstance(entry, BookRef):
                 self._run_book(entry.book, entry.count)
-            elif isinstance(entry, Heading):
-                if idx > 0:
-                    print()
-                print(entry.blurb)
 
     def _run_plain(self, book: Book, num_tracks: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys"""
@@ -848,15 +839,13 @@ class ConfigParser:
         if label in self.books:
             raise BadConfig(f"Duplicate book {repr(label)}")
 
-        parts = re.findall(r"(?!<\S)(:[^:]*:|\S+)(?!\S)", self.group("parts"))
+        parts = self.group("parts").split()
         if not parts:
             raise BadConfig(f"Empty one-liner {label}")
 
         toc: TableOfContents = []
         for part in parts:
-            if part[0] == ":" and part[-1] == ":":
-                toc.append(Heading(f"[{part[1:-1]}]"))
-            elif mobj := re.fullmatch(self.PART_RE, part):
+            if mobj := re.fullmatch(self.PART_RE, part):
                 self.add_ref_to(toc, mobj)
             else:
                 raise BadConfig(f"Bad {repr(part)}")
