@@ -74,7 +74,6 @@ Books: t.TypeAlias = dict[Label, "Book"]
 Decks: t.TypeAlias = dict[Layout, "Deck"]
 StringDict: t.TypeAlias = dict[str, t.Any]
 
-NOW = datetime.datetime.now()
 log = logging.getLogger("pmp")
 tracked: set[Layout] = set()
 
@@ -432,6 +431,7 @@ class PracticeMakesPerfect:
     reporter: "PmpReporter"
 
     STATE_VERSION = "v4"
+    NOTE_RE = re.compile("[A-G](|♯|♯♯|♭|♭♭|𝄪|𝄫)", re.IGNORECASE)
 
     def main(self) -> None:
         """Practice Makes Perfect"""
@@ -450,19 +450,20 @@ class PracticeMakesPerfect:
         self._make_all_decks()
         self._restore_state()
 
+        now = datetime.datetime.now().isoformat(timespec="minutes", sep=" ")
         label, book = self._choose_book()
         count = None if self.args.one_of_each else self.args.num_tracks
-        self._header(f"{NOW.isoformat(timespec='minutes', sep=' ')} {label}")
+        self._header(f"{now} {label}")
         self._run_book(book, count=count, top=True)
         if not self.args.saveless:
             self._save_state()
 
     def _header(self, text: str, level: int = 1) -> None:
-        """Print a nice(?) header"""
-        if level > 1:
-            print()
-        print(text)
-        print(" =-"[level] * len(text))
+        """Print a markdown-like header"""
+        if level == 1:
+            print(f"{text}\n{'=' * len(text)}")
+        else:
+            print(f"\n{text}\n{'-' * len(text)}")
 
     def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
@@ -575,18 +576,17 @@ class PracticeMakesPerfect:
             label: Deck(layout=label, cards=self._prep_scale(label, cardstr))
             for label, cardstr in self.GOOD_SCALE_KEYS.items()
         }
-        log.debug("Key decks: %s", SEP.join(self.decks))
+        log.debug("Basic decks: %s", SEP.join(self.decks))
 
     def _prep_scale(self, label: str, cardstr: str) -> list[str]:
-        """Split, strip, and validate a known scale"""
+        """Split, strip, and sanity-check a known scale"""
         cards = [card.strip() for card in cardstr.split("‖")]
         notes = [note for card in cards for note in card.split("|")]
-        if len(noteset := set(notes)) < len(notes):
+        if len(set(notes)) < len(notes):
             raise ValueError(f"{label}: Not unique: {' '.join(sorted(notes))}")
-        note_re = re.compile("[A-G](|♯|♯♯|♭|♭♭|𝄪|𝄫)", re.IGNORECASE)
-        if bad := [note for note in notes if not note_re.fullmatch(note)]:
+        if bad := [note for note in notes if not self.NOTE_RE.fullmatch(note)]:
             raise ValueError(f"{label}: Bad {sorted(bad)}")
-        if missing := set("ABCDEFG") - noteset:
+        if missing := set("ABCDEFG").difference(notes):
             raise ValueError(f"{label}: Missing {' '.join(sorted(missing))}")
         return cards
 
@@ -866,7 +866,7 @@ class PmpReporter:
 
     def __init__(self, report_file: Path):
         """Initialize, read old report if possible"""
-        self.now = str(today := NOW.date())
+        self.now = str(today := datetime.date.today())
         self.then = str(today - datetime.timedelta(days=30))
         self.debug = {"gone": {}}
         self.path = report_file
