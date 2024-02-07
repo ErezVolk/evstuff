@@ -643,11 +643,7 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore states for any eligible deck"""
-        class OldSaved(t.NamedTuple):
-            """An old deck found in the state file"""
-            layout: Layout
-            saved: StringDict
-
+        OldSaved = collections.namedtuple("OldSaved", ["layout", "saved"])
         by_layout: dict[Layout, t.Any] = self.state["deck"]
         by_label: dict[Label, OldSaved] = {}
         for layout in by_layout.keys() - self.decks.keys():
