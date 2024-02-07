@@ -19,12 +19,12 @@ twoSubjacentStrings := E+D|A+G
 homeworkTechnical:
   {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
   Ray Brown's Diminished Exercise (p.79): NONE
+  JP@AW 1.52 Bossa Nova (Slow): NONE
 
 homeworkMusic:  # Try to keep this to one!
-  Melodic Étude in D♭ Major (p.12) [first half last seen at MM=80]: NONE
+  Melodic Étude in D♭ Major (p.12) [half last played fully at MM=50; NB triplets]: NONE
   Bach I. Allemande [last played first half at MM=36, N.B. bars 9-11, 13-16]: NONE
-  JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
-  Diatonic Slides combination exercise (Ex. 3 on page 27): NONE
+  Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM=56]: NONE
 
 book:
   Radley ctd.: NONE
@@ -364,7 +364,7 @@ reviseJP@AW:
   JP@AW 1.47 Basic Etude in D Minor (2. ballad bass line): NONE
   JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
   JP@AW 1.49 Bolero (Slow): NONE
-  #TBD# JP@AW 1.52 Bossa Nova (Slow): NONE
+  JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
 
 reviseCarol:
   'Little Green Apples' (pp. 18-19) from "How to Play the Electric Bass": NONE
