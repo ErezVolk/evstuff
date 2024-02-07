@@ -24,6 +24,7 @@ homeworkMusic:  # Try to keep this to one!
   Melodic Étude in D♭ Major (p.12) [first half last seen at MM=80]: NONE
   Bach I. Allemande [last played first half at MM=36, N.B. bars 9-11, 13-16]: NONE
   JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
+  Diatonic Slides combination exercise (Ex. 3 on page 27): NONE
 
 book:
   Radley ctd.: NONE
@@ -60,7 +61,7 @@ warmupOtherScale:
 
 warmupOneStringScale:
   {}-major on the {} string: {major} {oneString}
-  Chromatic scale on the {} string: {oneString}
+  Chromatic scale on the {} string [sing before you play!]: {oneString}
 
 #
 # JdP's "Daily Chop-Builders for Bass"
@@ -420,7 +421,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  Diatonic Slides combination exercise (Ex. 3 on page 27): NONE
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
   {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): major
   Slide blending exercises on page 30: NONE
