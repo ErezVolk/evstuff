@@ -18,13 +18,13 @@ twoSubjacentStrings := E+D|A+G
 #
 homeworkTechnical:
   {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
-  Ray Brown's Diminished Exercise (p.79): NONE
-  JP@AW 1.52 Bossa Nova (Slow): NONE
+  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
 
-homeworkMusic:  # Try to keep this to one!
+homeworkMusic:
   Melodic Étude in D♭ Major (p.12) [half last played fully at MM=50; NB triplets]: NONE
   Bach I. Allemande [last played first half at MM=36, N.B. bars 9-11, 13-16]: NONE
   Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM=56]: NONE
+  JP@AW 1.52 Bossa Nova (Slow): NONE
 
 book:
   Radley ctd.: NONE
@@ -197,6 +197,7 @@ keepRayBrown:
   Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), start on {}: rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), start on {}: rayBrownDrillKeys
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
+  Ray Brown's Diminished Exercise (p.79): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -393,7 +394,6 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   Ray Brown's Diminished Exercise (p.82): NONE
   Ray Brown's Diminished Exercise (p.83): NONE
   Ray Brown's Diminished Exercise (Solo) (p.84): NONE
