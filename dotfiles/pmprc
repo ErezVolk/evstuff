@@ -21,17 +21,17 @@ homeworkTechnical:
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
 
 homeworkMusic:
-  Melodic Étude in D♭ Major (p.12) [last played fully at MM=50; NB triplets]: NONE
+  Melodic Étude in D♭ Major (p.12) [last played fully at MM=60; start with part B and connect it]: NONE
   Bach I. Allemande [after D♭-Melodic; last played first half at MM=36, N.B. bars 9-11, 13-16]: NONE
-  JP@AW 1.52 Bossa Nova (Slow): NONE
+  JP@AW 2.16 Simple Jazz 2 Beat Feel II⧸V Progression: NONE
 
 book:
   Radley ctd.: NONE
-  Steve ctd.: NONE
-  Baroque ctd.: NONE
-  Simandl Études ctd.: NONE
-  John P's course ctd.: NONE
-  Carol Kaye ctd.: NONE
+  Steve ctd. [at page 28]: NONE
+  Baroque ctd. [at number 7]: NONE
+  Simandl Études ctd. [at number 3]: NONE
+  John P's course ctd. [at 2.10]: NONE
+  Carol Kaye ctd. [book 1, page 14]: NONE
   Learn a song: NONE
 
 #
@@ -310,7 +310,7 @@ reviseMelodic:
 
 reviseSimandl:
   Simandl Étude 1 (p.3): NONE
-  # Simandl Étude 2 (p.4): NONE
+  Simandl Étude 2 (p.4): NONE
   # Simandl Étude 3 (p.4-5): NONE
   # Simandl Étude 4 (p.6): NONE
   # Simandl Étude 5 (p.7): NONE
@@ -367,6 +367,8 @@ reviseJP@AW:
   JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
   JP@AW 1.49 Bolero (Slow): NONE
   JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
+  JP@AW 1.52 Bossa Nova (Slow): NONE
+  JP@AT {} Cells: F7 (2.10)|Bb7 (2.11)|Am7 (2.12)|D7 (2.13)|Gm7 (2.14)|C7 (2.15)
 
 reviseCarol:
   'Little Green Apples' (pp. 18-19) from "How to Play the Electric Bass": NONE
