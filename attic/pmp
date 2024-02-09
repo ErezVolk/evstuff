@@ -59,8 +59,7 @@ form:
 
 
 __TODO__ = """
-- 3@book when 2 in the queue shouldn't make dupes
-- max-etudes is a global thing, not a context manager
+- make sense of limit()
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
@@ -179,7 +178,6 @@ class Deck:
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` cards won't have dupes"""
         if count > len(self.queue):
-            # Add as many unused cards as we can
             unused = list(set(self.cards) - set(self.queue))
             random.shuffle(unused)
             self._set_queue(self.queue + unused)
