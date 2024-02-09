@@ -58,6 +58,8 @@ form:
 
 
 __TODO__ = """
+- 3@book when 2 in the queue should make dupes
+  - predraw with limit_etudes
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
@@ -764,7 +766,7 @@ class ConfigParser:
         if (label := label.strip()) in self.books:
             raise BadConfig(f"Duplicate book: {repr(label)}")
 
-        self.books[label] = self.books[label] = self.curr = Book([])
+        self.books[label] = self.curr = Book([])
         if star == "*":
             self.starred.append(label)
 
