@@ -59,7 +59,8 @@ form:
 
 
 __TODO__ = """
-- 3@book when 2 in the queue should make dupes (predraw)
+- 3@book when 2 in the queue shouldn't make dupes
+- max-etudes is a global thing, not a context manager
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
@@ -177,14 +178,12 @@ class Deck:
 
     def draw(self) -> str:
         """Get the next card"""
-        while True:
-            if not self.queue:
-                self._set_queue(self.cards)
-            self.used = True
-            card = self.queue.pop()
-            self._track("%d after drawing %r", len(self.queue), card)
-            if card in self.shortlist:
-                return card
+        self.used = True
+        if not self.queue:
+            self._set_queue(self.shortlist)
+        card = self.queue.pop()
+        self._track("%d after drawing %r", len(self.queue), card)
+        return card
 
     @contextlib.contextmanager
     def limit(self, max_cards: int | None):
@@ -196,17 +195,22 @@ class Deck:
             deck.draw()
         ```
         """
-        previous = self.shortlist
-        if max_cards and max_cards > 0:
+        if self.shortlist is not self.cards:
+            raise NotImplementedError("No nested Deck.limit()!")
+        if max_cards and 0 < max_cards < len(self.cards):
             if max_cards < len(self.queue):
                 self.shortlist = self.queue[:max_cards]
-            elif max_cards < len(self):
+            else:
                 self.shortlist = random.sample(self.cards, max_cards)
+        waitlist = [card for card in self.queue if card not in self.shortlist]
+        self.queue = [card for card in self.queue if card in self.shortlist]
+        self._track("limit(%s) -> q=%s wl=%s", max_cards, self.queue, waitlist)
 
         try:
             yield len(self.shortlist)
         finally:
-            self.shortlist = previous
+            self.shortlist = self.cards
+            self.queue.extend(waitlist)
 
     def _set_queue(self, queue: Iterable[str]) -> None:
         """Set the queue"""
@@ -517,7 +521,7 @@ class PracticeMakesPerfect:
         """Pick out a book"""
         if self.args.books:
             labels = self.args.books
-            if unknown := set(labels) - set(self.books):
+            if unknown := set(labels).difference(self.books):
                 self._fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
             labels = self.config.starred
@@ -682,7 +686,7 @@ class PracticeMakesPerfect:
             self._fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
 
         # The hash of a book depends on the layouts of book refs in the toc
-        order.extend(self.books.keys() - set(order))
+        order.extend(self.books.keys() - order)
         for label in reversed(order):
             book = self.books[label]
             book.deck = self._have(book.finalize(label))
