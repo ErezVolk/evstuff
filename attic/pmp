@@ -389,23 +389,13 @@ class PracticeMakesPerfect:
             default=Path.home(),
             help="Look for configuration files here",
         )
-        parser.add_argument(
-            "-c",
-            "--config",
-            type=Path,
-            help="Path for config file",
-        )
-        parser.add_argument(
-            "-s",
-            "--state-file",
-            type=Path,
-            help="Path for state file",
-        )
+        parser.add_argument("-c", "--config", type=Path, help="Config file")
+        parser.add_argument("-s", "--state-file", type=Path, help="State file")
         parser.add_argument(
             "-r",
             "--report-file",
             type=Path,
-            help="Path for report file",
+            help="Report file",
         )
         parser.add_argument(
             "-S",
