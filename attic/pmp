@@ -685,11 +685,9 @@ class PracticeMakesPerfect:
                     ref.book = self.books[ref.book_label]
 
         if missing := graph.keys() - self.books.keys():
-            error = ", ".join(
-                f"{label} (used by {', '.join(graph[label])})"
-                for label in missing
-            )
-            self._fail(f"Unknown reference(s): {error}")
+            info = {label: " ".join(graph[label]) for label in missing}
+            errs = (f"{label} (in {users})" for label, users in info.items())
+            self._fail(f"Unknown reference(s): {' '.join(errs)}")
 
         try:
             order = list(graphlib.TopologicalSorter(graph).static_order())
@@ -763,10 +761,8 @@ class ConfigParser:
             elif not self.match(r""):
                 raise BadConfig(f"Bad line: {repr(self.line)}")
 
-        return Config(
-            books=self.books,
-            starred=self.starred or list(self.books),
-        )
+        starred = self.starred or list(self.books)
+        return Config(books=self.books, starred=starred)
 
     def enter_book(self, label: Label, star: str) -> None:
         """Found a book line"""
