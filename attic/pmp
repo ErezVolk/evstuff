@@ -383,24 +383,28 @@ class PracticeMakesPerfect:
             help="Print debugging info on specific deck",
         )
         parser.add_argument(
+            "-H",
+            "--home",
+            type=Path,
+            default=Path.home(),
+            help="Look for configuration files here",
+        )
+        parser.add_argument(
             "-c",
             "--config",
             type=Path,
-            default=Path.home() / ".pmprc",
             help="Path for config file",
         )
         parser.add_argument(
             "-s",
             "--state-file",
             type=Path,
-            default=Path.home() / ".pmpstate.plist",
             help="Path for state file",
         )
         parser.add_argument(
             "-r",
             "--report-file",
             type=Path,
-            default=Path.home() / ".pmpreport.csv",
             help="Path for report file",
         )
         parser.add_argument(
@@ -409,7 +413,10 @@ class PracticeMakesPerfect:
             action="store_true",
             help="Don't save state/report files",
         )
-        self.args = parser.parse_args()
+        self.args = args = parser.parse_args()
+        args.config = args.config or args.home / ".pmprc"
+        args.state_file = args.state_file or args.home / ".pmpstate.plist"
+        args.report_file = args.report_file or args.home / ".pmpreport.csv"
         self.parser = parser
 
     GOOD_SCALE_KEYS = {  # Not the scales, but the keys for those scales
