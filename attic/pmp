@@ -282,11 +282,7 @@ class Book:
 
     def finalize(self, label: Label) -> Deck:
         """(Re)create the deck"""
-        self.shortlist = self.labels = [
-            entry.label
-            for entry in self.toc
-            if isinstance(entry, (Etude, BookRef))
-        ]
+        self.shortlist = self.labels = [entry.label for entry in self.toc]
         self.deck = Deck(self.labels, label=label)
         parens = "[]" if self.sequential else "{}"
         self.blurb = (
