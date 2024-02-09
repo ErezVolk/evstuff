@@ -58,7 +58,6 @@ form:
 
 
 __TODO__ = """
-- Robustify the csv
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
@@ -147,7 +146,6 @@ class Deck:
         log.debug("Adapted %s +%s -%s", self.label, list(added), list(gone))
         if not (queued := set(self._get_list(saved, "queue")) & this):
             raise SerializationError("No shared cards in queue")
-        self._track("Adapting from old layout %r", saved.get("layout", "N/A"))
         self._set_queue(queued & added)
 
     def deserialize(self, saved: t.Any) -> None:
@@ -472,7 +470,8 @@ class PracticeMakesPerfect:
         else:
             handler = logging.FileHandler(self.args.debug)
             handler.setLevel(logging.DEBUG)
-        handler.setFormatter(logging.Formatter("[pmp:%(lineno)d] %(message)s"))
+        fmt = logging.Formatter("%(asctime)s [pmp:%(lineno)d] %(message)s")
+        handler.setFormatter(fmt)
         log.addHandler(handler)
         log.setLevel(logging.DEBUG)
 
@@ -652,8 +651,8 @@ class PracticeMakesPerfect:
                 if saved := by_layout.get(layout):
                     deck.deserialize(saved)
                 elif old := by_label.get(deck.label):
-                    deck.adapt(old.saved)
                     self.reporter.changed(old.layout, deck)
+                    deck.adapt(old.saved)
                 if queue := SEP.join(deck.queue):
                     log.debug("Loaded %s -> %s", deck.blurb, queue)
                     n_used += 1
@@ -894,6 +893,7 @@ class Reporter:
 
     def changed(self, old_layout: Layout, deck: Deck) -> None:
         """A deck has changed its layout"""
+        log.debug("%s has become %s", old_layout, deck.blurb)
         if row := self.report.pop(old_layout, None):
             if (layout := deck.layout) not in self.report:
                 self.report[layout] = self._update(row, deck, layout=layout)
@@ -906,14 +906,15 @@ class Reporter:
 
     def deck_gone(self, layout: Layout, serialized: StringDict) -> None:
         """A deck serialized in a previous run is no more."""
-        row = self._row(layout=layout, label=serialized.get("label", "N/A"))
-        row["gone"] = self.now
-        self.debug["gone"] = serialized
-        try:
-            row["blurb"] = blurb = serialized["blurb"]
-        except (KeyError, TypeError):
-            blurb = layout
-        log.debug("%s is gone", blurb)
+        if row := self.report.get(layout):
+            row.setdefault("label", serialized.get("label"))
+            row["gone"] = self.now
+            try:
+                row["blurb"] = blurb = serialized["blurb"]
+            except (KeyError, TypeError):
+                blurb = layout
+            self.debug["gone"][layout] = serialized
+            log.debug("%s is gone", blurb)
 
     def finish(self, decks: Decks, books: Books) -> StringDict:
         """Make the stuff that goes in the debug part of the state"""
