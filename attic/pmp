@@ -238,6 +238,7 @@ class Etude:
 class Book:
     """A collection of etudes or pointers to other books"""
 
+    label: Label
     toc: TableOfContents
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
@@ -256,10 +257,10 @@ class Book:
         """Add an entry to the TOC"""
         self.toc.append(entry)
 
-    def finalize(self, label: Label) -> Deck:
+    def finalize(self) -> Deck:
         """(Re)create the deck"""
         self.labels = [entry.label for entry in self.toc]
-        self.deck = Deck(self.labels, label=label)
+        self.deck = Deck(self.labels, label=self.label)
         parens = "[]" if self.sequential else "{}"
         self.blurb = (
             f"({self.deck.layout}) "
@@ -415,9 +416,9 @@ class PracticeMakesPerfect:
         self._restore_state()
 
         now = datetime.datetime.now().isoformat(timespec="minutes", sep=" ")
-        label, book = self._choose_book()
+        book = self._choose_book()
         count = None if self.args.one_of_each else self.args.num_tracks
-        self._header(f"{now} {label}")
+        self._header(f"{now} {book.label}")
         self._run_book(book, count=count, top=True)
         if not self.args.saveless:
             self._save_state()
@@ -490,7 +491,7 @@ class PracticeMakesPerfect:
             else:  # BookRef
                 yield from self._choose_etudes(entry.book, entry.count or 1)
 
-    def _choose_book(self) -> tuple[Label, Book]:
+    def _choose_book(self) -> Book:
         """Pick out a book"""
         if self.args.books:
             labels = self.args.books
@@ -498,8 +499,7 @@ class PracticeMakesPerfect:
                 self._fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
             labels = self.config.starred
-        label = random.choice(labels)
-        return (label, self.books[label])
+        return self.books[random.choice(labels)]
 
     def _make_tracks(self, etude_seq: Iterable[Etude]) -> list[str]:
         """Pick a key (or selection of keys) for each etude"""
@@ -662,7 +662,7 @@ class PracticeMakesPerfect:
         order.extend(self.books.keys() - order)
         for label in reversed(order):
             book = self.books[label]
-            book.deck = self._have(book.finalize(label))
+            book.deck = self._have(book.finalize())
 
     def _start_reporter(self) -> None:
         """Create reporter object"""
@@ -733,7 +733,7 @@ class ConfigParser:
         if (label := label.strip()) in self.books:
             raise BadConfig(f"Duplicate book: {repr(label)}")
 
-        self.books[label] = self.curr = Book([])
+        self.books[label] = self.curr = Book(label, [])
         if star == "*":
             self.starred.append(label)
 
@@ -797,7 +797,7 @@ class ConfigParser:
                 self.add_ref_to(toc, mobj)
             else:
                 raise BadConfig(f"Bad {repr(part)}")
-        self.books[label] = Book(toc=toc, sequential=sequential)
+        self.books[label] = Book(label=label, toc=toc, sequential=sequential)
 
         if starred:
             self.starred.append(label)
