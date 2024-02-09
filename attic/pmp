@@ -174,7 +174,11 @@ class Deck:
 
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` cards won't have dupes"""
-        # TODO: Implement me
+        if count > len(self.queue):
+            # Add as many unused cards as we can
+            unused = list(set(self.cards) - set(self.queue))
+            random.shuffle(unused)
+            self._set_queue(self.queue + unused)
 
     def draw(self) -> str:
         """Get the next card"""
