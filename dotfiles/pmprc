@@ -17,13 +17,12 @@ twoSubjacentStrings := E+D|A+G
 # Currently working on
 #
 homeworkTechnical:
-  {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
+  {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
 
 homeworkMusic:
   Melodic Étude in D♭ Major (p.12) [last played fully at MM=50; NB triplets]: NONE
   Bach I. Allemande [after D♭-Melodic; last played first half at MM=36, N.B. bars 9-11, 13-16]: NONE
-  Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM=56]: NONE
   JP@AW 1.52 Bossa Nova (Slow): NONE
 
 book:
@@ -212,7 +211,7 @@ keepSteveHazard:
   Hazard 3rds, {}: 2-1-4-3 (Ex. 2 on page 11)|4-1-2-3 (Ex. 3A on page 12)|1-3-4-2 (Ex. 3B on page 12)|1-4-3-2 (Ex. 3C on page 12)
   Hazard minor 3rds (p.12), {}: ₁-4-3-1 (Ex.4)|₁-4-1-3 (Ex.4A)|3-1-4-₁ (Ex.4B)
   Hazard 6ths, {}: 2-1-4-3 (Ex. 2 on page 14)|1-2-3-4 (Ex. 3A on page 15)|4-3-2-1 (Ex. 3B on page 15)
-  Hazard minor 6ths, {}: 1-4-3-1 (Ex. 4A on page 15)
+  Hazard minor 6ths, {}: ₁-4-3-1 (Ex. 4A on page 15)
 
 keepSteveScaleIn10ths:
   -major in 10th double stops (p.13): major
@@ -245,6 +244,7 @@ keepSteveSlide4th:
 
 keepSteveSlide5th:
   {}-major Diatonic Slides of 5th half notes (1↗5 5↘1 2↗6 ..) (Ex. 1 on page 25): major
+  {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
 
 keepCarolKaye:  # When I'm done
   Page 5 in "How to Play the Electric Bass": NONE
@@ -292,6 +292,7 @@ reviseSteve:
   {}-major Diatonic slides of 4th in ♫ 1₅₆2.3₇14... (Ex. 2B on page 23): major
   Steve's 4th slide etude (Ex. 3 on page 24): NONE
   Steve's 4th slide etude (Ex. 4 on page 24) [last played at ♩=60]: NONE
+  Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM=56]: NONE
 
 reviseBaroque:
   Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
@@ -421,7 +422,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
   {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): major
   Slide blending exercises on page 30: NONE
   Slide blending etude on page 31: NONE
