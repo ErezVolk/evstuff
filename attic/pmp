@@ -181,7 +181,6 @@ class Deck:
         self.used = True
         if not self.queue:
             self._set_queue(self.cards)
-        self._track("EREZ EREZ %d before drawing", len(self.queue))
         card = self.queue.pop()
         self._track("%d after drawing %r", len(self.queue), card)
         return card
@@ -191,7 +190,6 @@ class Deck:
         self.queue = list(queue)
         random.shuffle(self.queue)
         self._track("Queue set to %s", self.queue)
-        self._track("EREZ EREZ len(self.queue) = %d", len(self.queue))
 
     def _track(self, fmt: str, *args) -> None:
         """Print special tracking info if we're in the list"""
