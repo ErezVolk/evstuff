@@ -172,11 +172,16 @@ class Deck:
             raise SerializationError("Not a list of strings")
         return cards
 
+    def predraw(self, count: int) -> None:
+        """Try and make sure the next `count` cards won't have dupes"""
+        # TODO: Implement me
+
     def draw(self) -> str:
         """Get the next card"""
         self.used = True
         if not self.queue:
             self._set_queue(self.cards)
+        self._track("EREZ EREZ %d before drawing", len(self.queue))
         card = self.queue.pop()
         self._track("%d after drawing %r", len(self.queue), card)
         return card
@@ -186,6 +191,7 @@ class Deck:
         self.queue = list(queue)
         random.shuffle(self.queue)
         self._track("Queue set to %s", self.queue)
+        self._track("EREZ EREZ len(self.queue) = %d", len(self.queue))
 
     def _track(self, fmt: str, *args) -> None:
         """Print special tracking info if we're in the list"""
@@ -198,6 +204,9 @@ class NoneDeck(Deck):
 
     def __init__(self):
         super().__init__(cards=[""], layout="NONE")
+
+    def __repr__(self):
+        return "NoneDeck()"
 
     @property
     def blurb(self) -> str:
@@ -234,6 +243,10 @@ class Book:
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
+
+    def predraw(self, count: int):
+        """Try and make sure the next `count` items won't have dupes"""
+        self.deck.predraw(count)
 
     def draw(self) -> Entry:
         """Get the next random ToC entry"""
@@ -448,7 +461,7 @@ class PracticeMakesPerfect:
                 self._header(entry.label, level=2)
             if isinstance(entry, Etude):
                 print(self._make_track(entry))
-            elif isinstance(entry, BookRef):
+            else:  # BookRef
                 self._run_book(entry.book, entry.count)
 
     def _run_plain(self, book: Book, num_tracks: int | None) -> None:
@@ -464,17 +477,14 @@ class PracticeMakesPerfect:
         Recursion is safe here, since we used `TopologicalSorter`
         to make sure the graph is cycle-free.
         """
-        drawn = 0
-        while drawn < count:
-            self.reporter.in_use(book)
+        self.reporter.in_use(book)
+        book.predraw(count)
+        for _ in range(count):
             entry = book.draw()
             if isinstance(entry, Etude):
                 yield entry
-            elif isinstance(entry, BookRef):
+            else:  # BookRef
                 yield from self._choose_etudes(entry.book, entry.count or 1)
-            else:
-                continue
-            drawn += 1
 
     def _choose_book(self) -> tuple[Label, Book]:
         """Pick out a book"""
