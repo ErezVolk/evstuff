@@ -58,6 +58,7 @@ form:
 
 
 __TODO__ = """
+- Robustify the csv
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
@@ -66,8 +67,8 @@ __TODO__ = """
 
 SEP = " ‖ "
 Filename: t.TypeAlias = str | Path
-Label: t.TypeAlias = str
-Layout: t.TypeAlias = str
+Label: t.TypeAlias = str  # Purely cosmetic, for readability
+Layout: t.TypeAlias = str  # Purely cosmetic, for readability
 Entry: t.TypeAlias = "Etude | BookRef"
 TableOfContents: t.TypeAlias = list[Entry]
 Books: t.TypeAlias = dict[Label, "Book"]
@@ -428,7 +429,7 @@ class PracticeMakesPerfect:
     decks: Decks
     config: Config
     state: dict
-    reporter: "PmpReporter"
+    reporter: "Reporter"
 
     STATE_VERSION = "v4"
     NOTE_RE = re.compile("[A-G](|♯|♯♯|♭|♭♭|𝄪|𝄫)", re.IGNORECASE)
@@ -643,13 +644,13 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore states for any eligible deck"""
-        OldSaved = collections.namedtuple("OldSaved", ["layout", "saved"])
+        Old = collections.namedtuple("Old", ["layout", "saved"])
         by_layout: dict[Layout, t.Any] = self.state["deck"]
-        by_label: dict[Label, OldSaved] = {}
+        by_label: dict[Label, Old] = {}
         for layout in by_layout.keys() - self.decks.keys():
             if isinstance(saved := by_layout[layout], dict):
                 if isinstance(label := saved.get("label"), str):
-                    by_label[label] = OldSaved(layout, saved)
+                    by_label[label] = Old(layout, saved)
 
         n_used = 0
         for layout, deck in self.decks.items():
@@ -706,7 +707,7 @@ class PracticeMakesPerfect:
 
     def _start_reporter(self) -> None:
         """Create reporter object"""
-        self.reporter = PmpReporter(self.args.report_file)
+        self.reporter = Reporter(self.args.report_file)
 
     def _fail(self, message: str) -> t.NoReturn:
         """Handy wrapper around ArgumentParser's `.fail()` method"""
@@ -855,7 +856,7 @@ class ConfigParser:
         toc.append(BookRef(count=count, book_label=mobj.group("label")))
 
 
-class PmpReporter:
+class Reporter:
     """In charge of debug and statistics"""
 
     path: Path
@@ -867,7 +868,7 @@ class PmpReporter:
     def __init__(self, report_file: Path):
         """Initialize, read old report if possible"""
         self.now = str(today := datetime.date.today())
-        self.then = str(today - datetime.timedelta(days=30))
+        self.then = str(today - datetime.timedelta(days=7))
         self.debug = {"gone": {}}
         self.path = report_file
 
