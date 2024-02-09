@@ -20,9 +20,7 @@ Most objects also have `x.blurb`, which is for display purposes only.
 """
 import argparse
 import collections
-from collections.abc import Collection
 from collections.abc import Iterable
-import contextlib
 import csv
 import dataclasses
 import datetime
@@ -59,7 +57,6 @@ form:
 
 
 __TODO__ = """
-- make sense of limit()
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone?
@@ -97,7 +94,6 @@ class Deck:
     label: Label
     layout: Layout
     preblurb: str
-    shortlist: Collection[str]
 
     MIN_SERIALIZABLE = 3
     SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
@@ -105,7 +101,7 @@ class Deck:
     def __init__(self, cards: Iterable[str], label="", layout=""):
         if layout and label and label != layout:
             raise ValueError("Cannot specify both label and layout")
-        self.shortlist = self.cards = tuple(cards)
+        self.cards = tuple(cards)
         if not self.cards:
             raise ValueError("Empty decks not supported")
         if layout:
@@ -186,37 +182,10 @@ class Deck:
         """Get the next card"""
         self.used = True
         if not self.queue:
-            self._set_queue(self.shortlist)
+            self._set_queue(self.cards)
         card = self.queue.pop()
         self._track("%d after drawing %r", len(self.queue), card)
         return card
-
-    @contextlib.contextmanager
-    def limit(self, max_cards: int | None):
-        """Select a shortlist.
-
-        Use as context manager:
-        ```
-        with deck.limit(3) [as actual_count: int]:
-            deck.draw()
-        ```
-        """
-        if self.shortlist is not self.cards:
-            raise NotImplementedError("No nested Deck.limit()!")
-        if max_cards and 0 < max_cards < len(self.cards):
-            if max_cards < len(self.queue):
-                self.shortlist = self.queue[:max_cards]
-            else:
-                self.shortlist = random.sample(self.cards, max_cards)
-        waitlist = [card for card in self.queue if card not in self.shortlist]
-        self.queue = [card for card in self.queue if card in self.shortlist]
-        self._track("limit(%s) -> q=%s wl=%s", max_cards, self.queue, waitlist)
-
-        try:
-            yield len(self.shortlist)
-        finally:
-            self.shortlist = self.cards
-            self.queue.extend(waitlist)
 
     def _set_queue(self, queue: Iterable[str]) -> None:
         """Set the queue"""
@@ -360,12 +329,6 @@ class PracticeMakesPerfect:
         )
 
         parser.add_argument(
-            "-i",
-            "--max-etudes",
-            type=int,
-            help="Use at most MAX_ETUDES different etude types",
-        )
-        parser.add_argument(
             "-m",
             "--multiline",
             action="store_true",
@@ -458,6 +421,7 @@ class PracticeMakesPerfect:
         self._run_book(book, count=count, top=True)
         if not self.args.saveless:
             self._save_state()
+        log.debug("\n\n\n")
 
     def _header(self, text: str, level: int = 1) -> None:
         """Print a markdown-like header"""
@@ -503,12 +467,11 @@ class PracticeMakesPerfect:
 
     def _run_plain(self, book: Book, num_tracks: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys"""
-        with book.deck.limit(self.args.max_etudes) as num_etudes:
-            if num_tracks is None:
-                num_tracks = num_etudes
-            elif num_tracks == 0:
-                num_tracks = len(self.decks["ANY"])
-            etudes = self._choose_etudes(book, num_tracks)
+        if num_tracks is None:
+            num_tracks = len(book.deck)
+        elif num_tracks <= 0:
+            num_tracks = len(self.decks["ANY"])
+        etudes = self._choose_etudes(book, num_tracks)
         tracks = self._make_tracks(etudes)
         print(self._get_sep(tracks).join(tracks))
 
