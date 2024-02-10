@@ -19,11 +19,11 @@ twoSubjacentStrings := E+D|A+G
 homeworkTechnical:
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
+  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow): NONE
 
 homeworkMusic:
-  Melodic Étude in D♭ Major (p.12) [last played fully at MM=60; start with part B and connect it]: NONE
-  Bach I. Allemande [after D♭-Melodic; last played first half at MM=36, N.B. bars 9-11, 13-16]: NONE
-  JP@AW 2.16 Simple Jazz 2 Beat Feel II⧸V Progression: NONE
+  Melodic Étude in D♭ Major (p.12) [last played fully at MM=68/3]: NONE
+  Bach I. Allemande [after D♭-Melodic; last played first half at MM=40, N.B. 13-16, work on second part]: NONE
 
 book:
   Radley ctd.: NONE
@@ -299,7 +299,7 @@ reviseSteve:
 reviseBaroque:
   Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
   Baroque Étude No. 2 (p.3) [last played at ♩=92 of 126; N.B. bars 20-24]: NONE
-  Baroque Étude No. 3 (p.4): NONE
+  Baroque Étude No. 3 (p.4) [last played at ♩=80 of 104, N.B. intonation]: NONE
   Baroque Étude No. 4 (p.4-5): NONE
   Baroque Étude No. 6 (p.6) [last played at ♩=72 of 72]: NONE
 
@@ -370,7 +370,9 @@ reviseJP@AW:
   JP@AW 1.49 Bolero (Slow): NONE
   JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
   JP@AW 1.52 Bossa Nova (Slow): NONE
-  JP@AT {} Cells: F7 (2.10)|Bb7 (2.11)|Am7 (2.12)|D7 (2.13)|Gm7 (2.14)|C7 (2.15)
+  JP@AW {} Cells: F7 (2.10)|Bb7 (2.11)|Am7 (2.12)|D7 (2.13)|Gm7 (2.14)|C7 (2.15)
+  JP@AW {} Simple Jazz 2 Beat Feel II⧸V Progression: 2.16 (Slow)|2.17 (Fast)
+  #TODO# JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets (Fast): NONE
 
 reviseCarol:
   'Little Green Apples' (pp. 18-19) from "How to Play the Electric Bass": NONE
