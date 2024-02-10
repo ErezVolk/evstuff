@@ -30,9 +30,11 @@ import io
 import logging
 from pathlib import Path
 import plistlib
+from plistlib import InvalidFileException
 import random
 import re
 import typing as t
+from xml.parsers.expat import ExpatError
 
 
 DEFAULT_CONFIG = """
@@ -569,12 +571,14 @@ class PracticeMakesPerfect:
         except (FileNotFoundError, ValueError):
             self.config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
 
+    BAD_PLIST = (FileNotFoundError, InvalidFileException, ExpatError, KeyError)
+
     def _load_state(self) -> None:
         """Read saved state info `self.state`"""
         try:
             with open(self.args.state_file, "rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VERSION]
-        except (FileNotFoundError, plistlib.InvalidFileException, KeyError):
+        except self.BAD_PLIST:
             self.state = {}
         if not isinstance(self.state.get("deck"), dict):
             self.state["deck"] = {}
@@ -627,8 +631,8 @@ class PracticeMakesPerfect:
                 elif old := by_label.get(deck.label):
                     self.reporter.changed(old.layout, deck)
                     deck.adapt(old.saved)
-                if queue := SEP.join(deck.queue):
-                    log.debug("Loaded %s -> %s", deck.blurb, queue)
+                if queued := SEP.join(deck.queue):
+                    log.debug("Loaded %s -> %s", deck.blurb, queued)
                     n_used += 1
             except SerializationError as exc:
                 log.debug("Not restoring %s: %s", deck.blurb, exc)
