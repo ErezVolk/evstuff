@@ -904,17 +904,17 @@ class Reporter:
         }
         return self.debug
 
+    def _keep(self, row: StringDict) -> bool:
+        """Check if a row is recent enough to be kept"""
+        return (row.get("used") or row.get("gone") or self.then) >= self.then
+
     def _write(self) -> None:
         """Write the updated report"""
-        rows = [
-            row
-            for row in self.report.values()
-            if (row.get("used") or row.get("gone") or self.then) >= self.then
-        ]
+        rows = [row for row in self.report.values() if self._keep(row)]
         colset = set.union(*[set(row) for row in rows])
         cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
 
-        log.debug("Write %s (N = %d)", self.path, len(self.report))
+        log.debug("Write %s (%d x %d)", self.path, len(self.report), len(cols))
         with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
             rows = sorted(rows, key=lambda row: row["label"])
             writer = csv.DictWriter(csvfo, fieldnames=cols)
