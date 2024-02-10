@@ -818,7 +818,7 @@ class ConfigParser:
 
 
 class Reporter:
-    """In charge of debug and statistics"""
+    """In charge of the "history" CSV file"""
 
     path: Path
     by_layout: dict[Layout | None, StringDict] = {}
@@ -832,10 +832,9 @@ class Reporter:
         self.path = report_file
 
         try:
+            default = {"gone": self.now, "label": "N/A", "layout": "N/A"}
             with open(self.path, encoding="utf-8", newline="") as csvfo:
-                csvr = csv.DictReader(csvfo)
-                default = {"gone": self.now, "label": "N/A", "layout": "N/A"}
-                rows = [default | row for row in csvr]
+                rows = [default | row for row in csv.DictReader(csvfo)]
             log.debug("Read %s (N = %s)", self.path, len(rows))
             self.by_layout = {row["layout"]: row for row in rows}
         except (FileNotFoundError, ValueError, KeyError, csv.Error) as exc:
@@ -850,12 +849,12 @@ class Reporter:
         for row in self.by_layout.values():
             grouped[row["label"]].append(row)
         to_save.extend(max(rows, key=self.when) for rows in grouped.values())
+        to_save.sort(key=lambda row: row["label"])
 
         if not to_save:
             log.debug("Nothing to write to %s", self.path)
             return
 
-        to_save.sort(key=lambda row: row["label"])
         colset = set.union(*[set(row) for row in to_save])
         cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
 
