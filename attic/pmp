@@ -842,24 +842,14 @@ class Reporter:
             self.report = {}
         log.debug("Read %s (N = %d)", self.path, len(self.report))
 
-    def _row(self, label: Label, layout: Layout) -> StringDict:
-        """Get/create the report row for a deck"""
-        try:
-            return self.report[layout]
-        except KeyError:
-            self.report[layout] = row = {"label": label, "layout": layout}
-            return row
-
     def exists(self, deck: Deck) -> None:
         """Note that a deck exists"""
-        row = self._update(self._row(deck.label, deck.layout), deck)
-        row.setdefault("since", self.now)
+        self._row(deck).setdefault("since", self.now)
 
     def in_use(self, drawable: Deck | Book) -> None:
         """Note that something has been used in the present run"""
         deck = drawable if isinstance(drawable, Deck) else drawable.deck
-        row = self._row(label=deck.label, layout=deck.layout)
-        self._update(row, deck, used=self.now)
+        row = self._row(deck, used=self.now)
         try:
             row["drawn"] = int(row["drawn"]) + 1
         except (KeyError, ValueError):
@@ -870,12 +860,18 @@ class Reporter:
         log.debug("%s has become %s", old_layout, deck.blurb)
         if row := self.report.pop(old_layout, None):
             if (layout := deck.layout) not in self.report:
-                self.report[layout] = self._update(row, deck, layout=layout)
+                row["layout"] = layout
+                self.report[layout] = row
 
-    def _update(self, row: StringDict, deck: Deck, **kwargs) -> StringDict:
-        """Update some key fields in a row"""
+    def _row(self, deck: Deck, **kwargs) -> StringDict:
+        """Get/create the report row for a deck"""
+        try:
+            row: StringDict = self.report[deck.layout]
+            row.pop("gone", None)
+        except KeyError:
+            row: StringDict = {"label": deck.label, "layout": deck.layout}
+            self.report[deck.layout] = row
         row.update(kwargs, length=len(deck), blurb=deck.blurb)
-        row.pop("gone", None)
         return row
 
     def deck_gone(self, layout: Layout, serialized: StringDict) -> None:
@@ -895,7 +891,7 @@ class Reporter:
         self._write()
         self.debug["n_decks"] = len(decks)
         self.debug["decks"] = {
-            layout: deck.blurb for layout, deck in decks.items()
+            layout: decks[layout].blurb for layout in decks
         }
         self.debug["n_books"] = len(books)
         self.debug["books"] = {
