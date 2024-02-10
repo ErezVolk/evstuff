@@ -495,7 +495,7 @@ class PracticeMakesPerfect:
         """Pick out a book"""
         if self.args.books:
             labels = self.args.books
-            if unknown := set(labels).difference(self.books):
+            if unknown := set(labels) - self.books.keys():
                 self._fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
             labels = self.config.starred
@@ -581,19 +581,20 @@ class PracticeMakesPerfect:
 
         used = []
         for layout, deck in self.decks.items():
-            try:
-                saveds[layout] = deck.serialize()
-                used.append(deck.blurb)
-            except SerializationError as exc:
-                log.debug("Not serializing %s: %s", deck.blurb, exc)
+            if deck.drawn:
+                try:
+                    saveds[layout] = deck.serialize()
+                    used.append(deck.blurb)
+                except SerializationError as exc:
+                    log.debug("Not serializing %s: %s", deck.blurb, exc)
         if used:
             log.debug("Saving %d: %s", len(used), SEP.join(used))
-        self.reporter.save_report(self.decks)
         self._make_debug()
-
         with open(self.args.state_file, "wb") as fobj:
             to_write = {self.STATE_VERSION: self.state}
             plistlib.dump(to_write, fobj, sort_keys=False)
+
+        self.reporter.save_report(self.decks)
 
     def _make_debug(self) -> None:
         """Make the debug part of the state"""
