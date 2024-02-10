@@ -174,9 +174,7 @@ class Deck:
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` cards won't have dupes"""
         if count > len(self.queue):
-            unused = list(set(self.cards) - set(self.queue))
-            random.shuffle(unused)
-            self._set_queue(self.queue + unused)
+            self._extend(set(self.cards) - set(self.queue))
 
     def draw(self) -> str:
         """Get the next card"""
@@ -192,6 +190,13 @@ class Deck:
         self.queue = list(queue)
         random.shuffle(self.queue)
         self._track("Queue set to %s", self.queue)
+
+    def _extend(self, addend: Iterable[str]) -> None:
+        """Add cards to the end of the queue (remember we use queue.pop())"""
+        lineup = list(addend)
+        random.shuffle(lineup)
+        self.queue = list(lineup + self.queue)
+        self._track("Adding %s => %s", lineup, self.queue)
 
     def _track(self, fmt: str, *args) -> None:
         """Print special tracking info if we're in the list"""
