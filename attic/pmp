@@ -845,7 +845,7 @@ class Reporter:
         """Write report CSV to disk"""
         rows = []
         for deck in decks.values():
-            row = self._pop(deck.layout) or self._pop(deck.old_layout) or {}
+            row = self.pop(deck.layout) or self.pop(deck.old_layout) or {}
             self.update(row, deck)
             rows.append(row)
 
@@ -873,7 +873,7 @@ class Reporter:
             for row in rows:
                 writer.writerow(row)
 
-    def _pop(self, layout: Layout | None) -> StringDict | None:
+    def pop(self, layout: Layout | None) -> StringDict | None:
         """Look for a row with the given layout"""
         if layout:
             for idx, row in enumerate(self.rows):
