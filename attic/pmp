@@ -843,35 +843,34 @@ class Reporter:
 
     def save_report(self, decks: Decks) -> None:
         """Write report CSV to disk"""
-        rows = []
-        for deck in decks.values():
-            row = self.pop(deck.layout) or self.pop(deck.old_layout) or {}
-            self.update(row, deck)
-            rows.append(row)
+        to_save = [self.deck_row(deck) for deck in decks.values()]
 
-        others: dict[Label, StringDict] = {}
+        # e.g, `rows.sort_values("when").groupby("label").last()`
+        grouped = collections.defaultdict(list)
         for row in self.rows:
-            if row["layout"] in decks:
-                continue
-            other = others.get(label := row["label"])
-            if not other or self.when(row) >= self.when(other):
-                others[label] = row
+            grouped[row["label"]].append(row)
+        to_save.extend(max(rows, key=self.when) for rows in grouped.values())
 
-        rows.extend(others.values())
-        if not rows:
+        if not to_save:
             log.debug("Nothing to write to %s", self.path)
             return
 
-        colset = set.union(*[set(row) for row in rows])
+        to_save.sort(key=lambda row: row["label"])
+        colset = set.union(*[set(row) for row in to_save])
         cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
 
-        log.debug("Save %s (%d x %d)", self.path, len(self.rows), len(cols))
+        log.debug("Save %s (%d x %d)", self.path, len(to_save), len(cols))
         with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
-            rows.sort(key=lambda row: row["label"])
             writer = csv.DictWriter(csvfo, fieldnames=cols)
             writer.writeheader()
-            for row in rows:
+            for row in to_save:
                 writer.writerow(row)
+
+    def deck_row(self, deck: Deck) -> StringDict:
+        """Get or make the row for a deck"""
+        row = self.pop(deck.layout) or self.pop(deck.old_layout) or {}
+        self.update(row, deck)
+        return row
 
     def pop(self, layout: Layout | None) -> StringDict | None:
         """Look for a row with the given layout"""
