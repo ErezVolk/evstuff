@@ -30,11 +30,9 @@ import io
 import logging
 from pathlib import Path
 import plistlib
-from plistlib import InvalidFileException
 import random
 import re
 import typing as t
-from xml.parsers.expat import ExpatError
 
 
 DEFAULT_CONFIG = """
@@ -571,14 +569,12 @@ class PracticeMakesPerfect:
         except (FileNotFoundError, ValueError):
             self.config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
 
-    BAD_PLIST = (FileNotFoundError, InvalidFileException, ExpatError, KeyError)
-
     def _load_state(self) -> None:
         """Read saved state info `self.state`"""
         try:
             with open(self.args.state_file, "rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VERSION]
-        except self.BAD_PLIST:
+        except Exception:  # Can be any number of things
             self.state = {}
         if not isinstance(self.state.get("deck"), dict):
             self.state["deck"] = {}
