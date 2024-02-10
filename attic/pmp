@@ -238,7 +238,7 @@ class Book:
     """A collection of etudes or pointers to other books"""
 
     label: Label
-    toc: TableOfContents
+    toc: TableOfContents = dataclasses.field(default_factory=TableOfContents)
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
@@ -250,10 +250,6 @@ class Book:
     def draw(self) -> Entry:
         """Get the next random ToC entry"""
         return self.toc[self.labels.index(self.deck.draw())]
-
-    def append(self, entry: Entry) -> None:
-        """Add an entry to the TOC"""
-        self.toc.append(entry)
 
     @property
     def blurb(self) -> str:
@@ -731,7 +727,7 @@ class ConfigParser:
         if (label := label.strip()) in self.books:
             raise BadConfig(f"Duplicate book: {repr(label)}")
 
-        self.books[label] = self.curr = Book(label, [])
+        self.books[label] = self.curr = Book(label=label)
         if star == "*":
             self.starred.append(label)
 
@@ -767,7 +763,7 @@ class ConfigParser:
                 decks.append(self.labeldecks[part])
             except KeyError:
                 decks.append(Deck([key.strip() for key in part.split("|")]))
-        self.curr.append(Etude(template=template, decks=decks))
+        self.curr.toc.append(Etude(template=template, decks=decks))
 
     def add_ref(self) -> None:
         """Add book reference line (in self.mobj)"""
@@ -789,13 +785,12 @@ class ConfigParser:
         if not parts:
             raise BadConfig(f"Empty one-liner {label}")
 
-        toc: TableOfContents = []
+        book = self.books[label] = Book(label=label, sequential=sequential)
         for part in parts:
             if mobj := re.fullmatch(self.PART_RE, part):
-                self.add_ref_to(toc, mobj)
+                self.add_ref_to(book.toc, mobj)
             else:
                 raise BadConfig(f"Bad {repr(part)}")
-        self.books[label] = Book(label=label, toc=toc, sequential=sequential)
 
         if starred:
             self.starred.append(label)
@@ -898,7 +893,7 @@ class Reporter:
         self.debug["n_books"] = len(books)
         self.debug["books"] = {
             book.blurb: [entry.blurb for entry in book.toc]
-            for label, book in books.items()
+            for book in books.values()
         }
         return self.debug
 
