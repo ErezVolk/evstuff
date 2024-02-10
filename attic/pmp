@@ -653,26 +653,21 @@ class PracticeMakesPerfect:
         """Check configured graph is legit and prepare all books for action"""
         self.books = self.config.books
         graph = collections.defaultdict(set)
-        for label, book in self.books.items():
+        for source, book in self.books.items():
             for ref in book.toc:
                 if isinstance(ref, BookRef):
-                    graph[ref.book_label].add(label)
-                    ref.book = self.books[ref.book_label]
-
-        if missing := graph.keys() - self.books.keys():
-            info = {label: " ".join(graph[label]) for label in missing}
-            errs = (f"{label} (in {users})" for label, users in info.items())
-            self._fail(f"Unknown reference(s): {' '.join(errs)}")
+                    if (target := ref.book_label) not in self.books:
+                        self._fail(f"Unknown reference: {source} -> {target}")
+                    graph[target].add(source)
+                    ref.book = self.books[target]
 
         try:
-            order = list(graphlib.TopologicalSorter(graph).static_order())
+            graphlib.TopologicalSorter(graph).prepare()
         except graphlib.CycleError as exc:
             self._fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
 
-        # The hash of a book depends on the layouts of book refs in the toc
-        order.extend(self.books.keys() - order)
-        for label in reversed(order):
-            book = self.books[label]
+        # Finalize all books, replacing their decks if duplicated
+        for book in self.books.values():
             book.deck = self._have(book.finalize())
 
     def _start_reporter(self) -> None:
@@ -680,7 +675,7 @@ class PracticeMakesPerfect:
         self.reporter = Reporter(self.args.report_file)
 
     def _fail(self, message: str) -> t.NoReturn:
-        """Handy wrapper around ArgumentParser's `.fail()` method"""
+        """Handy wrapper around `ArgumentParser.error()`"""
         self.parser.error(message)
 
 
