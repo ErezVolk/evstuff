@@ -820,9 +820,8 @@ class ConfigParser:
 class Reporter:
     """In charge of debug and statistics"""
 
-    KEY_COLS = ["label", "layout", "blurb"]
     path: Path
-    rows: list[StringDict] = []
+    by_layout: dict[Layout | None, StringDict] = {}
     now: str
     then: str
 
@@ -836,8 +835,9 @@ class Reporter:
             with open(self.path, encoding="utf-8", newline="") as csvfo:
                 csvr = csv.DictReader(csvfo)
                 default = {"gone": self.now, "label": "N/A", "layout": "N/A"}
-                self.rows = [default | row for row in csvr]
-            log.debug("Read %s (N = %s)", self.path, len(self.rows))
+                rows = [default | row for row in csvr]
+            log.debug("Read %s (N = %s)", self.path, len(rows))
+            self.by_layout = {row["layout"]: row for row in rows}
         except (FileNotFoundError, ValueError, KeyError, csv.Error) as exc:
             log.debug("Cannot read %s: %s", report_file, exc)
 
@@ -845,9 +845,9 @@ class Reporter:
         """Write report CSV to disk"""
         to_save = [self.deck_row(deck) for deck in decks.values()]
 
-        # e.g, `rows.sort_values("when").groupby("label").last()`
+        # rows.sort_values("when").groupby("label").last()
         grouped = collections.defaultdict(list)
-        for row in self.rows:
+        for row in self.by_layout.values():
             grouped[row["label"]].append(row)
         to_save.extend(max(rows, key=self.when) for rows in grouped.values())
 
@@ -868,17 +868,10 @@ class Reporter:
 
     def deck_row(self, deck: Deck) -> StringDict:
         """Get or make the row for a deck"""
-        row = self.pop(deck.layout) or self.pop(deck.old_layout) or {}
+        rows = self.by_layout
+        row = rows.pop(deck.layout, None) or rows.pop(deck.old_layout, {})
         self.update(row, deck)
         return row
-
-    def pop(self, layout: Layout | None) -> StringDict | None:
-        """Look for a row with the given layout"""
-        if layout:
-            for idx, row in enumerate(self.rows):
-                if row["layout"] == layout:
-                    return self.rows.pop(idx)
-        return None
 
     def update(self, row: StringDict, deck: Deck) -> None:
         """Update row in report to reflect deck use in this session"""
