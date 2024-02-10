@@ -110,7 +110,7 @@ class Deck:
             self.label = label or "|".join(self.cards)
             hashobj = hashlib.sha256("\0".join(sorted(self.cards)).encode())
             self.layout = f":{hashobj.hexdigest()[:8]}:"
-            self.preblurb = f"{self.label} ({self.layout})"
+            self.preblurb = f"{self.label} {self.layout}"
 
     def __len__(self) -> int:
         return len(self.cards)
@@ -118,13 +118,7 @@ class Deck:
     @property
     def blurb(self) -> str:
         """A description of the deck in its current state"""
-        if self._midway():
-            return f"{self.preblurb} {len(self.queue)} of {len(self)}"
-        return f"{self.preblurb} {len(self)}"
-
-    def _midway(self) -> bool:
-        """Is a queue currently being dealt?"""
-        return 0 < len(self.queue) < len(self)
+        return f"{self.preblurb} ({len(self.queue)} of {len(self)})"
 
     def serialize(self) -> StringDict:
         """Serialize"""
@@ -248,7 +242,6 @@ class Book:
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
-    blurb: str = dataclasses.field(init=False)
 
     def predraw(self, count: int):
         """Try and make sure the next `count` items won't have dupes"""
@@ -262,15 +255,15 @@ class Book:
         """Add an entry to the TOC"""
         self.toc.append(entry)
 
+    @property
+    def blurb(self) -> str:
+        """A description of the book in its current state"""
+        return f"{self.deck.blurb} {'[]' if self.sequential else '{}'}"
+
     def finalize(self) -> Deck:
         """(Re)create the deck"""
         self.labels = [entry.label for entry in self.toc]
-        self.deck = Deck(self.labels, label=self.label)
-        parens = "[]" if self.sequential else "{}"
-        self.blurb = (
-            f"({self.deck.layout}) "
-            f"{parens[0]}{len(self.deck)} of {len(self.labels)}{parens[1]}"
-        )
+        self.deck = Deck(cards=self.labels, label=self.label)
         return self.deck
 
 
@@ -887,13 +880,24 @@ class Reporter:
             log.debug("%s is gone", blurb)
 
     def finish(self, decks: Decks, books: Books) -> StringDict:
-        """Make the stuff that goes in the debug part of the state"""
-        self._write()
+        """Write and make the stuff that goes in the debug part of the state"""
+        rows = [row for row in self.report.values() if self._keep(row)]
+        colset = set.union(*[set(row) for row in rows])
+        cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
+
+        log.debug("Write %s (%d x %d)", self.path, len(self.report), len(cols))
+        with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
+            rows.sort(key=lambda row: row["label"])
+            writer = csv.DictWriter(csvfo, fieldnames=cols)
+            writer.writeheader()
+            for row in rows:
+                writer.writerow(row)
+
         self.debug["n_decks"] = len(decks)
         self.debug["decks"] = {layout: decks[layout].blurb for layout in decks}
         self.debug["n_books"] = len(books)
         self.debug["books"] = {
-            f"{label} {book.blurb}": [entry.blurb for entry in book.toc]
+            book.blurb: [entry.blurb for entry in book.toc]
             for label, book in books.items()
         }
         return self.debug
@@ -901,20 +905,6 @@ class Reporter:
     def _keep(self, row: StringDict) -> bool:
         """Check if a row is recent enough to be kept"""
         return (row.get("used") or row.get("gone") or self.then) >= self.then
-
-    def _write(self) -> None:
-        """Write the updated report"""
-        rows = [row for row in self.report.values() if self._keep(row)]
-        colset = set.union(*[set(row) for row in rows])
-        cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
-
-        log.debug("Write %s (%d x %d)", self.path, len(self.report), len(cols))
-        with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
-            rows = sorted(rows, key=lambda row: row["label"])
-            writer = csv.DictWriter(csvfo, fieldnames=cols)
-            writer.writeheader()
-            for row in rows:
-                writer.writerow(row)
 
 
 if __name__ == "__main__":
