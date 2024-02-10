@@ -722,13 +722,13 @@ class ConfigParser:
         starred = self.starred or list(self.books)
         return Config(books=self.books, starred=starred)
 
-    def enter_book(self, label: Label, star: str) -> None:
+    def enter_book(self, label: Label, star: t.Any, sequential=False) -> None:
         """Found a book line"""
         if (label := label.strip()) in self.books:
             raise BadConfig(f"Duplicate book: {repr(label)}")
 
-        self.books[label] = self.curr = Book(label=label)
-        if star == "*":
+        self.books[label] = self.curr = Book(label, sequential=sequential)
+        if star:
             self.starred.append(label)
 
     def add_deck(self, label: str, keys: str) -> None:
@@ -765,45 +765,39 @@ class ConfigParser:
                 decks.append(Deck([key.strip() for key in part.split("|")]))
         self.curr.toc.append(Etude(template=template, decks=decks))
 
-    def add_ref(self) -> None:
-        """Add book reference line (in self.mobj)"""
+    def add_ref(self, mobj: re.Match | None = None) -> None:
+        """Add book reference line"""
         if self.curr is None:
             raise BadConfig("Bookless reference")
-        assert self.mobj is not None
-        self.add_ref_to(self.curr.toc, self.mobj)
 
-    def add_one_liner(self, sequential: bool) -> None:
-        """A one-liner is in `self.group("label" | "parts")`"""
-        label = self.group("label").strip()
-        starred = label.startswith("*")
-        if starred:
-            label = label[1:]
-        if label in self.books:
-            raise BadConfig(f"Duplicate book {repr(label)}")
+        if (mobj := mobj or self.mobj) is None:
+            raise BadConfig("Partless reference")
 
-        parts = self.group("parts").split()
-        if not parts:
-            raise BadConfig(f"Empty one-liner {label}")
-
-        book = self.books[label] = Book(label=label, sequential=sequential)
-        for part in parts:
-            if mobj := re.fullmatch(self.PART_RE, part):
-                self.add_ref_to(book.toc, mobj)
-            else:
-                raise BadConfig(f"Bad {repr(part)}")
-
-        if starred:
-            self.starred.append(label)
-
-    def add_ref_to(self, toc: TableOfContents, mobj: re.Match) -> None:
-        """Add book reference to a given TOC"""
         if nstr := mobj.group("count"):
             count = int(nstr)
         elif mobj.group("at"):
             count = 1
         else:
             count = None
-        toc.append(BookRef(count=count, book_label=mobj.group("label")))
+
+        self.curr.toc.append(BookRef(mobj.group("label"), count))
+
+    def add_one_liner(self, sequential: bool) -> None:
+        """A one-liner is in `self.group("label" | "parts")`"""
+        parts = self.group("parts").split()
+        if not parts:
+            raise BadConfig("Empty one-liner")
+
+        label = self.group("label").strip()
+        if star := label.startswith("*"):
+            label = label[1:]
+        self.enter_book(label=label, sequential=sequential, star=star)
+        for part in parts:
+            if mobj := re.fullmatch(self.PART_RE, part):
+                self.add_ref(mobj)
+            else:
+                raise BadConfig(f"Bad {repr(part)}")
+        self.curr = None
 
 
 class Reporter:
