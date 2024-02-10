@@ -570,8 +570,9 @@ class PracticeMakesPerfect:
                 self.state = plistlib.load(fobj)[self.STATE_VERSION]
         except Exception:  # Can be any number of things
             self.state = {}
-        if not isinstance(self.state.get("deck"), dict):
-            self.state["deck"] = {}
+        for key in ["deck", "debug"]:
+            if not isinstance(self.state.get(key), dict):
+                self.state[key] = {}
 
     def _save_state(self) -> None:
         """Save the queue state"""
@@ -581,7 +582,7 @@ class PracticeMakesPerfect:
 
         used = []
         for layout, deck in self.decks.items():
-            if deck.drawn:
+            if deck.drawn or layout not in saveds:
                 try:
                     saveds[layout] = deck.serialize()
                     used.append(deck.blurb)
