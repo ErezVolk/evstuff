@@ -211,7 +211,7 @@ class NoneDeck(Deck):
         super().__init__(cards=[""], layout="NONE")
 
     def __repr__(self):
-        return "NoneDeck()"
+        return "<NoneDeck>"
 
     @property
     def blurb(self) -> str:
