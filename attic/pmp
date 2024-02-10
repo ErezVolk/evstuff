@@ -890,9 +890,7 @@ class Reporter:
         """Make the stuff that goes in the debug part of the state"""
         self._write()
         self.debug["n_decks"] = len(decks)
-        self.debug["decks"] = {
-            layout: decks[layout].blurb for layout in decks
-        }
+        self.debug["decks"] = {layout: decks[layout].blurb for layout in decks}
         self.debug["n_books"] = len(books)
         self.debug["books"] = {
             f"{label} {book.blurb}": [entry.blurb for entry in book.toc]
