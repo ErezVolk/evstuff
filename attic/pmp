@@ -600,8 +600,7 @@ class PracticeMakesPerfect:
         debug = self.state["debug"]
         debug["n_decks"] = len(self.decks)
         debug["decks"] = {
-            layout: deck.blurb
-            for layout, deck in self.decks.items()
+            deck.layout: deck.blurb for deck in self.decks.values()
         }
         debug["n_books"] = len(self.books)
         debug["books"] = {
