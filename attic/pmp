@@ -90,10 +90,11 @@ class Deck:
 
     cards: tuple[str, ...]
     queue: list[str] = []
-    used: bool = False
     label: Label
     layout: Layout
     preblurb: str
+    drawn: int = 0
+    old_layout: Layout | None = None
 
     MIN_SERIALIZABLE = 3
     SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
@@ -122,7 +123,7 @@ class Deck:
 
     def serialize(self) -> StringDict:
         """Serialize"""
-        if not self.used:
+        if not self.drawn:
             raise SerializationError("Never drawn")
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too small")
@@ -140,6 +141,7 @@ class Deck:
         if not (queued := set(self._get_list(saved, "queue")) & this):
             raise SerializationError("No shared cards in queue")
         self._set_queue(queued & added)
+        self.old_layout = saved.get("layout")
 
     def deserialize(self, saved: t.Any) -> None:
         """Validate and restore a saved queue"""
@@ -172,12 +174,16 @@ class Deck:
 
     def draw(self) -> str:
         """Get the next card"""
-        self.used = True
+        self.ping()
         if not self.queue:
             self._set_queue(self.cards)
         card = self.queue.pop()
         self._track("%d after drawing %r", len(self.queue), card)
         return card
+
+    def ping(self) -> None:
+        """Notify the deck it's being used"""
+        self.drawn += 1
 
     def _set_queue(self, queue: Iterable[str]) -> None:
         """Set the queue"""
@@ -453,6 +459,7 @@ class PracticeMakesPerfect:
     def _run_sequential(self, book: Book, top=False) -> None:
         """Run a sequence of items"""
         for entry in book.toc:
+            book.deck.ping()
             if top:
                 self._header(entry.label, level=2)
             if isinstance(entry, Etude):
@@ -476,7 +483,6 @@ class PracticeMakesPerfect:
         Recursion is safe here, since we used `TopologicalSorter`
         to make sure the graph is cycle-free.
         """
-        self.reporter.in_use(book)
         book.predraw(count)
         for _ in range(count):
             entry = book.draw()
@@ -503,7 +509,6 @@ class PracticeMakesPerfect:
         """Fill in the template for one etude"""
         keys = []
         for deck in etude.decks:
-            self.reporter.in_use(deck)
             key = deck.draw()
             if "|" in key:  # Can only come from our pitch classes
                 key = random.choice(key.split("|"))
@@ -572,7 +577,7 @@ class PracticeMakesPerfect:
         """Save the queue state"""
         saveds = self.state["deck"]
         for layout in saveds.keys() - self.decks.keys():
-            self.reporter.deck_gone(layout, saveds.pop(layout))
+            del saveds[layout]
 
         used = []
         for layout, deck in self.decks.items():
@@ -583,11 +588,26 @@ class PracticeMakesPerfect:
                 log.debug("Not serializing %s: %s", deck.blurb, exc)
         if used:
             log.debug("Saving %d: %s", len(used), SEP.join(used))
-        self.state["debug"] = self.reporter.finish(self.decks, self.books)
+        self.reporter.save_report(self.decks)
+        self._make_debug()
 
         with open(self.args.state_file, "wb") as fobj:
             to_write = {self.STATE_VERSION: self.state}
             plistlib.dump(to_write, fobj, sort_keys=False)
+
+    def _make_debug(self) -> None:
+        """Make the debug part of the state"""
+        debug = self.state["debug"]
+        debug["n_decks"] = len(self.decks)
+        debug["decks"] = {
+            layout: deck.blurb
+            for layout, deck in self.decks.items()
+        }
+        debug["n_books"] = len(self.books)
+        debug["books"] = {
+            book.blurb: [entry.blurb for entry in book.toc]
+            for book in self.books.values()
+        }
 
     def _make_all_decks(self) -> None:
         """Make sure every deck is created and registered"""
@@ -599,23 +619,20 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore states for any eligible deck"""
-        Old = collections.namedtuple("Old", ["layout", "saved"])
         by_layout: dict[Layout, t.Any] = self.state["deck"]
-        by_label: dict[Label, Old] = {}
+        by_label: dict[Label, StringDict] = {}
         for layout in by_layout.keys() - self.decks.keys():
             if isinstance(saved := by_layout[layout], dict):
                 if isinstance(label := saved.get("label"), str):
-                    by_label[label] = Old(layout, saved)
+                    by_label[label] = saved
 
         n_used = 0
         for layout, deck in self.decks.items():
-            self.reporter.exists(deck)
             try:
                 if saved := by_layout.get(layout):
                     deck.deserialize(saved)
-                elif old := by_label.get(deck.label):
-                    self.reporter.changed(old.layout, deck)
-                    deck.adapt(old.saved)
+                elif saved := by_label.get(deck.label):
+                    deck.adapt(saved)
                 if queued := SEP.join(deck.queue):
                     log.debug("Loaded %s -> %s", deck.blurb, queued)
                     n_used += 1
@@ -803,9 +820,9 @@ class ConfigParser:
 class Reporter:
     """In charge of debug and statistics"""
 
+    KEY_COLS = ["label", "layout", "blurb"]
     path: Path
-    debug: StringDict
-    report: dict[Layout, StringDict]
+    rows: list[StringDict] = []
     now: str
     then: str
 
@@ -813,68 +830,42 @@ class Reporter:
         """Initialize, read old report if possible"""
         self.now = str(today := datetime.date.today())
         self.then = str(today - datetime.timedelta(days=7))
-        self.debug = {"gone": {}}
         self.path = report_file
 
         try:
             with open(self.path, encoding="utf-8", newline="") as csvfo:
-                reader = csv.DictReader(csvfo)
-                self.report = {row["layout"]: row for row in reader}
-        except (FileNotFoundError, ValueError, KeyError, csv.Error):
-            self.report = {}
-        log.debug("Read %s (N = %d)", self.path, len(self.report))
+                csvr = csv.DictReader(csvfo)
+                default = {"gone": self.now, "label": "N/A", "layout": "N/A"}
+                self.rows = [default | row for row in csvr]
+            log.debug("Read %s (N = %s)", self.path, len(self.rows))
+        except (FileNotFoundError, ValueError, KeyError, csv.Error) as exc:
+            log.debug("Cannot read %s: %s", report_file, exc)
 
-    def exists(self, deck: Deck) -> None:
-        """Note that a deck exists"""
-        self._row(deck).setdefault("since", self.now)
+    def save_report(self, decks: Decks) -> None:
+        """Write report CSV to disk"""
+        rows = []
+        for deck in decks.values():
+            row = self._pop(deck.layout) or self._pop(deck.old_layout) or {}
+            self.update(row, deck)
+            rows.append(row)
 
-    def in_use(self, drawable: Deck | Book) -> None:
-        """Note that something has been used in the present run"""
-        deck = drawable if isinstance(drawable, Deck) else drawable.deck
-        row = self._row(deck, used=self.now)
-        try:
-            row["drawn"] = int(row["drawn"]) + 1
-        except (KeyError, ValueError):
-            row["drawn"] = 1
+        others: dict[Label, StringDict] = {}
+        for row in self.rows:
+            if row["layout"] in decks:
+                continue
+            other = others.get(label := row["label"])
+            if not other or self.when(row) >= self.when(other):
+                others[label] = row
 
-    def changed(self, old_layout: Layout, deck: Deck) -> None:
-        """A deck has changed its layout"""
-        log.debug("%s has become %s", old_layout, deck.blurb)
-        if row := self.report.pop(old_layout, None):
-            if (layout := deck.layout) not in self.report:
-                row["layout"] = layout
-                self.report[layout] = row
+        rows.extend(others.values())
+        if not rows:
+            log.debug("Nothing to write to %s", self.path)
+            return
 
-    def _row(self, deck: Deck, **kwargs) -> StringDict:
-        """Get/create the report row for a deck"""
-        try:
-            row: StringDict = self.report[deck.layout]
-            row.pop("gone", None)
-        except KeyError:
-            row: StringDict = {"label": deck.label, "layout": deck.layout}
-            self.report[deck.layout] = row
-        row.update(kwargs, length=len(deck), blurb=deck.blurb)
-        return row
-
-    def deck_gone(self, layout: Layout, serialized: StringDict) -> None:
-        """A deck serialized in a previous run is no more."""
-        if row := self.report.get(layout):
-            row.setdefault("label", serialized.get("label"))
-            row["gone"] = self.now
-            try:
-                row["blurb"] = blurb = serialized["blurb"]
-            except (KeyError, TypeError):
-                blurb = layout
-            self.debug["gone"][layout] = serialized
-            log.debug("%s is gone", blurb)
-
-    def finish(self, decks: Decks, books: Books) -> StringDict:
-        """Write and make the stuff that goes in the debug part of the state"""
-        rows = [row for row in self.report.values() if self._keep(row)]
         colset = set.union(*[set(row) for row in rows])
         cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
 
-        log.debug("Write %s (%d x %d)", self.path, len(self.report), len(cols))
+        log.debug("Save %s (%d x %d)", self.path, len(self.rows), len(cols))
         with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
             rows.sort(key=lambda row: row["label"])
             writer = csv.DictWriter(csvfo, fieldnames=cols)
@@ -882,18 +873,28 @@ class Reporter:
             for row in rows:
                 writer.writerow(row)
 
-        self.debug["n_decks"] = len(decks)
-        self.debug["decks"] = {layout: decks[layout].blurb for layout in decks}
-        self.debug["n_books"] = len(books)
-        self.debug["books"] = {
-            book.blurb: [entry.blurb for entry in book.toc]
-            for book in books.values()
-        }
-        return self.debug
+    def _pop(self, layout: Layout | None) -> StringDict | None:
+        """Look for a row with the given layout"""
+        if layout:
+            for idx, row in enumerate(self.rows):
+                if row["layout"] == layout:
+                    return self.rows.pop(idx)
+        return None
 
-    def _keep(self, row: StringDict) -> bool:
-        """Check if a row is recent enough to be kept"""
-        return (row.get("used") or row.get("gone") or self.then) >= self.then
+    def update(self, row: StringDict, deck: Deck) -> None:
+        """Update row in report to reflect deck use in this session"""
+        row.update(label=deck.label, layout=deck.layout, blurb=deck.blurb)
+        row.pop("gone", None)
+        if deck.drawn:
+            row["used"] = self.now
+            try:
+                row["drawn"] = int(row["drawn"]) + deck.drawn
+            except (KeyError, ValueError):
+                row["drawn"] = deck.drawn
+
+    def when(self, row: StringDict) -> str:
+        """Return sort of "usage date" for a row"""
+        return row.get("used") or row.get("gone") or self.then
 
 
 if __name__ == "__main__":
