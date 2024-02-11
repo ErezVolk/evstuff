@@ -65,8 +65,8 @@ __TODO__ = """
 
 SEP = " ‖ "
 Filename: t.TypeAlias = str | Path
-Label: t.TypeAlias = str  # Purely cosmetic, for readability
-Layout: t.TypeAlias = str  # Purely cosmetic, for readability
+Label = type("Label", (str,), {})  # str with type checking (too much?)
+Layout = type("Layout", (str,), {})  # str with type checking (too much?)
 Entry: t.TypeAlias = "Etude | BookRef"
 TableOfContents: t.TypeAlias = list[Entry]
 Books: t.TypeAlias = dict[Label, "Book"]
@@ -104,11 +104,13 @@ class Deck:
         self.cards = tuple(cards)
         assert self.cards, f"{label or layout!r} Empty decks not supported"
         if layout:
-            self.preblurb = self.layout = self.label = layout
+            self.label = Label(layout)
+            self.layout = Layout(layout)
+            self.preblurb = layout
         else:
-            self.label = label or "|".join(self.cards)
+            self.label = Label(label or "|".join(self.cards))
             hashobj = hashlib.sha256("\0".join(sorted(self.cards)).encode())
-            self.layout = f":{hashobj.hexdigest()[:8]}:"
+            self.layout = Layout(f":{hashobj.hexdigest()[:8]}:")
             self.preblurb = f"{self.label} {self.layout}"
 
     def __len__(self) -> int:
@@ -234,7 +236,7 @@ class Etude:
 
         meat = re.sub(r"\s*\[.*\]$", "", self.template)
         labels = (deck.label for deck in self.decks)
-        self.label = f"{meat}={SEP.join(labels)}"
+        self.label = Label(f"{meat}={SEP.join(labels)}")
 
 
 @dataclasses.dataclass
@@ -254,7 +256,7 @@ class Book:
 
     def draw(self) -> Entry:
         """Get the next random ToC entry"""
-        return self.toc[self.labels.index(self.deck.draw())]
+        return self.toc[self.labels.index(Label(self.deck.draw()))]
 
     @property
     def blurb(self) -> str:
@@ -281,9 +283,9 @@ class BookRef:
 
     def __post_init__(self):
         if self.count:
-            self.label = f"{self.count}@{self.book_label}"
+            self.label = Label(f"{self.count}@{self.book_label}")
         else:
-            self.label = f"={self.book_label}"
+            self.label = Label(f"={self.book_label}")
         self.blurb = self.label
 
 
@@ -376,8 +378,8 @@ class PracticeMakesPerfect:
         args.report_file = args.report_file or args.home / ".pmpreport.csv"
         self.parser = parser
 
-    _LETTERS = set("CDEFGAB")
-    _NOTES = _LETTERS | {f"{let}{suf}" for let in _LETTERS for suf in "♯♭𝄪𝄫"}
+    LETTERS = set("CDEFGAB")
+    ALL_NOTES = LETTERS | {f"{let}{suf}" for let in LETTERS for suf in "♯♭𝄪𝄫"}
 
     SCALE_KEYS = {  # Not the scales, but the valid keys (e.g., no G♯-major)
         "ANY": "C‖C♯|D♭‖D‖D♯|E♭‖E‖F‖F♯|G♭‖G‖G♯|A♭‖A‖A♯|B♭‖B",
@@ -474,7 +476,7 @@ class PracticeMakesPerfect:
         if num_tracks is None:
             num_tracks = len(book.deck)
         elif num_tracks <= 0:
-            num_tracks = len(self.decks["ANY"])
+            num_tracks = len(self.decks[Layout("ANY")])
         etudes = self._choose_etudes(book, num_tracks)
         tracks = self._make_tracks(etudes)
         print(self._get_sep(tracks).join(tracks))
@@ -535,20 +537,20 @@ class PracticeMakesPerfect:
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales"""
-        self.decks = {"NONE": NoneDeck()} | {
-            label: Deck(layout=label, cards=self._prep_scale(label, cardstr))
-            for label, cardstr in self.SCALE_KEYS.items()
+        self.decks = {Layout("NONE"): NoneDeck()} | {
+            Layout(key): Deck(layout=key, cards=self._prep(key, cardstr))
+            for key, cardstr in self.SCALE_KEYS.items()
         }
         log.debug("Basic decks: %s", SEP.join(self.decks))
 
-    def _prep_scale(self, label: str, cardstr: str) -> list[str]:
+    def _prep(self, label: str, cardstr: str) -> list[str]:
         """Split, strip, and sanity-check a known scale"""
         cards = [card.strip() for card in cardstr.split("‖")]
         notes = "|".join(cards).split("|")
         assert len(notes) == len(set(notes)), f"{label}: not unique"
-        assert not (bad := set(notes) - self._NOTES), f"{label}: {bad} ?"
+        assert not (bad := set(notes) - self.ALL_NOTES), f"{label}: {bad} ?"
         letters = {note[0] for note in notes}
-        assert not (bad := self._LETTERS - letters), f"{label}: no {bad}"
+        assert not (bad := self.LETTERS - letters), f"{label}: no {bad}"
         return cards
 
     def _have(self, deck: Deck) -> Deck:
@@ -614,7 +616,7 @@ class PracticeMakesPerfect:
         for layout in by_layout.keys() - self.decks.keys():
             if isinstance(saved := by_layout[layout], dict):
                 if isinstance(label := saved.get("label"), str):
-                    by_label[label] = saved
+                    by_label[Label(label)] = saved
 
         n_used = 0
         for layout, deck in self.decks.items():
@@ -724,9 +726,9 @@ class ConfigParser:
         starred = self.starred or list(self.books)
         return Config(books=self.books, starred=starred)
 
-    def enter_book(self, label: Label, star: t.Any, sequential=False) -> None:
+    def enter_book(self, label: str, star: t.Any, sequential=False) -> None:
         """Found a book line"""
-        if (label := label.strip()) in self.books:
+        if (label := Label(label.strip())) in self.books:
             raise BadConfig(f"Duplicate book: {label!r}")
 
         self.books[label] = self.curr = Book(label, sequential=sequential)
@@ -735,7 +737,7 @@ class ConfigParser:
 
     def add_deck(self, label: str, keys: str) -> None:
         """Found a deck line, e.g., "easy-major := C|F|G"."""
-        if (label := label.strip()) in self.labeldecks:
+        if (label := Label(label.strip())) in self.labeldecks:
             raise BadConfig(f"Duplicate deck: {label!r}")
 
         cards = [key.strip() for key in keys.split("|")]
@@ -762,7 +764,7 @@ class ConfigParser:
         decks = []
         for part in parts:
             try:
-                decks.append(self.labeldecks[part])
+                decks.append(self.labeldecks[Label(part)])
             except KeyError:
                 decks.append(Deck([key.strip() for key in part.split("|")]))
         self.curr.toc.append(Etude(template=template, decks=decks))
@@ -821,7 +823,7 @@ class Reporter:
             with open(self.path, encoding="utf-8", newline="") as csvfo:
                 rows = [default | row for row in csv.DictReader(csvfo)]
             log.debug("Read %s (N = %s)", self.path, len(rows))
-            self.by_layout = {row["layout"]: row for row in rows}
+            self.by_layout = {Layout(row["layout"]): row for row in rows}
         except (FileNotFoundError, ValueError, KeyError, csv.Error) as exc:
             log.debug("Cannot read %s: %s", report_file, exc)
 
