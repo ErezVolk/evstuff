@@ -100,11 +100,9 @@ class Deck:
     SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
 
     def __init__(self, cards: Iterable[str], label="", layout=""):
-        if layout and label and label != layout:
-            raise ValueError("Cannot specify both label and layout")
+        assert not label or not layout, f"Either {label!r} or {layout!r}"
         self.cards = tuple(cards)
-        if not self.cards:
-            raise ValueError("Empty decks not supported")
+        assert self.cards, f"{label or layout!r} Empty decks not supported"
         if layout:
             self.preblurb = self.layout = self.label = layout
         else:
@@ -201,7 +199,7 @@ class Deck:
     def _track(self, fmt: str, *args) -> None:
         """Print special tracking info if we're in the list"""
         if self.layout in tracked:
-            log.info(f"{repr(self.layout)}: {fmt}", *args)
+            log.info(f"{self.layout!r}: {fmt}", *args)
 
 
 class NoneDeck(Deck):
@@ -378,7 +376,10 @@ class PracticeMakesPerfect:
         args.report_file = args.report_file or args.home / ".pmpreport.csv"
         self.parser = parser
 
-    GOOD_SCALE_KEYS = {  # Not the scales, but the keys for those scales
+    _LETTERS = set("CDEFGAB")
+    _NOTES = _LETTERS | {f"{let}{suf}" for let in _LETTERS for suf in "♯♭𝄪𝄫"}
+
+    SCALE_KEYS = {  # Not the scales, but the valid keys (e.g., no G♯-major)
         "ANY": "C‖C♯|D♭‖D‖D♯|E♭‖E‖F‖F♯|G♭‖G‖G♯|A♭‖A‖A♯|B♭‖B",
         "major": "C ‖ C♯|D♭ ‖ D ‖ E♭ ‖ E ‖ F ‖ F♯|G♭ ‖ G ‖ A♭ ‖ A ‖ B♭ ‖ B|C♭",
         "minor": "C ‖ C♯ ‖ D ‖ D♯|E♭ ‖ E ‖ F ‖ F♯ ‖ G ‖ G♯|A♭ ‖ A ‖ A♯|B♭ ‖ B",
@@ -398,7 +399,6 @@ class PracticeMakesPerfect:
     reporter: "Reporter"
 
     STATE_VER = "v4"
-    NOTE_RE = re.compile("[A-G](|♯|♯♯|♭|♭♭|𝄪|𝄫)", re.IGNORECASE)
 
     def main(self) -> None:
         """Practice Makes Perfect"""
@@ -537,20 +537,18 @@ class PracticeMakesPerfect:
         """Start `self.decks` with the basic scales"""
         self.decks = {"NONE": NoneDeck()} | {
             label: Deck(layout=label, cards=self._prep_scale(label, cardstr))
-            for label, cardstr in self.GOOD_SCALE_KEYS.items()
+            for label, cardstr in self.SCALE_KEYS.items()
         }
         log.debug("Basic decks: %s", SEP.join(self.decks))
 
     def _prep_scale(self, label: str, cardstr: str) -> list[str]:
         """Split, strip, and sanity-check a known scale"""
         cards = [card.strip() for card in cardstr.split("‖")]
-        notes = [note for card in cards for note in card.split("|")]
-        if len(set(notes)) < len(notes):
-            raise ValueError(f"{label}: Not unique: {' '.join(sorted(notes))}")
-        if bad := [note for note in notes if not self.NOTE_RE.fullmatch(note)]:
-            raise ValueError(f"{label}: Bad {sorted(bad)}")
-        if missing := set("ABCDEFG").difference(notes):
-            raise ValueError(f"{label}: Missing {' '.join(sorted(missing))}")
+        notes = "|".join(cards).split("|")
+        assert len(notes) == len(set(notes)), f"{label}: not unique"
+        assert not (bad := set(notes) - self._NOTES), f"{label}: {bad} ?"
+        letters = {note[0] for note in notes}
+        assert not (bad := self._LETTERS - letters), f"{label}: no {bad}"
         return cards
 
     def _have(self, deck: Deck) -> Deck:
@@ -721,7 +719,7 @@ class ConfigParser:
             elif self.match(r"(?P<label>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
                 self.add_one_liner(sequential=True)
             elif not self.match(r""):
-                raise BadConfig(f"Bad line: {repr(self.line)}")
+                raise BadConfig(f"Bad line: {self.line!r}")
 
         starred = self.starred or list(self.books)
         return Config(books=self.books, starred=starred)
@@ -729,7 +727,7 @@ class ConfigParser:
     def enter_book(self, label: Label, star: t.Any, sequential=False) -> None:
         """Found a book line"""
         if (label := label.strip()) in self.books:
-            raise BadConfig(f"Duplicate book: {repr(label)}")
+            raise BadConfig(f"Duplicate book: {label!r}")
 
         self.books[label] = self.curr = Book(label, sequential=sequential)
         if star:
@@ -738,7 +736,7 @@ class ConfigParser:
     def add_deck(self, label: str, keys: str) -> None:
         """Found a deck line, e.g., "easy-major := C|F|G"."""
         if (label := label.strip()) in self.labeldecks:
-            raise BadConfig(f"Duplicate deck: {repr(label)}")
+            raise BadConfig(f"Duplicate deck: {label!r}")
 
         cards = [key.strip() for key in keys.split("|")]
         self.labeldecks[label] = Deck(label=label, cards=cards)
@@ -800,7 +798,7 @@ class ConfigParser:
             if mobj := re.fullmatch(self.PART_RE, part):
                 self.add_ref(mobj)
             else:
-                raise BadConfig(f"Bad {repr(part)}")
+                raise BadConfig(f"Bad {part!r}")
         self.curr = None
 
 
