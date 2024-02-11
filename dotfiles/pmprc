@@ -21,17 +21,17 @@ homeworkTechnical:
   Ray Brown's Diminished Exercise (p.82): NONE
 
 homeworkMusic:
-  Melodic Étude in D♭ Major (p.12) [last played fully at MM=68/3]: NONE
+  Melodic Étude in D♭ Major (p.12) [last played fully at MM=63]: NONE
   Bach I. Allemande [after D♭-Melodic; last played first half at MM=40, N.B. 13-16, work on second part]: NONE
-  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow): NONE
+  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow) [played even slower, about MM=84]: NONE
 
 book:
   Radley ctd.: NONE
-  Steve ctd. [at page 28]: NONE
-  Baroque ctd. [at number 7]: NONE
-  Simandl Études ctd. [at number 3]: NONE
-  John P's course ctd. [at 2.10]: NONE
-  Carol Kaye ctd. [book 1, page 14]: NONE
+  Steve ctd.: NONE
+  Baroque ctd.: NONE
+  Simandl Études ctd.: NONE
+  John P's course ctd.: NONE
+  Carol Kaye ctd.: NONE
   Learn a song: NONE
 
 #
@@ -273,6 +273,8 @@ keepCarolKaye:  # When I'm done
   Page 15 in "Bass Lines Book 1": NONE
   Page 3 in "Bass Lines Book 2": NONE
   Page 4 in "Bass Lines Book 2": NONE
+  Page 5 in "Bass Lines Book 2": NONE
+  Page 6 in "Bass Lines Book 2": NONE
   # TODO: "Bass Lines Book 2"
   # TODO: "Bass Lines Book 3"
   # TODO: "Bass Lines Book 4"
