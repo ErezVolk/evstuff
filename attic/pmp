@@ -65,8 +65,8 @@ __TODO__ = """
 
 SEP = " ‖ "
 Filename: t.TypeAlias = str | Path
-Label = type("Label", (str,), {})  # str with type checking (too much?)
-Layout = type("Layout", (str,), {})  # str with type checking (too much?)
+Label = type("Label", (str,), {})  # i.e., `class Label(str): pass` (too much?)
+Layout = type("Layout", (str,), {})  # (too much?)
 Entry: t.TypeAlias = "Etude | BookRef"
 TableOfContents: t.TypeAlias = list[Entry]
 Books: t.TypeAlias = dict[Label, "Book"]
