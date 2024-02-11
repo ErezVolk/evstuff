@@ -576,39 +576,33 @@ class PracticeMakesPerfect:
 
     def _save_state(self) -> None:
         """Save the queue state"""
-        saveds = self.state["deck"]
-        for layout in saveds.keys() - self.decks.keys():
-            del saveds[layout]
+        decks = self.decks.values()
+        self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
+        self.state["debug"] = {
+            "n_decks": len(self.decks),
+            "decks": {deck.layout: deck.blurb for deck in decks},
+            "n_books": len(self.books),
+            "books": {
+                book.blurb: [entry.blurb for entry in book.toc]
+                for book in self.books.values()
+            },
+        }
 
-        used = []
-        for layout, deck in self.decks.items():
-            if deck.drawn or layout not in saveds:
-                try:
-                    saveds[layout] = deck.serialize()
-                    used.append(deck.blurb)
-                except SerializationError as exc:
-                    log.debug("Not serializing %s: %s", deck.blurb, exc)
-        if used:
-            log.debug("Saving %d: %s", len(used), SEP.join(used))
-        self._make_debug()
         with open(self.args.state_file, "wb") as fobj:
             to_write = {self.STATE_VERSION: self.state}
             plistlib.dump(to_write, fobj, sort_keys=False)
 
         self.reporter.save_report(self.decks)
 
-    def _make_debug(self) -> None:
-        """Make the debug part of the state"""
-        debug = self.state["debug"]
-        debug["n_decks"] = len(self.decks)
-        debug["decks"] = {
-            deck.layout: deck.blurb for deck in self.decks.values()
-        }
-        debug["n_books"] = len(self.books)
-        debug["books"] = {
-            book.blurb: [entry.blurb for entry in book.toc]
-            for book in self.books.values()
-        }
+    def _save(self, deck: Deck) -> StringDict:
+        """Serialize a single deck, or leave untouched"""
+        try:
+            serialized = deck.serialize()
+            log.debug("Serializing %s", deck.blurb)
+            return serialized
+        except SerializationError as exc:
+            log.debug("Not serializing %s: %s", deck.blurb, exc)
+            return self.state["deck"].get(deck.layout, str(exc))
 
     def _make_all_decks(self) -> None:
         """Make sure every deck is created and registered"""
