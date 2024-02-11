@@ -248,6 +248,7 @@ class Book:
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
+    blurbs: list[str] = dataclasses.field(init=False)
 
     def predraw(self, count: int):
         """Try and make sure the next `count` items won't have dupes"""
@@ -265,6 +266,7 @@ class Book:
     def finalize(self) -> Deck:
         """(Re)create the deck"""
         self.labels = [entry.label for entry in self.toc]
+        self.blurbs = [entry.blurb for entry in self.toc]
         self.deck = Deck(cards=self.labels, label=self.label)
         return self.deck
 
@@ -395,7 +397,7 @@ class PracticeMakesPerfect:
     state: dict
     reporter: "Reporter"
 
-    STATE_VERSION = "v4"
+    STATE_VER = "v4"
     NOTE_RE = re.compile("[A-G](|♯|♯♯|♭|♭♭|𝄪|𝄫)", re.IGNORECASE)
 
     def main(self) -> None:
@@ -567,7 +569,7 @@ class PracticeMakesPerfect:
         """Read saved state info `self.state`"""
         try:
             with open(self.args.state_file, "rb") as fobj:
-                self.state = plistlib.load(fobj)[self.STATE_VERSION]
+                self.state = plistlib.load(fobj)[self.STATE_VER]
         except Exception:  # Can be any number of things
             self.state = {}
         for key in ["deck", "debug"]:
@@ -576,21 +578,16 @@ class PracticeMakesPerfect:
 
     def _save_state(self) -> None:
         """Save the queue state"""
-        decks = self.decks.values()
-        self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
         self.state["debug"] = {
-            "n_decks": len(self.decks),
+            "n_decks": len(decks := self.decks.values()),
             "decks": {deck.layout: deck.blurb for deck in decks},
-            "n_books": len(self.books),
-            "books": {
-                book.blurb: [entry.blurb for entry in book.toc]
-                for book in self.books.values()
-            },
+            "n_books": len(books := self.books.values()),
+            "books": {book.blurb: book.blurbs for book in books},
         }
+        self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
 
         with open(self.args.state_file, "wb") as fobj:
-            to_write = {self.STATE_VERSION: self.state}
-            plistlib.dump(to_write, fobj, sort_keys=False)
+            plistlib.dump({self.STATE_VER: self.state}, fobj, sort_keys=False)
 
         self.reporter.save_report(self.decks)
 
