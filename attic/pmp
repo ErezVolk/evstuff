@@ -177,7 +177,7 @@ class Deck:
         self.ping()
         if not self.queue:
             self._set_queue(self.cards)
-        card = self.queue.pop()
+        card = self.queue.pop(0)
         self._track("%d after drawing %r", len(self.queue), card)
         return card
 
@@ -192,11 +192,11 @@ class Deck:
         self._track("Queue set to %s", self.queue)
 
     def _extend(self, addend: Iterable[str]) -> None:
-        """Add cards to the end of the queue (remember we use queue.pop())"""
+        """Add cards to the end of the queue"""
         lineup = list(addend)
         random.shuffle(lineup)
-        self.queue = list(lineup + self.queue)
-        self._track("Adding %s => %s", lineup, self.queue)
+        self._track("Adding %s to %s", lineup, self.queue)
+        self.queue = list(self.queue + lineup)
 
     def _track(self, fmt: str, *args) -> None:
         """Print special tracking info if we're in the list"""
