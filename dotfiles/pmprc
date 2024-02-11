@@ -17,13 +17,13 @@ twoSubjacentStrings := E+D|A+G
 # Currently working on
 #
 homeworkTechnical:
-  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
-  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow): NONE
+  Ray Brown's Diminished Exercise (p.82): NONE
 
 homeworkMusic:
   Melodic Étude in D♭ Major (p.12) [last played fully at MM=68/3]: NONE
   Bach I. Allemande [after D♭-Melodic; last played first half at MM=40, N.B. 13-16, work on second part]: NONE
+  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow): NONE
 
 book:
   Radley ctd.: NONE
@@ -71,7 +71,7 @@ chopsLeft:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
   L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
   L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42₆₇: NONE
-  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75₇2 [last played at ♩=92]: NONE
+  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75₇2 [last played at ♩=104]: NONE
   L-Dexterity I.5 (p5) ♫@80~120 1365.2465|3565.7542: NONE
   L-Dexterity I.6 (p5) ♫@80~120 1365.4265|3165.42₆₇: NONE
   L-Dexterity I.7 (p5) ♫@80~120 1867.5645|3823.18₇2: NONE
@@ -197,6 +197,7 @@ keepRayBrown:
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), start on {}: rayBrownDrillKeys
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
   Ray Brown's Diminished Exercise (p.79): NONE
+  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -401,7 +402,6 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's Diminished Exercise (p.82): NONE
   Ray Brown's Diminished Exercise (p.83): NONE
   Ray Brown's Diminished Exercise (Solo) (p.84): NONE
   Ray Brown's Diminished Exercise (p.85): NONE
