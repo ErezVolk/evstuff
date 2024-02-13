@@ -6,6 +6,8 @@ and distributed under the Creative Commons CC0 1.0 Universal license.
 https://www.reddit.com/r/audioengineering/comments/kg8gth/free_click_track_sound_archive/?rdt=48837
 Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 """
+# pyright: reportMissingImports=false, reportMissingModuleSource=false
+# mypy: disable-error-code="import-untyped"
 
 import argparse
 import bisect
@@ -37,6 +39,7 @@ try:
     WITH_MEDIA_KEYS = True
 except ImportError:
     print("Warning: No media key support")
+    CGEventMaskBit = NSEvent = NSSystemDefined = None
     WITH_MEDIA_KEYS = False
 
 
@@ -122,7 +125,7 @@ class PathAwareDefaultsHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
         if result is None:
             return result
 
-        if '%(default)' in result:
+        if "%(default)" in result:
             return result
 
         if (default := action.default) is argparse.SUPPRESS:
@@ -256,7 +259,7 @@ class Metronome:
         self.args = parser.parse_args()
         if self.args.beats != [0]:
             if not all(beats > 0 for beats in self.args.beats):
-                parser.error("--beats must be all positive numbers or a single zero")
+                parser.error("--beats must be all positive or a single zero")
 
     @classmethod
     def validate_subdivision_arg(cls, arg: str) -> str:
@@ -302,7 +305,7 @@ class Metronome:
     def main_loop(self):
         """Keep playing until pause or abort"""
         player = pyaudio.PyAudio()
-        self.pause_unpause(paused=self.args.start_paused)  # Get ready for playing
+        self.pause_unpause(paused=self.args.start_paused)  # Get ready to play
 
         while not self.aborting:
             # Every pass through the loop is playing, then pause/abort
@@ -418,10 +421,9 @@ class Metronome:
     def make_loop(self):
         """Rebuild the audio loop"""
         frames_per_beat = (60 / self.tempo) * self.shape.rate
-        ideal_bar = (self.beats_per_bar * frames_per_beat) * self.bytes_per_frame
+        frames_per_bar = round(self.beats_per_bar * frames_per_beat)
         bars_per_loop = 1
-        rounded_frames = round(ideal_bar / self.bytes_per_frame)
-        loop_size = rounded_frames * self.bytes_per_frame
+        loop_size = frames_per_bar * self.bytes_per_frame
 
         loop_data = bytearray(loop_size)
         for n_bar in range(bars_per_loop):
@@ -448,6 +450,7 @@ class Metronome:
 
     def intercept(self, event_type, event):
         """Handle MacOS media key event"""
+        assert NSEvent is not None, "Who called this function?!"
         del event_type  # unused
         bitmap = NSEvent.eventWithCGEvent_(event).data1()
         key = (bitmap & 0xFFFF0000) >> 16
