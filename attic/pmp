@@ -419,9 +419,9 @@ class PracticeMakesPerfect:
         self._make_all_decks()
         self._restore_state()
 
-        now = datetime.datetime.now().isoformat(timespec="minutes", sep=" ")
         book = self._choose_book()
         count = None if self.args.one_of_each else self.args.num_tracks
+        now = datetime.datetime.now().isoformat(timespec="minutes", sep=" ")
         self._header(f"{now} {book.label}")
         self._run_book(book, count=count, top=True)
         if not self.args.saveless:
@@ -430,10 +430,8 @@ class PracticeMakesPerfect:
 
     def _header(self, text: str, level: int = 1) -> None:
         """Print a markdown-like header"""
-        if level == 1:
-            print(f"{text}\n{'=' * len(text)}")
-        else:
-            print(f"\n{text}\n{'-' * len(text)}")
+        underline = "=" if level == 1 else "-"
+        print(f"{text}\n{underline * len(text)}")
 
     def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
@@ -610,7 +608,7 @@ class PracticeMakesPerfect:
                     etude.decks = [self._have(deck) for deck in etude.decks]
 
     def _restore_state(self) -> None:
-        """Restore states for any eligible deck"""
+        """Restore queues for any eligible deck"""
         by_layout: dict[Layout, t.Any] = self.state["deck"]
         by_label: dict[Label, StringDict] = {}
         for layout in by_layout.keys() - self.decks.keys():
