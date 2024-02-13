@@ -1,6 +1,6 @@
 all = [ morn eve ]
 
-*morn = [ mornWarmup mornPractice mornHomework ]
+*morn = [ tempo mornWarmup mornPractice mornHomework ]
 mornWarmup = [ warmup chops @warmupOneStringScale ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
@@ -16,6 +16,9 @@ twoSubjacentStrings := E+D|A+G
 #
 # Currently working on
 #
+tempo:
+  Try MM ♩={} today: 108|112|116|120
+
 homeworkTechnical:
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
   Ray Brown's Diminished Exercise (p.82): NONE
