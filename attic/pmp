@@ -170,7 +170,10 @@ class Deck:
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` cards won't have dupes"""
         if count > len(self.queue):
-            self._extend(set(self.cards) - set(self.queue))
+            lineup = list(set(self.cards) - set(self.queue))
+            random.shuffle(lineup)
+            self._track("Adding %s to %s", lineup, self.queue)
+            self.queue = list(self.queue + lineup)
 
     def draw(self) -> str:
         """Get the next card"""
@@ -190,13 +193,6 @@ class Deck:
         self.queue = list(queue)
         random.shuffle(self.queue)
         self._track("Queue set to %s", self.queue)
-
-    def _extend(self, addend: Iterable[str]) -> None:
-        """Add cards to the end of the queue"""
-        lineup = list(addend)
-        random.shuffle(lineup)
-        self._track("Adding %s to %s", lineup, self.queue)
-        self.queue = list(self.queue + lineup)
 
     def _track(self, fmt: str, *args) -> None:
         """Print special tracking info if we're in the list"""
@@ -640,23 +636,24 @@ class PracticeMakesPerfect:
             self._fail(str(err))
 
     def _finalize_books(self) -> None:
-        """Check configured graph is legit and prepare all books for action"""
+        """Check configured graph is legit and prepare all books for action,
+        making sure there's only one of each deck.
+        """
         self.books = self.config.books
-        graph = collections.defaultdict(set)
+        deps = collections.defaultdict(set)
         for source, book in self.books.items():
             for ref in book.toc:
                 if isinstance(ref, BookRef):
                     if (target := ref.book_label) not in self.books:
                         self._fail(f"Unknown reference: {source} -> {target}")
-                    graph[target].add(source)
+                    deps[target].add(source)
                     ref.book = self.books[target]
 
         try:
-            graphlib.TopologicalSorter(graph).prepare()
+            graphlib.TopologicalSorter(deps).prepare()
         except graphlib.CycleError as exc:
             self._fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
 
-        # Finalize all books, replacing their decks if duplicated
         for book in self.books.values():
             book.deck = self._have(book.finalize())
 
@@ -694,14 +691,14 @@ class ConfigParser:
 
     PART_RE = r"(?P<at>(?P<count>[1-9]\d*)?@)?(?P<label>\S+)"
 
-    def parse(self, filename: Filename, stream: t.TextIO) -> "Config":
+    def parse(self, filename: Filename, stream: t.TextIO) -> Config:
         """Read configuration file"""
         try:
             return self.do_parse(stream)
         except BadConfig as exc:
             raise BadConfig(f"[{filename}:{self.line_num}] {exc}") from exc
 
-    def do_parse(self, stream: t.TextIO) -> "Config":
+    def do_parse(self, stream: t.TextIO) -> Config:
         """The actual reading function"""
         for self.line_num, line in enumerate(stream, 1):
             self.line = re.sub(r"\s*(#.*)?$", "", line)
@@ -829,7 +826,6 @@ class Reporter:
         """Write report CSV to disk"""
         to_save = [self.deck_row(deck) for deck in decks.values()]
 
-        # rows.sort_values("when").groupby("label").last()
         grouped = collections.defaultdict(list)
         for row in self.by_layout.values():
             grouped[row["label"]].append(row)
@@ -838,17 +834,16 @@ class Reporter:
 
         if not to_save:
             log.debug("Nothing to write to %s", self.path)
-            return
+        else:
+            colset = set.union(*[set(row) for row in to_save])
+            cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
 
-        colset = set.union(*[set(row) for row in to_save])
-        cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
-
-        log.debug("Save %s (%d x %d)", self.path, len(to_save), len(cols))
-        with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
-            writer = csv.DictWriter(csvfo, fieldnames=cols)
-            writer.writeheader()
-            for row in to_save:
-                writer.writerow(row)
+            log.debug("Save %s (%d x %d)", self.path, len(to_save), len(cols))
+            with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
+                writer = csv.DictWriter(csvfo, fieldnames=cols)
+                writer.writeheader()
+                for row in to_save:
+                    writer.writerow(row)
 
     def deck_row(self, deck: Deck) -> StringDict:
         """Get or make the row for a deck"""
@@ -865,7 +860,7 @@ class Reporter:
             row["used"] = self.now
             try:
                 row["drawn"] = int(row["drawn"]) + deck.drawn
-            except (KeyError, ValueError):
+            except (KeyError, ValueError, TypeError):
                 row["drawn"] = deck.drawn
 
     def when(self, row: StringDict) -> str:
