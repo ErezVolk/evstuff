@@ -546,7 +546,7 @@ class PracticeMakesPerfect:
     def _prep(self, label: str, cardstr: str) -> list[str]:
         """Split, strip, and sanity-check a known scale"""
         cards = [card.strip() for card in cardstr.split("‖")]
-        notes = "|".join(cards).split("|")
+        notes = "|".join(cards).upper().split("|")
         assert len(notes) == len(set(notes)), f"{label}: not unique"
         assert not (bad := set(notes) - self.ALL_NOTES), f"{label}: {bad} ?"
         letters = {note[0] for note in notes}
