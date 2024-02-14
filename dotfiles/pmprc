@@ -27,6 +27,7 @@ homeworkMusic:
   Melodic Étude in D♭ Major (p.12) [last played fully at MM=60]: NONE
   Bach I. Allemande [after D♭-Melodic; last played first half at MM=40, N.B. 13-16, work on second part]: NONE
   JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow): NONE
+  Simandl Étude 3 (p.4-5): NONE
 
 book:
   Radley ctd.: NONE
@@ -279,7 +280,9 @@ keepCarolKaye:  # When I'm done
   Page 5 in "Bass Lines Book 2": NONE
   Page 6 in "Bass Lines Book 2": NONE
   Page 10 in "Bass Lines Book 2" [last played at MM=80]: NONE
-  # Page 11 in "Bass Lines Book 2" [last played at MM=72]: NONE
+  Page 11 in "Bass Lines Book 2" [last played at MM=69]: NONE
+  Page 12 in "Bass Lines Book 2" [last played at MM=69]: NONE
+  Page 13 in "Bass Lines Book 2" [last played at MM=69]: NONE
   # TODO: "Bass Lines Book 3"
   # TODO: "Bass Lines Book 4"
   # TODO: "Bass Lines Book 5"
@@ -309,6 +312,7 @@ reviseBaroque:
   Baroque Étude No. 3 (p.4) [last played at ♩=80 of 104, N.B. intonation]: NONE
   Baroque Étude No. 4 (p.4-5): NONE
   Baroque Étude No. 6 (p.6) [last played at ♩=72 of 72]: NONE
+  Baroque Étude No. 7 (p.6) [last played at ♩=84 of 108]: NONE
 
 reviseMelodic:
   Melodic Étude in C Major (p.7): NONE
@@ -320,7 +324,6 @@ reviseMelodic:
 reviseSimandl:
   Simandl Étude 1 (p.3): NONE
   Simandl Étude 2 (p.4): NONE
-  # Simandl Étude 3 (p.4-5): NONE
   # Simandl Étude 4 (p.6): NONE
   # Simandl Étude 5 (p.7): NONE
   # Simandl Étude 6 (p.8): NONE
@@ -389,6 +392,7 @@ reviseCarol:
 
 reviseOther:
   Bach I. Prelude [last played at ♩=76]: NONE
+  Darker Side: NONE
 
 
 #
