@@ -560,6 +560,7 @@ class PracticeMakesPerfect:
                 self.config = self._parse_config(self.args.config, fobj)
         except (FileNotFoundError, ValueError):
             self.config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
+        self.books = self.config.books
 
     def _load_state(self) -> None:
         """Read saved state info `self.state`"""
@@ -641,7 +642,6 @@ class PracticeMakesPerfect:
         """Check configured graph is legit and prepare all books for action,
         making sure there's only one of each deck.
         """
-        self.books = self.config.books
         for source, book in self.books.items():
             for ref in book.toc:
                 if isinstance(ref, BookRef):
