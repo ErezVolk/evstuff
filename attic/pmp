@@ -426,8 +426,10 @@ class PracticeMakesPerfect:
 
     def _header(self, text: str, level: int = 1) -> None:
         """Print a markdown-like header"""
-        underline = "=" if level == 1 else "-"
-        print(f"{text}\n{underline * len(text)}")
+        if level == 1:
+            print(f"{text}\n{'=' * len(text)}")
+        else:
+            print(f"\n{text}\n{'-' * len(text)}")
 
     def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
@@ -640,19 +642,12 @@ class PracticeMakesPerfect:
         making sure there's only one of each deck.
         """
         self.books = self.config.books
-        deps = collections.defaultdict(set)
         for source, book in self.books.items():
             for ref in book.toc:
                 if isinstance(ref, BookRef):
                     if (target := ref.book_label) not in self.books:
                         self._fail(f"Unknown reference: {source} -> {target}")
-                    deps[target].add(source)
                     ref.book = self.books[target]
-
-        try:
-            graphlib.TopologicalSorter(deps).prepare()
-        except graphlib.CycleError as exc:
-            self._fail(f"Cyclical configuration: {' -> '.join(exc.args[1])}")
 
         for book in self.books.values():
             book.deck = self._have(book.finalize())
@@ -675,6 +670,7 @@ class ConfigParser:
     line_num: int
     line: str
     mobj: re.Match | None
+    deps = collections.defaultdict(set)
 
     def __init__(self, labeldecks: dict[Label, Deck]):
         self.labeldecks = dict(labeldecks)
@@ -718,6 +714,12 @@ class ConfigParser:
             elif not self.match(r""):
                 raise BadConfig(f"Bad line: {self.line!r}")
 
+        try:
+            graphlib.TopologicalSorter(self.deps).prepare()
+        except graphlib.CycleError as exc:
+            cycle = ' -> '.join(exc.args[1])
+            raise BadConfig(f"Cyclical config: {cycle}") from exc
+
         starred = self.starred or list(self.books)
         return Config(books=self.books, starred=starred)
 
@@ -758,9 +760,9 @@ class ConfigParser:
 
         decks = []
         for part in parts:
-            try:
+            if part in self.labeldecks:
                 decks.append(self.labeldecks[part])
-            except KeyError:
+            else:
                 decks.append(Deck([key.strip() for key in part.split("|")]))
         self.curr.toc.append(Etude(template=template, decks=decks))
 
@@ -779,7 +781,8 @@ class ConfigParser:
         else:
             count = None
 
-        self.curr.toc.append(BookRef(mobj.group("label"), count))
+        self.curr.toc.append(BookRef(target := mobj.group("label"), count))
+        self.deps[target].add(self.curr.label)
 
     def add_one_liner(self, sequential: bool) -> None:
         """A one-liner is in `self.group("label" | "parts")`"""
