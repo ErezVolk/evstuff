@@ -269,7 +269,7 @@ class Book:
 
 @dataclasses.dataclass
 class BookRef:
-    """A reference to a book"""
+    """A "pointer-style" ToC, e.g. "2@song"."""
 
     book_label: Label
     count: int | None
@@ -392,7 +392,7 @@ class PracticeMakesPerfect:
 
     books: Books
     decks: Decks
-    config: Config
+    starred: list[Label]
     state: dict
     reporter: "Reporter"
 
@@ -502,7 +502,7 @@ class PracticeMakesPerfect:
             if unknown := set(labels) - self.books.keys():
                 self._fail(f"Unknown book(s): {' '.join(unknown)}")
         else:
-            labels = self.config.starred
+            labels = self.starred
         return self.books[random.choice(labels)]
 
     def _make_tracks(self, etude_seq: Iterable[Etude]) -> list[str]:
@@ -561,10 +561,11 @@ class PracticeMakesPerfect:
         """Fix configuration files, defaults, etc."""
         try:
             with open(self.args.config, "r", encoding="UTF-8") as fobj:
-                self.config = self._parse_config(self.args.config, fobj)
+                config = self._parse_config(self.args.config, fobj)
         except (FileNotFoundError, ValueError):
-            self.config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
-        self.books = self.config.books
+            config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
+        self.books = config.books
+        self.starred = config.starred
 
     def _load_state(self) -> None:
         """Read saved state info `self.state`"""
@@ -674,7 +675,7 @@ class ConfigParser:
     line_num: int
     line: str
     mobj: re.Match | None
-    deps = collections.defaultdict(set)
+    deps: dict[str, set[str]] = collections.defaultdict(set)
 
     def __init__(self, labeldecks: dict[Label, Deck]):
         self.labeldecks = dict(labeldecks)
