@@ -722,7 +722,7 @@ class ConfigParser:
         try:
             graphlib.TopologicalSorter(self.deps).prepare()
         except graphlib.CycleError as exc:
-            cycle = ' -> '.join(exc.args[1])
+            cycle = " -> ".join(exc.args[1])
             raise BadConfig(f"Cyclical config: {cycle}") from exc
 
         starred = self.starred or list(self.books)
