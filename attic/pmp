@@ -99,7 +99,7 @@ class Deck:
     MIN_SERIALIZABLE = 3
     SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
 
-    def __init__(self, cards: Iterable[str], label="", layout=""):
+    def __init__(self, cards: Iterable[str], label="", layout="") -> None:
         assert not label or not layout, f"Either {label!r} or {layout!r}"
         self.cards = tuple(cards)
         assert self.cards, f"{label or layout!r} Empty decks not supported"
@@ -203,10 +203,10 @@ class Deck:
 class NoneDeck(Deck):
     """The NONE deck doesn't really have cards, so make the blurb nicer"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(cards=[""], layout="NONE")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<NoneDeck>"
 
     @property
@@ -226,7 +226,7 @@ class Etude:
     label: Label = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         blurbs = (deck.blurb for deck in self.decks)
         self.blurb = f"{self.template}={SEP.join(blurbs)}"
 
@@ -246,7 +246,7 @@ class Book:
     labels: list[Label] = dataclasses.field(init=False)
     blurbs: list[str] = dataclasses.field(init=False)
 
-    def predraw(self, count: int):
+    def predraw(self, count: int) -> None:
         """Try and make sure the next `count` items won't have dupes"""
         self.deck.predraw(count)
 
@@ -277,7 +277,7 @@ class BookRef:
     label: Label = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.count:
             self.label = f"{self.count}@{self.book_label}"
         else:
@@ -445,7 +445,7 @@ class PracticeMakesPerfect:
         log.addHandler(handler)
         log.setLevel(logging.DEBUG)
 
-    def _run(self):
+    def _run(self) -> None:
         """Choose, report, and run the top-level book"""
         book = self._choose_book()
         count = None if self.args.one_of_each else self.args.num_tracks
@@ -677,7 +677,7 @@ class ConfigParser:
     mobj: re.Match | None
     deps: dict[str, set[str]] = collections.defaultdict(set)
 
-    def __init__(self, labeldecks: dict[Label, Deck]):
+    def __init__(self, labeldecks: dict[Label, Deck]) -> None:
         self.labeldecks = dict(labeldecks)
 
     def match(self, expr: str) -> bool:
@@ -815,7 +815,7 @@ class Reporter:
     now: str
     then: str
 
-    def __init__(self, report_file: Path):
+    def __init__(self, report_file: Path) -> None:
         """Initialize, read old report if possible"""
         self.now = str(today := datetime.date.today())
         self.then = str(today - datetime.timedelta(days=7))
@@ -836,7 +836,8 @@ class Reporter:
 
         grouped = collections.defaultdict(list)
         for row in self.by_layout.values():
-            grouped[row["label"]].append(row)
+            if row["layout"] not in decks:
+                grouped[row["label"]].append(row)
         to_save.extend(max(rows, key=self.when) for rows in grouped.values())
         to_save.sort(key=lambda row: row["label"])
 
