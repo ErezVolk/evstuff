@@ -163,8 +163,7 @@ chopsRight:
 #
 keep = { @keepSteveInterval @hazard @slide @blend @doubleStop @keepRayBrown @keepCarolKaye }
 hazard = { @keepSteveHazard }
-slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th }
-blend = { @keepSteveBlend }
+slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveBlend }
 doubleStop = { @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths }
 
 arpeggio:
