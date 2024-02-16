@@ -24,10 +24,10 @@ homeworkTechnical:
   Slide blending etude on page 31: NONE
 
 homeworkMusic:
-  Melodic Étude in D♭ Major (p.12) [last played fully at MM=60]: NONE
-  Bach I. Allemande [after D♭-Melodic; last played first half at MM=40, N.B. 13-16, work on second part]: NONE
+  Melodic Étude in D♭ Major (p.12) [last played fully at MM=66/86]: NONE
+  Simandl Étude 3 (p.4-5) [last played without accompaniment at MM=100]: NONE
   JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow): NONE
-  Simandl Étude 3 (p.4-5): NONE
+  Bach I. Allemande [after D♭-Melodic; last played first half at MM=40, N.B. 13-16, work on second part]: NONE
 
 book:
   Radley ctd.: NONE
@@ -292,6 +292,11 @@ keepCarolKaye:  # When I'm done
   Page 11 in "Bass Lines Book 2" [last played at MM=69]: NONE
   Page 12 in "Bass Lines Book 2" [last played at MM=69]: NONE
   Page 13 in "Bass Lines Book 2" [last played at MM=69]: NONE
+  # 'When I Die' (pp. 16-17) from "Electric Bass Lines 2": NONE
+  # 'Come Together' (pp. 18-19) from "Electric Bass Lines 2": NONE
+  # 'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2": NONE
+  # 'Other Recorded Licks' on Page 22 in "Bass Lines Book 2" [last played at MM=69]: NONE
+  # 'Games People Play' (pp. 23-26) from "Electric Bass Lines 2": NONE
   # TODO: "Bass Lines Book 3"
   # TODO: "Bass Lines Book 4"
   # TODO: "Bass Lines Book 5"
