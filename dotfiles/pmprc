@@ -20,8 +20,8 @@ tempo:
   Try MM ♩={} today: 108|112|116|120
 
 homeworkTechnical:
-  {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
-  Ray Brown's Diminished Exercise (p.82): NONE
+  Ray Brown's Diminished Exercise (p.83): NONE
+  Slide blending etude on page 31: NONE
 
 homeworkMusic:
   Melodic Étude in D♭ Major (p.12) [last played fully at MM=60]: NONE
@@ -52,11 +52,11 @@ warmupHarvey:
   Harvey from {}: G|C
 
 warmupMode:
-  -major modes: major
+  -major modes [sing names, do 1-2-3-4... 1-3-2-4... going up, the reverse going down]: major
 
 warmupOtherScale:
-  -Melodic Minor Scale: minor
-  -Harmonic Minor Scale: minor
+  -Melodic Minor Scale [two octaves, three if possible]: minor
+  -Harmonic Minor Scale [two octaves, three if possible]: minor
   Whole Tone Scale from {}: ANY
   Diminished Scale from {}: ANY
   # -Natural Minor Scale: minor
@@ -161,9 +161,10 @@ chopsRight:
 #
 # Technical things to keep by practicing
 #
-keep = { @keepSteveInterval @hazard @slide @doubleStop @keepRayBrown @keepCarolKaye }
+keep = { @keepSteveInterval @hazard @slide @blend @doubleStop @keepRayBrown @keepCarolKaye }
 hazard = { @keepSteveHazard }
-slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th }
+slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th }
+blend = { @keepSteveBlend }
 doubleStop = { @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths }
 
 arpeggio:
@@ -202,6 +203,7 @@ keepRayBrown:
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
   Ray Brown's Diminished Exercise (p.79): NONE
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
+  Ray Brown's Diminished Exercise (p.82): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -250,6 +252,13 @@ keepSteveSlide4th:
 keepSteveSlide5th:
   {}-major Diatonic Slides of 5th half notes (1↗5 5↘1 2↗6 ..) (Ex. 1 on page 25): major
   {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
+
+keepSteveSlide6th:
+  {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
+  {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): major
+
+keepSteveBlend:
+  Slide blending exercises on page 30: NONE
 
 keepCarolKaye:  # When I'm done
   Page 5 in "How to Play the Electric Bass": NONE
@@ -412,7 +421,6 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's Diminished Exercise (p.83): NONE
   Ray Brown's Diminished Exercise (Solo) (p.84): NONE
   Ray Brown's Diminished Exercise (p.85): NONE
   Ray Brown's Augmented Exercise (p.92): NONE
@@ -438,9 +446,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): major
-  Slide blending exercises on page 30: NONE
-  Slide blending etude on page 31: NONE
   'Ryan's Hope' blending etude on page 32: NONE
   Slides of a 7th exercise on page 33: NONE
   Octave slide exercise on page 34: NONE
