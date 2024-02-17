@@ -246,6 +246,7 @@ class Book:
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
     blurbs: list[str] = dataclasses.field(init=False)
+    blurb: str = dataclasses.field(init=False)
 
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` items won't have dupes"""
@@ -260,16 +261,12 @@ class Book:
         """Get the next random ToC entry"""
         return self.toc[self.labels.index(self.deck.draw())]
 
-    @property
-    def blurb(self) -> str:
-        """A description of the book in its current state"""
-        return f"{self.deck.blurb} {'[]' if self.sequential else '{}'}"
-
     def finalize(self) -> Deck:
         """(Re)create the deck"""
         self.labels = [entry.label for entry in self.toc]
         self.blurbs = [entry.blurb for entry in self.toc]
         self.deck = Deck(cards=self.labels, label=self.label)
+        self.blurb = f"{self.deck.blurb} {'[]' if self.sequential else '{}'}"
         return self.deck
 
 
@@ -284,11 +281,8 @@ class BookRef:
     blurb: str = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
-        if self.count:
-            self.label = f"{self.count}@{self.book_label}"
-        else:
-            self.label = f"={self.book_label}"
-        self.blurb = self.label
+        prefix = f"{self.count}@" if self.count else "="
+        self.blurb = self.label = f"{prefix}{self.book_label}"
 
 
 @dataclasses.dataclass
