@@ -525,7 +525,7 @@ class PracticeMakesPerfect:
         return "".join(next(ikey) if part == "{}" else part for part in parts)
 
     def _get_sep(self, tracks: list[str]) -> str:
-        """Return space or newline separator"""
+        """Return space or newline separator for a list of chosen tracks"""
         if self.args.multiline:
             return "\n"
         if any(" " in track for track in tracks):
@@ -535,7 +535,7 @@ class PracticeMakesPerfect:
         return " "
 
     def _make_basic_decks(self) -> None:
-        """Start `self.decks` with the basic scales"""
+        """Start `self.decks` with the basic scales (major, minor, etc.)"""
         self.decks = {"NONE": NoneDeck()} | {
             key: Deck(layout=key, cards=self._prep(key, cardstr))
             for key, cardstr in self.SCALE_KEYS.items()
@@ -567,7 +567,7 @@ class PracticeMakesPerfect:
         self.starred = config.starred
 
     def _load_state(self) -> None:
-        """Read saved state info `self.state`"""
+        """Read saved deck queues state info `self.state`"""
         try:
             with open(self.args.state_file, "rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VER]
@@ -578,7 +578,7 @@ class PracticeMakesPerfect:
                 self.state[key] = {}
 
     def _save_state(self) -> None:
-        """Save the queue state"""
+        """Save queues for all decks, plus some debug info"""
         self.state["debug"] = {
             "n_decks": len(decks := self.decks.values()),
             "decks": {deck.layout: deck.blurb for deck in decks},
