@@ -253,9 +253,8 @@ class Book:
 
     def draw_all(self) -> Iterable[Entry]:
         """Yield all cards in order, one by one"""
-        for entry in self.toc:
-            self.deck.ping()
-            yield entry
+        self.deck.ping()
+        yield from self.toc
 
     def draw(self) -> Entry:
         """Get the next random ToC entry"""
