@@ -22,14 +22,14 @@ tempo:
   Try MM ♩={} today: 104|108|112|116|120|126
 
 homeworkTechnical:
-  Ray Brown's Diminished Exercise (p.83): NONE
-  Slide blending etude on page 31: NONE
+  Ray Brown's Diminished Exercise (p.83) [⍻ MM ♩=100]: NONE
+  Slide blending etude on page 31 [MM ♩=54]: NONE
+  Blending "Ryan's Hope" on page 32 [MM ♩=84]: NONE
 
 homeworkMusic:
-  Melodic Étude in D♭ Major (p.12) [⍻, last played fully at MM=66/86]: NONE
-  Simandl Étude 3 (p.4-5) [last played without accompaniment at MM=100]: NONE
+  Simandl Étude 3 (p.4-5) [⍻ mind the intonation!]: NONE
   JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow) [⍻]: NONE
-  Bach I. Allemande [after D♭-Melodic; last played first half at MM=40, N.B. 13-16, work on second part]: NONE
+  Bach I. Allemande [after D♭-Melodic; last played first half at MM ♩=40, N.B. 13-16, work on second part]: NONE
 
 book:
   Radley ctd.: NONE
@@ -290,14 +290,14 @@ keepCarolKaye:  # When I'm done
   Page 4 in "Bass Lines Book 2": NONE
   Page 5 in "Bass Lines Book 2": NONE
   Page 6 in "Bass Lines Book 2": NONE
-  Page 10 in "Bass Lines Book 2" [last played at MM=80]: NONE
-  Page 11 in "Bass Lines Book 2" [last played at MM=69]: NONE
-  Page 12 in "Bass Lines Book 2" [last played at MM=69]: NONE
-  Page 13 in "Bass Lines Book 2" [last played at MM=69]: NONE
-  # 'When I Die' (pp. 16-17) from "Electric Bass Lines 2": NONE
+  Page 10 in "Bass Lines Book 2" [last played at MM ♩=80]: NONE
+  Page 11 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
+  Page 12 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
+  Page 13 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
+  'When I Die' (pp. 16-17) from "Electric Bass Lines 2": NONE
   # 'Come Together' (pp. 18-19) from "Electric Bass Lines 2": NONE
   # 'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2": NONE
-  # 'Other Recorded Licks' on Page 22 in "Bass Lines Book 2" [last played at MM=69]: NONE
+  # 'Other Recorded Licks' on Page 22 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
   # 'Games People Play' (pp. 23-26) from "Electric Bass Lines 2": NONE
   # TODO: "Bass Lines Book 3"
   # TODO: "Bass Lines Book 4"
@@ -320,7 +320,7 @@ reviseSteve:
   {}-major Diatonic slides of 4th in ♫ 1₅₆2.3₇14... (Ex. 2B on page 23): major
   Steve's 4th slide etude (Ex. 3 on page 24): NONE
   Steve's 4th slide etude (Ex. 4 on page 24) [last played at ♩=60]: NONE
-  Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM=56]: NONE
+  Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM ♩=56]: NONE
 
 reviseBaroque:
   Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
@@ -336,6 +336,7 @@ reviseMelodic:
   Melodic Étude in B♭ Major (p.9) [last played at ♩=69 of 86]: NONE
   Melodic Étude in E♭ Major (p.10) [last played at ♩=92]: NONE
   Melodic Étude in A♭ Major (p.11): NONE
+  Melodic Étude in D♭ Major (p.12) [last played fully at MM ♩=66/86]: NONE
 
 reviseSimandl:
   Simandl Étude 1 (p.3): NONE
@@ -453,7 +454,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  'Ryan's Hope' blending etude on page 32: NONE
   Slides of a 7th exercise on page 33: NONE
   Octave slide exercise on page 34: NONE
   # Bailey says to start over here
