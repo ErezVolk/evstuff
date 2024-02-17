@@ -69,7 +69,6 @@ Filename: t.TypeAlias = str | Path
 Label: t.TypeAlias = str  # Only for readability
 Layout: t.TypeAlias = str  # Only for readability
 Entry: t.TypeAlias = "Etude | BookRef"
-TableOfContents: t.TypeAlias = list[Entry]
 Books: t.TypeAlias = dict[Label, "Book"]
 Decks: t.TypeAlias = dict[Layout, "Deck"]
 StringDict: t.TypeAlias = dict[str, t.Any]
@@ -241,7 +240,7 @@ class Book:
     """A collection of etudes or pointers to other books"""
 
     label: Label
-    toc: TableOfContents = dataclasses.field(default_factory=TableOfContents)
+    toc: list[Entry] = dataclasses.field(default_factory=list)
     sequential: bool = False
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
