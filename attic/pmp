@@ -613,17 +613,19 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore queues for any eligible deck"""
-        goldies: dict[Layout, t.Any] = self.state["deck"]
+        nowies: dict[Label, StringDict] = {}
         oldies: dict[Label, StringDict] = {}
-        for layout in goldies.keys() - self.decks.keys():
-            if isinstance(saved := goldies[layout], dict):
-                if isinstance(label := saved.get("label"), str):
+        for layout, saved in self.state["deck"].items():
+            if isinstance(saved, dict):
+                if layout in self.decks:
+                    nowies[layout] = saved
+                elif isinstance(label := saved.get("label"), str):
                     oldies[label] = saved
 
         n_used = 0
         for layout, deck in self.decks.items():
             try:
-                if saved := goldies.get(layout):
+                if saved := nowies.get(layout):
                     deck.deserialize(saved)
                 elif saved := oldies.get(deck.label):
                     deck.adapt(saved)
@@ -632,7 +634,6 @@ class PracticeMakesPerfect:
                     n_used += 1
             except SerializationError as exc:
                 log.debug("Not restoring %s: %s", deck.blurb, exc)
-                goldies.pop(layout, None)
         log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
     def _parse_config(self, filename: Filename, stream: t.TextIO) -> Config:
