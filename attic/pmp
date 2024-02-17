@@ -392,7 +392,7 @@ class PracticeMakesPerfect:
     books: Books
     decks: Decks
     starred: list[Label]
-    state: dict
+    state: StringDict
     reporter: "Reporter"
 
     STATE_VER = "v4"
@@ -570,6 +570,8 @@ class PracticeMakesPerfect:
         try:
             with open(self.args.state_file, "rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VER]
+            if not isinstance(self.state, dict):
+                raise ValueError("Somebody messed up the state file")
         except Exception:  # Can be any number of things
             self.state = {}
         for key in ["deck", "debug"]:
@@ -611,26 +613,26 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore queues for any eligible deck"""
-        by_layout: dict[Layout, t.Any] = self.state["deck"]
-        by_label: dict[Label, StringDict] = {}
-        for layout in by_layout.keys() - self.decks.keys():
-            if isinstance(saved := by_layout[layout], dict):
+        goldies: dict[Layout, t.Any] = self.state["deck"]
+        oldies: dict[Label, StringDict] = {}
+        for layout in goldies.keys() - self.decks.keys():
+            if isinstance(saved := goldies[layout], dict):
                 if isinstance(label := saved.get("label"), str):
-                    by_label[label] = saved
+                    oldies[label] = saved
 
         n_used = 0
         for layout, deck in self.decks.items():
             try:
-                if saved := by_layout.get(layout):
+                if saved := goldies.get(layout):
                     deck.deserialize(saved)
-                elif saved := by_label.get(deck.label):
+                elif saved := oldies.get(deck.label):
                     deck.adapt(saved)
                 if queued := SEP.join(deck.queue):
                     log.debug("Loaded %s -> %s", deck.blurb, queued)
                     n_used += 1
             except SerializationError as exc:
                 log.debug("Not restoring %s: %s", deck.blurb, exc)
-                by_layout.pop(layout, None)
+                goldies.pop(layout, None)
         log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
     def _parse_config(self, filename: Filename, stream: t.TextIO) -> Config:
