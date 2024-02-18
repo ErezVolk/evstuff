@@ -1,6 +1,6 @@
 all = [ morn eve ]
 
-# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼ⁷₁Δ
+# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼ⁷₁Δː
 
 *morn = [ tempo mornWarmup mornPractice mornHomework ]
 mornWarmup = [ warmup chops @warmupOneStringScale ]
@@ -89,22 +89,22 @@ chopsLeft:
   L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
   L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
 
-chopsLeftTodo:
+_chopsLeftTodo:
   L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
   L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
-  L-Modes 5 (♬@60 132435465768 p.15): NONE
-  L-Modes 6 (♬@60 867564534231 p.16): NONE
-  L-Modes 7 (♬@60 134235645786 p.17): NONE
-  L-Modes 8 (♫ 13576421⇗ p.18): NONE
-  L-Modes 9 (♫ 13576421⇘ p.19): NONE
-  L-Modes 10 (♫ 12348675 p.20): NONE
-  L-Modes 11 (♫ 13248765 p.21): NONE
-  L-Modes 12 (♫ 43215768 p.22): NONE
-  L-Modes 13 (♫ 42315678 p.23): NONE
-  L-Modes 14 (♫ 12346421 p.24): NONE
-  L-Modes 15 (♫ 45676421 p.25): NONE
-  L-Modes 16 (♫ 13574321 p.26): NONE
-  L-Modes 17 (♫ 13578765 p.27): NONE
+  L-Modes 5 (♬@60 1324.3546.5768 p.15): NONE
+  L-Modes 6 (♬@60 8675.6453.4231 p.16): NONE
+  L-Modes 7 (♬@60 1342.3564.5786 p.17): NONE
+  L-Modes 8 (♫ 1357.6421⇗ p.18): NONE
+  L-Modes 9 (♫ 1357.6421⇘ p.19): NONE
+  L-Modes 10 (♫ 1234.8675 p.20): NONE
+  L-Modes 11 (♫ 1324.8765 p.21): NONE
+  L-Modes 12 (♫ 4321.5768 p.22): NONE
+  L-Modes 13 (♫ 4231.5678 p.23): NONE
+  L-Modes 14 (♫ 1234.6421 p.24): NONE
+  L-Modes 15 (♫ 4567.6421 p.25): NONE
+  L-Modes 16 (♫ 1357.4321 p.26): NONE
+  L-Modes 17 (♫ 1357.8765 p.27): NONE
   L-Dexterity II.1 (p7): NONE  # Too shifty for now
   L-Dexterity II.2 (p8): NONE  # Too shifty for now
   L-Dexterity II.3 (p9): NONE  # Too shifty for now
@@ -158,6 +158,30 @@ chopsRight:
   R-grace-triplet-30 (p40) (♪̵♪♪♪ ₂122.₁211...): NONE
   R-grace-triplet-31 (p40) (♪̵♪♪♪ ₂122.₂121.₁211.₁212...): NONE
   R-grace-triplet-32 (p40) (♪̵♪♪♪ ₂112.₂121.₁221.₁212...): NONE
+
+_chopsBothTodo:  # Not there yet
+  R+L-6ths-1 (p44) (♬@80~120 1166.2277ː3388.4499ː55AA.66BB, RH 1-2-1-2): NONE
+  R+L-6ths-2 (p44) (♬@80~120 1166.2277ː3388.4499ː55AA.66BB, RH 2-1-2-1): NONE
+  R+L-6ths-3 (p44) (♬@80~120 BB66.AA55ː9944.8833ː7722.6611, RH 1-2-1-2): NONE
+  R+L-6ths-4 (p44) (♬@80~120 BB66.AA55ː9944.8833ː7722.6611, RH 2-1-2-1): NONE
+  R+L-5ths-1 (p45): NONE
+  R+L-5ths-2 (p46): NONE
+  R+L-5ths-3 (p47): NONE
+  R+L-var.-1 (p48): NONE
+  R+L-var.-1a (p48): NONE
+  R+L-var.-2 (p48): NONE
+  R+L-var.-2a (p48): NONE
+  R+L-combination-1 (p49): NONE
+  R+L-combination-2 (p50): NONE
+  R+L-combination-3 (p51): NONE
+  R+L-inversion-whole-1 (p52): NONE
+  R+L-inversion-whole-2 (p52): NONE
+  R+L-inversion-whole-3 (p53): NONE
+  R+L-inversion-whole-4 (p53): NONE
+  R+L-inversion-half-1 (p54): NONE
+  R+L-inversion-half-2 (p54): NONE
+  R+L-inversion-half-3 (p55): NONE
+  R+L-inversion-half-4 (p55): NONE
 
 
 #
