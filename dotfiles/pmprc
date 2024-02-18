@@ -22,9 +22,9 @@ tempo:
   Try MM ♩={} today: 104|108|112|116|120|126
 
 homeworkTechnical:
-  Ray Brown's Diminished Exercise (p.83) [⍻ MM ♩=100]: NONE
-  Slide blending etude on page 31 [MM ♩=54]: NONE
-  Blending "Ryan's Hope" on page 32 [MM ♩=84]: NONE
+  Ray Brown's Diminished Exercise (p.83) [⍻ MM ♩=126]: NONE
+  Slide blending etude on page 31 [⍻ MM ♩=56, watch the last two bars]: NONE
+  Blending "Ryan's Hope" on page 32 [⍻ MM ♩=88]: NONE
 
 homeworkMusic:
   Simandl Étude 3 (p.4-5) [⍻ mind the intonation!]: NONE
@@ -55,7 +55,7 @@ warmupHarvey:
 
 warmupMode:
   # -major modes [sing names, do 1-2-3-4... 1-3-2-4... going up, the reverse going down]: major
-  L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
+  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
 
 warmupOtherScale:
   -Melodic Minor Scale [two octaves, three if possible]: minor
@@ -87,10 +87,9 @@ chopsLeft:
   L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
   L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
   L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
+  L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
 
 chopsLeftTodo:
-  L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
-  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
   L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
   L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
   L-Modes 5 (♬@60 132435465768 p.15): NONE
