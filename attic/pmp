@@ -57,6 +57,7 @@ form:
 
 
 __TODO__ = """
+- A global deck to minimize weird repetitions for dupes?
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - "  Play a {} scale: {@key}"
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
