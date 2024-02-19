@@ -104,9 +104,9 @@ _chopsLeftTodo:
   L-Modes 15 (♫ 4567.6421 p.25): NONE
   L-Modes 16 (♫ 1357.4321 p.26): NONE
   L-Modes 17 (♫ 1357.8765 p.27): NONE
-  L-Dexterity II.1 (p7): NONE  # Too shifty for now
-  L-Dexterity II.2 (p8): NONE  # Too shifty for now
-  L-Dexterity II.3 (p9): NONE  # Too shifty for now
+  L-Dexterity II.1 (p7) [Too shifty for now]: NONE
+  L-Dexterity II.2 (p8) [Too shifty for now]: NONE
+  L-Dexterity II.3 (p9) [Too shifty for now]: NONE
 
 chopsRight:
   R-16th-1 (p29) ♬ 1212...: NONE
@@ -496,23 +496,24 @@ _bachToDo:
   Bach I. Gigue: NONE
 
 _bookToDo:  # When I'm good enough?
-  Dean Peer's Harmonics: NONE  # Get started at some point
-  JP's Walking Bass: NONE  # After his course?
-  Mike Downes: NONE  # Too much self-reliance? Or maybe it eats up all the rest?
-  Blues Grooves: NONE  # Take a look?
-  Improviser's Bass Book: NONE  # Loses to JP+Dones? But Harvey likes it
-  Ron Carter's "Building Jazz Bass Lines": NONE  # Try it?
+  Dean Peer's Harmonics [Get started at some point]: NONE
+  JP's Walking Bass [After his course?]: NONE
+  Mike Downes [Too much self-reliance? Or maybe it eats up all the rest?]: NONE
+  Blues Grooves [Take a look?]: NONE
+  Improviser's Bass Book [Loses to JP+Dones? But Harvey likes it]: NONE
+  Ron Carter's "Building Jazz Bass Lines" [Try it?]: NONE
+  Richmond's "Modern Walking Bass Technique" [Maybe?]: NONE
 
-  Stuart Clayton's Guide to Scales and Modes: NONE  # Hm, pretty comprehensive
-  Di Bartolo's Complete Guide to Scales and Chords: NONE  # Hm, quite comprehensive
+  Stuart Clayton's Guide to Scales and Modes [Hm, pretty comprehensive]: NONE
+  Di Bartolo's Complete Guide to Scales and Chords [Hm, quite comprehensive, but not sure I like the tone]: NONE
 
-  Connecting Chords with Linear Harmony by Bert Ligon: NONE  # Check it out? See https://www.youtube.com/watch?v=W4RkIVTbezs
-  Coker's Patterns for Jazz: NONE  # Pretty serious stuff, for improvising
-  Comprehensive Technique for Jazz Musicians by Bert Ligon: NONE  # Maybe in the distant future
+  Connecting Chords with Linear Harmony by Bert Ligon [Check it out? See https://www.youtube.com/watch?v=W4RkIVTbezs]: NONE
+  Coker's Patterns for Jazz [Pretty serious stuff, for improvising]: NONE
+  Comprehensive Technique for Jazz Musicians by Bert Ligon [Maybe in the distant future]: NONE
 
-  #NAH# Bob Magnusson's "The Art of Walking Bass": NONE  # Loses to JP+Downes
-  #NAH# Steven Mooney's "Contructing Walking Jazz Bass Lines": NONE  # Loses to JP+Downes
-  #NAH# Ed's Building Walking Bass: NONE  # Loses to JP+Downes
+  #NAH# Bob Magnusson's "The Art of Walking Bass" [Loses to JP+Downes]: NONE
+  #NAH# Steven Mooney's "Contructing Walking Jazz Bass Lines" [Loses to JP+Downes]: NONE
+  #NAH# Ed's Building Walking Bass [Loses to JP+Downes]: NONE
 
 #
 # Generic
