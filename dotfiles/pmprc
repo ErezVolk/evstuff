@@ -22,9 +22,8 @@ tempo:
   Try MM ♩={} today: 104|108|112|116|120|126
 
 homeworkTechnical:
-  Ray Brown's Diminished Exercise (p.83) [⍻ MM ♩=126]: NONE
   Slide blending etude on page 31 [⍻ MM ♩=56, watch the last two bars]: NONE
-  Blending "Ryan's Hope" on page 32 [⍻ MM ♩=88]: NONE
+  Ray Brown's Diminished Exercise (Solo) (p.84): NONE
 
 homeworkMusic:
   Simandl Étude 3 (p.4-5) [⍻ mind the intonation!]: NONE
@@ -55,7 +54,7 @@ warmupHarvey:
 
 warmupMode:
   # -major modes [sing names, do 1-2-3-4... 1-3-2-4... going up, the reverse going down]: major
-  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
+  L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
 
 warmupOtherScale:
   -Melodic Minor Scale [two octaves, three if possible]: minor
@@ -88,9 +87,9 @@ chopsLeft:
   L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
   L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
   L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
+  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
 
 _chopsLeftTodo:
-  L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
   L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
   L-Modes 5 (♬@60 1324.3546.5768 p.15): NONE
   L-Modes 6 (♬@60 8675.6453.4231 p.16): NONE
@@ -229,6 +228,7 @@ keepRayBrown:
   Ray Brown's Diminished Exercise (p.79): NONE
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   Ray Brown's Diminished Exercise (p.82): NONE
+  Ray Brown's Diminished Exercise (p.83): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -344,6 +344,7 @@ reviseSteve:
   Steve's 4th slide etude (Ex. 3 on page 24): NONE
   Steve's 4th slide etude (Ex. 4 on page 24) [last played at ♩=60]: NONE
   Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM ♩=56]: NONE
+  Blending "Ryan's Hope" on page 32 [⍻ MM ♩=88]: NONE
 
 reviseBaroque:
   Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
@@ -452,7 +453,6 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's Diminished Exercise (Solo) (p.84): NONE
   Ray Brown's Diminished Exercise (p.85): NONE
   Ray Brown's Augmented Exercise (p.92): NONE
   Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
