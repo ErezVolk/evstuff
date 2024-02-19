@@ -26,9 +26,9 @@ homeworkTechnical:
   Ray Brown's Diminished Exercise (Solo) (p.84): NONE
 
 homeworkMusic:
-  Simandl Étude 3 (p.4-5) [⍻ mind the intonation!]: NONE
-  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow) [⍻]: NONE
-  Bach I. Allemande [after D♭-Melodic; last played first half at MM ♩=40, N.B. 13-16, work on second part]: NONE
+  Simandl Étude 3 (p.4-5) [⍻ intonation! lookahead]: NONE
+  Bach I. Allemande [last played first half at MM ♩=40, N.B. 13-16, work on second part]: NONE
+  JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets (Fast): NONE
 
 book:
   Radley ctd.: NONE
@@ -55,6 +55,7 @@ warmupHarvey:
 warmupMode:
   # -major modes [sing names, do 1-2-3-4... 1-3-2-4... going up, the reverse going down]: major
   L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
+  L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
 
 warmupOtherScale:
   -Melodic Minor Scale [two octaves, three if possible]: minor
@@ -90,7 +91,6 @@ chopsLeft:
   L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
 
 _chopsLeftTodo:
-  L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
   L-Modes 5 (♬@60 1324.3546.5768 p.15): NONE
   L-Modes 6 (♬@60 8675.6453.4231 p.16): NONE
   L-Modes 7 (♬@60 1342.3564.5786 p.17): NONE
@@ -423,13 +423,14 @@ reviseJP@AW:
   JP@AW 1.52 Bossa Nova (Slow): NONE
   JP@AW {} Cells: F7 (2.10)|Bb7 (2.11)|Am7 (2.12)|D7 (2.13)|Gm7 (2.14)|C7 (2.15)
   JP@AW {} Simple Jazz 2 Beat Feel II⧸V Progression: 2.16 (Slow)|2.17 (Fast)
-  #TODO# JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets (Fast): NONE
+  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow) [⍻]: NONE
+  #TODO# JP@AW ...
 
 reviseCarol:
   'Little Green Apples' (pp. 18-19) from "How to Play the Electric Bass": NONE
   'I Don't Need No Doctor' (p.20) from "How to Play the Electric Bass": NONE
   'Peace of Mind' (pp. 24-25) from "How to Play the Electric Bass": NONE
-  'Out of this World' (pp. 26-27) from "How to Play the Electric Bass" [last seen at 85% speed]: NONE
+  'Out of this World' (pp. 26-27) from "How to Play the Electric Bass" [real speed is about ♩=220, last played without the recording at ♩=176]: NONE
 
 reviseOther:
   Bach I. Prelude [last played at ♩=76]: NONE
@@ -507,7 +508,7 @@ _bookToDo:  # When I'm good enough?
   Stuart Clayton's Guide to Scales and Modes [Hm, pretty comprehensive]: NONE
   Di Bartolo's Complete Guide to Scales and Chords [Hm, quite comprehensive, but not sure I like the tone]: NONE
 
-  Connecting Chords with Linear Harmony by Bert Ligon [Check it out? See https://www.youtube.com/watch?v=W4RkIVTbezs]: NONE
+  Connecting Chords with Linear Harmony by Bert Ligon [Check it out? See youtu.be/W4RkIVTbezs]: NONE
   Coker's Patterns for Jazz [Pretty serious stuff, for improvising]: NONE
   Comprehensive Technique for Jazz Musicians by Bert Ligon [Maybe in the distant future]: NONE
 
