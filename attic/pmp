@@ -95,6 +95,7 @@ class Deck:
     label: Label
     layout: Layout
     drawn: int = 0
+    flipped: int = 0
     old_layout: Layout | None = None
 
     Strings: t.TypeAlias = Iterable[str]
@@ -112,6 +113,7 @@ class Deck:
             self.label = label or "|".join(self.cards)
             hashobj = hashlib.sha256("\0".join(sorted(self.cards)).encode())
             self.layout = f":{hashobj.hexdigest()[:8]}:"
+        self._set_queue(self.cards)
 
     def __len__(self) -> int:
         return len(self.cards)
@@ -182,6 +184,7 @@ class Deck:
         self.ping()
         if not self.queue:
             self._set_queue(self.cards)
+            self.flipped += 1
         card = self.queue.pop(0)
         self._track("%d after drawing %r", len(self.queue), card)
         return card
@@ -593,6 +596,8 @@ class PracticeMakesPerfect:
             "decks": {deck.layout: deck.blurb for deck in decks},
             "n_books": len(books := self.books.values()),
             "books": {book.blurb: book.entry_blurbs() for book in books},
+            "drawn": [deck.blurb for deck in decks if deck.drawn],
+            "flipped": [deck.blurb for deck in decks if deck.flipped],
         }
         self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
 
@@ -892,12 +897,13 @@ class Reporter:
         """Update row in report to reflect deck use in this session"""
         row.update(label=deck.label, layout=deck.layout, blurb=deck.blurb)
         row.pop("gone", None)
-        if deck.drawn:
-            row["used"] = self.now
-            try:
-                row["drawn"] = int(row["drawn"]) + deck.drawn
-            except (KeyError, ValueError, TypeError):
-                row["drawn"] = deck.drawn
+        for key in ("drawn", "flipped"):
+            if value := getattr(deck, key):
+                row["used"] = self.now
+                try:
+                    row[key] = int(row[key]) + value
+                except (KeyError, ValueError, TypeError):
+                    row[key] = value
 
     def when(self, row: StringDict) -> str:
         """Return sort of "usage date" for a row"""
