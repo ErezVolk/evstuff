@@ -654,12 +654,10 @@ class PracticeMakesPerfect:
         """Check configured graph is legit and prepare all books for action,
         making sure there's only one of each deck.
         """
-        for source, book in self.books.items():
+        for book in self.books.values():
             for ref in book.toc:
                 if isinstance(ref, BookRef):
-                    if (target := ref.book_label) not in self.books:
-                        self._fail(f"Unknown reference: {source} -> {target}")
-                    ref.book = self.books[target]
+                    ref.book = self.books[ref.book_label]
 
         for book in self.books.values():
             book.deck = self._have(book.finalize())
