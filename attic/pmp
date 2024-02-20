@@ -248,7 +248,6 @@ class Book:
     toc: list[Entry] = dataclasses.field(default_factory=list, init=False)
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
-    blurbs: list[str] = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
 
     def predraw(self, count: int) -> None:
@@ -267,10 +266,13 @@ class Book:
     def finalize(self) -> Deck:
         """(Re)create the deck"""
         self.labels = [entry.label for entry in self.toc]
-        self.blurbs = [entry.blurb for entry in self.toc]
         self.deck = Deck(self.labels, label=self.label, whence=self.whence)
         self.blurb = f"{self.deck.blurb} {'[]' if self.sequential else '{}'}"
         return self.deck
+
+    def entry_blurbs(self) -> list[str]:
+        """Blurbs of the entries"""
+        return [entry.blurb for entry in self.toc]
 
 
 @dataclasses.dataclass
@@ -591,7 +593,7 @@ class PracticeMakesPerfect:
             "n_decks": len(decks := self.decks.values()),
             "decks": {deck.layout: deck.blurb for deck in decks},
             "n_books": len(books := self.books.values()),
-            "books": {book.blurb: book.blurbs for book in books},
+            "books": {book.blurb: book.entry_blurbs() for book in books},
         }
         self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
 
