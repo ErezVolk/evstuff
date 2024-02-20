@@ -88,7 +88,6 @@ class SerializationError(ValueError):
 class Deck:
     """A deck of strings"""
 
-    whence: str
     cards: tuple[str, ...]
     queue: list[str] = []
     label: Label
@@ -100,8 +99,7 @@ class Deck:
     MIN_SERIALIZABLE = 3
     SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
 
-    def __init__(self, cards: Strings, whence: str, label="", layout=""):
-        self.whence = whence
+    def __init__(self, cards: Strings, label="", layout=""):
         assert not label or not layout, f"Either {label!r} or {layout!r}"
         self.cards = tuple(cards)
         assert self.cards, f"{label or layout!r} Empty decks not supported"
@@ -205,8 +203,8 @@ class Deck:
 class NoneDeck(Deck):
     """The NONE deck doesn't really have cards, so make the blurb nicer"""
 
-    def __init__(self, whence: str) -> None:
-        super().__init__([""], layout="NONE", whence=whence)
+    def __init__(self) -> None:
+        super().__init__([""], layout="NONE")
 
     def __repr__(self) -> str:
         return "<NoneDeck>"
@@ -241,7 +239,6 @@ class Etude:
 class Book:
     """A collection of etudes or pointers to other books"""
 
-    whence: str
     label: Label
     sequential: bool = False
 
@@ -266,7 +263,7 @@ class Book:
     def finalize(self) -> Deck:
         """(Re)create the deck"""
         self.labels = [entry.label for entry in self.toc]
-        self.deck = Deck(self.labels, label=self.label, whence=self.whence)
+        self.deck = Deck(self.labels, label=self.label)
         self.blurb = f"{self.deck.blurb} {'[]' if self.sequential else '{}'}"
         return self.deck
 
@@ -544,8 +541,8 @@ class PracticeMakesPerfect:
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales (major, minor, etc.)"""
-        self.decks = {"NONE": NoneDeck(whence="-")} | {
-            key: Deck(self._prep(key, cardstr), layout=key, whence="-")
+        self.decks = {"NONE": NoneDeck()} | {
+            key: Deck(self._prep(key, cardstr), layout=key)
             for key, cardstr in self.SCALE_KEYS.items()
         }
         log.debug("Basic decks: %s", SEP.join(self.decks))
@@ -667,13 +664,6 @@ class PracticeMakesPerfect:
         for book in self.books.values():
             book.deck = self._have(book.finalize())
 
-        for deck in self.decks.values():
-            for bunch in deck.cards:  # Though bunches are only prefab
-                for card in bunch.split("|"):
-                    if (label := card.removeprefix("@")) != card:
-                        if label not in self.books:
-                            self._fail(f"Unknown {bunch} in {deck.whence}")
-
     def _start_reporter(self) -> None:
         """Create reporter object"""
         self.reporter = Reporter(self.args.report_file)
@@ -689,15 +679,15 @@ class ConfigParser:
     books: Books = {}
     starred: list[Label] = []
     curr: Book | None = None
-    filename: Filename
     line_num: int
-    whence: str
+    whences: dict[Label, int]
     line: str
     mobj: re.Match | None
     deps: dict[str, set[str]] = collections.defaultdict(set)
 
     def __init__(self, labeldecks: dict[Label, Deck]) -> None:
         self.labeldecks = dict(labeldecks)
+        self.whences = {label: -1 for label in labeldecks}
 
     def match(self, expr: str) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line"""
@@ -714,15 +704,15 @@ class ConfigParser:
     def parse(self, filename: Filename, stream: t.TextIO) -> Config:
         """Read configuration file"""
         try:
-            self.filename = filename
             return self.do_parse(stream)
         except BadConfig as exc:
-            raise BadConfig(f"[{self.whence}] {exc}") from exc
+            if self.line_num:
+                raise BadConfig(f"[{filename}:{self.line_num}] {exc}") from exc
+            raise BadConfig(f"[{filename}] {exc}") from exc
 
     def do_parse(self, stream: t.TextIO) -> Config:
         """The actual reading function"""
         for self.line_num, line in enumerate(stream, 1):
-            self.whence = f"{self.filename}:{self.line_num}"
             self.line = re.sub(r"\s*(#.*)?$", "", line)
 
             if self.match(r"([^:|]+):=(.*)"):
@@ -740,6 +730,12 @@ class ConfigParser:
             elif not self.match(r""):
                 raise BadConfig(f"Bad line: {self.line!r}")
 
+        self.line_num = 0
+        known = self.books.keys() | self.labeldecks.keys()
+        if (unknown := self.deps.keys() - known):
+            errs = (f"[line {self.whences[unk]}] {unk!r}" for unk in unknown)
+            raise BadConfig(f"Bad reference(s): {', '.join(errs)}")
+
         try:
             graphlib.TopologicalSorter(self.deps).prepare()
         except graphlib.CycleError as exc:
@@ -754,7 +750,7 @@ class ConfigParser:
         if (label := label.strip()) in self.books:
             raise BadConfig(f"Duplicate book: {label!r}")
 
-        self.books[label] = self.curr = Book(self.whence, label, sequential)
+        self.books[label] = self.curr = Book(label, sequential)
         if star:
             self.starred.append(label)
 
@@ -764,11 +760,7 @@ class ConfigParser:
             raise BadConfig(f"Duplicate deck: {label!r}")
 
         cards = [key.strip() for key in keys.split("|")]
-        self.labeldecks[label] = Deck(
-            label=label,
-            cards=cards,
-            whence=self.whence,
-        )
+        self.labeldecks[label] = Deck(label=label, cards=cards)
 
     def add_etude(self, template: str, deckstr: str) -> None:
         """Found an etude line, e.g., "{}-maj: {major}" or "-min: minor}."""
@@ -795,7 +787,7 @@ class ConfigParser:
                 self.add_dep(self.curr.label, part)
             else:
                 keys = [key.strip() for key in part.split("|")]
-                decks.append(Deck(cards=keys, whence=self.whence))
+                decks.append(Deck(keys))
                 for key in keys:
                     if (target := key.removeprefix("@")) != key:
                         self.add_dep(self.curr.label, target)
@@ -822,6 +814,7 @@ class ConfigParser:
     def add_dep(self, source: Label, target: Label) -> None:
         """Remember a dependency. Return the target"""
         self.deps[target].add(source)
+        self.whences.setdefault(target, self.line_num)
 
     def add_one_liner(self, sequential: bool) -> None:
         """A one-liner is in `self.group("label" | "parts")`"""
