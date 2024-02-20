@@ -258,7 +258,6 @@ class Book:
     toc: list[Entry] = dataclasses.field(default_factory=list, init=False)
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
-    blurb: str = dataclasses.field(init=False)
 
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` items won't have dupes"""
@@ -277,8 +276,12 @@ class Book:
         """(Re)create the deck"""
         self.labels = [entry.label for entry in self.toc]
         self.deck = Deck(self.labels, label=self.label)
-        self.blurb = f"{self.deck.blurb} {'[]' if self.sequential else '{}'}"
         return self.deck
+
+    @property
+    def blurb(self) -> str:
+        """Book-level blurb"""
+        return f"{self.deck.blurb} {'[]' if self.sequential else '{}'}"
 
     def entry_blurbs(self) -> list[str]:
         """Blurbs of the entries"""
