@@ -15,6 +15,10 @@ oneString := E|A|D|G
 twoAdjacentStrings := E+A|A+D|D+G
 twoSubjacentStrings := E+D|A+G
 
+majMin:
+  -major: major
+  -minor: minor
+
 #
 # Currently working on
 #
@@ -246,16 +250,13 @@ keepSteveHazard:
   Hazard minor 6ths, {}: ₁-4-3-1 (Ex. 4A on page 15)
 
 keepSteveScaleIn10ths:
-  -major in 10th double stops (p.13): major
-  -minor in 10th double stops (p.13): minor
+  {} in 10th double stops (page 13): @majMin
 
 keepSteveScaleIn4ths:
-  -major in 4th double stops (Ex 5 on p.10): major
-  -minor in 4th double stops (Ex 5 on p.10): minor
+  {} in 4th double stops (page 10): @majMin
 
 keepSteveScaleIn5ths:
-  -major in 5th double stops (Ex 6 on p.7): major
-  -melodic minor in 5th double stops (Ex 6 on p.7): minor
+  {} in 5th double stops (page 7): @majMin
 
 keepSteveSlide2nd:
   -melodic minor linear slides of a second in octave double stops (Ex 4A on p.19): minor
