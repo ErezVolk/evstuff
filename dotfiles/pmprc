@@ -26,8 +26,9 @@ tempo:
   Try MM ♩={} today: 104|108|112|116|120|126
 
 homeworkTechnical:
-  Slide blending etude on page 31 [⍻ MM ♩=56, watch the last two bars]: NONE
-  Ray Brown's Diminished Exercise (Solo) (p.84): NONE
+  Slides of a 7th exercise on page 33: NONE
+  Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
+  Dean's Figure 15 on p.16 (he plays at MM=120, I did around MM=50): NONE
 
 homeworkMusic:
   Simandl Étude 3 (p.4-5) [⍻ intonation! lookahead]: NONE
@@ -345,6 +346,7 @@ reviseSteve:
   Steve's 4th slide etude (Ex. 3 on page 24): NONE
   Steve's 4th slide etude (Ex. 4 on page 24) [last played at ♩=60]: NONE
   Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM ♩=56]: NONE
+  Slide blending etude on page 31 [⍻ MM ♩=59]: NONE
   Blending "Ryan's Hope" on page 32 [⍻ MM ♩=88]: NONE
 
 reviseBaroque:
@@ -491,7 +493,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  Slides of a 7th exercise on page 33: NONE
   Octave slide exercise on page 34: NONE
   # Bailey says to start over here
   'Stella by Starlight' vibrato+legato exercise on page 35: NONE
@@ -509,8 +510,13 @@ _bachToDo:
   Bach I. Menuet II: NONE
   Bach I. Gigue: NONE
 
+_peerToDo:
+  Dean's Figure 16 on p.17: NONE
+  Dean's Figure 17 on p.18: NONE
+  Dean's Figure 17 on pp.18-19: NONE
+  # More as they come
+
 _bookToDo:  # When I'm good enough?
-  Dean Peer's Harmonics [Get started at some point]: NONE
   JP's Walking Bass [After his course?]: NONE
   Mike Downes [Too much self-reliance? Or maybe it eats up all the rest?]: NONE
   Blues Grooves [Take a look?]: NONE
