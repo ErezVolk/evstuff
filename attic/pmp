@@ -52,7 +52,9 @@ arp:  # Play an arpeggio
 
 form:
   Blues in {}: C|F|G
-  {}-major scale on the {} string: {major} {E|A|D|G}
+  {}-major scale on the {} string: {major} {oneString}
+
+oneString := E|A|D|G
 """
 
 
