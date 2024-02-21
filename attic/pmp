@@ -134,7 +134,8 @@ class Deck:
         return {key: getattr(self, key) for key in self.SERIALIZEES}
 
     def adapt(self, saved: StringDict) -> None:
-        """Try to deserialized a deck which has been modified"""
+        """When a user changes some cards in a deck (and thus the layout) but
+        keeps its name, we may be able to salvage it."""
         that = set(self._get_list(saved, "cards"))
         this = set(self.cards)
         if len(that & this) < self.MIN_SERIALIZABLE:
@@ -229,7 +230,7 @@ class NoneDeck(Deck):
 
 @dataclasses.dataclass
 class Etude:
-    """A concrete etude, e.g., 'minor pentatonic'.
+    """A concrete etude, e.g., '{}-minor pentatonic'.
 
     A template string with one or more `Deck` variables.
     """
@@ -392,7 +393,7 @@ class PracticeMakesPerfect:
         args.report_file = args.report_file or args.home / ".pmpreport.csv"
         self.parser = parser
 
-    LETTERS = set("CDEFGAB")
+    LETTERS = {"C", "D", "E", "F", "G", "A", "B"}
     ALL_NOTES = LETTERS | {f"{let}{suf}" for let in LETTERS for suf in "♯♭𝄪𝄫"}
 
     SCALE_KEYS = {  # Not the scales, but the valid keys (e.g., no G♯-major)

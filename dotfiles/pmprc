@@ -26,7 +26,7 @@ tempo:
   Try MM ♩={} today: 104|108|112|116|120|126
 
 homeworkTechnical:
-  Slides of a 7th exercise on page 33: NONE
+  Diatonic Slides of a 7th (page 33): NONE
   Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
   Dean's Figure 15 on p.16 (he plays at MM=120, I did around MM=50): NONE
 
@@ -59,6 +59,8 @@ warmupHarvey:
 
 warmupMode:
   # -major modes [sing names, do 1-2-3-4... 1-3-2-4... going up, the reverse going down]: major
+  L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
+  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
   L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
   L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
 
@@ -92,8 +94,6 @@ chopsLeft:
   L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
   L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
   L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
-  L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
-  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
 
 _chopsLeftTodo:
   L-Modes 5 (♬@60 1324.3546.5768 p.15): NONE
