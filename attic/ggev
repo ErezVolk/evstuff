@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.11  # TODO: Support 3.12
 
 from collections import defaultdict
 import hashlib

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.11  # TODO: support 3.12
 """A simple metronome.
 
 Metronome sounds recorded by Ludwig Peter Müller (muellerwig@gmail.com)
