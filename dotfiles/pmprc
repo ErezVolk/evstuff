@@ -26,9 +26,9 @@ tempo:
   Try MM ♩={} today: 104|108|112|116|120|126
 
 homeworkTechnical:
-  Diatonic Slides of a 7th (page 33): NONE
-  Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
-  Dean's Figure 15 on p.16 (he plays at MM=120, I did around MM=50): NONE
+  Diatonic Slides of a 7th (page 33) [⍻, move to all majMin when done]: NONE
+  Dean's Figure 15 on p.16 (he plays at MM=120, I did around MM=58): NONE
+  Ray Brown's Diminished Exercise (p.85): NONE
 
 homeworkMusic:
   Simandl Étude 3 (p.4-5) [⍻ intonation! lookahead]: NONE
@@ -234,6 +234,7 @@ keepRayBrown:
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   Ray Brown's Diminished Exercise (p.82): NONE
   Ray Brown's Diminished Exercise (p.83): NONE
+  Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -469,7 +470,6 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's Diminished Exercise (p.85): NONE
   Ray Brown's Augmented Exercise (p.92): NONE
   Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
   Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
