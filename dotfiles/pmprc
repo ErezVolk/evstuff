@@ -26,7 +26,7 @@ tempo:
   Try MM ♩={} today: 104|108|112|116|120|126
 
 homeworkTechnical:
-  Diatonic Slides of a 7th (page 33) [⍻, move to all majMin when done]: NONE
+  {} Diatonic Slides of a 7th ACROSS STRINGS (page 33) [⍻]: majMin
   Dean's Figure 15 on p.16 (he plays at MM=120, I did around MM=58): NONE
   Ray Brown's Diminished Exercise (p.85): NONE
 
@@ -194,7 +194,7 @@ _chopsBothTodo:  # Not there yet
 keep = { @keepSteveInterval @hazard @slide @doubleStop @keepRayBrown @keepCarolKaye }
 hazard = { @keepSteveHazard }
 slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveBlend }
-doubleStop = { @keepSteveScaleIn4ths @keepSteveScaleIn5ths @keepSteveScaleIn10ths }
+doubleStop = { @keepSteveScaleInDoubleStops }
 
 arpeggio:
   Δ: major
@@ -251,13 +251,9 @@ keepSteveHazard:
   Hazard 6ths, {}: 2-1-4-3 (Ex. 2 on page 14)|1-2-3-4 (Ex. 3A on page 15)|4-3-2-1 (Ex. 3B on page 15)
   Hazard minor 6ths, {}: ₁-4-3-1 (Ex. 4A on page 15)
 
-keepSteveScaleIn10ths:
+keepSteveScaleInDoubleStops:
   {} in 10th double stops (page 13): @majMin
-
-keepSteveScaleIn4ths:
   {} in 4th double stops (page 10): @majMin
-
-keepSteveScaleIn5ths:
   {} in 5th double stops (page 7): @majMin
 
 keepSteveSlide2nd:
