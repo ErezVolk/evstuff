@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+"""Google things"""
+# pyright: reportMissingImports=false
+# mypy: disable-error-code="import-untyped"
 
 from collections import defaultdict
 import hashlib
@@ -12,8 +15,8 @@ from bidi.algorithm import get_display
 CONFIG = __file__ + ".json"
 HISTORY = __file__ + ".history"
 
-with open(CONFIG) as fo:
-    config = json.load(fo)
+with open(CONFIG, encoding="utf-8") as _fo:
+    config = json.load(_fo)
 
 BLACKLIST_PREFIXES = set(config["BLACKLIST_PREFIXES"])
 
@@ -30,10 +33,11 @@ END = "\033[0m"
 
 
 class SearchError(Exception):
-    pass
+    """Search engine says NO"""
 
 
 def main():
+    """Google things"""
     try:
         hits = {}
         for kwargs in config["SEARCHES"]:
@@ -54,7 +58,7 @@ def main():
 
     history = defaultdict(set)
     try:
-        with open(HISTORY, "r") as fo:
+        with open(HISTORY, "r", encoding="utf-8") as fo:
             for line in fo:
                 url, *md5s = line.strip().split("\t")
                 history[url] = set(md5s)
@@ -79,7 +83,7 @@ def main():
             print(get_display(hit["abstract"]))
             print("")
 
-        with open(HISTORY, "w") as fo:
+        with open(HISTORY, "w", encoding="utf-8") as fo:
             for url, md5s in history.items():
                 fo.write("\t".join([url] + list(md5s)))
                 fo.write("\n")
@@ -96,6 +100,7 @@ GG2DDG_TIME = {
 
 
 def ddg(query, lang=None, timeframe="m1"):
+    """Call DuckDuckGo"""
     cmd = ["ddgr", "--json"]
     if lang is not None:
         cmd.append("--reg")
@@ -117,7 +122,8 @@ def google(query, lang=None, timeframe="m1"):
 
 
 def call_searcher(cmd):
-    out = subprocess.run(cmd, capture_output=True)
+    """Call any kind of googler-like searcher app"""
+    out = subprocess.run(cmd, capture_output=True, check=False)
     if out.returncode != 0:
         raise SearchError(out.stderr.decode())
     return {
@@ -128,10 +134,12 @@ def call_searcher(cmd):
 
 
 def blacklisted(url):
+    """Is the URL blacklisted?"""
     return any(url.startswith(prefix) for prefix in BLACKLIST_PREFIXES)
 
 
 def md5sum(text):
+    """Calculate MD5"""
     return hashlib.md5(text.encode("utf-8")).hexdigest()
 
 
