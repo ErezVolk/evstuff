@@ -412,7 +412,7 @@ class PracticeMakesPerfect:
     }
 
     books: Books
-    decks: Decks
+    decks: Decks = {}
     starred: list[Label]
     state: StringDict
     reporter: "Reporter"
@@ -560,11 +560,9 @@ class PracticeMakesPerfect:
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales (major, minor, etc.)"""
-        self.decks = {Layout("NONE"): NoneDeck()} | {
-            layout: Deck(self._prep(cardstr), layout=key)
-            for key, cardstr in self.SCALE_KEYS.items()
-            for layout in [Layout(key)]
-        }
+        self._have(NoneDeck())
+        for key, cardstr in self.SCALE_KEYS.items():
+            self._have(Deck(self._prep(cardstr), layout=Layout(key)))
         log.debug("Basic decks: %s", SEP.join(self.decks))
 
     def _prep(self, cardstr: str) -> list[str]:
