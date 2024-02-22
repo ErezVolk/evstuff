@@ -8,6 +8,7 @@ Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 """
 # pyright: reportMissingImports=false, reportMissingModuleSource=false
 # mypy: disable-error-code="import-untyped"
+# pylint: disable=import-error,no-name-in-module,c-extension-no-member
 
 import argparse
 import bisect
@@ -23,8 +24,8 @@ import wave
 import numpy as np
 from soundfile import SoundFile
 import pyaudio
-import rich
-import rich.live
+import rich.print
+from rich.live import Live
 
 try:
     import pynput.keyboard
@@ -38,7 +39,7 @@ try:
 
     WITH_MEDIA_KEYS = True
 except ImportError:
-    print("Warning: No media key support")
+    print("Warning: No media key support (try installing pynput)")
     CGEventMaskBit = NSEvent = NSSystemDefined = None
     WITH_MEDIA_KEYS = False
 
@@ -154,7 +155,7 @@ class Metronome:
     """A simple metronome"""
 
     args: argparse.Namespace
-    status: rich.live.Live
+    status: Live
     bytes_per_frame: int
     loop: ByteLoop = ByteLoop(b"", 0)
     next_loop: ByteLoop | None = None
@@ -272,7 +273,7 @@ class Metronome:
         """The main event"""
         self.parse_args()
 
-        with rich.live.Live("Loading...") as self.status:
+        with Live("Loading...") as self.status:
             self.do_run()
 
     def do_run(self):
