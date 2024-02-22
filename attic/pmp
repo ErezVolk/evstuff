@@ -67,13 +67,13 @@ __TODO__ = """
 
 
 SEP = " ‖ "
-Filename: t.TypeAlias = str | Path
-Label: t.TypeAlias = str  # Only for readability
-Layout: t.TypeAlias = str  # Only for readability
-Entry: t.TypeAlias = "Etude | BookRef"
-Books: t.TypeAlias = dict[Label, "Book"]
-Decks: t.TypeAlias = dict[Layout, "Deck"]
-StringDict: t.TypeAlias = dict[str, t.Any]
+type Filename = str | Path
+type Label = str  # Only for readability
+type Layout = str  # Only for readability
+type Entry = "Etude | BookRef"
+type Books = dict[Label, "Book"]
+type Decks = dict[Layout, "Deck"]
+type StringDict = dict[str, t.Any]
 
 log = logging.getLogger("pmp")
 tracked: set[Layout] = set()
@@ -98,7 +98,7 @@ class Deck:
     flipped: int = 0
     old_layout: Layout | None = None
 
-    Strings: t.TypeAlias = Iterable[str]
+    type Strings = Iterable[str]
     MIN_SERIALIZABLE = 3
     SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
 
@@ -215,15 +215,18 @@ class NoneDeck(Deck):
     def __repr__(self) -> str:
         return "<NoneDeck>"
 
+    @t.override
     def serialize(self) -> StringDict:
         """Do NOT serialize"""
         raise SerializationError("What would be the point?")
 
+    @t.override
     def draw(self) -> str:
         """Override `Deck.draw()` so we don't count these."""
         return ""
 
     @property
+    @t.override
     def blurb(self) -> str:
         return "NONE"
 
