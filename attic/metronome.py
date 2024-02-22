@@ -6,9 +6,13 @@ and distributed under the Creative Commons CC0 1.0 Universal license.
 https://www.reddit.com/r/audioengineering/comments/kg8gth/free_click_track_sound_archive/?rdt=48837
 Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 """
-# pyright: reportMissingImports=false, reportMissingModuleSource=false
+# pyright: reportMissingImports=false
+# pyright: reportMissingModuleSource=false
+# pyright: reportAttributeAccessIssue=false
 # mypy: disable-error-code="import-untyped"
-# pylint: disable=import-error,no-name-in-module,c-extension-no-member
+# pylint: disable=import-error
+# pylint: disable=no-name-in-module
+# pylint: disable=c-extension-no-member
 
 import argparse
 import bisect
@@ -24,8 +28,8 @@ import wave
 import numpy as np
 from soundfile import SoundFile
 import pyaudio
-import rich.print
-from rich.live import Live
+import rich
+import rich.live
 
 try:
     import pynput.keyboard
@@ -155,7 +159,7 @@ class Metronome:
     """A simple metronome"""
 
     args: argparse.Namespace
-    status: Live
+    status: rich.live.Live
     bytes_per_frame: int
     loop: ByteLoop = ByteLoop(b"", 0)
     next_loop: ByteLoop | None = None
@@ -273,7 +277,7 @@ class Metronome:
         """The main event"""
         self.parse_args()
 
-        with Live("Loading...") as self.status:
+        with rich.live.Live("Loading...") as self.status:
             self.do_run()
 
     def do_run(self):
