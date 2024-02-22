@@ -831,7 +831,7 @@ class ConfigParser:
         self.add_dep(source=self.curr.label, target=target)
 
     def add_dep(self, source: Label, target: Label) -> None:
-        """Remember a dependency. Return the target"""
+        """Remember a dependency"""
         self.deps[target].add(source)
         self.whences.setdefault(target, self.line_num)
 
