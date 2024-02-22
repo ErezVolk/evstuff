@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Italicize math"""
+"""Checks things in .docx files."""
+# pyright: reportMissingImports=false,reportAttributeAccessIssue=false
+# mypy: disable-error-code="import-untyped"
+
 import argparse
 from collections import Counter
 from collections import defaultdict
@@ -314,7 +317,7 @@ class Proof(DocxWorker):
         """Convert regular spaces in formulas to NBSP"""
         expr = (
             f"//w:r["
-            f" w:rPr[w:rStyle[@w:val='{self.formula_style_id}']]"  # Formula style
+            f" w:rPr[w:rStyle[@w:val='{self.formula_style_id}']]"
             f"]/w:t[re:test(., ' ')]"  # Contains spaces
         )
         for tnode in self.doc_xpath(expr):
@@ -444,7 +447,9 @@ class Proof(DocxWorker):
 
         style_id = self.find_style_id(self.args.dict_style)
         if style_id:
-            t_expr = f"./w:r[not(w:rStyle) or w:rStyle[@w:val!='{style_id}']]/w:t"
+            t_expr = (
+                f"./w:r[not(w:rStyle) or w:rStyle[@w:val != '{style_id}']]/w:t"
+            )
         else:
             t_expr = "./w:r/w:t"
 
