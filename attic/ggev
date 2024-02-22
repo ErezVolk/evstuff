@@ -2,18 +2,21 @@
 """Google things"""
 # pyright: reportMissingImports=false
 # mypy: disable-error-code="import-untyped"
+# pylint: disable=import-error
 
 from collections import defaultdict
 import hashlib
 import json
+from pathlib import Path
 import re
 import subprocess
 import urllib.parse
 
 from bidi.algorithm import get_display
 
-CONFIG = __file__ + ".json"
-HISTORY = __file__ + ".history"
+BIN = Path.home() / "bin"
+CONFIG = BIN / "ggev.json"
+HISTORY = BIN / "ggev.history"
 
 with open(CONFIG, encoding="utf-8") as _fo:
     config = json.load(_fo)
