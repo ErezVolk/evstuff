@@ -18,7 +18,7 @@ HISTORY = __file__ + ".history"
 with open(CONFIG, encoding="utf-8") as _fo:
     config = json.load(_fo)
 
-BLACKLIST_PREFIXES = set(config["BLACKLIST_PREFIXES"])
+BLACKLIST_PREFIXES = set(config.get("BLACKLIST_PREFIXES", []))
 
 PURPLE = "\033[95m"
 CYAN = "\033[96m"
