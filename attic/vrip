@@ -1,0 +1,3 @@
+#!/bin/sh
+
+source ~/.local/venv/bin/activate && pip "$@"
