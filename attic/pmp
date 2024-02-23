@@ -135,14 +135,14 @@ class Deck:
     def adapt(self, saved: StringDict) -> None:
         """When a user changes some cards in a deck (and thus the layout) but
         keeps its name, we may be able to salvage it."""
-        that = set(self._get_list(saved, "cards"))
-        this = set(self.cards)
-        if len(that & this) < self.MIN_SERIALIZABLE:
+        theirs = set(self._get_list(saved, "cards"))
+        ours = set(self.cards)
+        if len(theirs & ours) < self.MIN_SERIALIZABLE:
             raise SerializationError("Not enough shared cards to adapt")
-        added = this - that
-        gone = that - this
-        log.debug("Adapted %s +%s -%s", self.label, list(added), list(gone))
-        if not (queued := set(self._get_list(saved, "queue")) & this):
+        added = ours - theirs
+        gone = theirs - ours
+        log.debug("Adapting %s +%s -%s", self.label, list(added), list(gone))
+        if not (queued := set(self._get_list(saved, "queue")) & ours):
             raise SerializationError("No shared cards in queue")
         self._set_queue(queued & added)
         if isinstance(old_layout := saved.get("layout"), str):
@@ -150,11 +150,10 @@ class Deck:
 
     def deserialize(self, saved: t.Any) -> None:
         """Validate and restore a saved queue"""
-        if saved.get("layout") != self.layout:
-            raise SerializationError("Hash mismatch")
+        assert saved.get("layout") == self.layout, "Who called this?"
         queue = self._get_list(saved, "queue")
-        if not set(queue).issubset(self.cards):
-            raise SerializationError("Saved queue contains unknown cards")
+        if unknown := set(queue) - set(self.cards):
+            raise SerializationError(f"Saved queue contains unknown {unknown}")
         self._track("Deserializing")
         self._set_queue(queue)
 
@@ -279,7 +278,7 @@ class Book:
     def finalize(self) -> Deck:
         """(Re)create the deck"""
         self.labels = [entry.label for entry in self.toc]
-        self.deck = Deck(self.labels, label=self.label)
+        self.deck = Deck(cards=self.labels, label=self.label)
         return self.deck
 
     @property
@@ -434,7 +433,6 @@ class PracticeMakesPerfect:
         self._finalize_books()
         self._start_reporter()
         self._load_state()
-        self._make_all_decks()
         self._restore_state()
 
         self._run()
@@ -563,7 +561,7 @@ class PracticeMakesPerfect:
         """Start `self.decks` with the basic scales (major, minor, etc.)"""
         self._have(NoneDeck())
         for key, cardstr in self.SCALE_KEYS.items():
-            self._have(Deck(self._prep(cardstr), layout=Layout(key)))
+            self._have(Deck(cards=self._prep(cardstr), layout=Layout(key)))
         log.debug("Basic decks: %s", SEP.join(self.decks))
 
     def _prep(self, cardstr: str) -> list[str]:
@@ -629,14 +627,6 @@ class PracticeMakesPerfect:
             log.debug("Not serializing %s: %s", deck.blurb, exc)
             return self.state["deck"].get(deck.layout, str(exc))
 
-    def _make_all_decks(self) -> None:
-        """Make sure every deck is created and registered"""
-        log.debug("All books: %s", SEP.join(self.books))
-        for book in self.books.values():
-            for etude in book.toc:
-                if isinstance(etude, Etude):
-                    etude.decks = [self._have(deck) for deck in etude.decks]
-
     def _restore_state(self) -> None:
         """Restore queues for any eligible deck"""
         nowies: dict[Layout, StringDict] = {}
@@ -671,16 +661,15 @@ class PracticeMakesPerfect:
             self._fail(str(err))
 
     def _finalize_books(self) -> None:
-        """Check configured graph is legit and prepare all books for action,
-        making sure there's only one of each deck.
-        """
-        for book in self.books.values():
-            for ref in book.toc:
-                if isinstance(ref, BookRef):
-                    ref.book = self.books[ref.book_label]
-
+        """Prepare all decks for action, making sure they're unique."""
+        log.debug("All books: %s", SEP.join(self.books))
         for book in self.books.values():
             book.deck = self._have(book.finalize())
+            for entry in book.toc:
+                if isinstance(entry, Etude):
+                    entry.decks = [self._have(deck) for deck in entry.decks]
+                else:  # BookRef
+                    entry.book = self.books[entry.book_label]
 
     def _start_reporter(self) -> None:
         """Create reporter object"""
@@ -806,7 +795,7 @@ class ConfigParser:
                 self.add_dep(self.curr.label, label)
             else:
                 keys = [key.strip() for key in part.split("|")]
-                decks.append(Deck(keys))
+                decks.append(Deck(cards=keys))
                 for key in keys:
                     if (target := key.removeprefix("@")) != key:
                         self.add_dep(self.curr.label, Label(target))
