@@ -734,10 +734,10 @@ class ConfigParser:
                 self.add_one_liner(sequential=False)
             elif self.match(r"(?P<label>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
                 self.add_one_liner(sequential=True)
-            elif not self.match(r""):
+            elif self.line != "":
                 raise BadConfig(f"Bad line: {self.line!r}")
 
-        self.line_num = 0
+        self.line_num = 0  # For error messages
         known = self.books.keys() | self.labeldecks.keys()
         if (unknown := self.deps.keys() - known):
             errs = (f"[line {self.whences[unk]}] {unk!r}" for unk in unknown)
