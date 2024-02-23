@@ -9,7 +9,7 @@ mornHomework = [ homeworkTechnical ]
 
 eve = [ homeworkMusic 3@book 2@revise ]
 
-revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol }
+revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol reviseSteve }
 
 oneString := E|A|D|G
 twoAdjacentStrings := E+A|A+D|D+G
@@ -27,8 +27,8 @@ tempo:
 
 homeworkTechnical:
   {} Octave string-crossing slide exercise on page 34: @majMin
-  Dean's Figure 15 on p.16 (he plays at MM=120, I did around MM=100): NONE
   Ray Brown's Diminished Exercise (p.85) [⍻]: NONE
+  Dean's Figure 17 on pp.18-19: NONE
 
 homeworkMusic:
   Simandl Étude 3 (p.4-5) [⍻ intonation! lookahead]: NONE
@@ -445,6 +445,10 @@ reviseCarol:
   'Peace of Mind' (pp. 24-25) from "How to Play the Electric Bass": NONE
   'Out of this World' (pp. 26-27) from "How to Play the Electric Bass" [real speed is about ♩=220, last played without the recording at ♩=176]: NONE
 
+reviseDean:
+  Dean's Figure 15 on p.16: NONE
+  Dean's Figure 16 on p.17: NONE
+
 reviseOther:
   Bach I. Prelude [last played at ♩=76]: NONE
   Darker Side: NONE
@@ -507,9 +511,7 @@ _bachToDo:
   Bach I. Gigue: NONE
 
 _peerToDo:
-  Dean's Figure 16 on p.17: NONE
-  Dean's Figure 17 on p.18: NONE
-  Dean's Figure 17 on pp.18-19: NONE
+  Dean's Figure 19 on page 21 (D-major scale): NONE
   # More as they come
 
 _bookToDo:  # When I'm good enough?
