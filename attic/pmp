@@ -125,7 +125,7 @@ class Deck:
         return f"{self.label!r} {self.layout} @{len(self.queue)}/{len(self)}"
 
     def serialize(self) -> StringDict:
-        """Serialize"""
+        """Serialize for the state file"""
         if not self.drawn:
             raise SerializationError("Never drawn")
         if len(self) < self.MIN_SERIALIZABLE:
@@ -145,7 +145,8 @@ class Deck:
         if not (queued := set(self._get_list(saved, "queue")) & this):
             raise SerializationError("No shared cards in queue")
         self._set_queue(queued & added)
-        self.old_layout = saved.get("layout")
+        if isinstance(old_layout := saved.get("layout"), str):
+            self.old_layout = Layout(old_layout)
 
     def deserialize(self, saved: t.Any) -> None:
         """Validate and restore a saved queue"""
@@ -622,9 +623,8 @@ class PracticeMakesPerfect:
     def _save(self, deck: Deck) -> StringDict:
         """Serialize a single deck, or leave untouched"""
         try:
-            serialized = deck.serialize()
             log.debug("Serializing %s", deck.blurb)
-            return serialized
+            return deck.serialize()
         except SerializationError as exc:
             log.debug("Not serializing %s: %s", deck.blurb, exc)
             return self.state["deck"].get(deck.layout, str(exc))
