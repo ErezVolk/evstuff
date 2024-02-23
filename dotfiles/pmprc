@@ -1,9 +1,9 @@
 all = [ morn eve ]
 
-# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼ⁷₁Δː
+# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼ⁷₁Δː≅
 
 *morn = [ tempo mornWarmup mornPractice mornHomework ]
-mornWarmup = [ warmup chops @warmupOneStringScale ]
+mornWarmup = [ warmup chops ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
 
@@ -31,9 +31,9 @@ homeworkTechnical:
   Dean's Figure 17 on pp.18-19: NONE
 
 homeworkMusic:
-  Simandl Étude 3 (p.4-5) [⍻ intonation! lookahead]: NONE
+  Simandl Étude 3 (p.4-5) [⍻ intonation! playing at MM ♩=120 without the heavy piano]: NONE
   Bach I. Allemande [last played first half at MM ♩=40, N.B. 13-16, work on second part]: NONE
-  JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets (Fast): NONE
+  JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets (Fast, ♩≅155) [⍻, only the groove, I can't play every note]: NONE
 
 book:
   Radley ctd.: NONE
@@ -65,21 +65,21 @@ warmupMode:
   L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
 
 warmupOtherScale:
-  -Melodic Minor Scale [two octaves, three if possible]: minor
-  -Harmonic Minor Scale [two octaves, three if possible]: minor
-  Whole Tone Scale from {}: ANY
-  Diminished Scale from {}: ANY
-  # -Natural Minor Scale: minor
-  # Modes of the ascending melodic minor (https://en.wikipedia.org/wiki/Jazz_minor_scale#Modes_of_jazz_minor_scale) ?
-
-warmupOneStringScale:
-  {}-major on the {} string: {major} {oneString}
+  {}-Major Scale, ATFB and on the {} string: {major} {oneString}
+  {}-{} Minor Scale, ATFB and on the {} string: {minor} {Natural|Harmonic|Melodic} {oneString}
+  Whole Tone Scale from {}, ATFB and on the {} string: {ANY} {oneString}
+  Diminished Scale from {}, ATFB and on the {} string: {ANY} {oneString}
   Chromatic scale on the {} string [sing before you play!]: {oneString}
+  # Modes of the ascending melodic minor (https://en.wikipedia.org/wiki/Jazz_minor_scale#Modes_of_jazz_minor_scale) ?
 
 #
 # JdP's "Daily Chop-Builders for Bass"
 #
-chops = [ @chopsRight @chopsLeft ]
+chops = [ @chopsRight @chopsLeft @patituchops ]
+
+patituchops:
+  JP@AW 1.09 1234-1423-1424-1243-4321-2143-3241-2121 with hammer-ons and pull-offs: NONE
+  JP@AW 1.10 The Spider, starting on {}: ANY
 
 chopsLeft:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
@@ -512,6 +512,12 @@ _bachToDo:
 
 _peerToDo:
   Dean's Figure 19 on page 21 (D-major scale): NONE
+  # How to practice the chords in Figure 20 (pages 22-28)?
+  Dean's Figure 21 on page 29: NONE
+  Dean's Figure 22 on page 30: NONE
+  Dean's Figure 23 on page 30: NONE
+  Dean's Figure 24 on page 30: NONE
+  Dean's Figure 25 on page 31: NONE
   # More as they come
 
 _bookToDo:  # When I'm good enough?
