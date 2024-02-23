@@ -150,11 +150,11 @@ class Deck:
 
     def deserialize(self, saved: t.Any) -> None:
         """Validate and restore a saved queue"""
-        queue = self._get_list(saved, "queue")
-        if not set(queue).issubset(self.cards):
-            raise SerializationError("List contains unknown cards")
         if saved.get("layout") != self.layout:
             raise SerializationError("Hash mismatch")
+        queue = self._get_list(saved, "queue")
+        if not set(queue).issubset(self.cards):
+            raise SerializationError("Saved queue contains unknown cards")
         self._track("Deserializing")
         self._set_queue(queue)
 
@@ -163,13 +163,13 @@ class Deck:
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too few items to load state")
         if not isinstance(saved, dict):
-            raise SerializationError("Not a dict")
+            raise SerializationError(f"{key}: Not a dict")
         if not isinstance(cards := saved.get(key), list):
-            raise SerializationError("Not a list")
+            raise SerializationError(f"{key}: Not a list")
         if not cards:
-            raise SerializationError("Empty list")
+            raise SerializationError(f"{key}: Empty list")
         if not all(isinstance(card, str) for card in cards):
-            raise SerializationError("Not a list of strings")
+            raise SerializationError(f"{key}: Not a list of strings")
         return cards
 
     def predraw(self, count: int) -> None:
