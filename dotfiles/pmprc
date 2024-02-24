@@ -33,7 +33,7 @@ homeworkTechnical:
 homeworkMusic:
   Simandl Étude 3 (p.4-5) [⍻ intonation! playing at MM ♩=120 without the heavy piano]: NONE
   Bach I. Allemande [last played first half at MM ♩=40, N.B. 13-16, work on second part]: NONE
-  JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets (Fast, ♩≅155) [⍻, groove before notes]: NONE
+  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow) [without the chords]: NONE
 
 book:
   Radley ctd.: NONE
@@ -425,7 +425,7 @@ reviseJP@AW:
   JP@AW 1.52 Bossa Nova (Slow): NONE
   JP@AW {} Cells: F7 (2.10)|Bb7 (2.11)|Am7 (2.12)|D7 (2.13)|Gm7 (2.14)|C7 (2.15)
   JP@AW {} Simple Jazz 2 Beat Feel II⧸V Progression: 2.16 (Slow)|2.17 (Fast)
-  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets (Slow) [⍻]: NONE
+  #TODO# JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets (Fast, ♩≅155) [⍻, groove before notes]: NONE
   #TODO# JP@AW 2.20 Walking Bass in the Lower Positions (Slow): NONE
   #TODO# JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
   #TODO# JP@AW 2.22 First Time: NONE
