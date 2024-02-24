@@ -484,10 +484,10 @@ class PracticeMakesPerfect:
         for entry in book.draw_all():
             if top:
                 self._header(entry.label, level=2)
-            if isinstance(entry, Etude):
-                print(self._make_track(entry))
-            else:  # BookRef
-                self._run_book(entry.book, entry.count)
+            if isinstance(etude := entry, Etude):
+                print(self._make_track(etude))
+            elif isinstance(ref := entry, BookRef):
+                self._run_book(ref.book, ref.count)
 
     def _run_plain(self, book: Book, num_tracks: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys"""
@@ -506,10 +506,10 @@ class PracticeMakesPerfect:
         to make sure the graph is cycle-free.
         """
         for entry in book.draw_n(count or 1):
-            if isinstance(entry, Etude):
-                yield entry
-            else:  # BookRef
-                yield from self._choose_etudes(entry.book, entry.count)
+            if isinstance(etude := entry, Etude):
+                yield etude
+            elif isinstance(ref := entry, BookRef):
+                yield from self._choose_etudes(ref.book, ref.count)
 
     def _choose_book(self) -> Book:
         """Pick out a book"""
@@ -663,10 +663,10 @@ class PracticeMakesPerfect:
         for book in self.books.values():
             book.deck = self._have(book.finalize())
             for entry in book.draw_all(dry_run=True):
-                if isinstance(entry, Etude):
-                    entry.decks = [self._have(deck) for deck in entry.decks]
-                else:  # BookRef
-                    entry.book = self.books[entry.book_label]
+                if isinstance(etude := entry, Etude):
+                    etude.decks = [self._have(deck) for deck in etude.decks]
+                elif isinstance(ref := entry, BookRef):
+                    ref.book = self.books[ref.book_label]
 
     def _start_reporter(self) -> None:
         """Create reporter object"""
