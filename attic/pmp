@@ -262,9 +262,10 @@ class Book:
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
 
-    def draw_all(self) -> Iterable[Entry]:
+    def draw_all(self, dry_run=False) -> Iterable[Entry]:
         """Yield all entries in order, one by one"""
-        self.deck.ping()
+        if not dry_run:
+            self.deck.ping()
         yield from self.toc
 
     def draw_n(self, count: int) -> Iterable[Entry]:
@@ -661,7 +662,7 @@ class PracticeMakesPerfect:
         log.debug("All books: %s", SEP.join(self.books))
         for book in self.books.values():
             book.deck = self._have(book.finalize())
-            for entry in book.toc:
+            for entry in book.draw_all(dry_run=True):
                 if isinstance(entry, Etude):
                     entry.decks = [self._have(deck) for deck in entry.decks]
                 else:  # BookRef
