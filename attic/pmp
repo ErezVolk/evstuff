@@ -499,17 +499,17 @@ class PracticeMakesPerfect:
         tracks = self._make_tracks(etudes)
         print(self._get_sep(tracks).join(tracks))
 
-    def _choose_etudes(self, book: Book, count: int) -> Iterable[Etude]:
+    def _choose_etudes(self, book: Book, count: int | None) -> Iterable[Etude]:
         """Yields chosen etudes.
 
         Recursion is safe here, since we used `TopologicalSorter`
         to make sure the graph is cycle-free.
         """
-        for entry in book.draw_n(count):
+        for entry in book.draw_n(count or 1):
             if isinstance(entry, Etude):
                 yield entry
             else:  # BookRef
-                yield from self._choose_etudes(entry.book, entry.count or 1)
+                yield from self._choose_etudes(entry.book, entry.count)
 
     def _choose_book(self) -> Book:
         """Pick out a book"""
