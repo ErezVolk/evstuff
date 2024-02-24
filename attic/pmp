@@ -489,13 +489,13 @@ class PracticeMakesPerfect:
             elif isinstance(ref := entry, BookRef):
                 self._run_book(ref.book, ref.count)
 
-    def _run_plain(self, book: Book, num_tracks: int | None) -> None:
+    def _run_plain(self, book: Book, count: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys"""
-        if num_tracks is None:
-            num_tracks = len(book.deck)
-        elif num_tracks <= 0:
-            num_tracks = len(self.decks[Layout("ANY")])
-        etudes = self._choose_etudes(book, num_tracks)
+        if count is None:
+            count = len(book.deck)
+        elif count <= 0:
+            count = len(self.decks[Layout("ANY")])
+        etudes = self._choose_etudes(book, count)
         tracks = self._make_tracks(etudes)
         print(self._get_sep(tracks).join(tracks))
 
