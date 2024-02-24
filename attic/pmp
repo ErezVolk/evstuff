@@ -262,18 +262,16 @@ class Book:
     deck: Deck = dataclasses.field(init=False)
     labels: list[Label] = dataclasses.field(init=False)
 
-    def predraw(self, count: int) -> None:
-        """Try and make sure the next `count` items won't have dupes"""
-        self.deck.predraw(count)
-
     def draw_all(self) -> Iterable[Entry]:
-        """Yield all cards in order, one by one"""
+        """Yield all entries in order, one by one"""
         self.deck.ping()
         yield from self.toc
 
-    def draw(self) -> Entry:
-        """Get the next random ToC entry"""
-        return self.toc[self.labels.index(Label(self.deck.draw()))]
+    def draw_n(self, count: int) -> Iterable[Entry]:
+        """Yield `count` random entries."""
+        self.deck.predraw(count)
+        for _ in range(count):
+            yield self.toc[self.labels.index(Label(self.deck.draw()))]
 
     def finalize(self) -> Deck:
         """(Re)create the deck"""
@@ -506,9 +504,7 @@ class PracticeMakesPerfect:
         Recursion is safe here, since we used `TopologicalSorter`
         to make sure the graph is cycle-free.
         """
-        book.predraw(count)
-        for _ in range(count):
-            entry = book.draw()
+        for entry in book.draw_n(count):
             if isinstance(entry, Etude):
                 yield entry
             else:  # BookRef
