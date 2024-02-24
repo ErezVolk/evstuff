@@ -27,8 +27,8 @@ tempo:
 
 homeworkTechnical:
   {} Octave string-crossing slide exercise on page 34: @majMin
-  Ray Brown's Diminished Exercise (p.85) [⍻]: NONE
   Dean's Figure 17 on pp.18-19: NONE
+  Ray Brown's Augmented Exercise (p.92): NONE
 
 homeworkMusic:
   Simandl Étude 3 (p.4-5) [⍻ intonation! playing at MM ♩=120 without the heavy piano]: NONE
@@ -235,6 +235,7 @@ keepRayBrown:
   Ray Brown's Diminished Exercise (p.82): NONE
   Ray Brown's Diminished Exercise (p.83): NONE
   Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
+  Ray Brown's Diminished Exercise (p.85) [⍻]: NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -471,7 +472,6 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's Augmented Exercise (p.92): NONE
   Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
   Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
   Ray Brown's Augmented Exercise (p.97, top 2): NONE
