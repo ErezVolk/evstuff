@@ -498,7 +498,7 @@ class PracticeMakesPerfect:
         elif count <= 0:
             count = len(self.decks[Layout("ANY")])
         etudes = self._choose_etudes(book, count)
-        tracks = self._make_tracks(etudes)
+        tracks = [self._make_track(etude) for etude in etudes]
         print(self._get_sep(tracks).join(tracks))
 
     def _choose_etudes(self, book: Book, count: int | None) -> Iterable[Etude]:
@@ -523,10 +523,6 @@ class PracticeMakesPerfect:
             labels = self.starred
         return self.books[random.choice(labels)]
 
-    def _make_tracks(self, etude_seq: Iterable[Etude]) -> list[str]:
-        """Pick a key (or selection of keys) for each etude"""
-        return [self._make_track(etude) for etude in etude_seq]
-
     def _make_track(self, etude: Etude) -> str:
         """Fill in the template for one etude"""
         keys = []
@@ -535,8 +531,8 @@ class PracticeMakesPerfect:
             if "|" in key:  # Can only come from our pitch classes
                 key = random.choice(key.split("|"))
             if (label := key.removeprefix("@")) != key:
-                book = self.books[Label(label)]
-                key, = self._make_tracks(self._choose_etudes(book, 1))
+                other_etude, = self._choose_etudes(self.books[Label(label)], 1)
+                key = self._make_track(other_etude)
             keys.append(key)
 
         if "{}" not in etude.template:
