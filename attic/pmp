@@ -544,15 +544,10 @@ class PracticeMakesPerfect:
     def _run_etudes(self, etudes: Iterable[Etude]) -> None:
         """Choose keys for a bunch of etudes and print them"""
         tracks = [self._make_track(etude) for etude in etudes]
-        if self.args.multiline:
-            sep = "\n"
-        elif any(" " in track for track in tracks):
-            sep = "\n"
-        elif sum(len(track) for track in tracks) + len(tracks) >= 80:
-            sep = "\n"
-        else:
-            sep = " "
-        print(sep.join(tracks))
+        line = " ".join(tracks)
+        if self.args.multiline or " " in "".join(tracks) or len(line) >= 80:
+            line = "\n".join(tracks)
+        print(line)
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales (major, minor, etc.)"""
