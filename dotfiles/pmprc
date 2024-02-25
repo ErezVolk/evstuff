@@ -26,9 +26,9 @@ tempo:
   Try MM ♩={} today: 104|108|112|116|120|126
 
 homeworkTechnical:
-  {} Octave string-crossing slide exercise on page 34: @majMin
   Dean's Figure 17 on pp.18-19: NONE
   Ray Brown's Augmented Exercise (p.92): NONE
+  Revise Steve [at page 4]: NONE
 
 homeworkMusic:
   Simandl Étude 3 (p.4-5) [⍻ intonation! playing at MM ♩=120 without the heavy piano]: NONE
@@ -285,6 +285,7 @@ keepSteveSlide6th:
 keepSteveBlend:
   Slide blending exercises on page 30: NONE
   {} Diatonic string-crossing slides of a 7th (page 33): @majMin
+  {} Octave string-crossing slide exercise on page 34: @majMin
 
 keepCarolKaye:  # When I'm done
   Page 5 in "How to Play the Electric Bass": NONE
@@ -494,7 +495,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  # Bailey says to start over here
   'Stella by Starlight' vibrato+legato exercise on page 35: NONE
   Harmonic slides exercise on page 35: NONE
   Exercise 3 on page 36: NONE
