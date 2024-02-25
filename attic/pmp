@@ -31,8 +31,21 @@ import logging
 from pathlib import Path
 import plistlib
 import random
-import re
 import typing as t
+
+try:
+    import regex as re  # type: ignore
+
+    def vlen(text: str) -> int:
+        """Visible Length: number of graphemes"""
+        return sum(1 for _ in re.finditer(r"\X", text))
+
+except ImportError:
+    import re
+
+    def vlen(text: str) -> int:
+        """Fallbak to length"""
+        return len(text)
 
 
 DEFAULT_CONFIG = """
@@ -67,13 +80,13 @@ __TODO__ = """
 
 
 SEP = " ‖ "
-type Filename = str | Path
+Filename: t.TypeAlias = str | Path
 Label = t.NewType("Label", str)
 Layout = t.NewType("Layout", str)
-type Entry = "Etude | BookRef"
-type Books = dict[Label, "Book"]
-type Decks = dict[Layout, "Deck"]
-type StringDict = dict[str, t.Any]
+Entry: t.TypeAlias = "Etude | BookRef"
+Books: t.TypeAlias = dict[Label, "Book"]
+Decks: t.TypeAlias = dict[Layout, "Deck"]
+StringDict: t.TypeAlias = dict[str, t.Any]
 
 log = logging.getLogger("pmp")
 tracked: set[Layout] = set()
@@ -442,9 +455,9 @@ class PracticeMakesPerfect:
     def _header(self, text: str, level: int = 1) -> None:
         """Print a markdown-like header"""
         if level == 1:
-            print(f"{text}\n{'=' * len(text)}")
+            print(f"{text}\n{'=' * vlen(text)}")
         else:
-            print(f"\n{text}\n{'-' * len(text)}")
+            print(f"\n{text}\n{'-' * vlen(text)}")
 
     def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
@@ -530,7 +543,7 @@ class PracticeMakesPerfect:
                 key = random.choice(key.split("|"))
             if (label := key.removeprefix("@")) != key:
                 other_book = self.books[Label(label)]
-                other_etude, = self._choose_etudes(other_book, 1)
+                (other_etude,) = self._choose_etudes(other_book, 1)
                 key = self._make_track(other_etude)
             keys.append(key)
 
@@ -545,7 +558,7 @@ class PracticeMakesPerfect:
         """Choose keys for a bunch of etudes and print them"""
         tracks = [self._make_track(etude) for etude in etudes]
         line = "\n".join(tracks)
-        if not self.args.multiline and " " not in line and len(line) < 80:
+        if not self.args.multiline and " " not in line and vlen(line) < 80:
             line = " ".join(tracks)
         print(line)
 
@@ -731,7 +744,7 @@ class ConfigParser:
 
         self.line_num = 0  # For error messages
         known = self.books.keys() | self.labeldecks.keys()
-        if (unknown := self.deps.keys() - known):
+        if unknown := self.deps.keys() - known:
             errs = (f"[line {self.whences[unk]}] {unk!r}" for unk in unknown)
             raise BadConfig(f"Bad reference(s): {', '.join(errs)}")
 
