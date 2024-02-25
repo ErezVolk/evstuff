@@ -487,7 +487,7 @@ class PracticeMakesPerfect:
             if top:
                 self._header(entry.label, level=2)
             if isinstance(etude := entry, Etude):
-                print(self._make_track(etude))
+                self._run_etudes([etude])
             elif isinstance(ref := entry, BookRef):
                 self._run_book(ref.book, ref.count)
 
@@ -497,9 +497,7 @@ class PracticeMakesPerfect:
             count = len(book.deck)
         elif count <= 0:
             count = len(self.decks[Layout("ANY")])
-        etudes = self._choose_etudes(book, count)
-        tracks = [self._make_track(etude) for etude in etudes]
-        print(self._get_sep(tracks).join(tracks))
+        self._run_etudes(self._choose_etudes(book, count))
 
     def _choose_etudes(self, book: Book, count: int | None) -> Iterable[Etude]:
         """Yields chosen etudes.
@@ -543,15 +541,18 @@ class PracticeMakesPerfect:
         ikey = iter(keys)
         return "".join(next(ikey) if part == "{}" else part for part in parts)
 
-    def _get_sep(self, tracks: list[str]) -> str:
-        """Return space or newline separator for a list of chosen tracks"""
+    def _run_etudes(self, etudes: Iterable[Etude]) -> None:
+        """Choose keys for a bunch of etudes and print them"""
+        tracks = [self._make_track(etude) for etude in etudes]
         if self.args.multiline:
-            return "\n"
-        if any(" " in track for track in tracks):
-            return "\n"
-        if sum(len(track) for track in tracks) + len(tracks) >= 80:
-            return "\n"
-        return " "
+            sep = "\n"
+        elif any(" " in track for track in tracks):
+            sep = "\n"
+        elif sum(len(track) for track in tracks) + len(tracks) >= 80:
+            sep = "\n"
+        else:
+            sep = " "
+        print(sep.join(tracks))
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales (major, minor, etc.)"""
