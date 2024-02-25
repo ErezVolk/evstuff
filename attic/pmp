@@ -468,8 +468,10 @@ class PracticeMakesPerfect:
         """Choose, report, and run the top-level book"""
         book = self._choose_book()
         count = None if self.args.one_of_each else self.args.num_tracks
-        now = datetime.datetime.now().isoformat(timespec="minutes", sep=" ")
-        self._header(f"{now} {book.label}")
+        now = datetime.datetime.now()
+        weekday = "月火水木金土日"[now.weekday()]
+        header = now.strftime(f"%Y-%m-%d {weekday} %H:%M {book.label} ")
+        self._header(header)
         self._run_book(book, count=count, top=True)
 
     def _run_book(self, book: Book, count: int | None, top=False) -> None:
