@@ -77,7 +77,7 @@ warmupOtherScale:
 chops = [ @chopsRight @chopsLeft @patituchops ]
 
 patituchops:
-  JP@AW 1.09 1234-1423-1424-1243-4321-2143-3241-2121 with hammer-ons and pull-offs: NONE
+  JP@AW 1.09 1234-1423-1424-1243-4321-2143-3241-2132 with hammer-ons and pull-offs: NONE
   JP@AW 1.10 The Spider, starting on {}: ANY
 
 chopsLeft:
