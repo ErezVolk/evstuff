@@ -35,17 +35,10 @@ import typing as t
 
 try:
     import regex as re  # type: ignore
-
-    def vlen(text: str) -> int:
-        """Visible Length: number of graphemes"""
-        return len(re.findall(r"\X", text))
-
+    HAVE_REGEX = True
 except ImportError:
+    HAVE_REGEX = False
     import re
-
-    def vlen(text: str) -> int:
-        """Fallbak to length"""
-        return len(text)
 
 
 DEFAULT_CONFIG = """
@@ -452,9 +445,13 @@ class PracticeMakesPerfect:
     def _header(self, text: str, level: int = 1) -> None:
         """Print a markdown-like header"""
         if level == 1:
-            print(f"{text}\n{'=' * vlen(text)}")
+            print(f"{text}\n{'=' * self._vlen(text)}")
         else:
-            print(f"\n{text}\n{'-' * vlen(text)}")
+            print(f"\n{text}\n{'-' * self._vlen(text)}")
+
+    def _vlen(self, text: str) -> int:
+        """Visible Length: number of graphemes"""
+        return len(re.findall(r"\X", text)) if HAVE_REGEX else len(text)
 
     def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
@@ -554,10 +551,10 @@ class PracticeMakesPerfect:
     def _run_etudes(self, etudes: Iterable[Etude]) -> None:
         """Choose keys for a bunch of etudes and print them"""
         tracks = [self._make_track(etude) for etude in etudes]
-        line = "\n".join(tracks)
-        if not self.args.multiline and " " not in line and vlen(line) < 80:
-            line = " ".join(tracks)
-        print(line)
+        txt = "\n".join(tracks)
+        if not self.args.multiline and " " not in txt and self._vlen(txt) < 80:
+            txt = " ".join(tracks)
+        print(txt)
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales (major, minor, etc.)"""
