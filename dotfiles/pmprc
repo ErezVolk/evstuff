@@ -28,11 +28,11 @@ tempo:
 homeworkTechnical:
   Dean's Figure 17 on pp.18-19: NONE
   Ray Brown's Augmented Exercise (p.92): NONE
-  Revise Steve [at page 4]: NONE
+  Revise Steve [at page 10]: NONE
 
 homeworkMusic:
   Bach I. Allemande [last played in a slow rubato, no metronome, around 40 BPM]: NONE
-  JP@AW {} Simple Jazz 2 Beat Feel II⧸V with Triplets [⍻ start with roots+groove, no looking at the sheet music]: {2.18 (Slow)|2.19 (Fast)}
+  JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets [⍻ start with roots+groove, no looking at the sheet music]: NONE
 
 book:
   Radley ctd.: NONE
@@ -254,7 +254,9 @@ keepSteveHazard:
 keepSteveScaleInDoubleStops:
   {} in 10th double stops (page 13): @majMin
   {} in 4th double stops (page 10): @majMin
-  {} in 5th double stops (page 7): @majMin
+  {} in 5th double stops (Ex 6 on page 7): @majMin
+  {} in octave double stops 1-3-2-4-... (Ex 5 on page 7): @majMin
+  Chromatic scale in 5th double stops on {} (page 6): twoAdjacentStrings
 
 keepSteveSlide2nd:
   -melodic minor linear slides of a second in octave double stops (Ex 4A on p.19): minor
@@ -335,6 +337,9 @@ keepCarolKaye:  # When I'm done
 #
 
 reviseSteve:
+  Steve's 5th Shifting (Ex 3 on page 6): NONE
+  Steve's 5th Combination (Ex 4 on page 7): NONE
+  Steve's 4th Shifting (Ex 3 on page 9): NONE
   Steve's 4th Combination (Ex 4 on page 9): NONE
   Steve's 6ths étude (Ex 5 on page 16): NONE
   Steve's Triads 1 (page 17) [last played at ♩=69]: NONE
@@ -426,6 +431,7 @@ reviseJP@AW:
   JP@AW 1.52 Bossa Nova (Slow): NONE
   JP@AW {} Cells: F7 (2.10)|Bb7 (2.11)|Am7 (2.12)|D7 (2.13)|Gm7 (2.14)|C7 (2.15)
   JP@AW {} Simple Jazz 2 Beat Feel II⧸V Progression: 2.16 (Slow)|2.17 (Fast)
+  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets [start with roots+groove, no looking at the sheet music]: NONE
   #TODO# JP@AW 2.20 Walking Bass in the Lower Positions (Slow): NONE
   #TODO# JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
   #TODO# JP@AW 2.22 First Time: NONE
