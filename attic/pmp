@@ -38,7 +38,7 @@ try:
 
     def vlen(text: str) -> int:
         """Visible Length: number of graphemes"""
-        return sum(1 for _ in re.finditer(r"\X", text))
+        return len(re.findall(r"\X", text))
 
 except ImportError:
     import re
@@ -227,18 +227,15 @@ class NoneDeck(Deck):
     def __repr__(self) -> str:
         return "<NoneDeck>"
 
-    @t.override
     def serialize(self) -> StringDict:
         """Do NOT serialize"""
         raise SerializationError("What would be the point?")
 
-    @t.override
     def draw(self) -> str:
         """Override `Deck.draw()` so we don't count these."""
         return ""
 
     @property
-    @t.override
     def blurb(self) -> str:
         return "NONE"
 
@@ -709,7 +706,7 @@ class ConfigParser:
     def group(self, group: int | str) -> str:
         """Group from previous `self.match()`."""
         assert self.mobj is not None
-        return self.mobj.group(group)
+        return str(self.mobj.group(group))
 
     PART_RE = r"(?P<at>(?P<count>[1-9]\d*)?@)?(?P<label>\S+)"
 
@@ -821,7 +818,8 @@ class ConfigParser:
         else:
             count = None
 
-        self.curr.toc.append(BookRef(target := mobj.group("label"), count))
+        target = Label(str(mobj.group("label")))
+        self.curr.toc.append(BookRef(target, count))
         self.add_dep(source=self.curr.label, target=target)
 
     def add_dep(self, source: Label, target: Label) -> None:
