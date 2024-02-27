@@ -1,6 +1,6 @@
 all = [ morn eve ]
 
-# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼ⁷₁Δː≅
+# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼ⁷₁Δː≅⚠
 
 *morn = [ tempo mornWarmup mornPractice mornHomework ]
 mornWarmup = [ warmup chops ]
@@ -77,7 +77,7 @@ warmupOtherScale:
 chops = [ @chopsRight @chopsLeft @patituchops ]
 
 patituchops:
-  JP@AW 1.09 1234-1423-1424-1243-4321-2143-3241-2132 with hammer-ons and pull-offs: NONE
+  JP@AW 1.09 1234-1434-1424-1243--4321-2143-3241-2132 with hammer-ons and pull-offs: NONE
   JP@AW 1.10 The Spider, starting on {}: ANY
 
 chopsLeft:
@@ -88,7 +88,7 @@ chopsLeft:
   L-Dexterity I.5 (p5) ♫@80~120 1365.2465|3565.7542: NONE
   L-Dexterity I.6 (p5) ♫@80~120 1365.4265|3165.42₆₇: NONE
   L-Dexterity I.7 (p5) ♫@80~120 1867.5645|3823.18₇2: NONE
-  L-Dexterity I.8 (p5) ♫@80~120 1653.4652|1875.6523: NONE
+  L-Dexterity I.8 (p5) ♫@80~120 1653.4652|1875.6523 [⚠]: NONE
   L-Dexterity I.9 (p6) ♫@80~120 1875.6758|6756.4532: NONE
   L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
   L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
