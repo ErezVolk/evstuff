@@ -31,14 +31,9 @@ import logging
 from pathlib import Path
 import plistlib
 import random
+import re
 import typing as t
-
-try:
-    import regex as re  # type: ignore
-    HAVE_REGEX = True
-except ImportError:
-    HAVE_REGEX = False
-    import re
+import unicodedata as ud
 
 
 DEFAULT_CONFIG = """
@@ -450,8 +445,11 @@ class PracticeMakesPerfect:
             print(f"\n{text}\n{'-' * self._vlen(text)}")
 
     def _vlen(self, text: str) -> int:
-        """Visible Length: number of graphemes"""
-        return len(re.findall(r"\X", text)) if HAVE_REGEX else len(text)
+        """Visible Length (or an approximation thereof)"""
+        return sum((
+            (ud.category(c)[0] in "LNPSZ") + (ud.east_asian_width(c) in "WF")
+            for c in text
+        ))
 
     def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
@@ -477,7 +475,7 @@ class PracticeMakesPerfect:
         count = None if self.args.one_of_each else self.args.num_tracks
         now = datetime.datetime.now()
         weekday = "月火水木金土日"[now.weekday()]
-        header = now.strftime(f"%Y-%m-%d {weekday} %H:%M {book.label} ")
+        header = now.strftime(f"%Y-%m-%d {weekday} %H:%M {book.label}")
         self._header(header)
         self._run_book(book, count=count, top=True)
 
