@@ -7,7 +7,7 @@ mornWarmup = [ warmup chops ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
 
-eve = [ homeworkMusic 3@book 2@revise ]
+eve = [ 1@sightReading homeworkMusic 3@book 2@revise ]
 
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol reviseSteve }
 
@@ -335,6 +335,17 @@ keepCarolKaye:  # When I'm done
   # TODO: "Bass Lines Book 5"
   # TODO: "Bass Lines Book 6"
 
+sightReading:
+  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Minor": {<1-10>} {<4-23>}
+  Line {} on Page {} in "Sightreading Mastery For Bass Guitar Exersices": {<1-10>} {<2-63>}
+  Page {} in "Robert Anothy - 300 Progressive Sight Reading Exercises for Bass Guitar": {<6-89>}
+  Track {} in "Motto - Essential sightreading studies for electric bass": {<1-82>}
+  Page {} in "Lewis Jamey - Sight Reading For Electric Bassist Book 1": {<10-31>}
+  Page {} in "Simplified Sight Reading": {<3-68>}
+  Page {} in "Evans, Arnold - Note Reading Studies For Bass": {<2-65>}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music. Intermediate Level": {<1-125>}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music. Advanced Level": {<1-107>}
+  Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {<5-112>}
 
 
 #
@@ -540,10 +551,9 @@ _bookToDo:  # When I'm good enough?
   Ron Carter's "Building Jazz Bass Lines" [Try it?]: NONE
   Richmond's "Modern Walking Bass Technique" [Maybe?]: NONE
   Bailey's "Rock Bass" [Not sure]: NONE
-
-  Josquin - Simplified Sight Reading [not sure about the amount of meat]: NONE
   Stuart Clayton's Guide to Scales and Modes [Hm, pretty comprehensive]: NONE
   Di Bartolo's Complete Guide to Scales and Chords [Hm, quite comprehensive, but not sure I like the tone]: NONE
+  Cuneo, Angelo Francesco - 32 Exercises And Studies For Sight Reading [After Simandl?]: NONE
 
   Connecting Chords with Linear Harmony by Bert Ligon [Check it out? See youtu.be/W4RkIVTbezs]: NONE
   Coker's Patterns for Jazz [Pretty serious stuff, for improvising]: NONE
