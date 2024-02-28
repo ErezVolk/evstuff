@@ -26,9 +26,10 @@ tempo:
   Try MM ♩={} today: 104|108|112|116|120|126
 
 homeworkTechnical:
+  Harmonic slides exercise on page 35: NONE
   Dean's Figure 17 on pp.18-19: NONE
+  Dean's Figure 19 on page 21 (D-major scale) [for the C♯, close attention to the picking location]: NONE
   Ray Brown's Augmented Exercise (p.92): NONE
-  Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
 
 homeworkMusic:
   Bach I. Allemande [last played in a slow rubato, no metronome, around 40 BPM]: NONE
@@ -190,7 +191,7 @@ _chopsBothTodo:  # Not there yet
 #
 # Technical things to keep by practicing
 #
-keep = { @keepSteveInterval @hazard @slide @doubleStop @keepRayBrown @keepCarolKaye }
+keep = { @keepSteveInterval @hazard @slide @doubleStop @keepRayBrown @keepCarolKaye @keepSteveOther }
 hazard = { @keepSteveHazard }
 slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveBlend }
 doubleStop = { @keepSteveScaleInDoubleStops }
@@ -288,6 +289,9 @@ keepSteveBlend:
   Slide blending exercises on page 30: NONE
   {} Diatonic string-crossing slides of a 7th (page 33): @majMin
   {} Octave string-crossing slide exercise on page 34: @majMin
+
+keepSteveOther:
+  Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
 
 keepCarolKaye:  # When I'm done
   Page 5 in "How to Play the Electric Bass": NONE
@@ -506,7 +510,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  Harmonic slides exercise on page 35: NONE
   Exercise 3 on page 36: NONE
   Exercise 4 on page 37: NONE
   Exercise 5 on page 38: NONE
@@ -521,7 +524,6 @@ _bachToDo:
   Bach I. Gigue: NONE
 
 _peerToDo:
-  Dean's Figure 19 on page 21 (D-major scale): NONE
   # How to practice the chords in Figure 20 (pages 22-28)?
   Dean's Figure 21 on page 29: NONE
   Dean's Figure 22 on page 30: NONE
@@ -537,6 +539,7 @@ _bookToDo:  # When I'm good enough?
   Improviser's Bass Book [Loses to JP+Dones? But Harvey likes it]: NONE
   Ron Carter's "Building Jazz Bass Lines" [Try it?]: NONE
   Richmond's "Modern Walking Bass Technique" [Maybe?]: NONE
+  Bailey's "Rock Bass" [Not sure]: NONE
 
   Stuart Clayton's Guide to Scales and Modes [Hm, pretty comprehensive]: NONE
   Di Bartolo's Complete Guide to Scales and Chords [Hm, quite comprehensive, but not sure I like the tone]: NONE
