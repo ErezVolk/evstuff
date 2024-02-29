@@ -876,7 +876,7 @@ class Reporter:
         self.path = report_file
 
         try:
-            default = {"gone": self.now, "label": "N/A", "layout": "N/A"}
+            default = {"label": "N/A", "layout": "N/A"}
             with open(self.path, encoding="utf-8", newline="") as csvfo:
                 rows = [default | row for row in csv.DictReader(csvfo)]
             log.debug("Read %s (N = %s)", self.path, len(rows))
@@ -889,8 +889,10 @@ class Reporter:
         to_save = [self.deck_row(deck) for deck in decks.values()]
 
         grouped = collections.defaultdict(list)
-        for row in self.by_layout.values():
-            if row["layout"] not in decks:
+        for layout in self.by_layout.keys() - decks.keys():
+            row = self.by_layout[layout]
+            gone = row["gone"] = row.get("gone") or self.now
+            if gone >= self.then:
                 grouped[row["label"]].append(row)
         to_save.extend(max(rows, key=self.when) for rows in grouped.values())
         to_save.sort(key=lambda row: row["label"].lower())
