@@ -207,7 +207,7 @@ class Deck:
 
 
 class RangeDeck(Deck):
-    """Random choice from  range of numbers, e.g., "1,3-4,15-50"."""
+    """Random choice from a range of numbers, e.g., "1,3-4,15-50"."""
 
     def __init__(self, parent: str, description: str) -> None:
         numbers: set[int] = set()
