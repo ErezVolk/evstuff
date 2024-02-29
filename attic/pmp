@@ -254,15 +254,16 @@ class Etude:
     template: str
     decks: list[Deck]
     label: Label = dataclasses.field(init=False)
-    blurb: str = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
-        blurbs = (deck.blurb for deck in self.decks)
-        self.blurb = f"{self.template}={SEP.join(blurbs)}"
-
         meat = re.sub(r"\s*\[.*\]$", "", self.template)
         labels = (deck.label for deck in self.decks)
         self.label = Label(f"{meat}={SEP.join(labels)}")
+
+    @property
+    def blurb(self) -> str:
+        """Current state of the etude"""
+        return f"{self.template}={SEP.join(deck.blurb for deck in self.decks)}"
 
 
 @dataclasses.dataclass
