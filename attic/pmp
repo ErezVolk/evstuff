@@ -104,17 +104,16 @@ class Deck:
     SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
 
     def __init__(self, cards: Iterable[str], label="", layout=""):
-        assert not label or not layout, f"Either {label!r} or {layout!r}"
         self.cards = tuple(cards)
         assert self.cards, f"{label or layout!r} Empty decks not supported"
-        if layout:
-            self.label = Label(layout)
-            self.layout = Layout(layout)
-        else:
-            self.label = Label(label or "|".join(self.cards))
-            hashobj = hashlib.sha256("\0".join(sorted(self.cards)).encode())
-            self.layout = Layout(f":{hashobj.hexdigest()[:8]}:")
+        self.label = Label(label or "|".join(self.cards))
+        self.layout = Layout(layout or self._digest(self.cards))
         self._set_queue(self.cards)
+
+    def _digest(self, strs: Iterable[str]) -> str:
+        """A reordering-stable hash"""
+        hashobj = hashlib.sha256("\0".join(sorted(strs)).encode())
+        return f":{hashobj.hexdigest()[:8]}:"
 
     def __len__(self) -> int:
         return len(self.cards)
@@ -208,17 +207,19 @@ class Deck:
 
 
 class RangeDeck(Deck):
-    """Random choice from  range of numbers, e.g., "1,3-4,15-50"."""
+    """Random choice from a range of numbers, e.g., "1,3-4,15-50"."""
 
-    def __init__(self, description: str) -> None:
-        numbers = set()
+    def __init__(self, parent: str, description: str) -> None:
+        numbers: set[int] = set()
         for rstr in description.split(","):
             subs = [int(sub) for sub in rstr.split("-")]
             try:
                 numbers.update(range(subs[0], subs[1] + 1))
             except IndexError:
                 numbers.add(subs[0])
-        super().__init__(map(str, numbers), layout=description)
+        cards = [str(number) for number in sorted(numbers)]
+        layout = self._digest([parent] + cards)
+        super().__init__(cards, label=description, layout=layout)
 
 
 class NoneDeck(Deck):
@@ -253,15 +254,16 @@ class Etude:
     template: str
     decks: list[Deck]
     label: Label = dataclasses.field(init=False)
-    blurb: str = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
-        blurbs = (deck.blurb for deck in self.decks)
-        self.blurb = f"{self.template}={SEP.join(blurbs)}"
-
         meat = re.sub(r"\s*\[.*\]$", "", self.template)
         labels = (deck.label for deck in self.decks)
         self.label = Label(f"{meat}={SEP.join(labels)}")
+
+    @property
+    def blurb(self) -> str:
+        """Current state of the etude"""
+        return f"{self.template}={SEP.join(deck.blurb for deck in self.decks)}"
 
 
 @dataclasses.dataclass
@@ -808,7 +810,7 @@ class ConfigParser:
                 decks.append(self.labeldecks[label])
                 self.add_dep(self.curr.label, label)
             elif re.fullmatch(self.RANGES_RE, part := part.strip()):
-                decks.append(RangeDeck(part[1:-1]))
+                decks.append(RangeDeck(template, part[1:-1]))
             else:
                 keys = [key.strip() for key in part.split("|")]
                 decks.append(Deck(cards=keys))
