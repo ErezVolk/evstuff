@@ -210,19 +210,44 @@ class Deck:
 
 
 class RangeDeck(Deck):
-    """Random choice from a range of numbers, e.g., "1,3-4,15-50"."""
+    """Random choice from a range of numbers, e.g., "<1,3-4,15-50>"."""
+
+    SERIALIZEES = ("blurb", "label", "layout", "rqueue")
 
     def __init__(self, parent: str, description: str) -> None:
+        cards = self._parse(description)
+        layout = self._digest([parent] + cards)
+        super().__init__(cards, label=description, layout=layout)
+
+    def _parse(self, description: str) -> list[str]:
+        """Convert a range description to a list of numbers"""
+        if not re.match(r"^<.*>$", description):
+            raise ValueError(f"Not a range: {description}")
         numbers: set[int] = set()
-        for rstr in description.split(","):
+        for rstr in description[1:-1].split(","):
             subs = [int(sub) for sub in rstr.split("-")]
             try:
                 numbers.update(range(subs[0], subs[1] + 1))
             except IndexError:
                 numbers.add(subs[0])
-        cards = [str(number) for number in sorted(numbers)]
-        layout = self._digest([parent] + cards)
-        super().__init__(cards, label=description, layout=layout)
+        return [str(number) for number in sorted(numbers)]
+
+    @property
+    def rqueue(self) -> str:
+        """Serialized instead of cards/queue for brevity"""
+        return "<" + ",".join(map(str, sorted(map(int, self.queue)))) + ">"
+
+    def deserialize(self, saved: t.Any) -> None:
+        """Restore Ranges"""
+        try:
+            self._set_queue(self._parse(saved["rqueue"]))
+        except (KeyError, TypeError, ValueError) as exc:
+            raise SerializationError("Invalid queue") from exc
+
+    def adapt(self, saved: StringDict) -> None:
+        """When a user changes some cards in a deck (and thus the layout) but
+        keeps its name, we may be able to salvage it."""
+        raise SerializationError("Range decks cannot be adapted")
 
 
 class NoneDeck(Deck):
@@ -814,7 +839,7 @@ class ConfigParser:
                 decks.append(self.labeldecks[label])
                 self.add_dep(self.curr.label, label)
             elif re.fullmatch(self.RANGES_RE, part := part.strip()):
-                decks.append(RangeDeck(template, part[1:-1]))
+                decks.append(RangeDeck(template, part))
             else:
                 keys = [key.strip() for key in part.split("|")]
                 decks.append(Deck(cards=keys))
