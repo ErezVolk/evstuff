@@ -887,14 +887,11 @@ class Reporter:
     def save_report(self, decks: Decks) -> None:
         """Write report CSV to disk"""
         to_save = [self.deck_row(deck) for deck in decks.values()]
-
-        grouped = collections.defaultdict(list)
-        for layout in self.by_layout.keys() - decks.keys():
-            row = self.by_layout[layout]
-            gone = row["gone"] = row.get("gone") or self.now
-            if gone >= self.then:
-                grouped[row["label"]].append(row)
-        to_save.extend(max(rows, key=self.when) for rows in grouped.values())
+        for layout, row in self.by_layout.items():
+            if layout not in decks:
+                if (used := row.get("used")) and used >= self.then:
+                    row["gone"] = row.get("gone") or self.now
+                    to_save.append(row)
         to_save.sort(key=lambda row: row["label"].lower())
 
         if not to_save:
@@ -928,10 +925,6 @@ class Reporter:
                     row[key] = int(row[key]) + value
                 except (KeyError, ValueError, TypeError):
                     row[key] = value
-
-    def when(self, row: StringDict) -> str:
-        """Return sort of "usage date" for a row"""
-        return row.get("used") or row.get("gone") or self.then
 
 
 if __name__ == "__main__":
