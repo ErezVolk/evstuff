@@ -235,7 +235,13 @@ class RangeDeck(Deck):
     @property
     def rqueue(self) -> str:
         """Serialized instead of cards/queue for brevity"""
-        return "<" + ",".join(map(str, sorted(map(int, self.queue)))) + ">"
+        ranges: list[tuple[int, int]] = []
+        for num in sorted(map(int, self.queue)):
+            if ranges and num == (rng := ranges[-1])[1] + 1:
+                ranges[-1] = (rng[0], num)
+            else:
+                ranges.append((num, num))
+        return "<" + ",".join(f"{n1}-{n2}" for n1, n2 in ranges) + ">"
 
     def deserialize(self, saved: t.Any) -> None:
         """Restore Ranges"""
