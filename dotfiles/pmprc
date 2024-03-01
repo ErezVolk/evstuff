@@ -32,13 +32,14 @@ homeworkTechnical:
   Ray Brown's Augmented Exercise (p.92) [name the notes!]: NONE
 
 homeworkMusic:
-  Bach I. Allemande [last played in a slow rubato, no metronome, around 40 BPM]: NONE
+  Bach I. Allemande [40 BPM, NB bars 9-16, 18-19, 29-31]: NONE
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow): NONE
+  'Come Together' (pp. 18-19) from "Electric Bass Lines 2" [around 92 BPM]: NONE
 
 book:
   Radley ctd. [Chapter 4, p.29]: NONE
   Steve ctd.: NONE
-  Baroque ctd. [number 8]: NONE
+  Baroque ctd. [number 9]: NONE
   Simandl Études ctd. [number 4]: NONE
   John P's course ctd.: NONE
   Carol Kaye ctd. [at Book 2, pp. 18-19]: NONE
@@ -323,7 +324,6 @@ keepCarolKaye:  # When I'm done
   Page 12 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
   Page 13 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
   'When I Die' (pp. 16-17) from "Electric Bass Lines 2": NONE
-  # 'Come Together' (pp. 18-19) from "Electric Bass Lines 2": NONE
   # 'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2": NONE
   # 'Other Recorded Licks' on Page 22 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
   # 'Games People Play' (pp. 23-26) from "Electric Bass Lines 2": NONE
@@ -376,6 +376,7 @@ reviseBaroque:
   Baroque Étude No. 4 (p.4-5): NONE
   Baroque Étude No. 6 (p.6) [last played at ♩=72 of 72]: NONE
   Baroque Étude No. 7 (p.6) [last played at ♩=84 of 108]: NONE
+  Baroque Étude No. 8 (p.6): NONE
 
 reviseMelodic:
   Melodic Étude in C Major (p.7): NONE
