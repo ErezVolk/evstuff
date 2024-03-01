@@ -64,7 +64,7 @@ __TODO__ = """
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Visitor pattern (on_etude=, on_ref=)
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
-- A UI to mark what was done? With a metronome? And a drone?
+- A UI to mark what was done? With a metronome? And a drone? (Kivy?)
 """
 
 
