@@ -93,13 +93,13 @@ class Deck:
     """A deck of strings"""
 
     cards: tuple[str, ...]
-    queue: list[str] = []
+    queue: list[str]
     label: Label
     layout: Layout
-    drawn: int = 0
-    flipped: int = 0
+    counts: collections.Counter
     old_layout: Layout | None = None
 
+    EVENTS = ("drawn", "flipped", "flopped")
     MIN_SERIALIZABLE = 3
     SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
 
@@ -108,6 +108,7 @@ class Deck:
         assert self.cards, f"{label or layout!r} Empty decks not supported"
         self.label = Label(label or "|".join(self.cards))
         self.layout = Layout(layout or self._digest(self.cards))
+        self.counts = collections.Counter()
         self._set_queue(self.cards)
 
     def _digest(self, strs: Iterable[str]) -> str:
@@ -127,7 +128,7 @@ class Deck:
 
     def serialize(self) -> StringDict:
         """Serialize for the state file"""
-        if not self.drawn:
+        if not self.counts["drawn"]:
             raise SerializationError("Never drawn")
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too small")
@@ -143,11 +144,12 @@ class Deck:
         added = ours - theirs
         gone = theirs - ours
         log.debug("Adapting %s +%s -%s", self.label, list(added), list(gone))
+        if isinstance(old_layout := saved.get("layout"), str):
+            self.old_layout = Layout(old_layout)
+        self.counts["flopped"] += 1
         if not (queued := set(self._get_list(saved, "queue")) & ours):
             raise SerializationError("No shared cards in queue")
         self._set_queue(queued & added)
-        if isinstance(old_layout := saved.get("layout"), str):
-            self.old_layout = Layout(old_layout)
 
     def deserialize(self, saved: t.Any) -> None:
         """Validate and restore a saved queue"""
@@ -178,13 +180,14 @@ class Deck:
             lineup = list(set(self.cards) - set(self.queue))
             random.shuffle(lineup)
             self._track("Adding %s to %s", lineup, self.queue)
+            self.counts["flipped"] += 1
             self.queue = list(self.queue + lineup)
 
     def draw(self) -> str:
         """Get the next card"""
         self.ping()
         if not self.queue:
-            self.flipped += 1
+            self.counts["flipped"] += 1
             self._set_queue(self.cards)
         card = self.queue.pop(0)
         self._track("%d after drawing %r", len(self.queue), card)
@@ -192,7 +195,7 @@ class Deck:
 
     def ping(self) -> None:
         """Notify the deck it's being used"""
-        self.drawn += 1
+        self.counts["drawn"] += 1
 
     def _set_queue(self, queue: Iterable[str]) -> None:
         """Set the queue"""
@@ -621,8 +624,9 @@ class PracticeMakesPerfect:
             "decks": {deck.layout: deck.blurb for deck in decks},
             "n_books": len(books := self.books.values()),
             "books": {book.blurb: book.entry_blurbs() for book in books},
-            "drawn": [deck.blurb for deck in decks if deck.drawn],
-            "flipped": [deck.blurb for deck in decks if deck.flipped],
+        } | {
+            event: [deck.blurb for deck in decks if deck.counts[event]]
+            for event in Deck.EVENTS
         }
         self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
 
@@ -918,13 +922,13 @@ class Reporter:
         """Update row in report to reflect deck use in this session"""
         row.update(label=deck.label, layout=deck.layout, blurb=deck.blurb)
         row.pop("gone", None)
-        for key in ("drawn", "flipped"):
-            if value := getattr(deck, key):
-                row["used"] = self.now
-                try:
-                    row[key] = int(row[key]) + value
-                except (KeyError, ValueError, TypeError):
-                    row[key] = value
+        if deck.counts["drawn"]:
+            row["used"] = self.now
+        for event, count in deck.counts.items():
+            try:
+                row[event] = int(row[event]) + count
+            except (KeyError, ValueError, TypeError):
+                row[event] = count
 
 
 if __name__ == "__main__":
