@@ -54,7 +54,7 @@ arp:  # Play an arpeggio
 form:
   Blues in {}: C|F|G
   {} on the {} string: {@arp} {oneString}
-  Page {} in The Book: {<1,3-5,9-100>}
+  Page {} in The Book: {[1,3-5,9-100]}
 
 oneString := E|A|D|G
 """
@@ -65,7 +65,7 @@ __TODO__ = """
 - Visitor pattern (on_etude=, on_ref=)
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone? (Kivy?)
-- shorter plist: only queue indexes, less debug
+- shorter plist: only queue indexes, less debug, ScaleDeck()
 """
 
 
@@ -211,7 +211,7 @@ class Deck:
 
 
 class RangeDeck(Deck):
-    """Random choice from a range of numbers, e.g., "<1,3-4,15-50>"."""
+    """Random choice from a range of numbers, e.g., "[1,3-4,15-50]"."""
 
     SERIALIZEES = ("blurb", "label", "layout", "rqueue")
 
@@ -222,7 +222,7 @@ class RangeDeck(Deck):
 
     def _parse(self, description: str) -> list[str]:
         """Convert a range description to a list of numbers"""
-        if not re.match(r"^<.*>$", description):
+        if not re.match(r"^\[.*\]$", description):
             raise ValueError(f"Not a range: {description}")
         numbers: set[int] = set()
         for rstr in description[1:-1].split(","):
@@ -243,7 +243,8 @@ class RangeDeck(Deck):
                 curr[1] = num
             else:
                 ranges.append(curr := [num, num])
-        return "<" + ",".join(f"{n1}-{n2}" for n1, n2 in ranges) + ">"
+        descs = (f"{n1}-{n2}" if n2 > n1 else f"{n1}" for n1, n2 in ranges)
+        return f"[{','.join(descs)}]"
 
     def deserialize(self, saved: t.Any) -> None:
         """Restore Ranges"""
@@ -819,7 +820,7 @@ class ConfigParser:
         self.labeldecks[Label(label)] = Deck(label=label, cards=cards)
 
     RANGE_RE = r"\d+(-\d+)?"
-    RANGES_RE = f"<({RANGE_RE},)*{RANGE_RE}>"
+    RANGES_RE = f"\\[({RANGE_RE},)*{RANGE_RE}\\]"
 
     def add_etude(self, template: str, deckstr: str) -> None:
         """Found an etude line, e.g., "{}-maj: {major}" or "-min: minor}."""

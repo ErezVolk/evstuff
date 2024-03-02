@@ -23,7 +23,7 @@ majMin:
 # Currently working on
 #
 tempo:
-  Try MM ♩={} today: 104|108|112|116|120|126
+  Try MM ♩={} today: {[104,108,112,116,120,126]}
 
 homeworkTechnical:
   Harmonic slides exercise on page 35: NONE
@@ -333,17 +333,17 @@ keepCarolKaye:  # When I'm done
   # TODO: "Bass Lines Book 6"
 
 sightReading:
-  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Minor": {<1-10>} {<4-23>}
-  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Major": {<1-10>} {<4-27>}
-  Line {} on Page {} in "Sightreading Mastery For Bass Guitar Exersices": {<1-8>} {<2-63>}
-  Exercise {} in "Robert Anthony - 300 Progressive Sight Reading Exercises for Bass Guitar": {<1-300>}
-  Track {} in "Motto - Essential sightreading studies for electric bass": {<1-82>}
-  Page {} in "Lewis Jamey - Sight Reading For Electric Bassist Book 1": {<10-31>}
-  Page {} in "Simplified Sight Reading": {<3-68>}
-  Page {} in "Evans, Arnold - Note Reading Studies For Bass": {<2-65>}
-  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music. Intermediate Level": {<1-125>}
-  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music. Advanced Level": {<1-107>}
-  Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {<5-112>}
+  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Minor": {[1-10]} {[4-23]}
+  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Major": {[1-10]} {[4-27]}
+  Line {} on Page {} in "Sightreading Mastery For Bass Guitar Exersices": {[1-8]} {[2-63]}
+  Exercise {} in "Robert Anthony - 300 Progressive Sight Reading Exercises for Bass Guitar": {[1-300]}
+  Track {} in "Motto - Essential sightreading studies for electric bass": {[1-82]}
+  Page {} in "Lewis Jamey - Sight Reading For Electric Bassist Book 1": {[10-31]}
+  Page {} in "Simplified Sight Reading": {[3-68]}
+  Page {} in "Evans, Arnold - Note Reading Studies For Bass": {[2-65]}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music. Intermediate Level": {[1-125]}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music. Advanced Level": {[1-107]}
+  Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {[5-112]}
 
 
 #
