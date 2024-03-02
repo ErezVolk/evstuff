@@ -152,7 +152,7 @@ class Deck:
 
         added = ours - theirs
         gone = theirs - ours
-        log.debug("Adapting %s +%s -%s", self.label, list(added), list(gone))
+        log.debug("Adapting %s +%s -%s", self.label, added, gone)
 
         self.old_layout = old_layout
         self.counts["flopped"] += 1
