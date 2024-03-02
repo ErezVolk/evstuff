@@ -102,7 +102,7 @@ class Deck:
 
     EVENTS = ("drawn", "flipped", "flopped")
     MIN_SERIALIZABLE = 3
-    SERIALIZEES = ("blurb", "label", "layout", "cards", "queue")
+    SERIALIZEES = ("blurb", "label", "cards", "queue")
 
     def __init__(self, cards: Iterable[str], label="", layout=""):
         self.cards = tuple(cards)
@@ -135,7 +135,7 @@ class Deck:
             raise SerializationError("Too small")
         return {key: getattr(self, key) for key in self.SERIALIZEES}
 
-    def adapt(self, saved: StringDict) -> None:
+    def adapt(self, old_layout: Layout, saved: StringDict) -> None:
         """When a user changes some cards in a deck (and thus the layout) but
         keeps its name, we may be able to salvage it."""
         theirs = set(self._get_list(saved, "cards"))
@@ -145,8 +145,7 @@ class Deck:
         added = ours - theirs
         gone = theirs - ours
         log.debug("Adapting %s +%s -%s", self.label, list(added), list(gone))
-        if isinstance(old_layout := saved.get("layout"), str):
-            self.old_layout = Layout(old_layout)
+        self.old_layout = old_layout
         self.counts["flopped"] += 1
         if not (queued := set(self._get_list(saved, "queue")) & ours):
             raise SerializationError("No shared cards in queue")
@@ -154,7 +153,6 @@ class Deck:
 
     def deserialize(self, saved: t.Any) -> None:
         """Validate and restore a saved queue"""
-        assert saved.get("layout") == self.layout, "Who called this?"
         queue = self._get_list(saved, "queue")
         if unknown := set(queue) - set(self.cards):
             raise SerializationError(f"Saved queue contains unknown {unknown}")
@@ -253,7 +251,7 @@ class RangeDeck(Deck):
         except (KeyError, TypeError, ValueError) as exc:
             raise SerializationError("Invalid queue") from exc
 
-    def adapt(self, saved: StringDict) -> None:
+    def adapt(self, old_layout: Layout, saved: StringDict) -> None:
         """When a user changes some cards in a deck (and thus the layout) but
         keeps its name, we may be able to salvage it."""
         raise SerializationError("Range decks cannot be adapted")
@@ -679,21 +677,21 @@ class PracticeMakesPerfect:
     def _restore_state(self) -> None:
         """Restore queues for any eligible deck"""
         nowies: dict[Layout, StringDict] = {}
-        oldies: dict[Label, StringDict] = {}
-        for layout, saved in self.state["deck"].items():
+        oldies: dict[Label, Layout] = {}
+        for layout, saved in (decks := self.state["deck"]).items():
             if isinstance(saved, dict):
                 if layout in self.decks:
                     nowies[layout] = saved
                 elif isinstance(label := saved.get("label"), str):
-                    oldies[Label(label)] = saved
+                    oldies[Label(label)] = layout
 
         n_used = 0
         for layout, deck in self.decks.items():
             try:
                 if saved := nowies.get(layout):
                     deck.deserialize(saved)
-                elif saved := oldies.get(deck.label):
-                    deck.adapt(saved)
+                elif old_layout := oldies.get(deck.label):
+                    deck.adapt(old_layout, decks[old_layout])
                 if queued := SEP.join(deck.queue):
                     log.debug("Loaded %s -> %s", deck.blurb, queued)
                     n_used += 1
