@@ -65,7 +65,6 @@ __TODO__ = """
 - Visitor pattern (on_etude=, on_ref=)
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone? (Kivy?)
-- shorter plist: only queue indexes, less debug, ScaleDeck.serialize()
 """
 
 
@@ -102,7 +101,10 @@ class Deck:
 
     EVENTS = ("drawn", "flipped", "flopped")
     MIN_SERIALIZABLE = 3
-    SERIALIZEES = ("blurb", "label", "cards", "queue")
+    SERIALIZEES = {"blurb", "label", "cards", "qidxs"}
+
+    _RANGE_RE = r"\d+(-\d+)?"
+    RANGES_RE = f"\\[({_RANGE_RE},)*{_RANGE_RE}\\]"
 
     def __init__(self, cards: Iterable[str], label="", layout=""):
         self.cards = tuple(cards)
@@ -133,12 +135,24 @@ class Deck:
             raise SerializationError("Never drawn")
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too small")
+        log.debug("Serializing %s", self.blurb)
         return {key: getattr(self, key) for key in self.SERIALIZEES}
 
     def adapt(self, old_layout: Layout, saved: StringDict) -> None:
         """When a user changes some cards in a deck (and thus the layout) but
         keeps its name, we may be able to salvage it."""
-        theirs = set(self._get_list(saved, "cards"))
+        if len(self) < self.MIN_SERIALIZABLE:
+            raise SerializationError("Too few items to load state")
+        if not isinstance(saved, dict):
+            raise SerializationError("cards: Not a dict")
+        if not isinstance(old_cards := saved.get("cards"), list):
+            raise SerializationError("cards: Not a list")
+        if not old_cards:
+            raise SerializationError("cards: Empty list")
+        if not all(isinstance(card, str) for card in old_cards):
+            raise SerializationError("cards: Not a list of strings")
+
+        theirs = set(old_cards)
         ours = set(self.cards)
         if len(theirs & ours) < self.MIN_SERIALIZABLE:
             raise SerializationError("Not enough shared cards to adapt")
@@ -147,31 +161,29 @@ class Deck:
         log.debug("Adapting %s +%s -%s", self.label, list(added), list(gone))
         self.old_layout = old_layout
         self.counts["flopped"] += 1
-        if not (queued := set(self._get_list(saved, "queue")) & ours):
+        if not (queued := self._get_queue(saved) & ours):
             raise SerializationError("No shared cards in queue")
         self._set_queue(queued & added)
 
     def deserialize(self, saved: t.Any) -> None:
         """Validate and restore a saved queue"""
-        queue = self._get_list(saved, "queue")
-        if unknown := set(queue) - set(self.cards):
+        queue = self._get_queue(saved)
+        if unknown := queue - set(self.cards):
             raise SerializationError(f"Saved queue contains unknown {unknown}")
         self._track("Deserializing")
         self._set_queue(queue)
 
-    def _get_list(self, saved: t.Any, key: str) -> list[str]:
-        """Validate a serialized object and get a list[str] member"""
-        if len(self) < self.MIN_SERIALIZABLE:
-            raise SerializationError("Too few items to load state")
-        if not isinstance(saved, dict):
-            raise SerializationError(f"{key}: Not a dict")
-        if not isinstance(cards := saved.get(key), list):
-            raise SerializationError(f"{key}: Not a list")
-        if not cards:
-            raise SerializationError(f"{key}: Empty list")
-        if not all(isinstance(card, str) for card in cards):
-            raise SerializationError(f"{key}: Not a list of strings")
-        return cards
+    def _get_queue(self, saved: StringDict) -> set[str]:
+        """Parse and validate saved queue idxs"""
+        if (description := saved.get("qidxs")) in (None, "[]"):
+            return set()
+        if not isinstance(description, str):
+            raise SerializationError(f"qidxs: Not a str ({type(description)})")
+        if not re.fullmatch(self.RANGES_RE, description):
+            raise SerializationError(f"qidxs: Not a range {description!r}")
+        if max(idxs := self._parse_range(description)) >= len(self.cards):
+            raise SerializationError(f"{description!r} goes too far")
+        return {self.cards[idx] for idx in idxs}
 
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` cards won't have dupes"""
@@ -196,11 +208,35 @@ class Deck:
         """Notify the deck it's being used"""
         self.counts["drawn"] += 1
 
+    @property
+    def qidxs(self) -> str:
+        """Indexes in the queue"""
+        ranges: list[list[int]] = []
+        curr: list[int] = []
+        for num in sorted(map(self.cards.index, self.queue)):
+            if curr and num == curr[1] + 1:
+                curr[1] = num
+            else:
+                ranges.append(curr := [num, num])
+        descs = (f"{n1}-{n2}" if n2 > n1 else f"{n1}" for n1, n2 in ranges)
+        return f"[{','.join(descs)}]"
+
     def _set_queue(self, queue: Iterable[str]) -> None:
         """Set the queue"""
         self.queue = list(queue)
         random.shuffle(self.queue)
         self._track("Queue set to %s", self.queue)
+
+    def _parse_range(self, description: str) -> set[int]:
+        """Convert a range description to a list of numbers"""
+        numbers: set[int] = set()
+        for rstr in description[1:-1].split(","):
+            subs = [int(sub) for sub in rstr.split("-")]
+            try:
+                numbers.update(range(subs[0], subs[1] + 1))
+            except IndexError:
+                numbers.add(subs[0])
+        return numbers
 
     def _track(self, fmt: str, *args) -> None:
         """Print special tracking info if we're in the list"""
@@ -211,45 +247,12 @@ class Deck:
 class RangeDeck(Deck):
     """Random choice from a range of numbers, e.g., "[1,3-4,15-50]"."""
 
-    SERIALIZEES = ("blurb", "label", "layout", "rqueue")
+    SERIALIZEES = Deck.SERIALIZEES - {"cards"}
 
     def __init__(self, parent: str, description: str) -> None:
-        cards = self._parse(description)
+        cards = [str(num) for num in sorted(self._parse_range(description))]
         layout = self._digest([parent] + cards)
         super().__init__(cards, label=description, layout=layout)
-
-    def _parse(self, description: str) -> list[str]:
-        """Convert a range description to a list of numbers"""
-        if not re.match(r"^\[.*\]$", description):
-            raise ValueError(f"Not a range: {description}")
-        numbers: set[int] = set()
-        for rstr in description[1:-1].split(","):
-            subs = [int(sub) for sub in rstr.split("-")]
-            try:
-                numbers.update(range(subs[0], subs[1] + 1))
-            except IndexError:
-                numbers.add(subs[0])
-        return [str(number) for number in sorted(numbers)]
-
-    @property
-    def rqueue(self) -> str:
-        """Serialized instead of cards/queue for brevity"""
-        ranges: list[list[int]] = []
-        curr: list[int] = []
-        for num in sorted(map(int, self.queue)):
-            if curr and num == curr[1] + 1:
-                curr[1] = num
-            else:
-                ranges.append(curr := [num, num])
-        descs = (f"{n1}-{n2}" if n2 > n1 else f"{n1}" for n1, n2 in ranges)
-        return f"[{','.join(descs)}]"
-
-    def deserialize(self, saved: t.Any) -> None:
-        """Restore Ranges"""
-        try:
-            self._set_queue(self._parse(saved["rqueue"]))
-        except (KeyError, TypeError, ValueError) as exc:
-            raise SerializationError("Invalid queue") from exc
 
     def adapt(self, old_layout: Layout, saved: StringDict) -> None:
         """When a user changes some cards in a deck (and thus the layout) but
@@ -665,10 +668,9 @@ class PracticeMakesPerfect:
 
         self.reporter.save_report(self.decks)
 
-    def _save(self, deck: Deck) -> StringDict:
+    def _save(self, deck: Deck) -> t.Any:
         """Serialize a single deck, or leave untouched"""
         try:
-            log.debug("Serializing %s", deck.blurb)
             return deck.serialize()
         except SerializationError as exc:
             log.debug("Not serializing %s: %s", deck.blurb, exc)
@@ -817,9 +819,6 @@ class ConfigParser:
         cards = [key.strip() for key in keys.split("|")]
         self.labeldecks[Label(label)] = Deck(label=label, cards=cards)
 
-    RANGE_RE = r"\d+(-\d+)?"
-    RANGES_RE = f"\\[({RANGE_RE},)*{RANGE_RE}\\]"
-
     def add_etude(self, template: str, deckstr: str) -> None:
         """Found an etude line, e.g., "{}-maj: {major}" or "-min: minor}."""
         if self.curr is None:
@@ -843,7 +842,7 @@ class ConfigParser:
             if (label := Label(part)) in self.labeldecks:
                 decks.append(self.labeldecks[label])
                 self.add_dep(self.curr.label, label)
-            elif re.fullmatch(self.RANGES_RE, part := part.strip()):
+            elif re.fullmatch(Deck.RANGES_RE, part := part.strip()):
                 decks.append(RangeDeck(template, part))
             else:
                 keys = [key.strip() for key in part.split("|")]
