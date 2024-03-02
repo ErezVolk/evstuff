@@ -688,8 +688,8 @@ class PracticeMakesPerfect:
                     deck.deserialize(saved)
                 elif old_layout := oldies.get(deck.label):
                     deck.adapt(old_layout, decks[old_layout])
-                if queued := SEP.join(deck.queue):
-                    log.debug("Loaded %s -> %s", deck.blurb, queued)
+                if 0 < len(loaded := deck.queue) < len(deck):
+                    log.debug("Loaded %s -> %s", deck.blurb, SEP.join(loaded))
                     n_used += 1
             except SerializationError as exc:
                 log.debug("Not restoring %s: %s", deck.blurb, exc)
