@@ -233,10 +233,9 @@ class Deck:
         """Convert a range description to a list of numbers"""
         numbers: set[int] = set()
         for rstr in ranges[1:-1].split(","):
-            subs = [int(sub) for sub in rstr.split("-")]
-            try:
+            if len(subs := list(map(int, rstr.split("-")))) > 1:
                 numbers.update(range(subs[0], subs[1] + 1))
-            except IndexError:
+            else:
                 numbers.add(subs[0])
         return numbers
 
@@ -257,8 +256,6 @@ class RangeDeck(Deck):
         super().__init__(cards, label=ranges, layout=layout)
 
     def adapt(self, old_layout: Layout, saved: StringDict) -> None:
-        """When a user changes some cards in a deck (and thus the layout) but
-        keeps its name, we may be able to salvage it."""
         raise SerializationError("Range decks cannot be adapted")
 
 
@@ -268,11 +265,7 @@ class NoneDeck(Deck):
     def __init__(self) -> None:
         super().__init__([""], layout="NONE", label="NONE")
 
-    def __repr__(self) -> str:
-        return "<NoneDeck>"
-
     def serialize(self) -> StringDict:
-        """Do NOT serialize"""
         raise SerializationError("What would be the point?")
 
     def draw(self) -> str:
@@ -562,8 +555,7 @@ class PracticeMakesPerfect:
     def _choose_etudes(self, book: Book, count: int | None) -> Iterable[Etude]:
         """Yields chosen etudes.
 
-        Recursion is safe here, since we used `TopologicalSorter`
-        to make sure the graph is cycle-free.
+        Recursion is safe here, since we've made sure the graph is cycle-free.
         """
         for entry in book.draw_n(count or 1):
             if isinstance(etude := entry, Etude):
@@ -844,8 +836,8 @@ class ConfigParser:
             if (label := Label(part)) in self.labeldecks:
                 decks.append(self.labeldecks[label])
                 self.add_dep(self.curr.label, label)
-            elif re.fullmatch(Deck.RANGES_RE, part := part.strip()):
-                decks.append(RangeDeck(template, part))
+            elif re.fullmatch(Deck.RANGES_RE, ranges := part.strip()):
+                decks.append(RangeDeck(template, ranges))
             else:
                 keys = [key.strip() for key in part.split("|")]
                 decks.append(Deck(cards=keys))
