@@ -172,7 +172,7 @@ class Deck:
         self._track("Deserializing")
         self._set_queue(queue)
 
-    def _get_cards(self, saved: StringDict) -> list[str]:
+    def _get_cards(self, saved: StringDict) -> Sequence[str]:
         """Validate and return the saved list of cards"""
         if not (cards := saved.get("cards")):
             raise SerializationError("No saved cards")
@@ -265,8 +265,8 @@ class RangeDeck(Deck):
     def deserialize(self, saved: StringDict) -> None:
         return self._deserialize(saved, self.cards)
 
-    def adapt(self, old_layout: Layout, saved: StringDict) -> None:
-        raise SerializationError("Range decks cannot be adapted")
+    def _get_cards(self, saved: StringDict) -> Sequence[str]:
+        return self.cards
 
 
 class NoneDeck(Deck):
