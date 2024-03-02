@@ -177,7 +177,7 @@ class Deck:
 
     def _get_queue(self, saved: StringDict) -> set[str]:
         """Parse and validate saved queue idxs"""
-        if not (ranges := saved.get("qidxs")):
+        if (ranges := saved.get("qidxs")) in (None, "[]"):
             return set()
         if not isinstance(ranges, str):
             raise SerializationError(f"qidxs: Not a str ({type(ranges)})")
