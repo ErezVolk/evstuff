@@ -21,6 +21,7 @@ Most objects also have `x.blurb`, which is for display purposes only.
 import argparse
 import collections
 from collections.abc import Iterable
+from collections.abc import Sequence
 import csv
 import dataclasses
 import datetime
@@ -143,16 +144,8 @@ class Deck:
         keeps its name, we may be able to salvage it."""
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too few items to load state")
-        if not isinstance(saved, dict):
-            raise SerializationError("saved: Not a dict")
-        if not (old_cards := saved.get("cards")):
-            raise SerializationError("No saved cards")
-        if not isinstance(old_cards, list):
-            raise SerializationError(f"cards: Not a list ({type(old_cards)})")
-        if not all(isinstance(card, str) for card in old_cards):
-            raise SerializationError("cards: Not a list of strings")
 
-        theirs = set(old_cards)
+        theirs = set(old_cards := self._get_cards(saved))
         ours = set(self.cards)
         if len(theirs & ours) < self.MIN_SERIALIZABLE:
             raise SerializationError("Not enough shared cards to adapt")
@@ -163,19 +156,33 @@ class Deck:
 
         self.old_layout = old_layout
         self.counts["flopped"] += 1
-        if not (queued := self._get_queue(saved) & ours):
+        if not (queued := self._get_queue(saved, old_cards) & ours):
             raise SerializationError("No shared cards in queue")
         self._set_queue(queued & added)
 
-    def deserialize(self, saved: t.Any) -> None:
+    def deserialize(self, saved: StringDict) -> None:
         """Validate and restore a saved queue"""
-        queue = self._get_queue(saved)
+        self._deserialize(saved, self._get_cards(saved))
+
+    def _deserialize(self, saved: StringDict, cards: Sequence[str]) -> None:
+        """Validate and restore a saved queue, given a card ordering"""
+        queue = self._get_queue(saved, cards)
         if unknown := queue - set(self.cards):
             raise SerializationError(f"Saved queue contains unknown {unknown}")
         self._track("Deserializing")
         self._set_queue(queue)
 
-    def _get_queue(self, saved: StringDict) -> set[str]:
+    def _get_cards(self, saved: StringDict) -> list[str]:
+        """Validate and return the saved list of cards"""
+        if not (cards := saved.get("cards")):
+            raise SerializationError("No saved cards")
+        if not isinstance(cards, list):
+            raise SerializationError(f"cards: Not a list ({type(cards)})")
+        if not all(isinstance(card, str) for card in cards):
+            raise SerializationError("cards: Not a list of strings")
+        return cards
+
+    def _get_queue(self, saved: StringDict, cards: Sequence[str]) -> set[str]:
         """Parse and validate saved queue idxs"""
         if (ranges := saved.get("qidxs")) in (None, "[]"):
             return set()
@@ -183,9 +190,9 @@ class Deck:
             raise SerializationError(f"qidxs: Not a str ({type(ranges)})")
         if not re.fullmatch(self.RANGES_RE, ranges):
             raise SerializationError(f"qidxs: Not a range {ranges!r}")
-        if max(idxs := self._parse_ranges(ranges)) >= len(self.cards):
+        if max(idxs := self._parse_ranges(ranges)) >= len(cards):
             raise SerializationError(f"{ranges!r} goes too far")
-        return {self.cards[idx] for idx in idxs}
+        return {cards[idx] for idx in idxs}
 
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` cards won't have dupes"""
@@ -254,6 +261,9 @@ class RangeDeck(Deck):
         cards = [str(num) for num in sorted(self._parse_ranges(ranges))]
         layout = self._digest([parent] + cards)
         super().__init__(cards, label=ranges, layout=layout)
+
+    def deserialize(self, saved: StringDict) -> None:
+        return self._deserialize(saved, self.cards)
 
     def adapt(self, old_layout: Layout, saved: StringDict) -> None:
         raise SerializationError("Range decks cannot be adapted")
