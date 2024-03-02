@@ -222,7 +222,7 @@ class Deck:
         """Indexes in the queue"""
         ranges: list[list[int]] = []
         curr: list[int] = []
-        for num in sorted(map(self.cards.index, self.queue)):
+        for num in sorted(self.cards.index(card) for card in self.queue):
             if curr and num == curr[1] + 1:
                 curr[1] = num
             else:
