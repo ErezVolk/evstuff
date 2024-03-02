@@ -116,8 +116,8 @@ class Deck:
 
     def _digest(self, strs: Iterable[str]) -> str:
         """A reordering-stable hash"""
-        hashobj = hashlib.sha256("\0".join(sorted(strs)).encode())
-        return f":{hashobj.hexdigest()[:8]}:"
+        hashee = "\0".join(sorted(strs)).encode()
+        return f":{hashlib.sha256(hashee).hexdigest()[:8]}:"
 
     def __len__(self) -> int:
         return len(self.cards)
@@ -144,11 +144,11 @@ class Deck:
         if len(self) < self.MIN_SERIALIZABLE:
             raise SerializationError("Too few items to load state")
         if not isinstance(saved, dict):
-            raise SerializationError("cards: Not a dict")
-        if not isinstance(old_cards := saved.get("cards"), list):
-            raise SerializationError("cards: Not a list")
-        if not old_cards:
-            raise SerializationError("cards: Empty list")
+            raise SerializationError("saved: Not a dict")
+        if not (old_cards := saved.get("cards")):
+            raise SerializationError("No saved cards")
+        if not isinstance(old_cards, list):
+            raise SerializationError(f"cards: Not a list ({type(old_cards)})")
         if not all(isinstance(card, str) for card in old_cards):
             raise SerializationError("cards: Not a list of strings")
 
@@ -156,9 +156,11 @@ class Deck:
         ours = set(self.cards)
         if len(theirs & ours) < self.MIN_SERIALIZABLE:
             raise SerializationError("Not enough shared cards to adapt")
+
         added = ours - theirs
         gone = theirs - ours
         log.debug("Adapting %s +%s -%s", self.label, list(added), list(gone))
+
         self.old_layout = old_layout
         self.counts["flopped"] += 1
         if not (queued := self._get_queue(saved) & ours):
@@ -175,19 +177,19 @@ class Deck:
 
     def _get_queue(self, saved: StringDict) -> set[str]:
         """Parse and validate saved queue idxs"""
-        if (description := saved.get("qidxs")) in (None, "[]"):
+        if not (ranges := saved.get("qidxs")):
             return set()
-        if not isinstance(description, str):
-            raise SerializationError(f"qidxs: Not a str ({type(description)})")
-        if not re.fullmatch(self.RANGES_RE, description):
-            raise SerializationError(f"qidxs: Not a range {description!r}")
-        if max(idxs := self._parse_range(description)) >= len(self.cards):
-            raise SerializationError(f"{description!r} goes too far")
+        if not isinstance(ranges, str):
+            raise SerializationError(f"qidxs: Not a str ({type(ranges)})")
+        if not re.fullmatch(self.RANGES_RE, ranges):
+            raise SerializationError(f"qidxs: Not a range {ranges!r}")
+        if max(idxs := self._parse_ranges(ranges)) >= len(self.cards):
+            raise SerializationError(f"{ranges!r} goes too far")
         return {self.cards[idx] for idx in idxs}
 
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` cards won't have dupes"""
-        if count > len(self.queue) > 0:
+        if self.queue and count > len(self.queue):
             lineup = list(set(self.cards) - set(self.queue))
             random.shuffle(lineup)
             self._track("Adding %s to %s", lineup, self.queue)
@@ -227,10 +229,10 @@ class Deck:
         random.shuffle(self.queue)
         self._track("Queue set to %s", self.queue)
 
-    def _parse_range(self, description: str) -> set[int]:
+    def _parse_ranges(self, ranges: str) -> set[int]:
         """Convert a range description to a list of numbers"""
         numbers: set[int] = set()
-        for rstr in description[1:-1].split(","):
+        for rstr in ranges[1:-1].split(","):
             subs = [int(sub) for sub in rstr.split("-")]
             try:
                 numbers.update(range(subs[0], subs[1] + 1))
@@ -249,10 +251,10 @@ class RangeDeck(Deck):
 
     SERIALIZEES = Deck.SERIALIZEES - {"cards"}
 
-    def __init__(self, parent: str, description: str) -> None:
-        cards = [str(num) for num in sorted(self._parse_range(description))]
+    def __init__(self, parent: str, ranges: str) -> None:
+        cards = [str(num) for num in sorted(self._parse_ranges(ranges))]
         layout = self._digest([parent] + cards)
-        super().__init__(cards, label=description, layout=layout)
+        super().__init__(cards, label=ranges, layout=layout)
 
     def adapt(self, old_layout: Layout, saved: StringDict) -> None:
         """When a user changes some cards in a deck (and thus the layout) but
