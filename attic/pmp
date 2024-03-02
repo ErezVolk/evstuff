@@ -498,10 +498,9 @@ class PracticeMakesPerfect:
 
     def _vlen(self, text: str) -> int:
         """Visible Length (or an approximation thereof)"""
-        return sum((
-            (ud.category(c)[0] in "LNPSZ") + (ud.east_asian_width(c) in "WF")
-            for c in text
-        ))
+        counts = collections.Counter((ud.category(c)[0] for c in text))
+        counts.update((ud.east_asian_width(c) for c in text))
+        return sum(counts[x] for x in "LNPSZWF")
 
     def _configure_logging(self) -> None:
         """Set logging format(s) and level"""
