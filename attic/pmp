@@ -156,17 +156,17 @@ class Deck:
 
         self.old_layout = old_layout
         self.counts["flopped"] += 1
-        if not (queued := self._get_queue(saved, old_cards) & ours):
+        if not (queued := self._get_queue(saved, order=old_cards) & ours):
             raise SerializationError("No shared cards in queue")
         self._set_queue(queued & added)
 
     def deserialize(self, saved: StringDict) -> None:
         """Validate and restore a saved queue"""
-        self._deserialize(saved, self._get_cards(saved))
+        self._deserialize(saved, order=self._get_cards(saved))
 
-    def _deserialize(self, saved: StringDict, cards: Sequence[str]) -> None:
+    def _deserialize(self, saved: StringDict, order: Sequence[str]) -> None:
         """Validate and restore a saved queue, given a card ordering"""
-        queue = self._get_queue(saved, cards)
+        queue = self._get_queue(saved, order)
         if unknown := queue - set(self.cards):
             raise SerializationError(f"Saved queue contains unknown {unknown}")
         self._track("Deserializing")
@@ -182,7 +182,7 @@ class Deck:
             raise SerializationError("cards: Not a list of strings")
         return cards
 
-    def _get_queue(self, saved: StringDict, cards: Sequence[str]) -> set[str]:
+    def _get_queue(self, saved: StringDict, order: Sequence[str]) -> set[str]:
         """Parse and validate saved queue idxs"""
         if (ranges := saved.get("qidxs")) in (None, "[]"):
             return set()
@@ -190,9 +190,9 @@ class Deck:
             raise SerializationError(f"qidxs: Not a str ({type(ranges)})")
         if not re.fullmatch(self.RANGES_RE, ranges):
             raise SerializationError(f"qidxs: Not a range {ranges!r}")
-        if max(idxs := self._parse_ranges(ranges)) >= len(cards):
+        if max(idxs := self._parse_ranges(ranges)) >= len(order):
             raise SerializationError(f"{ranges!r} goes too far")
-        return {cards[idx] for idx in idxs}
+        return {order[idx] for idx in idxs}
 
     def predraw(self, count: int) -> None:
         """Try and make sure the next `count` cards won't have dupes"""
@@ -263,7 +263,7 @@ class RangeDeck(Deck):
         super().__init__(cards, label=ranges, layout=layout)
 
     def deserialize(self, saved: StringDict) -> None:
-        return self._deserialize(saved, self.cards)
+        return self._deserialize(saved, order=self.cards)
 
     def _get_cards(self, saved: StringDict) -> Sequence[str]:
         return self.cards
