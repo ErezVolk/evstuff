@@ -27,7 +27,6 @@ tempo:
 
 homeworkTechnical:
   Harmonic slides exercise on page 35: NONE
-  Dean's Figure 17 on pp.18-19: NONE
   Dean's Figure 19 on page 21 (D-major scale) [for the C♯, close attention to the picking location]: NONE
   Ray Brown's Augmented Exercise (p.92) [name the notes!]: NONE
 
@@ -70,12 +69,13 @@ warmupOtherScale:
 # JdP's "Daily Chop-Builders for Bass"
 #
 chops = [ @chopsRight @chopsLeft @patituchops ]
+chopsLeft = { @chopsLeftDexterity @chopsLeftModes }
 
 patituchops:
   JP@AW 1.09 1234-1434-1424-1243--4321-2143-3241-2132 with hammer-ons and pull-offs: NONE
   JP@AW 1.10 The Spider, starting on {}: ANY
 
-chopsLeft:
+chopsLeftDexterity:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
   L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
   L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42₆₇: NONE
@@ -88,6 +88,8 @@ chopsLeft:
   L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
   L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
   L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
+
+chopsLeftModes:
   L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
   L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
   L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
@@ -475,6 +477,7 @@ reviseCarol:
 reviseDean:
   Dean's Figure 15 on p.16: NONE
   Dean's Figure 16 on p.17: NONE
+  Dean's Figure 17 on pp.18-19: NONE
 
 reviseOther:
   Bach I. Prelude [last played at ♩=76]: NONE
@@ -534,7 +537,18 @@ _bachToDo:
   Bach I. Gigue: NONE
 
 _peerToDo:
-  # How to practice the chords in Figure 20 (pages 22-28)?
+  Dean's Figure 20, D chords on page 22
+  Dean's Figure 20, G chords on page 23
+  Dean's Figure 20, C chords on page 23
+  Dean's Figure 20, F chords on page 24
+  Dean's Figure 20, B♭ chords on page 24
+  Dean's Figure 20, E♭ chords on page 25
+  Dean's Figure 20, A♭ chords on page 25
+  Dean's Figure 20, D♭ chords on page 26
+  Dean's Figure 20, F♯ chords on page 26
+  Dean's Figure 20, B chords on page 27
+  Dean's Figure 20, E chords on page 27
+  Dean's Figure 20, A chords on page 28
   Dean's Figure 21 on page 29: NONE
   Dean's Figure 22 on page 30: NONE
   Dean's Figure 23 on page 30: NONE
