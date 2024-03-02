@@ -682,12 +682,12 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore queues for any eligible deck"""
-        nowies: dict[Layout, StringDict] = {}
-        oldies: dict[Label, Layout] = {}
-        for layout, saved in (decks := self.state["deck"]).items():
+        nowies: dict[Layout, StringDict] = {}  # Current layouts found
+        oldies: dict[Label, Layout] = {}  # Unknown layout, known label
+        for layout, saved in (saveds := self.state["deck"]).items():
             if isinstance(saved, dict):
                 if layout in self.decks:
-                    nowies[layout] = saved
+                    nowies[Layout(layout)] = saved
                 elif isinstance(label := saved.get("label"), str):
                     oldies[Label(label)] = layout
 
@@ -697,7 +697,7 @@ class PracticeMakesPerfect:
                 if saved := nowies.get(layout):
                     deck.deserialize(saved)
                 elif old_layout := oldies.get(deck.label):
-                    deck.adapt(old_layout, decks[old_layout])
+                    deck.adapt(old_layout, saveds[old_layout])
                 if 0 < len(loaded := deck.queue) < len(deck):
                     log.debug("Loaded %s -> %s", deck.blurb, SEP.join(loaded))
                     n_used += 1
