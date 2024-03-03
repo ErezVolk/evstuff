@@ -62,6 +62,8 @@ NX_KEYTYPE_REWIND = 20
 NX_KEYTYPE_ILLUMINATION_UP = 21
 NX_KEYTYPE_ILLUMINATION_DOWN = 22
 
+SHIFT_FLAG = 1 << 17  # NSEventModifierFlagShift
+
 
 class ByteLoop:
     """A circular buffer of bytes."""
@@ -503,24 +505,27 @@ class Metronome:
         """Handle MacOS media key event"""
         assert NSEvent is not None, "Who called this function?!"
         del event_type  # unused
-        bitmap = NSEvent.eventWithCGEvent_(event).data1()
+        details = NSEvent.eventWithCGEvent_(event)
+        flags = details.modifierFlags()
+        shift = bool(flags & SHIFT_FLAG)
+        bitmap = details.data1()
         key = (bitmap & 0xFFFF0000) >> 16
 
         handler = self.media_keys.get(key)
         if handler is None:
-            self.log.debug("Got bitmap=%X key=%d", bitmap, key)
+            self.log.debug("bitmap=%X key=%d flags=%X", bitmap, key, flags)
             return event
 
         is_press = ((bitmap & 0xFF00) >> 8) == 0x0A
         if not is_press:  # React on key release
-            handler()
+            handler(shift=shift)
         return None
 
-    def handle_eject(self) -> None:
+    def handle_eject(self, **_) -> None:
         """On ⏏"""
         self.abort()
 
-    def handle_play_pause(self) -> None:
+    def handle_play_pause(self, **_) -> None:
         """On ⏯"""
         self.pause_unpause()
 
@@ -540,15 +545,15 @@ class Metronome:
             suffix = ""
         self.status.update(f"Tempo: ♩ = {self.tempo}{suffix}")
 
-    def handle_fast_forward(self) -> None:
+    def handle_fast_forward(self, shift: bool) -> None:
         """On ⏩"""
-        self.change_tempo(direction=1)
+        self.change_tempo(direction=1, fine=shift)
 
-    def handle_rewind(self) -> None:
+    def handle_rewind(self, shift: bool) -> None:
         """On ⏪"""
-        self.change_tempo(direction=-1)
+        self.change_tempo(direction=-1, fine=shift)
 
-    def handle_illumination_up(self) -> None:
+    def handle_illumination_up(self, **_) -> None:
         """(F6) Toggle half time"""
         if self.args.beats not in ([0], [4]):
             return
@@ -567,13 +572,16 @@ class Metronome:
         self.paused = paused
         self.show_tempo()
 
-    def change_tempo(self, direction: int) -> None:
+    def change_tempo(self, direction: int, fine: bool = False) -> None:
         """Increase/decrease tempo"""
+        if fine:
+            self.set_tempo(self.tempo + direction)
+            return
+
         if direction > 0:  # Increase tempo
             idx = bisect.bisect_right(self.BPMS, self.tempo)
         else:
             idx = bisect.bisect_left(self.BPMS, self.tempo) - 1
-
         if 0 <= idx < len(self.BPMS):
             self.set_tempo(self.BPMS[idx])
 
