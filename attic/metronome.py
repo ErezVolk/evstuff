@@ -9,7 +9,6 @@ Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 # pyright: reportMissingImports=false
 # pyright: reportMissingModuleSource=false
 # pyright: reportAttributeAccessIssue=false
-# mypy: disable-error-code="import-untyped"
 # pylint: disable=import-error
 # pylint: disable=no-name-in-module
 # pylint: disable=c-extension-no-member
@@ -27,7 +26,7 @@ import typing as t
 import wave
 
 import numpy as np
-from soundfile import SoundFile
+from soundfile import SoundFile  # type: ignore[import-untyped]
 import pyaudio
 import rich
 import rich.console
@@ -383,13 +382,13 @@ class Metronome:
 
     def figure_pattern(self) -> None:
         """Figure out where in the bar we need which clicks"""
-        his = []
-        los = []
+        his: list[int | float] = []
+        los: list[int | float] = []
         if self.args.subdivision:
             self.beats_per_bar = 1
             mnems = np.array(list(self.args.subdivision))
-            los = np.flatnonzero(mnems == "t") / len(mnems)
-            his = np.flatnonzero(mnems == "T") / len(mnems)
+            los = list(np.flatnonzero(mnems == "t") / len(mnems))
+            his = list(np.flatnonzero(mnems == "T") / len(mnems))
         elif self.args.rhythm == "half":
             self.beats_per_bar = 4
             (los if self.args.beats == [0] else his).extend([0, 2])
@@ -421,7 +420,7 @@ class Metronome:
             for beats in self.args.beats:
                 his.append(self.beats_per_bar)
                 self.beats_per_bar += beats
-            los = range(self.beats_per_bar)  # Will get overrun by his
+            los = list(range(self.beats_per_bar))  # Will get overrun by his
 
         self.pattern = {lo: self.lo_click.data for lo in los}
         self.pattern.update({hi: self.hi_click.data for hi in his})
