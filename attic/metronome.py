@@ -29,6 +29,7 @@ import numpy as np
 from soundfile import SoundFile
 import pyaudio
 import rich
+import rich.console
 import rich.live
 
 try:
@@ -188,23 +189,26 @@ class Metronome:
         216, 224, 232, 240,
     ]
 
-    MIN_BPM = BPMS[0]
-    MAX_BPM = BPMS[-1]
-    BPM_STEP = 5
-
     def parse_args(self):
         """Usage"""
         parser = argparse.ArgumentParser(
             description="A metronome",
             formatter_class=PathAwareDefaultsHelpFormatter,
         )
-        parser.add_argument(
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
             "tempo",
             metavar="BPM",
             type=int,
             nargs="?",
             default=92,
             help="beats per minute",
+        )
+        group.add_argument(
+            "-T",
+            "--ask-tempo",
+            action="store_true",
+            help="ask for tempo",
         )
         parser.add_argument(
             "-c",
@@ -276,6 +280,7 @@ class Metronome:
     def run(self):
         """The main event"""
         self.parse_args()
+        self.figure_tempo()
 
         with rich.live.Live("Loading...") as self.status:
             self.do_run()
@@ -285,7 +290,7 @@ class Metronome:
         self.read_clicks()
         self.figure_pattern()
 
-        self.set_tempo(self.args.tempo)
+        self.make_loop()
         self.listen_to_control_c()
         self.listen_to_media_keys()
 
@@ -418,9 +423,19 @@ class Metronome:
         data = b"".join(chunks)
         return (data, pyaudio.paContinue)
 
+    def figure_tempo(self):
+        """Set initial tempo"""
+        if self.args.ask_tempo:
+            console = rich.console.Console()
+            self.tempo = int(console.input("Please enter tempo in BPM: "))
+        else:
+            self.tempo = self.args.tempo
+        if self.tempo not in self.BPMS:
+            bisect.insort(self.BPMS, self.tempo)
+
     def set_tempo(self, tempo):
         """Set (with limits) a new tempo"""
-        self.tempo = min(self.MAX_BPM, max(self.MIN_BPM, tempo))
+        self.tempo = min(self.BPMS[-1], max(self.BPMS[0], tempo))
         self.make_loop()
 
     def make_loop(self):
