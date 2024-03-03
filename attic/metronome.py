@@ -395,7 +395,7 @@ class Metronome:
             (los if self.args.beats == [0] else his).extend([0, 2])
         elif self.args.rhythm == "half2":
             self.beats_per_bar = 4
-            (los if self.args.beats == [0] else his).extend([1, 2])
+            (los if self.args.beats == [0] else his).extend([1, 3])
         elif self.args.rhythm == "quarter":
             self.beats_per_bar = 1
             his = [0]
@@ -560,11 +560,11 @@ class Metronome:
 
         paused = self.paused
         self.paused = True
-        if self.args.rhythm is None:
-            self.log.debug("Swithing to 2/2")
-            self.args.rhythm = "half"
-        elif self.args.rhythm == "half":
-            self.log.debug("Swithing to 4/4")
+        if not self.args.rhythm:
+            self.log.debug("Switching to 2/2")
+            self.args.rhythm = "half2"
+        else:
+            self.log.debug("Switching to 4/4")
             self.args.rhythm = None
         self.figure_pattern()
         self.make_loop()
