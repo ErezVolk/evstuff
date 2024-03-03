@@ -17,6 +17,7 @@ Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 import argparse
 import bisect
 from dataclasses import dataclass
+import logging
 from pathlib import Path
 from pathlib import PurePath
 import re
@@ -31,6 +32,7 @@ import pyaudio
 import rich
 import rich.console
 import rich.live
+import rich.logging
 
 try:
     import pynput.keyboard
@@ -57,12 +59,14 @@ NX_KEYTYPE_EJECT = 14
 NX_KEYTYPE_PLAY = 16
 NX_KEYTYPE_FAST = 19
 NX_KEYTYPE_REWIND = 20
+NX_KEYTYPE_ILLUMINATION_UP = 21
+NX_KEYTYPE_ILLUMINATION_DOWN = 22
 
 
 class ByteLoop:
     """A circular buffer of bytes."""
 
-    def __init__(self, data: bytes | bytearray, granularity: int):
+    def __init__(self, data: bytes | bytearray, granularity: int) -> None:
         self.data = data
         self.offset = 0
         self.granularity = granularity
@@ -74,7 +78,7 @@ class ByteLoop:
         self.offset = limit % len(self.data)
         return chunk
 
-    def make_like(self, other: "ByteLoop"):
+    def make_like(self, other: "ByteLoop") -> None:
         """Set offset to the corresponding one"""
         if other.offset:
             ideal = (other.offset / len(other.data)) * len(self.data)
@@ -96,7 +100,7 @@ class Click(SoundShape):
 
     data: bytes
 
-    def __init__(self, path: str | Path):
+    def __init__(self, path: str | Path) -> None:
         try:
             # Try Python's `wave` first, because `SoundFile` *sets* the width
             with wave.open(str(path), "rb") as wavo:
@@ -162,6 +166,7 @@ class Metronome:
     args: argparse.Namespace
     status: rich.live.Live
     bytes_per_frame: int
+    log: logging.Logger
     loop: ByteLoop = ByteLoop(b"", 0)
     next_loop: ByteLoop | None = None
     aborting: bool = False
@@ -189,7 +194,7 @@ class Metronome:
         216, 224, 232, 240,
     ]
 
-    def parse_args(self):
+    def parse_args(self) -> None:
         """Usage"""
         parser = argparse.ArgumentParser(
             description="A metronome",
@@ -265,6 +270,12 @@ class Metronome:
             action="store_true",
             help="Start paused."
         )
+        parser.add_argument(
+            "-d",
+            "--debug",
+            action="store_true",
+            help="print debugging info",
+        )
         self.args = parser.parse_args()
         if self.args.beats != [0]:
             if not all(beats > 0 for beats in self.args.beats):
@@ -277,15 +288,16 @@ class Metronome:
             return arg
         raise argparse.ArgumentTypeError("may only contain 'T', 't', and '-'")
 
-    def run(self):
+    def run(self) -> None:
         """The main event"""
         self.parse_args()
+        self.configure_logging()
         self.figure_tempo()
 
         with rich.live.Live("Loading...") as self.status:
             self.do_run()
 
-    def do_run(self):
+    def do_run(self) -> None:
         """The main event, with `self.status` initialized"""
         self.read_clicks()
         self.figure_pattern()
@@ -296,11 +308,25 @@ class Metronome:
 
         self.main_loop()
 
-    def listen_to_control_c(self):
+    def configure_logging(self) -> None:
+        """Set logging format and level"""
+        if self.args.debug:
+            level = logging.DEBUG
+        else:
+            level = logging.INFO
+        logging.basicConfig(
+            format="%(message)s",
+            datefmt="[%X]",
+            level=level,
+            handlers=[rich.logging.RichHandler()],
+        )
+        self.log = logging.getLogger(Path(__file__).stem)
+
+    def listen_to_control_c(self) -> None:
         """Install signal handler, otherwise pyaudio loses it"""
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
 
-    def listen_to_media_keys(self):
+    def listen_to_media_keys(self) -> None:
         """On MacOS, start event intercept thread for play/pause, etc."""
         if WITH_MEDIA_KEYS:
             self.media_keys = {
@@ -308,11 +334,12 @@ class Metronome:
                 NX_KEYTYPE_PLAY: self.handle_play_pause,
                 NX_KEYTYPE_FAST: self.handle_fast_forward,
                 NX_KEYTYPE_REWIND: self.handle_rewind,
+                NX_KEYTYPE_ILLUMINATION_UP: self.handle_illumination_up,
             }
             listener = MiniListener(darwin_intercept=self.intercept)
             listener.start()
 
-    def main_loop(self):
+    def main_loop(self) -> None:
         """Keep playing until pause or abort"""
         player = pyaudio.PyAudio()
         self.pause_unpause(paused=self.args.start_paused)  # Get ready to play
@@ -337,7 +364,7 @@ class Metronome:
 
         player.terminate()
 
-    def read_clicks(self):
+    def read_clicks(self) -> None:
         """Read click sounds"""
         paths = self.args.click
         self.lo_click = self.hi_click = Click(paths[0])
@@ -352,8 +379,9 @@ class Metronome:
         self.shape = self.hi_click
         self.bytes_per_frame = self.shape.channels * self.shape.width
 
-    def figure_pattern(self):
+    def figure_pattern(self) -> None:
         """Figure out where in the bar we need which clicks"""
+        his = []
         los = []
         if self.args.subdivision:
             self.beats_per_bar = 1
@@ -362,11 +390,10 @@ class Metronome:
             his = np.flatnonzero(mnems == "T") / len(mnems)
         elif self.args.rhythm == "half":
             self.beats_per_bar = 4
-            his = [0]
-            los = [2]
+            (los if self.args.beats == [0] else his).extend([0, 2])
         elif self.args.rhythm == "half2":
             self.beats_per_bar = 4
-            his = [1, 3]
+            (los if self.args.beats == [0] else his).extend([1, 2])
         elif self.args.rhythm == "quarter":
             self.beats_per_bar = 1
             his = [0]
@@ -386,20 +413,24 @@ class Metronome:
             his = [0.5, 1, 2, 2.75, 3.5]
         elif self.args.beats == [0]:
             self.beats_per_bar = 1
-            his = []
             los = [0]
         else:
-            his = []
             self.beats_per_bar = 0
             for beats in self.args.beats:
                 his.append(self.beats_per_bar)
                 self.beats_per_bar += beats
             los = range(self.beats_per_bar)  # Will get overrun by his
 
-        self.pattern.update({lo: self.lo_click.data for lo in los})
+        self.pattern = {lo: self.lo_click.data for lo in los}
         self.pattern.update({hi: self.hi_click.data for hi in his})
 
-    def read_more(self, in_data, frame_count: int, time_info, status):
+    def read_more(
+        self,
+        in_data,
+        frame_count: int,
+        time_info,
+        status,
+    ) -> tuple[bytes, int]:
         """Supply pyaudio with more audio"""
         del in_data, time_info, status  # unused
 
@@ -423,7 +454,7 @@ class Metronome:
         data = b"".join(chunks)
         return (data, pyaudio.paContinue)
 
-    def figure_tempo(self):
+    def figure_tempo(self) -> None:
         """Set initial tempo"""
         if self.args.ask_tempo:
             console = rich.console.Console()
@@ -433,12 +464,12 @@ class Metronome:
         if self.tempo not in self.BPMS:
             bisect.insort(self.BPMS, self.tempo)
 
-    def set_tempo(self, tempo):
+    def set_tempo(self, tempo) -> None:
         """Set (with limits) a new tempo"""
         self.tempo = min(self.BPMS[-1], max(self.BPMS[0], tempo))
         self.make_loop()
 
-    def make_loop(self):
+    def make_loop(self) -> None:
         """Rebuild the audio loop"""
         frames_per_beat = (60 / self.tempo) * self.shape.rate
         frames_per_bar = round(self.beats_per_bar * frames_per_beat)
@@ -458,17 +489,17 @@ class Metronome:
         self.next_loop = loop
         self.show_tempo()
 
-    def handle_ctrl_c(self, sig, frame):
+    def handle_ctrl_c(self, sig, frame) -> None:
         """Handle Ctrl-C"""
         del sig, frame  # unused
         self.abort()
 
-    def abort(self):
+    def abort(self) -> None:
         """Tell the player to stop"""
         self.status.update("Aborting...")
         self.aborting = True
 
-    def intercept(self, event_type, event):
+    def intercept(self, event_type, event) -> None:
         """Handle MacOS media key event"""
         assert NSEvent is not None, "Who called this function?!"
         del event_type  # unused
@@ -477,6 +508,7 @@ class Metronome:
 
         handler = self.media_keys.get(key)
         if handler is None:
+            self.log.debug("Got bitmap=%X key=%d", bitmap, key)
             return event
 
         is_press = ((bitmap & 0xFF00) >> 8) == 0x0A
@@ -484,15 +516,15 @@ class Metronome:
             handler()
         return None
 
-    def handle_eject(self):
+    def handle_eject(self) -> None:
         """On ⏏"""
         self.abort()
 
-    def handle_play_pause(self):
+    def handle_play_pause(self) -> None:
         """On ⏯"""
         self.pause_unpause()
 
-    def pause_unpause(self, paused: bool | None = None):
+    def pause_unpause(self, paused: bool | None = None) -> None:
         """Toggle play/pause status"""
         if paused is None:
             self.paused = not self.paused
@@ -500,7 +532,7 @@ class Metronome:
             self.paused = paused
         self.show_tempo()
 
-    def show_tempo(self):
+    def show_tempo(self) -> None:
         """Update status to show the current tempo"""
         if self.paused:
             suffix = " ⏾"
@@ -508,15 +540,34 @@ class Metronome:
             suffix = ""
         self.status.update(f"Tempo: ♩ = {self.tempo}{suffix}")
 
-    def handle_fast_forward(self):
+    def handle_fast_forward(self) -> None:
         """On ⏩"""
-        self.change_tempo(1)
+        self.change_tempo(direction=1)
 
-    def handle_rewind(self):
+    def handle_rewind(self) -> None:
         """On ⏪"""
-        self.change_tempo(-1)
+        self.change_tempo(direction=-1)
 
-    def change_tempo(self, direction):
+    def handle_illumination_up(self) -> None:
+        """(F6) Toggle half time"""
+        if self.args.beats not in ([0], [4]):
+            return
+
+        paused = self.paused
+        self.paused = True
+        if self.args.rhythm is None:
+            self.log.debug("Swithing to 2/2")
+            self.args.rhythm = "half"
+        elif self.args.rhythm == "half":
+            self.log.debug("Swithing to 4/4")
+            self.args.rhythm = None
+        self.figure_pattern()
+        self.make_loop()
+
+        self.paused = paused
+        self.show_tempo()
+
+    def change_tempo(self, direction: int) -> None:
         """Increase/decrease tempo"""
         if direction > 0:  # Increase tempo
             idx = bisect.bisect_right(self.BPMS, self.tempo)
