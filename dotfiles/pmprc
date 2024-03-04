@@ -33,9 +33,9 @@ homeworkTechnical:
   Steve's Exercise 3 on page 36: NONE
 
 homeworkMusic:
-  Bach I. Allemande [40 BPM, NB bars 9-16, 18-19, 29-31]: NONE
-  JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [play second time without looking at the changes]: NONE
-  'Come Together' (pp. 18-19) from "Electric Bass Lines 2" [⍻ around 92 BPM, I can play it so-so at 0.88x]: NONE
+  Bach I. Allemande [40 BPM, NB bars 20-24]: NONE
+  'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2" [original tempo is about 180 BPM]: NONE
+  JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
 
 book:
   Radley ctd. [Chapter 4, p.29]: NONE
@@ -75,6 +75,7 @@ chops = [ @chopsRight @chopsLeftDexterity @chopsLeftModes @patituchops ]
 patituchops:
   JP@AW 1.09 1234-1434-1424-1243--4321-2143-3241-2132 with hammer-ons and pull-offs: NONE
   JP@AW 1.10 The Spider, starting on {}: ANY
+  JP's Intonation Exercise with Shifting on the {} string: {oneString}
 
 chopsLeftDexterity:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
@@ -342,13 +343,15 @@ keepCarolKaye:  # When I'm done
   Page 12 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
   Page 13 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
   'When I Die' (pp. 16-17) from "Electric Bass Lines 2": NONE
-  # 'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2": NONE
-  # 'Other Recorded Licks' on Page 22 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
-  # 'Games People Play' (pp. 23-26) from "Electric Bass Lines 2": NONE
-  # TODO: "Bass Lines Book 3"
-  # TODO: "Bass Lines Book 4"
-  # TODO: "Bass Lines Book 5"
-  # TODO: "Bass Lines Book 6"
+  'Come Together' (pp. 18-19) from "Electric Bass Lines 2" [I can play it so-so at 0.88x, don't lose the grove!]: NONE
+
+_carolToDo:
+  'Other Recorded Licks' on Page 22 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
+  'Games People Play' (pp. 23-26) from "Electric Bass Lines 2": NONE
+  "Bass Lines Book 3": NONE
+  "Bass Lines Book 4": NONE
+  "Bass Lines Book 5": NONE
+  "Bass Lines Book 6": NONE
 
 sightReading:
   Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Minor": {[1-10]} {[4-23]}
@@ -468,9 +471,9 @@ reviseJP@AW:
   JP@AW {} Simple Jazz 2 Beat Feel II⧸V Progression: 2.16 (Slow)|2.17 (Fast)
   JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets [start with roots+groove, no looking at the sheet music]: NONE
   JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets [⍻ start with roots+groove, no looking at the sheet music]: NONE
+  JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [play second time without looking at the changes]: NONE
 
 _todoJP@AW:
-  JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
   JP@AW 2.22 First Time: NONE
   JP@AW 2.23 First Time v2: NONE
   JP@AW 2.24 Bossa Nova (Medium): NONE
@@ -594,6 +597,7 @@ _bookToDo:  # When I'm good enough?
   Stuart Clayton's Guide to Scales and Modes [Hm, pretty comprehensive]: NONE
   Di Bartolo's Complete Guide to Scales and Chords [Hm, quite comprehensive, but not sure I like the tone]: NONE
   Cuneo, Angelo Francesco - 32 Exercises And Studies For Sight Reading [After Simandl?]: NONE
+  JP's Arpeggio book [Should incorporate his first exercise into daily somehow]: NONE
 
   Connecting Chords with Linear Harmony by Bert Ligon [Check it out? See youtu.be/W4RkIVTbezs]: NONE
   Coker's Patterns for Jazz [Pretty serious stuff, for improvising]: NONE
