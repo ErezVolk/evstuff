@@ -72,7 +72,7 @@ warmupOtherScale:
 #
 chops = [ @chopsRight @chopsLeftDexterity @chopsLeftModes @patituchops ]
 
-patituchops:
+patituchops:  # I'm thinking I should do all of these every day
   JP@AW 1.09 1234-1434-1424-1243--4321-2143-3241-2132 with hammer-ons and pull-offs: NONE
   JP@AW 1.10 The Spider, starting on {}: ANY
   JP's Intonation Exercise with Shifting on the {} string: {oneString}
