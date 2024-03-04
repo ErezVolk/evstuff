@@ -1,6 +1,6 @@
 all = [ morn eve ]
 
-# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼ⁷₁Δː≅⚠
+# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
 *morn = [ tempo mornWarmup mornPractice mornHomework ]
 mornWarmup = [ warmup chops ]
@@ -210,18 +210,18 @@ arpeggio:
   maj⁹: major
   min⁹: minor
   # ⁶: major
-  # 13: major
-  # 7-5: major
-  # 7-9: major
-  # 7-5-9: major
-  # 6/9: major
-  # 7+9: major
-  # 13-9: major
-  # 7sus4: major
-  # m7-9: minor
-  # m7-5-9: minor
+  # ⁱ³: major
+  # ⁷⁻⁵: major
+  # ⁷⁻⁹: major
+  # ⁷⁻⁵⁻⁹: major
+  # ⁶⁹: major
+  # ⁷⁺⁹: major
+  # ⁱ³⁻⁹: major
+  # ⁷sus4: major
+  # m⁷⁻⁹: minor
+  # m⁷⁻⁵⁻⁹: minor
   # m⁶: minor
-  # m maj7: minor
+  # m maj⁷: minor
   # ᴼ⁹: minor
 
 rayBrownBluesKeys := C|F|B♭|G
