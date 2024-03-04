@@ -11,9 +11,9 @@ eve = [ 1@sightReading homeworkMusic 3@book 2@revise ]
 
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol reviseSteve }
 
-oneString := E|A|D|G
-twoAdjacentStrings := E+A|A+D|D+G
-twoSubjacentStrings := E+D|A+G
+oneString := IV|III|II|I
+twoAdjacentStrings := IV+III|III+II|II+I
+twoSubjacentStrings := IV+II|III+I
 
 majMin:
   -major: major
@@ -26,10 +26,10 @@ tempo:
   Try MM ♩={} today: {[104-126]}
 
 homeworkTechnical:
-  Harmonic slides exercise on page 35 [⍻]: NONE
   Dean's Figure 19 on page 21 (D-major scale) [⍻ for the C♯, close attention to the picking location]: NONE
-  Dean's Figure 20, D chords on page 22: NONE
+  Dean's Figure 20 (top), D chords on page 22: NONE
   Ray Brown's Augmented Exercise (p.92) [⍻ name the notes!]: NONE
+  Steve's Exercise 3 on page 36: NONE
 
 homeworkMusic:
   Bach I. Allemande [40 BPM, NB bars 9-16, 18-19, 29-31]: NONE
@@ -69,8 +69,7 @@ warmupOtherScale:
 #
 # JdP's "Daily Chop-Builders for Bass"
 #
-chops = [ @chopsRight @chopsLeft @patituchops ]
-chopsLeft = { @chopsLeftDexterity @chopsLeftModes }
+chops = [ @chopsRight @chopsLeftDexterity @chopsLeftModes @patituchops ]
 
 patituchops:
   JP@AW 1.09 1234-1434-1424-1243--4321-2143-3241-2132 with hammer-ons and pull-offs: NONE
@@ -192,9 +191,9 @@ _chopsBothTodo:  # Not there yet
 #
 # Technical things to keep by practicing
 #
-keep = { @keepSteveInterval @hazard @slide @doubleStop @keepRayBrown @keepCarolKaye @keepSteveOther }
+keep = { @keepSteveInterval @hazard @slide @doubleStop @keepRayBrown @keepCarolKaye }
 hazard = { @keepSteveHazard }
-slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveBlend }
+slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveOther }
 doubleStop = { @keepSteveScaleInDoubleStops }
 
 arpeggio:
@@ -210,6 +209,20 @@ arpeggio:
   ⁹: major
   maj⁹: major
   min⁹: minor
+  # ⁶: major
+  # 13: major
+  # 7-5: major
+  # 7-9: major
+  # 7-5-9: major
+  # 6/9: major
+  # 7+9: major
+  # 13-9: major
+  # 7sus4: major
+  # m7-9: minor
+  # m7-5-9: minor
+  # m⁶: minor
+  # m maj7: minor
+  # ᴼ⁹: minor
 
 rayBrownBluesKeys := C|F|B♭|G
 rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
@@ -244,8 +257,8 @@ keepSteveInterval:
   4ths drill on the {} strings: twoAdjacentStrings
   3rds drill on the {} strings: twoAdjacentStrings
   6ths drill on the {} strings: twoSubjacentStrings
-  Minor 6ths drill on the {} strings: E+A~D|A+D~G
-  10ths drill on the E+G strings: NONE
+  Minor 6ths drill on the {} strings: IV+III~II|III+II~I
+  10ths drill on the IV+I strings: NONE
 
 keepSteveHazard:
   Hazard 3rds, {}: 2-1-4-3 (Ex. 2 on page 11)|4-1-2-3 (Ex. 3A on page 12)|1-3-4-2 (Ex. 3B on page 12)|1-4-3-2 (Ex. 3C on page 12)
@@ -286,13 +299,12 @@ keepSteveSlide6th:
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
   {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): major
 
-keepSteveBlend:
+keepSteveOther:
   Slide blending exercises on page 30: NONE
   {} Diatonic string-crossing slides of a 7th (page 33): @majMin
   {} Octave string-crossing slide exercise on page 34: @majMin
-
-keepSteveOther:
   Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
+  Harmonic slides exercise on page 35 [⍻]: NONE
 
 keepCarolKaye:  # When I'm done
   Page 5 in "How to Play the Electric Bass": NONE
@@ -524,10 +536,9 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  Exercise 3 on page 36: NONE
-  Exercise 4 on page 37: NONE
-  Exercise 5 on page 38: NONE
-  Exercise 6 on page 39: NONE
+  Steve's Etude 4 on page 37: NONE
+  Steve's Etude 5 on page 38: NONE
+  Steve's Etude 6 on page 39: NONE
 
 _bachToDo:
   # Needs to be done seriously, but I could work on it
@@ -538,6 +549,7 @@ _bachToDo:
   Bach I. Gigue: NONE
 
 _peerToDo:
+  Dean's Figure 20 (bottom), D chords on page 22: NONE
   Dean's Figure 20, G chords on page 23: NONE
   Dean's Figure 20, C chords on page 23: NONE
   Dean's Figure 20, F chords on page 24: NONE
@@ -548,7 +560,8 @@ _peerToDo:
   Dean's Figure 20, F♯ chords on page 26: NONE
   Dean's Figure 20, B chords on page 27: NONE
   Dean's Figure 20, E chords on page 27: NONE
-  Dean's Figure 20, A chords on page 28: NONE
+  Dean's Figure 20 (top), A chords on page 28: NONE
+  Dean's Figure 20 (bottom), A chords on page 28: NONE
   Dean's Figure 21 on page 29: NONE
   Dean's Figure 22 on page 30: NONE
   Dean's Figure 23 on page 30: NONE
