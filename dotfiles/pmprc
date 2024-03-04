@@ -209,20 +209,22 @@ arpeggio:
   ⁹: major
   maj⁹: major
   min⁹: minor
-  # ⁶: major
-  # ⁱ³: major
-  # ⁷⁻⁵: major
-  # ⁷⁻⁹: major
-  # ⁷⁻⁵⁻⁹: major
-  # ⁶⁹: major
-  # ⁷⁺⁹: major
-  # ⁱ³⁻⁹: major
-  # ⁷sus4: major
-  # m⁷⁻⁹: minor
-  # m⁷⁻⁵⁻⁹: minor
-  # m⁶: minor
-  # m maj⁷: minor
-  # ᴼ⁹: minor
+
+_arpeggioToDo:
+  ⁶: major
+  ⁱ³: major
+  ⁷⁻⁵: major
+  ⁷⁻⁹: major
+  ⁷⁻⁵⁻⁹: major
+  ⁶⁹: major
+  ⁷⁺⁹: major
+  ⁱ³⁻⁹: major
+  ⁷sus4: major
+  m⁷⁻⁹: minor
+  m⁷⁻⁵⁻⁹: minor
+  m⁶: minor
+  m maj⁷: minor
+  ᴼ⁹: minor
 
 rayBrownBluesKeys := C|F|B♭|G
 rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
