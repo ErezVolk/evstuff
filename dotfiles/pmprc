@@ -2,8 +2,8 @@ all = [ morn eve ]
 
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
-*morn = [ tempo mornWarmup mornPractice mornHomework ]
-mornWarmup = [ warmup chops ]
+*morn = [ mornWarmup mornPractice mornHomework ]
+mornWarmup = [ tempo warmup chops ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
 
@@ -24,7 +24,7 @@ majMin:
 # Currently working on
 #
 tempo:
-  Try MM ♩={} today: {[104-126]}
+  ** Try MM ♩={} today **: {[104-126]}
 
 homeworkTechnical:
   Dean's Figure 19 on page 21 (D-major scale) [⍻ for the C♯, close attention to the picking location]: NONE
