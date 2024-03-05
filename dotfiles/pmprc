@@ -34,7 +34,7 @@ homeworkTechnical:
 
 homeworkMusic:
   Bach I. Allemande [40 BPM, NB bars 20-24]: NONE
-  'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2" [original tempo is about 180 BPM]: NONE
+  'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2" [original tempo is about 180 BPM, I can do mayb 120]: NONE
   JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
 
 book:
@@ -199,34 +199,34 @@ slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSli
 doubleStop = { @keepSteveScaleInDoubleStops }
 
 arpeggio:
-  maj: major
-  m: minor
-  ⁷: major
-  m⁷: minor
-  M⁷: major
-  -major pentatonic: major
-  -minor pentatonic: minor
-  ᴼ⁷: minor
-  aug⁷: major
-  ⁹: major
-  maj⁹: major
-  min⁹: minor
-  ⁶: major
-  m⁶: minor
-  m⁷⁺: minor
+  Xmaj, starting from {}: major
+  Xm, starting from {}: minor
+  X⁷, starting from {}: major
+  Xm⁷, starting from {}: minor
+  XM⁷, starting from {}: major
+  X-major pentatonic, starting from {}: major
+  X-minor pentatonic, starting from {}: minor
+  Xᴼ⁷, starting from {}: minor
+  Xaug⁷, starting from {}: major
+  X⁹, starting from {}: major
+  Xmaj⁹, starting from {}: major
+  Xmin⁹, starting from {}: minor
+  X⁶, starting from {}: major
+  Xm⁶, starting from {}: minor
+  Xm⁷⁺, starting from {}: minor
 
 _arpeggioToDo:
-  ⁱ³: major
-  ⁷⁻⁵: major
-  ⁷⁻⁹: major
-  ⁷⁻⁵⁻⁹: major
-  ⁶⁹: major
-  ⁷⁺⁹: major
-  ⁱ³⁻⁹: major
-  ⁷sus4: major
-  m⁷⁻⁹: minor
-  m⁷⁻⁵⁻⁹: minor
-  ᴼ⁹: minor
+  Xⁱ³, starting from {}: major
+  X⁷⁻⁵, starting from {}: major
+  X⁷⁻⁹, starting from {}: major
+  X⁷⁻⁵⁻⁹, starting from {}: major
+  X⁶⁹, starting from {}: major
+  X⁷⁺⁹, starting from {}: major
+  Xⁱ³⁻⁹, starting from {}: major
+  X⁷sus4, starting from {}: major
+  Xm⁷⁻⁹, starting from {}: minor
+  Xm⁷⁻⁵⁻⁹, starting from {}: minor
+  Xᴼ⁹, starting from {}: minor
 
 rayBrownBluesKeys := C|F|B♭|G
 rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
