@@ -2,13 +2,13 @@ all = [ morn eve ]
 
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
-*morn = [ tempo mornWarmup mornPractice mornHomework ]
-mornWarmup = [ warmup chops ]
+*morn = [ mornWarmup mornPractice mornHomework ]
+mornWarmup = [ tempo warmup chops ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
 
 eve = [ eveUp homeworkMusic 3@book 2@revise ]
-eveUp = [ @arpeggio @sightReading ]
+eveUp = [ @arpeggio @sightReading @patituchops ]
 
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol reviseSteve }
 
@@ -24,7 +24,7 @@ majMin:
 # Currently working on
 #
 tempo:
-  Try MM ♩={} today: {[104-126]}
+  ** Try MM ♩={} today **: {[104-126]}
 
 homeworkTechnical:
   Dean's Figure 19 on page 21 (D-major scale) [⍻ for the C♯, close attention to the picking location]: NONE
@@ -72,8 +72,8 @@ warmupOtherScale:
 #
 chops = [ @chopsRight @chopsLeftDexterity @chopsLeftModes @patituchops ]
 
-patituchops:  # I'm thinking I should do all of these every day
-  JP@AW 1.09 1234-1434-1424-1243--4321-2143-3241-2132 with hammer-ons and pull-offs: NONE
+patituchops:
+  JP@AW 1.09 Hammer-ons and pull-offs: NONE
   JP@AW 1.10 The Spider, starting on {}: ANY
   JP's Intonation Exercise with Shifting on the {} string: {oneString}
 
@@ -365,6 +365,7 @@ sightReading:
   Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": {[1-125]}
   Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Advanced Level)": {[1-107]}
   Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {[5-112]}
+  "Bass Hanon" {} in {}: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
 
 
 #
@@ -587,6 +588,7 @@ _peerToDo:
   # More as they come
 
 _bookToDo:  # When I'm good enough?
+  "Bass Hanon" {} in {} [How to incorporate?]: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
   JP's Walking Bass [After his course?]: NONE
   Mike Downes [Too much self-reliance? Or maybe it eats up all the rest?]: NONE
   Blues Grooves [Take a look?]: NONE

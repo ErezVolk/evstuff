@@ -1,12 +1,21 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # pylint: disable=invalid-name
+"""Run `make down` in latest translation dirs"""
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
 import subprocess
 import sys
+import typing as t
 
 
-def main():
+class TimedPath(t.NamedTuple):
+    """A Path and its modification time; time-first for sorting"""
+    mtime: int
+    path: Path
+
+
+def main() -> int:
+    """Run `make down` in latest translation dirs"""
     parser = ArgumentParser()
     parser.add_argument(
         "-b", "--backup",
@@ -23,7 +32,10 @@ def main():
     parser.add_argument(
         "-T", "--timestamp",
         type=Path,
-        help="Timestamp file name (under translation directory, unless specified)",
+        help=(
+            "Timestamp file name "
+            "(under translation directory, unless specified)"
+        ),
         default=".latest",
     )
     parser.add_argument(
@@ -34,36 +46,33 @@ def main():
     )
     args = parser.parse_args()
 
-    backup = args.backup
-    translation = args.translation
-
     timestamp = args.timestamp
     if str(timestamp) == timestamp.name:
-        timestamp = translation/timestamp
+        timestamp = args.translation / timestamp
     try:
         ref_mtime = timestamp.stat().st_mtime
     except FileNotFoundError:
         ref_mtime = 0
 
-    tarballs = {
-        tarball: mtime
-        for tarball in backup.glob("*.tar.xz")
+    tarpaths: list[TimedPath] = sorted(
+        TimedPath(path=tarball, mtime=mtime)
+        for tarball in args.backup.glob("*.tar.xz")
         if (mtime := tarball.stat().st_mtime) > ref_mtime
-    }
+    )
 
-    folders = []
-    for tarball in sorted(tarballs, key=tarballs.get, reverse=True):
-        stem, dot, suffixes = tarball.name.partition(".")
+    folders: list[Path] = []
+    for tarpath in reversed(tarpaths):
+        stem, _dot, _suffixes = tarpath.path.name.partition(".")
         found = [
             f
-            for f in translation.glob(f"*_{stem}")
+            for f in args.translation.glob(f"*_{stem}")
             if f.is_dir() and not f.is_symlink() and (f / "Makefile").is_file()
         ]
         if len(found) == 0:
-            print(f"Possibly missing {translation}/*_{stem}?")
+            print(f"Possibly missing {args.translation}/*_{stem}?")
             continue
-        elif len(found) != 1:
-            print(f"More than one folder {translation}/*_{stem}")
+        if len(found) != 1:
+            print(f"More than one folder {args.translation}/*_{stem}")
             continue
 
         folders.insert(0, found[0])
@@ -74,7 +83,10 @@ def main():
         print("Nothing to download...")
         return -1
 
-    input(f"Press Enter to run 'make down' in {' '.join(f.name for f in folders)}...")
+    input(
+        f"Press Enter to run 'make down' in "
+        f"{' '.join(f.name for f in folders)}..."
+    )
 
     for folder in folders:
         subprocess.run(
@@ -91,7 +103,7 @@ def main():
     )
 
     with open(timestamp, "w", encoding="utf-8") as tsfo:
-        for line in [datetime.utcnow()] + folders:
+        for line in [datetime.now()] + folders:
             tsfo.write(str(line))
             tsfo.write("\n")
 
