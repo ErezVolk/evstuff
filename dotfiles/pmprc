@@ -34,7 +34,7 @@ homeworkTechnical:
 
 homeworkMusic:
   Bach I. Allemande [40 BPM, NB bars 20-24]: NONE
-  'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2" [original tempo is about 180 BPM, I can do mayb 120]: NONE
+  'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2" [original tempo is about 180 BPM, I can do mayb x.75]: NONE
   JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
 
 book:
@@ -365,7 +365,7 @@ sightReading:
   Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": {[1-125]}
   Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Advanced Level)": {[1-107]}
   Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {[5-112]}
-  "Bass Hanon" {} in {}: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
+  Wolfe's "Bass Hanon" {} in {}: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
 
 
 #
