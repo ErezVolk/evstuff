@@ -29,8 +29,8 @@ tempo:
 homeworkTechnical:
   Dean's Figure 19 on page 21 (D-major scale) [⍻ for the C♯, close attention to the picking location]: NONE
   Dean's Figure 20, D chords on page 22 (bottom): NONE
-  Ray Brown's Augmented Exercise (p.92) [⍻ name the notes!]: NONE
   Steve's Exercise 3 on page 36 [note right hand]: NONE
+  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
 
 homeworkMusic:
   Bach I. Allemande [40 BPM, NB bars 20-24]: NONE
@@ -259,6 +259,7 @@ keepRayBrown:
   Ray Brown's Diminished Exercise (p.83): NONE
   Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
   Ray Brown's Diminished Exercise (p.85) [⍻]: NONE
+  Ray Brown's Augmented Exercise (p.92) [⍻ name the notes!]: NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -526,7 +527,6 @@ _melodicToDo:
   # Add more as I play them
 
 _rayBrownToDo:
-  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
   Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
   Ray Brown's Augmented Exercise (p.97, top 2): NONE
   Ray Brown's Augmented Exercise (p.97, bottom 2): NONE
