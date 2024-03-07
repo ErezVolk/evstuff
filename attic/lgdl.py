@@ -12,12 +12,12 @@ import urllib.parse as urlparse
 
 from collections.abc import Sequence
 
-import bs4
-import requests
-import requests.exceptions
-from simple_term_menu import TerminalMenu
-import rich.logging
-import rich.progress
+import bs4  # type: ignore[import-untyped]
+import requests  # type: ignore[import-untyped]
+import requests.exceptions  # type: ignore[import-untyped]
+from simple_term_menu import TerminalMenu  # type: ignore[import-untyped]
+import rich.logging  # type: ignore[import-untyped]
+import rich.progress  # type: ignore[import-untyped]
 
 ANSI_BOLD = "\033[1m"
 ANSI_CLEAR = "\033[0m"
