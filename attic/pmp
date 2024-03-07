@@ -764,13 +764,15 @@ class ConfigParser:
     def parse(self, filename: Filename, stream: t.TextIO) -> Config:
         """Read configuration file"""
         try:
-            return self.do_parse(stream)
+            self.do_parse(stream)
+            self.check_references()
+            return Config(self.books, starred=self.starred or list(self.books))
         except BadConfig as exc:
             if self.line_num:
                 raise BadConfig(f"[{filename}:{self.line_num}] {exc}") from exc
             raise BadConfig(f"[{filename}] {exc}") from exc
 
-    def do_parse(self, stream: t.TextIO) -> Config:
+    def do_parse(self, stream: t.TextIO):
         """The actual reading function"""
         for self.line_num, line in enumerate(stream, 1):
             self.line = re.sub(r"\s*(#.*)?$", "", line)
@@ -789,8 +791,10 @@ class ConfigParser:
                 self.add_one_liner(sequential=True)
             elif self.line != "":
                 raise BadConfig(f"Bad line: {self.line!r}")
+        self.line_num = 0  # For any subsequent error messages
 
-        self.line_num = 0  # For error messages
+    def check_references(self) -> None:
+        """Make sure all cross-references are kosher"""
         known = self.books.keys() | self.labeldecks.keys()
         if unknown := self.deps.keys() - known:
             errs = (f"[line {self.whences[unk]}] {unk!r}" for unk in unknown)
@@ -801,9 +805,6 @@ class ConfigParser:
         except graphlib.CycleError as exc:
             cycle = " -> ".join(exc.args[1])
             raise BadConfig(f"Cyclical config: {cycle}") from exc
-
-        starred = self.starred or list(self.books)
-        return Config(books=self.books, starred=starred)
 
     def enter_book(self, label: str, star: t.Any, sequential=False) -> None:
         """Found a book line"""
@@ -929,20 +930,20 @@ class Reporter:
                 if (used := row.get("used")) and used >= self.then:
                     row["gone"] = row.get("gone") or self.now
                     to_save.append(row)
-        to_save.sort(key=lambda row: row["label"].lower())
-
         if not to_save:
             log.debug("Nothing to write to %s", self.path)
-        else:
-            colset = set.union(*[set(row) for row in to_save])
-            cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
+            return
 
-            log.debug("Save %s (%d x %d)", self.path, len(to_save), len(cols))
-            with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
-                writer = csv.DictWriter(csvfo, fieldnames=cols)
-                writer.writeheader()
-                for row in to_save:
-                    writer.writerow(row)
+        to_save.sort(key=lambda row: row["label"].lower())
+        colset = set.union(*[set(row) for row in to_save])
+        cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
+
+        log.debug("Save %s (%d x %d)", self.path, len(to_save), len(cols))
+        with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
+            writer = csv.DictWriter(csvfo, fieldnames=cols)
+            writer.writeheader()
+            for row in to_save:
+                writer.writerow(row)
 
     def deck_row(self, deck: Deck) -> StringDict:
         """Get or make the row for a deck"""
