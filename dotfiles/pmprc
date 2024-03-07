@@ -8,7 +8,7 @@ mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
 
 eve = [ eveUp homeworkMusic 3@book 2@revise ]
-eveUp = [ @arpeggio @sightReading @patituchops ]
+eveUp = [ @chopsLeft @arpeggio @sightReading @patituchops ]
 
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol reviseSteve }
 
@@ -70,12 +70,14 @@ warmupOtherScale:
 #
 # JdP's "Daily Chop-Builders for Bass"
 #
-chops = [ @chopsRight @chopsLeftDexterity @chopsLeftModes @patituchops ]
+chops = [ @chopsRight @chopsLeft @patituchops ]
 
 patituchops:
   JP@AW 1.09 Hammer-ons and pull-offs: NONE
   JP@AW 1.10 The Spider, starting on {}: ANY
   JP's Intonation Exercise with Shifting on the {} string: {oneString}
+
+chopsLeft = { @chopsLeftDexterity @chopsLeftModes @bassHanon }
 
 chopsLeftDexterity:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
@@ -96,6 +98,9 @@ chopsLeftModes:
   L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
   L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
   L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
+
+bassHanon:
+  Wolfe's "Bass Hanon Vol. 1" {} in {} [not really sightreading]: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
 
 _chopsLeftTodo:
   L-Modes 5 (♬@♩=60 1324.3546.5768 p.15): NONE
@@ -365,7 +370,6 @@ sightReading:
   Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": {[1-125]}
   Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Advanced Level)": {[1-107]}
   Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {[5-112]}
-  Wolfe's "Bass Hanon" {} in {}: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
 
 
 #
@@ -588,7 +592,6 @@ _peerToDo:
   # More as they come
 
 _bookToDo:  # When I'm good enough?
-  "Bass Hanon" {} in {} [How to incorporate?]: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
   JP's Walking Bass [After his course?]: NONE
   Mike Downes [Too much self-reliance? Or maybe it eats up all the rest?]: NONE
   Blues Grooves [Take a look?]: NONE
