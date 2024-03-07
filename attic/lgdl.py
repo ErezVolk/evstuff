@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """Search and download from libgen"""
-# TODO: save files for resume
-# TODO: support annas-archive.org
 import argparse
 from dataclasses import dataclass
 import logging
@@ -23,6 +21,11 @@ import rich.progress
 
 ANSI_BOLD = "\033[1m"
 ANSI_CLEAR = "\033[0m"
+
+__TODO__ = """
+ -  save files for resume
+ -  support annas-archive.org
+"""
 
 
 @dataclass
@@ -462,7 +465,10 @@ class LibgenDownload:
 
         name = self.BAD_CHARS_RE.sub("-", name)
 
-        mirrors = self.parse_mirrors_cell(cells["Mirrors"])
+        mirrors = [
+            url for url in self.parse_mirrors_cell(cells["Mirrors"])
+            if "annas-archive.org" not in url
+        ]
         random.shuffle(mirrors)  # Keep them on their toes
 
         path = self.args.output / name
