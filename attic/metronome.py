@@ -179,6 +179,7 @@ class Metronome:
     beats_per_bar: int
     pattern: dict[float, bytes] = {}
     tempo: int
+    suffix: str = ""
 
     BPMS = [
         # Added by me
@@ -538,10 +539,9 @@ class Metronome:
 
     def show_tempo(self) -> None:
         """Update status to show the current tempo"""
+        suffix = self.suffix
         if self.paused:
-            suffix = " ⏾"
-        else:
-            suffix = ""
+            suffix += " ⏾"
         self.status.update(f"Tempo: ♩ = {self.tempo}{suffix}")
 
     def handle_fast_forward(self, shift: bool) -> None:
@@ -562,9 +562,11 @@ class Metronome:
         if not self.args.rhythm:
             self.log.debug("Switching to 2/2")
             self.args.rhythm = "half2"
+            self.suffix = " (2&4)"
         else:
             self.log.debug("Switching to 4/4")
             self.args.rhythm = None
+            self.suffix = ""
         self.figure_pattern()
         self.make_loop()
 
