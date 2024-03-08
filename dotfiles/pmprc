@@ -29,8 +29,8 @@ tempo:
 homeworkTechnical:
   Dean's Figure 19 on page 21 (D-major scale) [⍻ for the C♯, close attention to the picking location]: NONE
   Dean's Figure 20, D chords on page 22 (bottom): NONE
-  Steve's Exercise 3 on page 36 [note right hand]: NONE
   Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
+  Steve's Etude 4 on page 37: NONE
 
 homeworkMusic:
   Bach I. Allemande [40 BPM, NB bars 20-24]: NONE
@@ -49,7 +49,7 @@ book:
 #
 # Warmup Selection
 #
-warmup = [ @warmupInterval @warmupHarvey @warmupOtherScale ]
+warmup = [ @warmupInterval warmupHarvey @warmupOtherScale ]
 
 warmupInterval:
   Octave drill on the {} strings: twoSubjacentStrings
@@ -58,6 +58,7 @@ warmupInterval:
 warmupHarvey:
   # ' Minor Harvey from C': Natural|Harmonic|Melodic  # Not a good idea, because Harvey needs to be sung!
   Harvey from {}: G|C
+  Mickey's {}: @majMin
 
 warmupOtherScale:
   {}-Major Scale, ATFB and on the {} string: {major} {oneString}
@@ -315,6 +316,7 @@ keepSteveOther:
   {} Octave string-crossing slide exercise on page 34: @majMin
   Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
   Harmonic slides exercise on page 35 [⍻]: NONE
+  Steve's Exercise 3 on page 36 [note right hand]: NONE
 
 keepCarolKaye:  # When I'm done
   Page 5 in "How to Play the Electric Bass": NONE
@@ -548,7 +550,6 @@ _rayBrownToDo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveToDo:
-  Steve's Etude 4 on page 37: NONE
   Steve's Etude 5 on page 38: NONE
   Steve's Etude 6 on page 39: NONE
 
