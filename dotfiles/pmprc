@@ -200,8 +200,7 @@ _chopsBothTodo:  # Not there yet
 #
 # Technical things to keep by practicing
 #
-keep = { @keepSteveInterval @hazard @slide @doubleStop @keepRayBrown @keepCarolKaye }
-hazard = { @keepSteveHazard }
+keep = { @keepSteveInterval @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol }
 slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveOther }
 doubleStop = { @keepSteveScaleInDoubleStops }
 
@@ -222,7 +221,7 @@ arpeggio:
   Xm⁶, starting from {}: minor
   Xm⁷⁺, starting from {}: minor
 
-_arpeggioToDo:
+_arpeggioTodo:
   Xⁱ³, starting from {}: major
   X⁷⁻⁵, starting from {}: major
   X⁷⁻⁹, starting from {}: major
@@ -239,21 +238,29 @@ rayBrownBluesKeys := C|F|B♭|G
 rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 
-keepRayBrown:
+keepRayBrown = { @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug }
+
+keepRayBrownBlues:
   Ray Brown's Blues (p.100), {} pattern: {A+B|C|D|E|F}
   Ray Brown's Blues (I) (p.101), starting from {}: rayBrownBluesKeys
   Ray Brown's Blues (II) (p.102), starting from {}: rayBrownBluesKeys
   Ray Brown's Blues (III) (p.103), starting from {}: rayBrownBluesKeys
+
+keepRayBrown10ths:
   Ray Brown's 10ths with a 5th, {}: rayBrown10thKeys
   Ray Brown's minor 10ths with a 5th, {}: rayBrown10thKeys
   Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
   Ray Brown's minor 10ths with a 6th, {}: rayBrown10thKeys
   Ray Brown's 10ths with a 7th, {}: rayBrown10thKeys
   Ray Brown's minor 10ths with a 7th, {}: rayBrown10thKeys
+
+keepRayBrownDrops:
   Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), start on {}: rayBrownDrillKeys
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), start on {}: rayBrownDrillKeys
+
+keepRayBrownDim:
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
   Ray Brown's Diminished Exercise (p.79): NONE
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
@@ -261,6 +268,8 @@ keepRayBrown:
   Ray Brown's Diminished Exercise (p.83): NONE
   Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
   Ray Brown's Diminished Exercise (p.85) [⍻]: NONE
+
+keepRayBrownAug:
   Ray Brown's Augmented Exercise (p.92) [⍻ name the notes!]: NONE
 
 keepSteveInterval:
@@ -319,7 +328,7 @@ keepSteveOther:
   Harmonic slides exercise on page 35 [⍻]: NONE
   Steve's Exercise 3 on page 36 [note right hand]: NONE
 
-keepCarolKaye:  # When I'm done
+keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Page 5 in "How to Play the Electric Bass": NONE
   Page 6 in "How to Play the Electric Bass": NONE
   Page 7 in "How to Play the Electric Bass": NONE
@@ -354,21 +363,21 @@ keepCarolKaye:  # When I'm done
   'Other Recorded Licks' on Page 22 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
   Key of C in "Bass Lines Book 3": NONE
 
-_carolToDo:
-  Key of G in "Bass Lines Book 3": NONE
-  Key of D in "Bass Lines Book 3": NONE
-  Key of A in "Bass Lines Book 3": NONE
-  Key of E in "Bass Lines Book 3": NONE
-  Key of B in "Bass Lines Book 3": NONE
-  Key of F♯ in "Bass Lines Book 3": NONE
-  Key of F in "Bass Lines Book 3": NONE
-  Key of B♭ in "Bass Lines Book 3": NONE
-  Key of E♭ in "Bass Lines Book 3": NONE
-  Key of A♭ in "Bass Lines Book 3": NONE
-  Key of D♭ in "Bass Lines Book 3": NONE
-  Key of G♭ in "Bass Lines Book 3": NONE
-  Scale Practice in "Bass Lines Book 3": NONE
-  Happy Together in "Bass Lines Book 3": NONE
+_carolTodo:  # As I work through them, move to keepCarol / reviseCarol
+  Key of G in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of D in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of A in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of E in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of B in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of F♯ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of F in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of B♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of E♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of A♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of D♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of G♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Scale Practice in "Bass Lines Book 3": NONE  # to keepCarol
+  Happy Together in "Bass Lines Book 3": NONE  # to reviseCarol
   "Bass Lines Book 4": NONE
   "Bass Lines Book 5": NONE
   "Bass Lines Book 6": NONE
@@ -407,8 +416,8 @@ reviseSteve:
   Steve's 4th slide etude (Ex. 3 on page 24): NONE
   Steve's 4th slide etude (Ex. 4 on page 24) [last played at ♩=60]: NONE
   Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM ♩=56]: NONE
-  Slide blending etude on page 31 [⍻ MM ♩=59]: NONE
-  Blending "Ryan's Hope" on page 32 [⍻ MM ♩=88]: NONE
+  Slide blending etude on page 31 [last played at MM ♩=59]: NONE
+  Blending "Ryan's Hope" on page 32 [last played at MM ♩=88]: NONE
 
 reviseBaroque:
   Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
@@ -431,33 +440,6 @@ reviseSimandl:
   Simandl Étude 1 (p.3): NONE
   Simandl Étude 2 (p.4): NONE
   Simandl Étude 3 (p.4-5) [N.B. intonation]: NONE
-  # Simandl Étude 4 (p.6): NONE
-  # Simandl Étude 5 (p.7): NONE
-  # Simandl Étude 6 (p.8): NONE
-  # Simandl Étude 7 (p.9): NONE
-  # Simandl Étude 8 (p.10): NONE
-  # Simandl Étude 9 (p.11): NONE
-  # Simandl Étude 10 (p.12-13): NONE
-  # Simandl Étude 11 (p.13): NONE
-  # Simandl Étude 12 (p.14): NONE
-  # Simandl Étude 13 (p.15): NONE
-  # Simandl Étude 14 (p.16): NONE
-  # Simandl Étude 15 (p.17): NONE
-  # Simandl Étude 16 (p.18): NONE
-  # Simandl Étude 17 (p.19): NONE
-  # Simandl Étude 18 (p.20-21): NONE
-  # Simandl Étude 19 (p.21): NONE
-  # Simandl Étude 20 (p.22-23): NONE
-  # Simandl Étude 21 (p.23): NONE
-  # Simandl Étude 22 (p.24-25): NONE
-  # Simandl Étude 23 (p.25): NONE
-  # Simandl Étude 24 (p.26): NONE
-  # Simandl Étude 25 (p.27): NONE
-  # Simandl Étude 26 (p.28): NONE
-  # Simandl Étude 27 (p.29): NONE
-  # Simandl Étude 28 (p.30-31): NONE
-  # Simandl Étude 29 (p.32-33): NONE
-  # Simandl Étude 30 (p.34-35): NONE
 
 reviseJP@AW:
   JP@AW 1.25 Basic Etude in C Major (2. solo): NONE
@@ -493,21 +475,7 @@ reviseJP@AW:
   JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets [⍻ start with roots+groove, no looking at the sheet music]: NONE
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [play second time without looking at the changes]: NONE
 
-_todoJP@AW:
-  JP@AW 2.22 First Time: NONE
-  JP@AW 2.23 First Time v2: NONE
-  JP@AW 2.24 Bossa Nova (Medium): NONE
-  JP@AW 2.25 Cha Cha: NONE
-  JP@AW 2.26 Bolero (Fast): NONE
-  JP@AW 2.27 Baiao (Medium): NONE
-  JP@AW 2.28 Samba (Medium): NONE
-  JP@AW 2.28-2.33 ???: NONE
-  JP@AW 2.34 Blues on the Bottom: NONE
-  JP@AW 2.35 Summers Eve: NONE
-  JP@AW 2.36 Blues by the Bay: NONE
-  # JP@AW 3.*...
-
-reviseCarol:
+reviseCarol:  # songs; snippets and technical bits go to keepCarol
   'Little Green Apples' (pp. 18-19) from "How to Play the Electric Bass": NONE
   'I Don't Need No Doctor' (p.20) from "How to Play the Electric Bass": NONE
   'Peace of Mind' (pp. 24-25) from "How to Play the Electric Bass": NONE
@@ -531,7 +499,50 @@ reviseOther:
 # Future of things currently at work
 #
 
-_melodicToDo:
+_simandlTodo:
+  Simandl Étude 4 (p.6): NONE
+  Simandl Étude 5 (p.7): NONE
+  Simandl Étude 6 (p.8): NONE
+  Simandl Étude 7 (p.9): NONE
+  Simandl Étude 8 (p.10): NONE
+  Simandl Étude 9 (p.11): NONE
+  Simandl Étude 10 (p.12-13): NONE
+  Simandl Étude 11 (p.13): NONE
+  Simandl Étude 12 (p.14): NONE
+  Simandl Étude 13 (p.15): NONE
+  Simandl Étude 14 (p.16): NONE
+  Simandl Étude 15 (p.17): NONE
+  Simandl Étude 16 (p.18): NONE
+  Simandl Étude 17 (p.19): NONE
+  Simandl Étude 18 (p.20-21): NONE
+  Simandl Étude 19 (p.21): NONE
+  Simandl Étude 20 (p.22-23): NONE
+  Simandl Étude 21 (p.23): NONE
+  Simandl Étude 22 (p.24-25): NONE
+  Simandl Étude 23 (p.25): NONE
+  Simandl Étude 24 (p.26): NONE
+  Simandl Étude 25 (p.27): NONE
+  Simandl Étude 26 (p.28): NONE
+  Simandl Étude 27 (p.29): NONE
+  Simandl Étude 28 (p.30-31): NONE
+  Simandl Étude 29 (p.32-33): NONE
+  Simandl Étude 30 (p.34-35): NONE
+
+_todoJP@AW:
+  JP@AW 2.22 First Time: NONE
+  JP@AW 2.23 First Time v2: NONE
+  JP@AW 2.24 Bossa Nova (Medium): NONE
+  JP@AW 2.25 Cha Cha: NONE
+  JP@AW 2.26 Bolero (Fast): NONE
+  JP@AW 2.27 Baiao (Medium): NONE
+  JP@AW 2.28 Samba (Medium): NONE
+  JP@AW 2.28-2.33 ???: NONE
+  JP@AW 2.34 Blues on the Bottom: NONE
+  JP@AW 2.35 Summers Eve: NONE
+  JP@AW 2.36 Blues by the Bay: NONE
+  # JP@AW 3.*...
+
+_melodicTodo:
   Melodic Étude in G♭ Major (p.13): NONE
   Melodic Étude in B Major (p.14): NONE
   Melodic Étude in E Major (p.15): NONE
@@ -543,7 +554,7 @@ _melodicToDo:
   Melodic Étude in D♭ Aeolian (p.32): NONE
   # Add more as I play them
 
-_rayBrownToDo:
+_rayBrownTodo:
   Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
   Ray Brown's Augmented Exercise (p.97, top 2): NONE
   Ray Brown's Augmented Exercise (p.97, bottom 2): NONE
@@ -564,11 +575,11 @@ _rayBrownToDo:
   Ray Brown's Arpeggios for Endings (p.134): NONE
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
-_steveToDo:
+_steveTodo:
   Steve's Etude 5 on page 38: NONE
   Steve's Etude 6 on page 39: NONE
 
-_bachToDo:
+_bachTodo:
   # Needs to be done seriously, but I could work on it
   Bach I. Courante: NONE
   Bach I. Sarabande: NONE
@@ -576,7 +587,7 @@ _bachToDo:
   Bach I. Menuet II: NONE
   Bach I. Gigue: NONE
 
-_peerToDo:
+_peerTodo:
   Dean's Figure 20, G chords on page 23: NONE
   Dean's Figure 20, C chords on page 23: NONE
   Dean's Figure 20, F chords on page 24: NONE
@@ -605,9 +616,8 @@ _peerToDo:
   Dean's Figure 37 (false harmonics) on page 41: NONE
   Dean's Figure 38 (false harmonics) on page 42: NONE
   Dean's Figure 39 (sliding harmonics) on page 42: NONE
-  # More as they come
 
-_bookToDo:  # When I'm good enough?
+_bookTodo:  # When I'm good enough?
   JP's Walking Bass [After his course?]: NONE
   Mike Downes [Too much self-reliance? Or maybe it eats up all the rest?]: NONE
   Blues Grooves [Take a look?]: NONE
