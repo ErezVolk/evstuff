@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Spleet audio files by silence"""
+"""Spleet audio files by silence."""
 import argparse
-from pathlib import Path
 import typing as t
 import re
+from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
@@ -16,30 +16,33 @@ SplitList: t.TypeAlias = list[SplitPoint]
 
 
 class Runs(t.NamedTuple):
-    """A list of same-value runs"""
+    """A list of same-value runs."""
+
     values: np.ndarray
     starts: np.ndarray
     lengths: np.ndarray
 
 
 class Spleet:
-    """Spleet audio files by silence"""
+    """Spleet audio files by silence."""
+
     args: argparse.Namespace
     min_ms: int
-    sus: set[Path] = set()
+    sus: set[Path]
 
-    def main(self):
-        """Entry point"""
+    def main(self) -> None:
+        """Spleet."""
+        self.sus = set()
         for path in self.parse_args():
             self.spleet(path)
         if self.sus:
             print(
                 "You may want to check:",
-                " ".join(path.name for path in self.sus)
+                " ".join(path.name for path in self.sus),
             )
 
-    def parse_args(self):
-        """Command line"""
+    def parse_args(self) -> None:
+        """Parse command line."""
         parser = argparse.ArgumentParser(
             description="Split audio files by silence",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -93,8 +96,8 @@ class Spleet:
         self.min_ms = self.args.mean // self.args.wiggle_nth
         return self.args.files
 
-    def spleet(self, path: Path):
-        """Process one audio file"""
+    def spleet(self, path: Path) -> None:
+        """Process one audio file."""
         points_ms = self.get_splitlist(path)
         if any(np.isnan(ms) for ms in points_ms):
             self.sus.add(path)
@@ -110,7 +113,7 @@ class Spleet:
             return
 
         existed = self.args.output.is_file()
-        with open(self.args.output, "a+t", encoding="utf-8") as fobj:
+        with self.args.output.open("a+t", encoding="utf-8") as fobj:
             fobj.write(line)
             fobj.write("\n")
         if not existed:
@@ -118,7 +121,7 @@ class Spleet:
 
     @classmethod
     def ms_to_mp3splt(cls, msec: SplitPoint) -> str:
-        """Convert number to the time format used by mp3splt"""
+        """Convert number to the time format used by mp3splt."""
         if np.isnan(msec):
             return ""
 
@@ -131,14 +134,14 @@ class Spleet:
 
     @classmethod
     def mmss_to_ms(cls, mmss: str) -> int:
-        """Convert MIN:SEC string like '1:20' to milliseconds (80000)"""
+        """Convert MIN:SEC string like '1:20' to milliseconds (80000)."""
         if not (match := re.match(r"^(\d+):(\d\d)$", mmss)):
             raise argparse.ArgumentTypeError
 
         return (int(match.group(1)) * 60 + int(match.group(2))) * 1000
 
     def get_splitlist(self, path: Path) -> SplitList:
-        """Find where to split"""
+        """Find where to split."""
         snd = AudioSegment.from_file(path)
         duration_ms = len(snd)
         if duration_ms <= self.args.mean + self.min_ms:
@@ -146,7 +149,7 @@ class Spleet:
 
         sliceable_ms = (len(snd) // self.args.slice_ms) * self.args.slice_ms
         rmss = np.array([
-            snd[start_ms : start_ms + self.args.slice_ms].rms  # noqa: E203
+            snd[start_ms : start_ms + self.args.slice_ms].rms
             for start_ms in range(0, sliceable_ms, self.args.slice_ms)
         ])
         threshold_times_n = np.quantile(rmss, self.args.top_quantile)
@@ -154,7 +157,7 @@ class Spleet:
         vads = rmss > threshold
 
         runs = self.find_runs(vads)
-        sil_tmap = runs.values == 0
+        sil_tmap = runs.to_numpy() == 0
         sils = pd.DataFrame({
             "start": runs.starts[sil_tmap] * self.args.slice_ms,
             "length": runs.lengths[sil_tmap] * self.args.slice_ms,
@@ -164,7 +167,7 @@ class Spleet:
         return self.sils_to_list(sils, duration_ms)
 
     def sils_to_list(self, sils: pd.DataFrame, duration_ms: int) -> SplitList:
-        """Find split points from silences"""
+        """Find split points from silences."""
         points = []
         target = self.args.mean
         limit_ms = duration_ms - self.min_ms
@@ -194,11 +197,10 @@ class Spleet:
 
         https://gist.github.com/alimanfoo/c5977e87111abe8127453b21204c1065
         """
-
         # ensure array
         arr = np.asanyarray(arr)
         if arr.ndim != 1:
-            raise ValueError('only 1D array supported')
+            raise ValueError("only 1D array supported")
         nvals = arr.shape[0]
 
         # handle empty array
