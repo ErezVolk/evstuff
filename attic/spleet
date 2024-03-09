@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """Spleet audio files by silence."""
 import argparse
-import typing as t
 import re
+import typing as t
 from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from pydub import AudioSegment
-
 
 SplitPoint: t.TypeAlias = float | int
 SplitList: t.TypeAlias = list[SplitPoint]
@@ -41,7 +40,7 @@ class Spleet:
                 " ".join(path.name for path in self.sus),
             )
 
-    def parse_args(self) -> None:
+    def parse_args(self) -> t.Iterable[Path]:
         """Parse command line."""
         parser = argparse.ArgumentParser(
             description="Split audio files by silence",
@@ -157,7 +156,7 @@ class Spleet:
         vads = rmss > threshold
 
         runs = self.find_runs(vads)
-        sil_tmap = runs.to_numpy() == 0
+        sil_tmap = runs.values == 0
         sils = pd.DataFrame({
             "start": runs.starts[sil_tmap] * self.args.slice_ms,
             "length": runs.lengths[sil_tmap] * self.args.slice_ms,
