@@ -272,6 +272,7 @@ class RangeDeck(Deck):
 
 class NoneDeck(Deck):
     """The NONE deck doesn't really have cards, so make the blurb nicer."""
+
     LABEL = LAYOUT = "NONE"
 
     def __init__(self) -> None:
@@ -507,8 +508,8 @@ class PracticeMakesPerfect:
 
     def _vlen(self, text: str) -> int:
         """Visible Length (or an approximation thereof)"""
-        counts = collections.Counter((ud.category(c)[0] for c in text))
-        counts.update((ud.east_asian_width(c) for c in text))
+        counts = collections.Counter(ud.category(c)[0] for c in text)
+        counts.update(ud.east_asian_width(c) for c in text)
         return sum(counts[x] for x in "LNPSZWF")
 
     def _configure_logging(self) -> None:
@@ -637,7 +638,7 @@ class PracticeMakesPerfect:
     def _configure(self) -> None:
         """Fix configuration files, defaults, etc."""
         try:
-            with open(self.args.config, "r", encoding="UTF-8") as fobj:
+            with self.args.config.open(encoding="UTF-8") as fobj:
                 config = self._parse_config(self.args.config, fobj)
         except (FileNotFoundError, ValueError):
             config = self._parse_config("", io.StringIO(DEFAULT_CONFIG))
@@ -647,7 +648,7 @@ class PracticeMakesPerfect:
     def _load_state(self) -> None:
         """Read saved deck queues state info `self.state`"""
         try:
-            with open(self.args.state_file, "rb") as fobj:
+            with self.args.state_file.open("rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VER]
             if not isinstance(self.state, dict):
                 raise TypeError("Somebody messed up the state file")
@@ -669,7 +670,7 @@ class PracticeMakesPerfect:
         }
         self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
 
-        with open(self.args.state_file, "wb") as fobj:
+        with self.args.state_file.open("wb") as fobj:
             plistlib.dump({self.STATE_VER: self.state}, fobj, sort_keys=False)
 
         self.reporter.save_report(self.decks)
@@ -919,7 +920,7 @@ class Reporter:
 
         try:
             default = {"label": "N/A", "layout": "N/A"}
-            with open(self.path, encoding="utf-8", newline="") as csvfo:
+            with self.path.open(encoding="utf-8", newline="") as csvfo:
                 rows = [default | row for row in csv.DictReader(csvfo)]
             log.debug("Read %s (N = %s)", self.path, len(rows))
             self.by_layout = {Layout(row["layout"]): row for row in rows}
