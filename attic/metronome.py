@@ -15,23 +15,22 @@ Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 
 import argparse
 import bisect
-from dataclasses import dataclass
 import logging
-from pathlib import Path
-from pathlib import PurePath
 import re
 import signal
 import time
 import typing as t
 import wave
+from dataclasses import dataclass
+from pathlib import Path, PurePath
 
 import numpy as np
-from soundfile import SoundFile  # type: ignore[import-untyped]
 import pyaudio
 import rich
 import rich.console
 import rich.live
 import rich.logging
+from soundfile import SoundFile  # type: ignore[import-untyped]
 
 try:
     import pynput.keyboard
@@ -39,7 +38,7 @@ try:
 
     # pylint: disable-next=too-few-public-methods
     class MiniListener(pynput.keyboard.Listener):
-        """A Listener that only cares about media keys"""
+        """A Listener that only cares about media keys."""
 
         _EVENTS = CGEventMaskBit(NSSystemDefined)
 
@@ -73,14 +72,14 @@ class ByteLoop:
         self.granularity = granularity
 
     def get(self, nbytes: int) -> bytes:
-        """Get another chunk"""
+        """Get another chunk."""
         limit = min(self.offset + nbytes, len(self.data))
         chunk = self.data[self.offset:limit]
         self.offset = limit % len(self.data)
         return chunk
 
     def make_like(self, other: "ByteLoop") -> None:
-        """Set offset to the corresponding one"""
+        """Set offset to the corresponding one."""
         if other.offset:
             ideal = (other.offset / len(other.data)) * len(self.data)
             self.offset = int(ideal / self.granularity) * self.granularity
@@ -88,7 +87,7 @@ class ByteLoop:
 
 @dataclass
 class SoundShape:
-    """Sound file parameters"""
+    """Sound file parameters."""
 
     channels: int
     rate: int
@@ -97,7 +96,7 @@ class SoundShape:
 
 # pylint: disable-next=too-few-public-methods
 class Click(SoundShape):
-    """Audio data of a click"""
+    """Audio data of a click."""
 
     data: bytes
 
@@ -122,14 +121,14 @@ class Click(SoundShape):
                 sfo.buffer_read_into(self.data, dtype="int16")
 
     def is_compatible_with(self, other: SoundShape) -> bool:
-        """We only support clicks with the same frame rate, etc.
-        so we can paste both in a bytearray."""
+        """We only support clicks with the same frame rate, etc."""
         return other == self  # This is why SoundShape is a dataclass
 
 
 class PathAwareDefaultsHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
-    """Like ArgumentDefaultsHelpFormatter, but with nicer Path formatting"""
-    DEFAULTING_NARGS = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
+    """Like ArgumentDefaultsHelpFormatter, but with nicer Path formatting."""
+
+    DEFAULTING_NARGS = (argparse.OPTIONAL, argparse.ZERO_OR_MORE)
 
     def _get_help_string(self, action: argparse.Action) -> str | None:
         result = action.help
@@ -148,7 +147,7 @@ class PathAwareDefaultsHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
         if action.option_strings or action.nargs in self.DEFAULTING_NARGS:
             if isinstance(default, PurePath):
                 result += f" [.../{default.name}]"
-            elif isinstance(default, (list, tuple)):
+            elif isinstance(default, list | tuple):
                 if all(isinstance(elem, PurePath) for elem in default):
                     names = ", ".join(elem.name for elem in default)
                     result += f" [{names}]"
@@ -162,7 +161,7 @@ class PathAwareDefaultsHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
 
 # pylint: disable-next=too-many-instance-attributes,too-many-public-methods
 class Metronome:
-    """A simple metronome"""
+    """A simple metronome."""
 
     args: argparse.Namespace
     status: rich.live.Live
@@ -177,7 +176,7 @@ class Metronome:
     hi_click: Click
     lo_click: Click
     beats_per_bar: int
-    pattern: dict[float, bytes] = {}
+    pattern: dict[float, bytes]
     tempo: int
     suffix: str = ""
 
@@ -197,7 +196,7 @@ class Metronome:
     ]
 
     def parse_args(self) -> None:
-        """Usage"""
+        """Parse command line."""
         parser = argparse.ArgumentParser(
             description="A metronome",
             formatter_class=PathAwareDefaultsHelpFormatter,
@@ -270,7 +269,7 @@ class Metronome:
             "-p",
             "--start-paused",
             action="store_true",
-            help="Start paused."
+            help="Start paused.",
         )
         parser.add_argument(
             "-d",
@@ -285,13 +284,13 @@ class Metronome:
 
     @classmethod
     def validate_subdivision_arg(cls, arg: str) -> str:
-        """Validate --subdivision argument"""
+        """Validate --subdivision argument."""
         if re.fullmatch(r"[-tT]*[tT][-tT]*", arg):
             return arg
         raise argparse.ArgumentTypeError("may only contain 'T', 't', and '-'")
 
     def run(self) -> None:
-        """The main event"""
+        """Be a metronome."""
         self.parse_args()
         self.configure_logging()
         self.figure_tempo()
@@ -300,7 +299,7 @@ class Metronome:
             self.do_run()
 
     def do_run(self) -> None:
-        """The main event, with `self.status` initialized"""
+        """Run, with `self.status` initialized."""
         self.read_clicks()
         self.figure_pattern()
 
@@ -311,11 +310,8 @@ class Metronome:
         self.main_loop()
 
     def configure_logging(self) -> None:
-        """Set logging format and level"""
-        if self.args.debug:
-            level = logging.DEBUG
-        else:
-            level = logging.INFO
+        """Set logging format and level."""
+        level = logging.DEBUG if self.args.debug else logging.INFO
         logging.basicConfig(
             format="%(message)s",
             datefmt="[%X]",
@@ -325,7 +321,7 @@ class Metronome:
         self.log = logging.getLogger(Path(__file__).stem)
 
     def listen_to_control_c(self) -> None:
-        """Install signal handler, otherwise pyaudio loses it"""
+        """Install signal handler, otherwise pyaudio loses it."""
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
 
     def listen_to_media_keys(self) -> None:
@@ -342,7 +338,7 @@ class Metronome:
             listener.start()
 
     def main_loop(self) -> None:
-        """Keep playing until pause or abort"""
+        """Keep playing until pause or abort."""
         player = pyaudio.PyAudio()
         self.pause_unpause(paused=self.args.start_paused)  # Get ready to play
 
@@ -367,7 +363,7 @@ class Metronome:
         player.terminate()
 
     def read_clicks(self) -> None:
-        """Read click sounds"""
+        """Read click sounds."""
         paths = self.args.click
         self.lo_click = self.hi_click = Click(paths[0])
         if len(paths) > 1:
@@ -376,13 +372,13 @@ class Metronome:
                 self.lo_click = self.hi_click
                 rich.print(
                     f"{paths[0]} and {paths[1]} are incompatible, "
-                    f"using only {paths[0]}."
+                    f"using only {paths[0]}.",
                 )
         self.shape = self.hi_click
         self.bytes_per_frame = self.shape.channels * self.shape.width
 
     def figure_pattern(self) -> None:
-        """Figure out where in the bar we need which clicks"""
+        """Figure out where in the bar we need which clicks."""
         his: list[int | float] = []
         los: list[int | float] = []
         if self.args.subdivision:
@@ -433,7 +429,7 @@ class Metronome:
         time_info,
         status,
     ) -> tuple[bytes, int]:
-        """Supply pyaudio with more audio"""
+        """Supply pyaudio with more audio."""
         del in_data, time_info, status  # unused
 
         if self.aborting or self.paused:
@@ -457,7 +453,7 @@ class Metronome:
         return (data, pyaudio.paContinue)
 
     def figure_tempo(self) -> None:
-        """Set initial tempo"""
+        """Set initial tempo."""
         if self.args.ask_tempo:
             console = rich.console.Console()
             self.tempo = int(console.input("Please enter tempo in BPM: "))
@@ -467,12 +463,12 @@ class Metronome:
             bisect.insort(self.BPMS, self.tempo)
 
     def set_tempo(self, tempo) -> None:
-        """Set (with limits) a new tempo"""
+        """Set (with limits) a new tempo."""
         self.tempo = min(self.BPMS[-1], max(self.BPMS[0], tempo))
         self.make_loop()
 
     def make_loop(self) -> None:
-        """Rebuild the audio loop"""
+        """Rebuild the audio loop."""
         frames_per_beat = (60 / self.tempo) * self.shape.rate
         frames_per_bar = round(self.beats_per_bar * frames_per_beat)
         bars_per_loop = 1
@@ -492,17 +488,17 @@ class Metronome:
         self.show_tempo()
 
     def handle_ctrl_c(self, sig, frame) -> None:
-        """Handle Ctrl-C"""
+        """Handle Ctrl-C."""
         del sig, frame  # unused
         self.abort()
 
     def abort(self) -> None:
-        """Tell the player to stop"""
+        """Tell the player to stop."""
         self.status.update("Aborting...")
         self.aborting = True
 
     def intercept(self, event_type, event) -> None:
-        """Handle MacOS media key event"""
+        """Handle MacOS media key event."""
         assert NSEvent is not None, "Who called this function?!"
         del event_type  # unused
         details = NSEvent.eventWithCGEvent_(event)
@@ -521,16 +517,16 @@ class Metronome:
             handler(shift=shift)
         return None
 
-    def handle_eject(self, **_) -> None:
-        """On ⏏"""
+    def handle_eject(self, **_: bool) -> None:
+        """Handle ⏏."""
         self.abort()
 
-    def handle_play_pause(self, **_) -> None:
-        """On ⏯"""
+    def handle_play_pause(self, **_: bool) -> None:
+        """Handle ⏯."""
         self.pause_unpause()
 
     def pause_unpause(self, paused: bool | None = None) -> None:
-        """Toggle play/pause status"""
+        """Toggle play/pause status."""
         if paused is None:
             self.paused = not self.paused
         else:
@@ -538,22 +534,22 @@ class Metronome:
         self.show_tempo()
 
     def show_tempo(self) -> None:
-        """Update status to show the current tempo"""
+        """Update status to show the current tempo."""
         suffix = self.suffix
         if self.paused:
             suffix += " ⏾"
         self.status.update(f"Tempo: ♩ = {self.tempo}{suffix}")
 
-    def handle_fast_forward(self, shift: bool) -> None:
-        """On ⏩"""
+    def handle_fast_forward(self, *, shift: bool) -> None:
+        """Handle ⏩."""
         self.change_tempo(direction=1, fine=shift)
 
-    def handle_rewind(self, shift: bool) -> None:
-        """On ⏪"""
+    def handle_rewind(self, *, shift: bool) -> None:
+        """Handle ⏪."""
         self.change_tempo(direction=-1, fine=shift)
 
-    def handle_illumination_up(self, **_) -> None:
-        """(F6) Toggle half time"""
+    def handle_illumination_up(self, **_: bool) -> None:
+        """(F6) Toggle half time."""
         if self.args.beats not in ([0], [4]):
             return
 
@@ -573,8 +569,8 @@ class Metronome:
         self.paused = paused
         self.show_tempo()
 
-    def change_tempo(self, direction: int, fine: bool = False) -> None:
-        """Increase/decrease tempo"""
+    def change_tempo(self, *, direction: int, fine: bool = False) -> None:
+        """Increase/decrease tempo."""
         if fine:
             self.set_tempo(self.tempo + direction)
             return
