@@ -34,9 +34,9 @@ homeworkTechnical:
   More Electric Bass Lines Book 3: NONE
 
 homeworkMusic:
-  Bach I. Allemande [40 BPM, NB bars 20-24, BREATHE!]: NONE
+  Melodic Étude in G♭ Major (p.13): NONE
   JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
-  'Games People Play' (pp. 23-26) from "Electric Bass Lines 2": NONE
+  'Games People Play' (pp. 23-26) from "Electric Bass Lines 2" [120 BPM]: NONE
 
 book:
   Radley ctd. [Chapter 4, p.29]: NONE
@@ -102,7 +102,7 @@ chopsLeftModes:
   L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
 
 bassHanon:
-  Wolfe's "Bass Hanon Vol. 1" {} in {} [not really sightreading]: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
+  Wolfe's "Bass Hanon Vol. 1" {} in {}: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
 
 _chopsLeftTodo:
   L-Modes 5 (♬@♩=60 1324.3546.5768 p.15): NONE
@@ -395,6 +395,7 @@ sightReading:
   Line {} on Page {} in "Sightreading Mastery For Bass Guitar Exersices": {[1-8]} {[2-63]}
   Exercise {} in "Robert Anthony - 300 Progressive Sight Reading Exercises for Bass Guitar": {[1-300]}
   Track {} in "Motto - Essential sightreading studies for electric bass": {[1-82]}
+  "Lewis Jamey - Sight Reading For Electric Bassist Book 1", key of {}, number {}: {C Major|A Minor|F Major|D Minor|G Major|E Minor} {[1-10]}
   Page {} in "Lewis Jamey - Sight Reading For Electric Bassist Book 1": {[10-31]}
   Page {} in "Simplified Sight Reading": {[3-68]}
   Page {} in "Evans, Arnold - Note Reading Studies For Bass": {[2-65]}
@@ -493,6 +494,7 @@ reviseCarol:  # songs; snippets and technical bits go to keepCarol
 
 reviseOther:
   Bach I. Prelude [last played at ♩=76]: NONE
+  Bach I. Allemande [40 BPM, NB bars 20-24, BREATHE!]: NONE
   Darker Side: NONE
 
 
@@ -544,7 +546,6 @@ _todoJP@AW:
   # JP@AW 3.*...
 
 _melodicTodo:
-  Melodic Étude in G♭ Major (p.13): NONE
   Melodic Étude in B Major (p.14): NONE
   Melodic Étude in E Major (p.15): NONE
   Melodic Étude in A Major (p.16): NONE
