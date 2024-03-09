@@ -649,7 +649,7 @@ class PracticeMakesPerfect:
             with open(self.args.state_file, "rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VER]
             if not isinstance(self.state, dict):
-                raise ValueError("Somebody messed up the state file")
+                raise TypeError("Somebody messed up the state file")
         except Exception:  # Can be any number of things
             self.state = {}
         if not isinstance(self.state.get("deck"), dict):
@@ -803,8 +803,8 @@ class ConfigParser:
         try:
             graphlib.TopologicalSorter(self.deps).prepare()
         except graphlib.CycleError as exc:
-            cycle = " -> ".join(exc.args[1])
-            raise ConfigError(f"Cyclical config: {cycle}") from exc
+            msg = f"Cyclical config: {' -> '.join(exc.args[1])}"
+            raise ConfigError(msg) from exc
 
     def enter_book(self, label: str, star: bool, sequential=False) -> None:
         """Found a book line"""
