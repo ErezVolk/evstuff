@@ -52,7 +52,7 @@ class Vrap:
             self.fail(f"Create {self.args.bin}")
         missing = [path for path in self.args.scripts if not path.is_file()]
         if missing:
-            self.fail(f"Missing: {' '.join(missing)}")
+            self.fail(f"Missing: {' '.join(map(str, missing))}")
 
         for wrapped in self.args.scripts:
             wrapper = self.args.bin / wrapped.name
