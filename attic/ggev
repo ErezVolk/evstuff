@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Google things"""
+"""Google things."""
 # pyright: reportMissingImports=false
 # mypy: disable-error-code="import-untyped"
 # pylint: disable=import-error
 
-from collections import defaultdict
 import hashlib
 import json
-from pathlib import Path
 import re
 import subprocess
 import urllib.parse
+from collections import defaultdict
+from pathlib import Path
 
 from bidi.algorithm import get_display
 
@@ -18,7 +18,7 @@ BIN = Path.home() / "bin"
 CONFIG = BIN / "ggev.json"
 HISTORY = BIN / "ggev.history"
 
-with open(CONFIG, encoding="utf-8") as _fo:
+with CONFIG.open(encoding="utf-8") as _fo:
     config = json.load(_fo)
 
 BLACKLIST_PREFIXES = set(config.get("BLACKLIST_PREFIXES", []))
@@ -36,11 +36,11 @@ END = "\033[0m"
 
 
 class SearchError(Exception):
-    """Search engine says NO"""
+    """Search engine says NO."""
 
 
-def main():
-    """Google things"""
+def main() -> None:
+    """Google things."""
     try:
         hits = {}
         for kwargs in config["SEARCHES"]:
@@ -61,7 +61,7 @@ def main():
 
     history = defaultdict(set)
     try:
-        with open(HISTORY, "r", encoding="utf-8") as fo:
+        with HISTORY.open(encoding="utf-8") as fo:
             for line in fo:
                 url, *md5s = line.strip().split("\t")
                 history[url] = set(md5s)
@@ -86,9 +86,9 @@ def main():
             print(get_display(hit["abstract"]))
             print("")
 
-        with open(HISTORY, "w", encoding="utf-8") as fo:
+        with HISTORY.open("w", encoding="utf-8") as fo:
             for url, md5s in history.items():
-                fo.write("\t".join([url] + list(md5s)))
+                fo.write("\t".join([url, *list(md5s)]))
                 fo.write("\n")
 
 
@@ -102,8 +102,8 @@ GG2DDG_TIME = {
 }
 
 
-def ddg(query, lang=None, timeframe="m1"):
-    """Call DuckDuckGo"""
+def ddg(query: str, lang=None, timeframe="m1") -> dict[str, dict]:
+    """Call DuckDuckGo."""
     cmd = ["ddgr", "--json"]
     if lang is not None:
         cmd.append("--reg")
@@ -115,17 +115,17 @@ def ddg(query, lang=None, timeframe="m1"):
     return call_searcher(cmd)
 
 
-def google(query, lang=None, timeframe="m1"):
-    """DEPRECATED"""
-    cmd = ["googler"]
-    if lang:
-        cmd.extend(["-l", lang])
-    cmd.extend(["--json", "-t", timeframe, query])
-    return call_searcher(cmd)
+# def google(query, lang=None, timeframe="m1"):
+#     """DEPRECATED"""
+#     cmd = ["googler"]
+#     if lang:
+#         cmd.extend(["-l", lang])
+#     cmd.extend(["--json", "-t", timeframe, query])
+#     return call_searcher(cmd)
 
 
-def call_searcher(cmd):
-    """Call any kind of googler-like searcher app"""
+def call_searcher(cmd: list[str]) -> dict[str, dict]:
+    """Call any kind of googler-like searcher app."""
     out = subprocess.run(cmd, capture_output=True, check=False)
     if out.returncode != 0:
         raise SearchError(out.stderr.decode())
@@ -136,13 +136,13 @@ def call_searcher(cmd):
     }
 
 
-def blacklisted(url):
-    """Is the URL blacklisted?"""
+def blacklisted(url: str) -> bool:
+    """Check if URL is blacklisted."""
     return any(url.startswith(prefix) for prefix in BLACKLIST_PREFIXES)
 
 
-def md5sum(text):
-    """Calculate MD5"""
+def md5sum(text: str) -> str:
+    """Calculate MD5."""
     return hashlib.md5(text.encode("utf-8")).hexdigest()
 
 
