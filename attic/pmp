@@ -931,11 +931,11 @@ class Reporter:
     def save_report(self, decks: Decks) -> None:
         """Write report CSV to disk."""
         to_save = [self.deck_row(deck) for deck in decks.values()]
-        for layout, row in self.by_layout.items():
-            if layout not in decks:
-                if (used := row.get("used")) and used >= self.then:
-                    row["gone"] = row.get("gone") or self.now
-                    to_save.append(row)
+        for layout in self.by_layout.keys() - decks.keys():
+            row = self.by_layout[layout]
+            if (used := row.get("used")) and used >= self.then:
+                row["gone"] = row.get("gone") or self.now
+                to_save.append(row)
         if not to_save:
             log.debug("Nothing to write to %s", self.path)
             return
