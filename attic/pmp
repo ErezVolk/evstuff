@@ -887,7 +887,7 @@ class ConfigParser:
         self.whences.setdefault(target, self.line_num)
 
     def add_one_liner(self, sequential: bool) -> None:
-        """A one-liner is in `self.group("label" | "parts")`"""
+        """A one-liner is in `self.group("label" | "parts")`."""
         parts = self.group("parts").split()
         if not parts:
             raise ConfigError("Empty one-liner")
