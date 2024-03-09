@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Practice Makes Perfect
+"""Practice Makes Perfect.
 
 Assuming you have more scales, drills, licks and etudes to practice regularly
 than you have time for each day, this utility will present them to you in
@@ -84,7 +84,7 @@ tracked: set[Layout] = set()
 
 
 class ConfigError(ValueError):
-    """Problem with config file"""
+    """Problem with config file."""
 
 
 class SerializationError(ValueError):
@@ -92,7 +92,7 @@ class SerializationError(ValueError):
 
 
 class Deck:
-    """A deck of strings"""
+    """A deck of strings."""
 
     cards: tuple[str, ...]
     queue: list[str]
@@ -103,7 +103,7 @@ class Deck:
 
     EVENTS = ("drawn", "flipped", "flopped")
     _MIN_SERIALIZABLE = 3
-    _SERIALIZEES = {"blurb", "label", "cards", "qidxs"}
+    SERIALIZEES = {"blurb", "label", "cards", "qidxs"}
 
     _RANGE_RE = r"\d+(-\d+)?"
     RANGES_RE = f"\\[({_RANGE_RE},)*{_RANGE_RE}\\]"
@@ -117,7 +117,7 @@ class Deck:
         self._set_queue(self.cards)
 
     def _digest(self, strs: Iterable[str]) -> str:
-        """A reordering-stable hash"""
+        """A reordering-stable hash."""
         hashee = "\0".join(sorted(strs)).encode()
         return f":{hashlib.sha256(hashee).hexdigest()[:8]}:"
 
@@ -126,23 +126,22 @@ class Deck:
 
     @property
     def blurb(self) -> str:
-        """A description of the deck in its current state"""
+        """A description of the deck in its current state."""
         if self.label == self.layout:
             return f"{self.label} @{len(self.queue)}/{len(self)}"
         return f"{self.label!r} {self.layout} @{len(self.queue)}/{len(self)}"
 
     def serialize(self) -> StringDict:
-        """Serialize for the state file"""
+        """Serialize for the state file."""
         if not self.counts["drawn"]:
             raise SerializationError("Never drawn")
         if len(self) < self._MIN_SERIALIZABLE:
             raise SerializationError("Too small")
         log.debug("Serializing %s", self.blurb)
-        return {key: getattr(self, key) for key in self._SERIALIZEES}
+        return {key: getattr(self, key) for key in self.SERIALIZEES}
 
     def adapt(self, old_layout: Layout, saved: StringDict) -> None:
-        """When a user changes some cards in a deck (and thus the layout) but
-        keeps its name, we may be able to salvage it."""
+        """Try to salvage a modified deck (same label, different layout)."""
         if len(self) < self._MIN_SERIALIZABLE:
             raise SerializationError("Too few items to load state")
 
@@ -162,11 +161,11 @@ class Deck:
         self._set_queue(queued & added)
 
     def deserialize(self, saved: StringDict) -> None:
-        """Validate and restore a saved queue"""
+        """Validate and restore a saved queue."""
         self._deserialize(saved, order=self._get_cards(saved))
 
     def _deserialize(self, saved: StringDict, order: Sequence[str]) -> None:
-        """Validate and restore a saved queue, given a card ordering"""
+        """Validate and restore a saved queue, given a card ordering."""
         queue = self._get_queue(saved, order)
         if unknown := queue - set(self.cards):
             raise SerializationError(f"Saved queue contains unknown {unknown}")
@@ -174,7 +173,7 @@ class Deck:
         self._set_queue(queue)
 
     def _get_cards(self, saved: StringDict) -> Sequence[str]:
-        """Validate and return the saved list of cards"""
+        """Validate and return the saved list of cards."""
         if not (cards := saved.get("cards")):
             raise SerializationError("No saved cards")
         if not isinstance(cards, list):
@@ -184,7 +183,7 @@ class Deck:
         return cards
 
     def _get_queue(self, saved: StringDict, order: Sequence[str]) -> set[str]:
-        """Parse and validate saved queue idxs"""
+        """Parse and validate saved queue idxs."""
         if (ranges := saved.get("qidxs")) in (None, "[]"):
             return set()
         if not isinstance(ranges, str):
@@ -196,7 +195,7 @@ class Deck:
         return {order[idx] for idx in idxs}
 
     def predraw(self, count: int) -> None:
-        """Try and make sure the next `count` cards won't have dupes"""
+        """Try and make sure the next `count` cards won't have dupes."""
         if self.queue and count > len(self.queue):
             lineup = list(set(self.cards) - set(self.queue))
             random.shuffle(lineup)
@@ -205,7 +204,7 @@ class Deck:
             self.queue = list(self.queue + lineup)
 
     def draw(self) -> str:
-        """Get the next card"""
+        """Get the next card."""
         self.ping()
         if not self.queue:
             self.counts["flipped"] += 1
@@ -215,12 +214,12 @@ class Deck:
         return card
 
     def ping(self) -> None:
-        """Notify the deck it's being used"""
+        """Notify the deck it's being used."""
         self.counts["drawn"] += 1
 
     @property
     def qidxs(self) -> str:
-        """Indexes in the queue"""
+        """Indexes in the queue."""
         ranges: list[list[int]] = []
         curr: list[int] = []
         for num in sorted(self.cards.index(card) for card in self.queue):
@@ -232,13 +231,13 @@ class Deck:
         return f"[{','.join(descs)}]"
 
     def _set_queue(self, queue: Iterable[str]) -> None:
-        """Set the queue"""
+        """Set the queue."""
         self.queue = list(queue)
         random.shuffle(self.queue)
         self._track("Queue set to %s", self.queue)
 
     def _parse_ranges(self, ranges: str) -> set[int]:
-        """Convert a range description to a list of numbers"""
+        """Convert a range description to a list of numbers."""
         numbers: set[int] = set()
         for rstr in ranges[1:-1].split(","):
             if len(subs := list(map(int, rstr.split("-")))) > 1:
@@ -248,19 +247,20 @@ class Deck:
         return numbers
 
     def _track(self, fmt: str, *args) -> None:
-        """Print special tracking info if we're in the list"""
+        """Print special tracking info if we're in the list."""
         if self.layout in tracked:
-            log.info(f"{self.layout!r}: {fmt}", *args)
+            msg = f"{self.layout!r}: {fmt}"
+            log.info(msg, *args)
 
 
 class RangeDeck(Deck):
     """Random choice from a range of numbers, e.g., "[1,3-4,15-50]"."""
 
-    _SERIALIZEES = Deck._SERIALIZEES - {"cards"}
+    SERIALIZEES = Deck.SERIALIZEES - {"cards"}
 
     def __init__(self, parent: str, ranges: str) -> None:
         cards = [str(num) for num in sorted(self._parse_ranges(ranges))]
-        layout = self._digest([parent] + cards)
+        layout = self._digest([parent, *cards])
         super().__init__(cards, label=ranges, layout=layout)
 
     def deserialize(self, saved: StringDict) -> None:
@@ -271,7 +271,7 @@ class RangeDeck(Deck):
 
 
 class NoneDeck(Deck):
-    """The NONE deck doesn't really have cards, so make the blurb nicer"""
+    """The NONE deck doesn't really have cards, so make the blurb nicer."""
 
     def __init__(self) -> None:
         super().__init__([""], layout="NONE", label="NONE")
@@ -280,7 +280,7 @@ class NoneDeck(Deck):
         raise SerializationError("What would be the point?")
 
     def draw(self) -> str:
-        """Override `Deck.draw()` so we don't count these."""
+        """Override parent so we don't count these."""
         return ""
 
     @property
@@ -306,13 +306,13 @@ class Etude:
 
     @property
     def blurb(self) -> str:
-        """Current state of the etude"""
+        """Current state of the etude."""
         return f"{self.template}={SEP.join(deck.blurb for deck in self.decks)}"
 
 
 @dataclasses.dataclass
 class Book:
-    """A collection of etudes or pointers to other books"""
+    """A collection of etudes or pointers to other books."""
 
     label: Label
     sequential: bool = False
@@ -322,7 +322,7 @@ class Book:
     labels: list[Label] = dataclasses.field(init=False)
 
     def draw_all(self) -> Iterable[Entry]:
-        """Yield all entries in order, one by one"""
+        """Yield all entries in order, one by one."""
         self.deck.ping()
         yield from self.toc
 
@@ -333,18 +333,18 @@ class Book:
             yield self.toc[self.labels.index(Label(self.deck.draw()))]
 
     def finalize(self) -> Deck:
-        """(Re)create the deck"""
+        """(Re)create the deck."""
         self.labels = [entry.label for entry in self.toc]
         self.deck = Deck(cards=self.labels, label=self.label)
         return self.deck
 
     @property
     def blurb(self) -> str:
-        """Book-level blurb"""
+        """Book-level blurb."""
         return f"{self.deck.blurb} {'[]' if self.sequential else '{}'}"
 
     def entry_blurbs(self) -> list[str]:
-        """Blurbs of the entries"""
+        """Blurbs of the entries."""
         return [entry.blurb for entry in self.toc]
 
 
@@ -365,20 +365,20 @@ class BookRef:
 
 @dataclasses.dataclass
 class Config:
-    """The information from the config file"""
+    """The information from the config file."""
 
     books: Books
     starred: list[Label]
 
 
 class PracticeMakesPerfect:
-    """Practice Makes Perfect"""
+    """Practice Makes Perfect."""
 
     parser: argparse.ArgumentParser
     args: argparse.Namespace
 
     def parse_command_line(self) -> None:
-        """Command-line"""
+        """Command-line."""
         parser = argparse.ArgumentParser(description="Practice Makes Perfect")
         parser.add_argument(
             "books",
@@ -396,7 +396,7 @@ class PracticeMakesPerfect:
             "-n",
             "--num-tracks",
             type=int,
-            help="Number of tracks (etude × key) to generate",
+            help="Number of tracks (etude \xD7 key) to generate",
         )
         group.add_argument(
             "-N",
@@ -477,7 +477,7 @@ class PracticeMakesPerfect:
     STATE_VER = "v4"
 
     def main(self) -> None:
-        """Practice Makes Perfect"""
+        """Practice Makes Perfect."""
         self.parse_command_line()
         self._configure_logging()
 
@@ -498,7 +498,7 @@ class PracticeMakesPerfect:
         log.debug("\n\n\n")
 
     def _header(self, text: str, level: int = 1) -> None:
-        """Print a markdown-like header"""
+        """Print a markdown-like header."""
         if level == 1:
             print(f"{text}\n{'=' * self._vlen(text)}")
         else:
@@ -511,7 +511,7 @@ class PracticeMakesPerfect:
         return sum(counts[x] for x in "LNPSZWF")
 
     def _configure_logging(self) -> None:
-        """Set logging format(s) and level"""
+        """Set logging format(s) and level."""
         if self.args.track_decks:
             tracked.update(self.args.track_decks)
         if self.args.debug is None:
@@ -529,7 +529,7 @@ class PracticeMakesPerfect:
         log.setLevel(logging.DEBUG)
 
     def _run(self) -> None:
-        """Choose, report, and run the top-level book"""
+        """Choose, report, and run the top-level book."""
         book = self._choose_book()
         count = None if self.args.one_of_each else self.args.num_tracks
         now = datetime.datetime.now()
@@ -539,14 +539,14 @@ class PracticeMakesPerfect:
         self._run_book(book, count=count, top=True)
 
     def _run_book(self, book: Book, count: int | None, top=False) -> None:
-        """Run any book"""
+        """Run any book."""
         if book.sequential:
             self._run_sequential(book, top=top)
         else:
             self._run_plain(book, count)
 
     def _run_sequential(self, book: Book, top=False) -> None:
-        """Run a sequence of items"""
+        """Run a sequence of items."""
         for entry in book.draw_all():
             if top:
                 self._header(entry.label, level=2)
@@ -556,7 +556,7 @@ class PracticeMakesPerfect:
                 self._run_book(ref.book, ref.count)
 
     def _run_plain(self, book: Book, count: int | None) -> None:
-        """Run a "simple" book, choosing etudes and assigining keys"""
+        """Run a "simple" book, choosing etudes and assigining keys."""
         if count is None:
             count = len(book.deck)
         elif count <= 0:
@@ -575,7 +575,7 @@ class PracticeMakesPerfect:
                 yield from self._choose_etudes(ref.book, ref.count)
 
     def _choose_book(self) -> Book:
-        """Pick out a book"""
+        """Pick out a book."""
         if self.args.books:
             labels = self.args.books
             if unknown := set(labels) - self.books.keys():
@@ -585,7 +585,7 @@ class PracticeMakesPerfect:
         return self.books[random.choice(labels)]
 
     def _make_track(self, etude: Etude) -> str:
-        """Fill in the template for one etude"""
+        """Fill in the template for one etude."""
         keys = []
         for deck in etude.decks:
             key = deck.draw()
@@ -605,7 +605,7 @@ class PracticeMakesPerfect:
         return "".join(next(ikey) if part == "{}" else part for part in parts)
 
     def _run_etudes(self, etudes: Iterable[Etude]) -> None:
-        """Choose keys for a bunch of etudes and print them"""
+        """Choose keys for a bunch of etudes and print them."""
         tracks = [self._make_track(etude) for etude in etudes]
         txt = "\n".join(tracks)
         if not self.args.multiline and " " not in txt and self._vlen(txt) < 80:
@@ -620,7 +620,7 @@ class PracticeMakesPerfect:
         log.debug("Basic decks: %s", SEP.join(self.decks))
 
     def _prep(self, cardstr: str) -> list[str]:
-        """Split, strip, and sanity-check a known scale"""
+        """Split, strip, and sanity-check a known scale."""
         cards = [card.strip() for card in cardstr.split("‖")]
         notes = "|".join(cards).upper().split("|")
         assert len(notes) == len(set(notes)), f"{cardstr!r}: not unique"
@@ -630,7 +630,7 @@ class PracticeMakesPerfect:
         return cards
 
     def _have(self, deck: Deck) -> Deck:
-        """Add a deck to our records"""
+        """Add a deck to our records."""
         return self.decks.setdefault(deck.layout, deck)
 
     def _configure(self) -> None:
@@ -656,7 +656,7 @@ class PracticeMakesPerfect:
             self.state["deck"] = {}
 
     def _save_state(self) -> None:
-        """Save queues for all decks, plus some debug info"""
+        """Save queues for all decks, plus some debug info."""
         self.state["debug"] = {
             "n_decks": len(decks := self.decks.values()),
             "decks": {deck.layout: deck.blurb for deck in decks},
@@ -674,7 +674,7 @@ class PracticeMakesPerfect:
         self.reporter.save_report(self.decks)
 
     def _save(self, deck: Deck) -> t.Any:
-        """Serialize a single deck, or leave untouched"""
+        """Serialize a single deck, or leave untouched."""
         try:
             return deck.serialize()
         except SerializationError as exc:
@@ -682,7 +682,7 @@ class PracticeMakesPerfect:
             return self.state["deck"].get(deck.layout, str(exc))
 
     def _restore_state(self) -> None:
-        """Restore queues for any eligible deck"""
+        """Restore queues for any eligible deck."""
         nowies: dict[Layout, StringDict] = {}  # Current layouts found
         oldies: dict[Label, Layout] = {}  # Unknown layout, known label
         for layout, saved in (saveds := self.state["deck"]).items():
@@ -707,7 +707,7 @@ class PracticeMakesPerfect:
         log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
     def _parse_config(self, filename: Filename, stream: t.TextIO) -> Config:
-        """Read configuration file"""
+        """Read configuration file."""
         try:
             labeldecks = {deck.label: deck for deck in self.decks.values()}
             return ConfigParser(labeldecks).parse(filename, stream)
@@ -726,7 +726,7 @@ class PracticeMakesPerfect:
                     ref.book = self.books[ref.book_label]
 
     def _start_reporter(self) -> None:
-        """Create reporter object"""
+        """Create reporter object."""
         self.reporter = Reporter(self.args.report_file)
 
     def _fail(self, message: str) -> t.NoReturn:
@@ -735,7 +735,7 @@ class PracticeMakesPerfect:
 
 
 class ConfigParser:
-    """Read configuration file"""
+    """Read configuration file."""
 
     books: Books = {}
     starred: list[Label] = []
@@ -751,7 +751,7 @@ class ConfigParser:
         self.whences = {label: -1 for label in labeldecks}
 
     def match(self, expr: str) -> bool:
-        """Handy wrapper around `re.fullmatch` for the current line"""
+        """Handy wrapper around `re.fullmatch` for the current line."""
         self.mobj = re.fullmatch(expr, self.line)
         return bool(self.mobj)
 
@@ -763,7 +763,7 @@ class ConfigParser:
     PART_RE = r"(?P<at>(?P<count>[1-9]\d*)?@)?(?P<label>\S+)"
 
     def parse(self, filename: Filename, stream: t.TextIO) -> Config:
-        """Read configuration file"""
+        """Read configuration file."""
         try:
             self.do_parse(stream)
             self.check_references()
@@ -773,7 +773,7 @@ class ConfigParser:
             raise ConfigError(f"[{filename}{line}] {exc}") from exc
 
     def do_parse(self, stream: t.TextIO):
-        """The actual reading function"""
+        """The actual reading function."""
         for self.line_num, line in enumerate(stream, 1):
             self.line = re.sub(r"\s*(#.*)?$", "", line)
 
@@ -794,7 +794,7 @@ class ConfigParser:
         self.line_num = 0  # For any subsequent error messages
 
     def check_references(self) -> None:
-        """Make sure all cross-references are kosher"""
+        """Make sure all cross-references are kosher."""
         known = self.books.keys() | self.labeldecks.keys()
         if unknown := self.deps.keys() - known:
             errs = (f"[line {self.whences[unk]}] {unk!r}" for unk in unknown)
@@ -807,7 +807,7 @@ class ConfigParser:
             raise ConfigError(msg) from exc
 
     def enter_book(self, label: str, star: bool, sequential=False) -> None:
-        """Found a book line"""
+        """Found a book line."""
         if (label := label.strip()) in self.books:
             raise ConfigError(f"Duplicate book: {label!r}")
 
@@ -858,7 +858,7 @@ class ConfigParser:
         self.curr.toc.append(Etude(template=template, decks=decks))
 
     def add_ref(self, mobj: re.Match | None = None) -> None:
-        """Add book reference line"""
+        """Add book reference line."""
         if self.curr is None:
             raise ConfigError("Bookless reference")
 
@@ -877,7 +877,7 @@ class ConfigParser:
         self.add_dep(source=self.curr.label, target=target)
 
     def add_dep(self, source: Label, target: Label) -> None:
-        """Remember a dependency"""
+        """Remember a dependency."""
         self.deps[target].add(source)
         self.whences.setdefault(target, self.line_num)
 
@@ -900,7 +900,7 @@ class ConfigParser:
 
 
 class Reporter:
-    """In charge of the "history" CSV file"""
+    """In charge of the "history" CSV file."""
 
     path: Path
     by_layout: dict[Layout | None, StringDict] = {}
@@ -908,7 +908,7 @@ class Reporter:
     then: str
 
     def __init__(self, report_file: Path) -> None:
-        """Initialize, read old report if possible"""
+        """Initialize, read old report if possible."""
         self.now = str(today := datetime.date.today())
         self.then = str(today - datetime.timedelta(days=7))
         self.path = report_file
@@ -923,7 +923,7 @@ class Reporter:
             log.debug("Cannot read %s: %s", report_file, exc)
 
     def save_report(self, decks: Decks) -> None:
-        """Write report CSV to disk"""
+        """Write report CSV to disk."""
         to_save = [self.deck_row(deck) for deck in decks.values()]
         for layout, row in self.by_layout.items():
             if layout not in decks:
@@ -946,14 +946,14 @@ class Reporter:
                 writer.writerow(row)
 
     def deck_row(self, deck: Deck) -> StringDict:
-        """Get or make the row for a deck"""
+        """Get or make the row for a deck."""
         rows = self.by_layout
         row = rows.pop(deck.layout, None) or rows.pop(deck.old_layout, {})
         self.update(row, deck)
         return row
 
     def update(self, row: StringDict, deck: Deck) -> None:
-        """Update row in report to reflect deck use in this session"""
+        """Update row in report to reflect deck use in this session."""
         row.update(label=deck.label, layout=deck.layout, blurb=deck.blurb)
         row.pop("gone", None)
         if deck.counts["drawn"]:
