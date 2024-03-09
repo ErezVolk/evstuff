@@ -15,9 +15,9 @@ from pathlib import Path
 import bs4  # type: ignore[import-untyped]
 import requests  # type: ignore[import-untyped]
 import requests.exceptions  # type: ignore[import-untyped]
-from simple_term_menu import TerminalMenu  # type: ignore[import-untyped]
 import rich.logging  # type: ignore[import-untyped]
 import rich.progress  # type: ignore[import-untyped]
+from simple_term_menu import TerminalMenu  # type: ignore[import-untyped]
 
 ANSI_BOLD = "\033[1m"
 ANSI_CLEAR = "\033[0m"
@@ -613,7 +613,7 @@ class DownloadProgress(rich.progress.Progress):
         self,
         description: str,
         *args,
-        **kwargs
+        **kwargs,
     ) -> rich.progress.TaskID:
         """Add a task and, if long enough, a marquee."""
         if len(description) <= Marquee.WIDTH:
