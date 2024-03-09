@@ -740,9 +740,10 @@ class PracticeMakesPerfect:
         self.parser.error(message)
 
 
-class ConfigParser:
+class ConfigParser:  # pylint: disable=too-many-instance-attributes
     """Read configuration file."""
 
+    labeldecks: dict[Label, Deck]
     books: Books
     starred: list[Label]
     curr: Book | None = None
