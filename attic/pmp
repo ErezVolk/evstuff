@@ -18,6 +18,7 @@ name.
 
 Most objects also have `x.blurb`, which is for display purposes only.
 """
+
 import argparse
 import collections
 from collections.abc import Iterable
