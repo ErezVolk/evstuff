@@ -21,8 +21,6 @@ Most objects also have `x.blurb`, which is for display purposes only.
 
 import argparse
 import collections
-from collections.abc import Iterable
-from collections.abc import Sequence
 import csv
 import dataclasses
 import datetime
@@ -30,13 +28,15 @@ import graphlib
 import hashlib
 import io
 import logging
-from pathlib import Path
 import plistlib
 import random
 import re
 import shutil
 import typing as t
 import unicodedata as ud
+from collections.abc import Iterable
+from collections.abc import Sequence
+from pathlib import Path
 
 
 DEFAULT_CONFIG = """
@@ -248,7 +248,7 @@ class Deck:
                 numbers.add(subs[0])
         return numbers
 
-    def _track(self, fmt: str, *args) -> None:
+    def _track(self, fmt: str, *args: str | int) -> None:
         """Print special tracking info if we're in the list."""
         if self.layout in tracked:
             msg = f"{self.layout!r}: {fmt}"
@@ -281,6 +281,7 @@ class NoneDeck(Deck):
         super().__init__([""], layout=self.LAYOUT, label=self.LABEL)
 
     def serialize(self) -> StringDict:
+        """Override to make sure we don't try."""
         raise SerializationError("What would be the point?")
 
     def draw(self) -> str:
@@ -289,7 +290,8 @@ class NoneDeck(Deck):
 
     @property
     def blurb(self) -> str:
-        return "NONE"
+        """Override for a nice blurb."""
+        return self.NAME
 
 
 @dataclasses.dataclass
