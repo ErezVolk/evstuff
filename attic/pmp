@@ -34,6 +34,7 @@ from pathlib import Path
 import plistlib
 import random
 import re
+import shutil
 import typing as t
 import unicodedata as ud
 
@@ -69,7 +70,8 @@ __TODO__ = """
 - A UI to mark what was done? With a metronome? And a drone? (Kivy?)
 """
 
-
+NOW = datetime.datetime.now(tz=datetime.UTC)
+WIDTH = shutil.get_terminal_size().columns
 SEP = " ‖ "
 Filename: t.TypeAlias = str | Path
 Label = t.NewType("Label", str)
@@ -117,7 +119,7 @@ class Deck:
         self._set_queue(self.cards)
 
     def _digest(self, strs: Iterable[str]) -> str:
-        """A reordering-stable hash."""
+        """Hash a list of strings, but make it reordering-stable."""
         hashee = "\0".join(sorted(strs)).encode()
         return f":{hashlib.sha256(hashee).hexdigest()[:8]}:"
 
@@ -507,7 +509,7 @@ class PracticeMakesPerfect:
             print(f"\n{text}\n{'-' * self._vlen(text)}")
 
     def _vlen(self, text: str) -> int:
-        """Visible Length (or an approximation thereof)"""
+        """Return visible Length (or an approximation thereof)."""
         counts = collections.Counter(ud.category(c)[0] for c in text)
         counts.update(ud.east_asian_width(c) for c in text)
         return sum(counts[x] for x in "LNPSZWF")
@@ -534,20 +536,19 @@ class PracticeMakesPerfect:
         """Choose, report, and run the top-level book."""
         book = self._choose_book()
         count = None if self.args.one_of_each else self.args.num_tracks
-        now = datetime.datetime.now()
-        weekday = "月火水木金土日"[now.weekday()]
-        header = now.strftime(f"%Y-%m-%d {weekday} %H:%M {book.label}")
+        weekday = "月火水木金土日"[NOW.weekday()]
+        header = NOW.strftime(f"%Y-%m-%d {weekday} %H:%M {book.label}")
         self._header(header)
         self._run_book(book, count=count, top=True)
 
-    def _run_book(self, book: Book, count: int | None, top=False) -> None:
+    def _run_book(self, book: Book, *, count: int | None, top=False) -> None:
         """Run any book."""
         if book.sequential:
             self._run_sequential(book, top=top)
         else:
             self._run_plain(book, count)
 
-    def _run_sequential(self, book: Book, top=False) -> None:
+    def _run_sequential(self, book: Book, *, top: bool = False) -> None:
         """Run a sequence of items."""
         for entry in book.draw_all():
             if top:
@@ -555,7 +556,7 @@ class PracticeMakesPerfect:
             if isinstance(etude := entry, Etude):
                 self._run_etudes([etude])
             elif isinstance(ref := entry, BookRef):
-                self._run_book(ref.book, ref.count)
+                self._run_book(ref.book, count=ref.count)
 
     def _run_plain(self, book: Book, count: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys."""
@@ -566,7 +567,7 @@ class PracticeMakesPerfect:
         self._run_etudes(self._choose_etudes(book, count))
 
     def _choose_etudes(self, book: Book, count: int | None) -> Iterable[Etude]:
-        """Yields chosen etudes.
+        """Yield chosen etudes.
 
         Recursion is safe here, since we've made sure the graph is cycle-free.
         """
@@ -610,12 +611,14 @@ class PracticeMakesPerfect:
         """Choose keys for a bunch of etudes and print them."""
         tracks = [self._make_track(etude) for etude in etudes]
         txt = "\n".join(tracks)
-        if not self.args.multiline and " " not in txt and self._vlen(txt) < 80:
-            txt = " ".join(tracks)
+        if not self.args.multiline:
+            if " " not in txt:
+                if self._vlen(txt) < WIDTH:
+                    txt = " ".join(tracks)
         print(txt)
 
     def _make_basic_decks(self) -> None:
-        """Start `self.decks` with the basic scales (major, minor, etc.)"""
+        """Start `self.decks` with the basic scales (major, minor, etc.)."""
         self.decks = {Layout(NoneDeck.LAYOUT): NoneDeck()}
         for key, cardstr in self.SCALE_KEYS.items():
             self._have(Deck(cards=self._prep(cardstr), layout=key, label=key))
@@ -626,9 +629,10 @@ class PracticeMakesPerfect:
         cards = [card.strip() for card in cardstr.split("‖")]
         notes = "|".join(cards).upper().split("|")
         assert len(notes) == len(set(notes)), f"{cardstr!r}: not unique"
-        assert not (bad := set(notes) - self.ALL_NOTES), f"{cardstr!r}: {bad}?"
-        letters = {note[0] for note in notes}
-        assert not (bad := self.LETTERS - letters), f"{cardstr!r}: no {bad}"
+        bad = set(notes) - self.ALL_NOTES
+        assert not bad, f"{cardstr!r}: {bad}?"
+        bad = self.LETTERS - {note[0] for note in notes}
+        assert not bad, f"{cardstr!r}: no {bad}"
         return cards
 
     def _have(self, deck: Deck) -> Deck:
@@ -646,13 +650,13 @@ class PracticeMakesPerfect:
         self.starred = config.starred
 
     def _load_state(self) -> None:
-        """Read saved deck queues state info `self.state`"""
+        """Read saved deck queues state info `self.state`."""
         try:
             with self.args.state_file.open("rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VER]
-            if not isinstance(self.state, dict):
-                raise TypeError("Somebody messed up the state file")
         except Exception:  # Can be any number of things
+            pass
+        if not isinstance(self.state, dict):
             self.state = {}
         if not isinstance(self.state.get("deck"), dict):
             self.state["deck"] = {}
@@ -675,7 +679,7 @@ class PracticeMakesPerfect:
 
         self.reporter.save_report(self.decks)
 
-    def _save(self, deck: Deck) -> t.Any:
+    def _save(self, deck: Deck) -> StringDict | str:
         """Serialize a single deck, or leave untouched."""
         try:
             return deck.serialize()
@@ -732,7 +736,7 @@ class PracticeMakesPerfect:
         self.reporter = Reporter(self.args.report_file)
 
     def _fail(self, message: str) -> t.NoReturn:
-        """Handy wrapper around `ArgumentParser.error()`"""
+        """Handy wrapper around `ArgumentParser.error()`."""
         self.parser.error(message)
 
 
@@ -777,8 +781,8 @@ class ConfigParser:
             line = f":{self.line_num}" if self.line_num else ""
             raise ConfigError(f"[{filename}{line}] {exc}") from exc
 
-    def do_parse(self, stream: t.TextIO):
-        """The actual reading function."""
+    def do_parse(self, stream: t.TextIO) -> None:
+        """Really go over the file."""
         for self.line_num, line in enumerate(stream, 1):
             self.line = re.sub(r"\s*(#.*)?$", "", line)
 
@@ -811,7 +815,7 @@ class ConfigParser:
             msg = f"Cyclical config: {' -> '.join(exc.args[1])}"
             raise ConfigError(msg) from exc
 
-    def enter_book(self, label: str, star: bool, sequential=False) -> None:
+    def enter_book(self, *, label: str, star: bool, sequential=False) -> None:
         """Found a book line."""
         if (label := label.strip()) in self.books:
             raise ConfigError(f"Duplicate book: {label!r}")
@@ -886,7 +890,7 @@ class ConfigParser:
         self.deps[target].add(source)
         self.whences.setdefault(target, self.line_num)
 
-    def add_one_liner(self, sequential: bool) -> None:
+    def add_one_liner(self, *, sequential: bool) -> None:
         """Parse one-liner in `self.group("label" | "parts")`."""
         parts = self.group("parts").split()
         if not parts:
@@ -914,7 +918,7 @@ class Reporter:
 
     def __init__(self, report_file: Path) -> None:
         """Initialize, read old report if possible."""
-        self.now = str(today := datetime.datetime.now(tz=datetime.UTC).date())
+        self.now = str(today := NOW.date())
         self.then = str(today - datetime.timedelta(days=7))
         self.path = report_file
 
