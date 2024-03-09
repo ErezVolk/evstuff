@@ -248,7 +248,7 @@ class Deck:
                 numbers.add(subs[0])
         return numbers
 
-    def _track(self, fmt: str, *args: str | int) -> None:
+    def _track(self, fmt: str, *args: list[str] | str | int) -> None:
         """Print special tracking info if we're in the list."""
         if self.layout in tracked:
             msg = f"{self.layout!r}: {fmt}"
@@ -275,10 +275,10 @@ class RangeDeck(Deck):
 class NoneDeck(Deck):
     """The NONE deck doesn't really have cards, so make the blurb nicer."""
 
-    LABEL = LAYOUT = "NONE"
+    NAME = "NONE"
 
     def __init__(self) -> None:
-        super().__init__([""], layout=self.LAYOUT, label=self.LABEL)
+        super().__init__([""], layout=self.NAME, label=self.NAME)
 
     def serialize(self) -> StringDict:
         """Override to make sure we don't try."""
@@ -621,7 +621,7 @@ class PracticeMakesPerfect:
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales (major, minor, etc.)."""
-        self.decks = {Layout(NoneDeck.LAYOUT): NoneDeck()}
+        self.decks = {Layout(NoneDeck.NAME): NoneDeck()}
         for key, cardstr in self.SCALE_KEYS.items():
             self._have(Deck(cards=self._prep(cardstr), layout=key, label=key))
         log.debug("Basic decks: %s", SEP.join(self.decks))
