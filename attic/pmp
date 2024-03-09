@@ -103,7 +103,7 @@ class Deck:
 
     EVENTS = ("drawn", "flipped", "flopped")
     _MIN_SERIALIZABLE = 3
-    SERIALIZEES = {"blurb", "label", "cards", "qidxs"}
+    SERIALIZEES = frozenset(["blurb", "label", "cards", "qidxs"])
 
     _RANGE_RE = r"\d+(-\d+)?"
     RANGES_RE = f"\\[({_RANGE_RE},)*{_RANGE_RE}\\]"
@@ -272,9 +272,10 @@ class RangeDeck(Deck):
 
 class NoneDeck(Deck):
     """The NONE deck doesn't really have cards, so make the blurb nicer."""
+    LABEL = LAYOUT = "NONE"
 
     def __init__(self) -> None:
-        super().__init__([""], layout="NONE", label="NONE")
+        super().__init__([""], layout=self.LAYOUT, label=self.LABEL)
 
     def serialize(self) -> StringDict:
         raise SerializationError("What would be the point?")
@@ -452,10 +453,10 @@ class PracticeMakesPerfect:
         args.report_file = args.report_file or args.home / ".pmpreport.csv"
         self.parser = parser
 
-    LETTERS = {"C", "D", "E", "F", "G", "A", "B"}
+    LETTERS = frozenset("ABCDEFG")
     ALL_NOTES = LETTERS | {f"{let}{suf}" for let in LETTERS for suf in "♯♭𝄪𝄫"}
 
-    SCALE_KEYS = {  # Not the scales, but the valid keys (e.g., no G♯-major)
+    SCALE_KEYS: t.ClassVar[dict[str, str]] = {  # Valid keys (no G♯-major)
         "ANY": "C‖C♯|D♭‖D‖D♯|E♭‖E‖F‖F♯|G♭‖G‖G♯|A♭‖A‖A♯|B♭‖B",
         "major": "C ‖ C♯|D♭ ‖ D ‖ E♭ ‖ E ‖ F ‖ F♯|G♭ ‖ G ‖ A♭ ‖ A ‖ B♭ ‖ B|C♭",
         "minor": "C ‖ C♯ ‖ D ‖ D♯|E♭ ‖ E ‖ F ‖ F♯ ‖ G ‖ G♯|A♭ ‖ A ‖ A♯|B♭ ‖ B",
@@ -469,7 +470,7 @@ class PracticeMakesPerfect:
     }
 
     books: Books
-    decks: Decks = {}
+    decks: Decks
     starred: list[Label]
     state: StringDict
     reporter: "Reporter"
@@ -614,7 +615,7 @@ class PracticeMakesPerfect:
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales (major, minor, etc.)"""
-        self._have(NoneDeck())
+        self.decks = {Layout(NoneDeck.LAYOUT): NoneDeck()}
         for key, cardstr in self.SCALE_KEYS.items():
             self._have(Deck(cards=self._prep(cardstr), layout=key, label=key))
         log.debug("Basic decks: %s", SEP.join(self.decks))
@@ -737,18 +738,21 @@ class PracticeMakesPerfect:
 class ConfigParser:
     """Read configuration file."""
 
-    books: Books = {}
-    starred: list[Label] = []
+    books: Books
+    starred: list[Label]
     curr: Book | None = None
     line_num: int
     whences: dict[Label, int]
     line: str
     mobj: re.Match | None
-    deps: dict[Label, set[Label]] = collections.defaultdict(set)
+    deps: dict[Label, set[Label]]
 
     def __init__(self, labeldecks: dict[Label, Deck]) -> None:
         self.labeldecks = dict(labeldecks)
         self.whences = {label: -1 for label in labeldecks}
+        self.books = {}
+        self.starred = []
+        self.deps = collections.defaultdict(set)
 
     def match(self, expr: str) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line."""
@@ -903,13 +907,13 @@ class Reporter:
     """In charge of the "history" CSV file."""
 
     path: Path
-    by_layout: dict[Layout | None, StringDict] = {}
+    by_layout: dict[Layout | None, dict[str, str]]
     now: str
     then: str
 
     def __init__(self, report_file: Path) -> None:
         """Initialize, read old report if possible."""
-        self.now = str(today := datetime.date.today())
+        self.now = str(today := datetime.datetime.now(tz=datetime.UTC).date())
         self.then = str(today - datetime.timedelta(days=7))
         self.path = report_file
 
@@ -920,6 +924,7 @@ class Reporter:
             log.debug("Read %s (N = %s)", self.path, len(rows))
             self.by_layout = {Layout(row["layout"]): row for row in rows}
         except (FileNotFoundError, ValueError, KeyError, csv.Error) as exc:
+            self.by_layout = {}
             log.debug("Cannot read %s: %s", report_file, exc)
 
     def save_report(self, decks: Decks) -> None:
@@ -936,10 +941,10 @@ class Reporter:
 
         to_save.sort(key=lambda row: row["label"].lower())
         colset = set.union(*[set(row) for row in to_save])
-        cols = ["label", "layout"] + sorted(colset - {"label", "layout"})
+        cols = ["label", "layout", *sorted(colset - {"label", "layout"})]
 
         log.debug("Save %s (%d x %d)", self.path, len(to_save), len(cols))
-        with open(self.path, "w", encoding="utf-8", newline="") as csvfo:
+        with self.path.open("w", encoding="utf-8", newline="") as csvfo:
             writer = csv.DictWriter(csvfo, fieldnames=cols)
             writer.writeheader()
             for row in to_save:
@@ -959,9 +964,9 @@ class Reporter:
         if deck.counts["drawn"]:
             row["used"] = self.now
         for event, count in deck.counts.items():
-            try:
-                row[event] = int(row[event]) + count
-            except (KeyError, ValueError, TypeError):
+            if (was := row.get(event, "N/A")).isnumeric():
+                row[event] = int(was) + count
+            else:
                 row[event] = count
 
 
