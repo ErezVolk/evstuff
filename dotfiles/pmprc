@@ -28,7 +28,7 @@ tempo:
 
 homeworkTechnical:
   Dean's Figure 19 on page 21 (D-major scale) [⍻ for the C♯, close attention to the picking location]: NONE
-  Dean's Figure 20, D chords on page 22 (bottom): NONE
+  Dean's Figure 20, G chords on page 23: NONE
   Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
   Steve's Etude 4 on page 37: NONE
   More Electric Bass Lines Book 3: NONE
@@ -64,8 +64,8 @@ warmupHarvey:
 warmupOtherScale:
   {}-Major Scale, ATFB and on the {} string: {major} {oneString}
   {}-{} Minor Scale, ATFB and on the {} string: {minor} {Natural|Harmonic|Melodic} {oneString}
-  Whole Tone Scale from {}, ATFB and on the {} string: {ANY} {oneString}
-  Diminished Scale from {}, ATFB and on the {} string: {ANY} {oneString}
+  Whole Tone Scale going {} from {}, ATFB and on the {} string: {up|down} {ANY} {oneString}
+  Diminished Scale going {} from {}, ATFB and on the {} string: {up|down} {ANY} {oneString}
   Chromatic scale on the {} string [sing before you play!]: {oneString}
   # Modes of the ascending melodic minor (https://en.wikipedia.org/wiki/Jazz_minor_scale#Modes_of_jazz_minor_scale) ?
 
@@ -85,7 +85,7 @@ chopsLeftDexterity:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
   L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
   L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42₆₇: NONE
-  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75₇2 [last played at ♩=104]: NONE
+  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75₇2: NONE
   L-Dexterity I.5 (p5) ♫@80~120 1365.2465|3565.7542: NONE
   L-Dexterity I.6 (p5) ♫@80~120 1365.4265|3165.42₆₇: NONE
   L-Dexterity I.7 (p5) ♫@80~120 1867.5645|3823.18₇2: NONE
@@ -200,7 +200,7 @@ _chopsBothTodo:  # Not there yet
 #
 # Technical things to keep by practicing
 #
-keep = { @keepSteveInterval @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol }
+keep = { @keepSteveInterval @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean }
 slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveOther }
 doubleStop = { @keepSteveScaleInDoubleStops }
 
@@ -327,6 +327,13 @@ keepSteveOther:
   Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
   Harmonic slides exercise on page 35 [⍻]: NONE
   Steve's Exercise 3 on page 36 [note right hand]: NONE
+
+keepDean:
+  Dean's Figure 15 on p.16: NONE
+  Dean's Figure 16 on p.17: NONE
+  Dean's Figure 17 on pp.18-19: NONE
+  Dean's Figure 20, D chords on page 22 (top): NONE
+  Dean's Figure 20, D chords on page 22 (bottom): NONE
 
 keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Page 5 in "How to Play the Electric Bass": NONE
@@ -484,12 +491,6 @@ reviseCarol:  # songs; snippets and technical bits go to keepCarol
   'Come Together' (pp. 18-19) from "Electric Bass Lines 2" [I can play it so-so at 0.88x, don't lose the grove!]: NONE
   'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2" [original tempo is about 180 BPM, I can do maybe x.85]: NONE
 
-reviseDean:
-  Dean's Figure 15 on p.16: NONE
-  Dean's Figure 16 on p.17: NONE
-  Dean's Figure 17 on pp.18-19: NONE
-  Dean's Figure 20, D chords on page 22 (top): NONE
-
 reviseOther:
   Bach I. Prelude [last played at ♩=76]: NONE
   Darker Side: NONE
@@ -588,7 +589,6 @@ _bachTodo:
   Bach I. Gigue: NONE
 
 _peerTodo:
-  Dean's Figure 20, G chords on page 23: NONE
   Dean's Figure 20, C chords on page 23: NONE
   Dean's Figure 20, F chords on page 24: NONE
   Dean's Figure 20, B♭ chords on page 24: NONE
