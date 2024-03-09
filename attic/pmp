@@ -83,7 +83,7 @@ log = logging.getLogger("pmp")
 tracked: set[Layout] = set()
 
 
-class BadConfig(ValueError):
+class ConfigError(ValueError):
     """Problem with config file"""
 
 
@@ -108,7 +108,7 @@ class Deck:
     _RANGE_RE = r"\d+(-\d+)?"
     RANGES_RE = f"\\[({_RANGE_RE},)*{_RANGE_RE}\\]"
 
-    def __init__(self, cards: Iterable[str], label="", layout=""):
+    def __init__(self, cards: Iterable[str], label="", layout="") -> None:
         self.cards = tuple(cards)
         assert self.cards, f"{label or layout!r} Empty decks not supported"
         self.label = Label(label or "|".join(self.cards))
@@ -711,7 +711,7 @@ class PracticeMakesPerfect:
         try:
             labeldecks = {deck.label: deck for deck in self.decks.values()}
             return ConfigParser(labeldecks).parse(filename, stream)
-        except BadConfig as err:
+        except ConfigError as err:
             self._fail(str(err))
 
     def _finalize_books(self) -> None:
@@ -768,10 +768,9 @@ class ConfigParser:
             self.do_parse(stream)
             self.check_references()
             return Config(self.books, starred=self.starred or list(self.books))
-        except BadConfig as exc:
-            if self.line_num:
-                raise BadConfig(f"[{filename}:{self.line_num}] {exc}") from exc
-            raise BadConfig(f"[{filename}] {exc}") from exc
+        except ConfigError as exc:
+            line = f":{self.line_num}" if self.line_num else ""
+            raise ConfigError(f"[{filename}{line}] {exc}") from exc
 
     def do_parse(self, stream: t.TextIO):
         """The actual reading function"""
@@ -781,7 +780,7 @@ class ConfigParser:
             if self.match(r"([^:|]+):=(.*)"):
                 self.add_deck(label=self.group(1), keys=self.group(2))
             elif self.match(r"([*]?)(\S[^:]*):"):
-                self.enter_book(label=self.group(2), star=self.group(1))
+                self.enter_book(label=self.group(2), star=bool(self.group(1)))
             elif self.match(r"\s+([^:]*):\s+(.*)"):
                 self.add_etude(template=self.group(1), deckstr=self.group(2))
             elif self.match(f"\\s+{self.PART_RE}\\s*") and self.group("at"):
@@ -791,7 +790,7 @@ class ConfigParser:
             elif self.match(r"(?P<label>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
                 self.add_one_liner(sequential=True)
             elif self.line != "":
-                raise BadConfig(f"Bad line: {self.line!r}")
+                raise ConfigError(f"Bad line: {self.line!r}")
         self.line_num = 0  # For any subsequent error messages
 
     def check_references(self) -> None:
@@ -799,18 +798,18 @@ class ConfigParser:
         known = self.books.keys() | self.labeldecks.keys()
         if unknown := self.deps.keys() - known:
             errs = (f"[line {self.whences[unk]}] {unk!r}" for unk in unknown)
-            raise BadConfig(f"Bad reference(s): {', '.join(errs)}")
+            raise ConfigError(f"Bad reference(s): {', '.join(errs)}")
 
         try:
             graphlib.TopologicalSorter(self.deps).prepare()
         except graphlib.CycleError as exc:
             cycle = " -> ".join(exc.args[1])
-            raise BadConfig(f"Cyclical config: {cycle}") from exc
+            raise ConfigError(f"Cyclical config: {cycle}") from exc
 
-    def enter_book(self, label: str, star: t.Any, sequential=False) -> None:
+    def enter_book(self, label: str, star: bool, sequential=False) -> None:
         """Found a book line"""
         if (label := label.strip()) in self.books:
-            raise BadConfig(f"Duplicate book: {label!r}")
+            raise ConfigError(f"Duplicate book: {label!r}")
 
         label = Label(label)
         self.books[label] = self.curr = Book(label, sequential)
@@ -820,7 +819,7 @@ class ConfigParser:
     def add_deck(self, label: str, keys: str) -> None:
         """Found a deck line, e.g., "easy-major := C|F|G"."""
         if (label := label.strip()) in self.labeldecks:
-            raise BadConfig(f"Duplicate deck: {label!r}")
+            raise ConfigError(f"Duplicate deck: {label!r}")
 
         cards = [key.strip() for key in keys.split("|")]
         self.labeldecks[Label(label)] = Deck(label=label, cards=cards)
@@ -828,7 +827,7 @@ class ConfigParser:
     def add_etude(self, template: str, deckstr: str) -> None:
         """Found an etude line, e.g., "{}-maj: {major}" or "-min: minor}."""
         if self.curr is None:
-            raise BadConfig("Bookless etude")
+            raise ConfigError("Bookless etude")
 
         template = template.strip()
         if template and template[0] in "'\"" and template[-1] == template[0]:
@@ -841,7 +840,7 @@ class ConfigParser:
             parts = [deckstr.strip()]
 
         if len(parts) != num_placeholders:
-            raise BadConfig("Placeholder mismatch")
+            raise ConfigError("Placeholder mismatch")
 
         decks = []
         for part in parts:
@@ -861,10 +860,10 @@ class ConfigParser:
     def add_ref(self, mobj: re.Match | None = None) -> None:
         """Add book reference line"""
         if self.curr is None:
-            raise BadConfig("Bookless reference")
+            raise ConfigError("Bookless reference")
 
         if (mobj := mobj or self.mobj) is None:
-            raise BadConfig("Partless reference")
+            raise ConfigError("Partless reference")
 
         if nstr := mobj.group("count"):
             count = int(nstr)
@@ -886,7 +885,7 @@ class ConfigParser:
         """A one-liner is in `self.group("label" | "parts")`"""
         parts = self.group("parts").split()
         if not parts:
-            raise BadConfig("Empty one-liner")
+            raise ConfigError("Empty one-liner")
 
         label = self.group("label").strip()
         if star := label.startswith("*"):
@@ -896,7 +895,7 @@ class ConfigParser:
             if mobj := re.fullmatch(self.PART_RE, part):
                 self.add_ref(mobj)
             else:
-                raise BadConfig(f"Bad {part!r}")
+                raise ConfigError(f"Bad {part!r}")
         self.curr = None
 
 
