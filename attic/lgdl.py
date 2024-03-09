@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Search and download from libgen"""
+"""Search and download from libgen."""
 import argparse
-from dataclasses import dataclass
 import logging
-from pathlib import Path
 import random
 import re
 import subprocess
 import tomllib
+import typing as t
 import urllib.parse as urlparse
-
 from collections.abc import Sequence
+from dataclasses import dataclass
+from pathlib import Path
 
 import bs4  # type: ignore[import-untyped]
 import requests  # type: ignore[import-untyped]
@@ -30,14 +30,16 @@ __TODO__ = """
 
 @dataclass
 class IdCell:
-    """Stuff in the "ID" cell of the query table"""
+    """Stuff in the "ID" cell of the query table."""
+
     lgid: int | None = None
     title: str = ""
 
 
 @dataclass
 class Hit:  # pylint: disable=too-many-instance-attributes
-    """A query result"""
+    """A query result."""
+
     title: str
     lgid: int | None
     authors: str
@@ -53,7 +55,7 @@ class Hit:  # pylint: disable=too-many-instance-attributes
     mirrors: list[str]
 
     def preview(self) -> str:
-        """Preview for the selection menu"""
+        """Preview for the selection menu."""
         vals = {
             "LibGen ID": self.lgid,
             "Title": self.title,
@@ -76,16 +78,16 @@ class Hit:  # pylint: disable=too-many-instance-attributes
 
 
 class WrongReplyError(RuntimeError):
-    """Raised when the HTML we get isn't what we expected"""
+    """Raised when the HTML we get isn't what we expected."""
 
 
 class LibgenDownload:
-    """Simple Library Genesis search + download"""
+    """Simple Library Genesis search + download."""
 
-    def parse_args(self):
-        """Usage"""
+    def parse_args(self) -> None:
+        """Parse command-line."""
         parser = argparse.ArgumentParser(
-            description="Search and download from libgen"
+            description="Search and download from libgen",
         )
         parser.add_argument(
             "query",
@@ -179,7 +181,7 @@ class LibgenDownload:
         for folder in [Path.home(), Path.cwd()]:
             path = folder / ".lgdlrc"
             try:
-                with open(path, "rb") as fobj:
+                with path.open("rb") as fobj:
                     defaults.update(tomllib.load(fobj))
             except FileNotFoundError:
                 continue
@@ -198,8 +200,8 @@ class LibgenDownload:
     query: str
     progress: rich.progress.Progress
 
-    def run(self):
-        """Entry point"""
+    def run(self) -> None:
+        """Entry point."""
         self.parse_args()
         self.configure_logging()
 
@@ -222,12 +224,9 @@ class LibgenDownload:
             for nhit in choices:
                 self.download(hits[nhit])
 
-    def configure_logging(self):
-        """Set logging format and level"""
-        if self.args.debug:
-            level = logging.DEBUG
-        else:
-            level = logging.INFO
+    def configure_logging(self) -> None:
+        """Set logging format and level."""
+        level = logging.DEBUG if self.args.debug else logging.INFO
         logging.basicConfig(
             format="%(message)s",
             datefmt="[%X]",
@@ -237,7 +236,7 @@ class LibgenDownload:
         self.log = logging.getLogger("lgdl")
 
     def run_query(self) -> list[Hit]:
-        """Search LibGen and grok the result"""
+        """Search LibGen and grok the result."""
         html = self.get_query_reply()
         hits = self.get_raw_hits(html)
 
@@ -251,7 +250,7 @@ class LibgenDownload:
         return hits
 
     def get_query_reply(self) -> str:
-        """Run the LibGen query and return the raw HTML"""
+        """Run the LibGen query and return the raw HTML."""
         if self.args.reload:
             # Don't really search (useful for debugging)
             with self.open_dump("query", "html", "r") as fobj:
@@ -282,7 +281,7 @@ class LibgenDownload:
         return response.text
 
     def get_raw_hits(self, html: str) -> list[Hit]:
-        """Parse query results and return all items, even ones we don't want"""
+        """Parse query results and return all items, even unwanted ones."""
         soup = self.parse_html(html, "query")
 
         # Special case: zero hits found
@@ -308,7 +307,7 @@ class LibgenDownload:
         self,
         table: bs4.Tag,
     ) -> list[Hit]:
-        """Convert v1 (libgen.gs) table to hits"""
+        """Convert v1 (libgen.gs) table to hits."""
         try:
             columns = [
                 next(col.strings).strip()
@@ -329,7 +328,7 @@ class LibgenDownload:
         self,
         table: bs4.Tag,
     ) -> list[Hit]:
-        """Convert v2 (libgen.is) table to hits"""
+        """Convert v2 (libgen.is) table to hits."""
         try:
             columns = None
             hits: list[Hit] = []
@@ -345,13 +344,14 @@ class LibgenDownload:
                     self.check_columns(columns)
                 else:
                     hits.append(self.parse_row(row, columns))
-            return hits
         except WrongReplyError as wre:
             self.log.debug("Unexpected HTML returned from query: %s", wre)
             return []
+        else:
+            return hits
 
-    def check_columns(self, columns: list[str]):
-        """Make sure the query table is well-formed"""
+    def check_columns(self, columns: list[str]) -> None:
+        """Make sure the query table is well-formed."""
         missing = {"ID", "Author(s)", self.ext_col, "Mirrors"} - set(columns)
         if missing:
             self.log.debug("Columns are %s", columns)
@@ -359,7 +359,7 @@ class LibgenDownload:
             raise WrongReplyError("Incorrect table columns")
 
     def choose(self, hits: list[Hit]) -> Sequence[int]:
-        """Ask the user what to download"""
+        """Ask the user what to download."""
         menu = TerminalMenu(
             [
                 f"{'* ' if hit.resume else ''}{hit.name} "
@@ -379,7 +379,7 @@ class LibgenDownload:
         return choices
 
     def download(self, hit: Hit):
-        """Download one file, trying all mirrors"""
+        """Download one file, trying all mirrors."""
         self.log.info("%s (%s)", hit.name, hit.size_desc)
         self.log.debug("%s (%d mirror(s))", hit.work_path, len(hit.mirrors))
 
@@ -406,7 +406,7 @@ class LibgenDownload:
             self.log.debug("Mirror %d: %s", nmirror, mirror)
 
     def download_mirror(self, hit: Hit, mirror: str) -> bool:
-        """Download one file from a specific mirror"""
+        """Download one file from a specific mirror."""
         self.log.debug("Mirror: %s", urlparse.urlsplit(mirror).netloc)
 
         try:
@@ -417,13 +417,14 @@ class LibgenDownload:
                 path=hit.work_path,
                 overwrite=self.args.overwrite,
             )
-            return True
         except (requests.exceptions.RequestException, WrongReplyError) as exc:
             self.log.debug("Error downloading: %s", exc)
             return False
+        else:
+            return True
 
     def read_mirror(self, url: str) -> str:
-        """Read LibGen mirror page, return download URL"""
+        """Read LibGen mirror page, return download URL."""
         response = self.http.get(url)
         soup = self.parse_html(response.text, "mirror")
         atag = self.find_tag(soup, "a", string="GET")
@@ -435,8 +436,8 @@ class LibgenDownload:
         return urlparse.urljoin(url, href)
 
     def parse_row(self, row: bs4.Tag, columns: list[str]) -> Hit:
-        """Convert a query table row to a dict"""
-        cells = dict(zip(columns, row.find_all("td")))
+        """Convert a query table row to a dict."""
+        cells = dict(zip(columns, row.find_all("td"), strict=True))
         if "Title" in cells:
             id_cell = IdCell(
                 lgid=int(self.parse_cell(cells["ID"])),
@@ -517,7 +518,7 @@ class LibgenDownload:
         return id_cell
 
     def parse_mirrors_cell(self, cell: bs4.Tag) -> list[str]:
-        """Extract links from the Mirrors cell"""
+        """Extract links from the Mirrors cell."""
         base = f"https://{self.args.host}/"
         return [
             urlparse.urljoin(base, href)
@@ -526,76 +527,76 @@ class LibgenDownload:
         ]
 
     def parse_cell(self, cell: bs4.Tag | None) -> str:
-        """'Parse' a plain cell"""
+        """'Parse' a plain cell."""
         if cell is None:  # Optional cell wasn't there
             return ""
         return cell.get_text(strip=True)
 
-    def find_tag(self, tag: bs4.Tag, name: str, *args, **kwargs) -> bs4.Tag:
-        """Sanity-checking wrapper for `Tag.find()`"""
-        found = tag.find(name, *args, **kwargs)
+    def find_tag(self, tag: bs4.Tag, name: str, **kwargs: str) -> bs4.Tag:
+        """Sanity-checking wrapper for `Tag.find()`."""
+        found = tag.find(name, **kwargs)
         if not isinstance(found, bs4.Tag):
             raise WrongReplyError(f"No <{name}> in reply")
         return found
 
-    def parse_html(self, html: str, infix=None) -> bs4.BeautifulSoup:
-        """Debug-dumping wrapper around BeautifulSoup"""
+    def parse_html(self, html: str, infix: str) -> bs4.BeautifulSoup:
+        """Debug-dumping wrapper around BeautifulSoup."""
         if self.args.debug and infix:
             with self.open_dump(infix, "html", "w") as fobj:
                 fobj.write(html)
         return bs4.BeautifulSoup(html, "html.parser")
 
-    def open_dump(self, infix: str, suffix: str, mode: str):
-        """Open a dump file created by `parse_html()`"""
+    def open_dump(self, infix: str, suffix: str, mode: str) -> t.IO:
+        """Open a dump file created by `parse_html()`."""
         return open(f"lgdl-{infix}.{suffix}", mode, encoding="utf-8")
 
 
 class FullMatch:  # pylint: disable=too-few-public-methods
-    """Validator for argument that takes a regular expression"""
-    def __init__(self, expr: str):
+    """Validator for argument that takes a regular expression."""
+
+    def __init__(self, expr: str) -> None:
         self.expr = expr
 
-    def __call__(self, value) -> str:
-        """Validate"""
+    def __call__(self, value: str) -> str:
+        """Validate."""
         if not re.fullmatch(self.expr, value):
-            raise ValueError()
+            raise ValueError
         return value
 
 
 @dataclass
 class Marquee:
-    """A download marquee"""
+    """A download marquee."""
+
     WIDTH = 24
 
     description: str
     offset: int = 0
     forward: bool = False
 
-    def step(self):
-        """Advance the marquee"""
+    def step(self) -> str:
+        """Advance the marquee."""
         if self.forward:
             if self.offset + self.WIDTH < len(self.description):
                 self.offset = self.offset + 1
             else:
                 self.forward = False
+        elif self.offset > 0:
+            self.offset = self.offset - 1
         else:
-            if self.offset > 0:
-                self.offset = self.offset - 1
-            else:
-                self.forward = True
+            self.forward = True
         limit = self.offset + self.WIDTH
         return self.description[self.offset:limit]
 
 
 class DownloadProgress(rich.progress.Progress):
-    """A marquee-displaying download progress element"""
-    marquees: dict[rich.progress.TaskID, Marquee] = {}
+    """A marquee-displaying download progress element."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             rich.progress.TextColumn(
                 "[bold]{task.description}",
-                justify="right"
+                justify="right",
             ),
             rich.progress.BarColumn(bar_width=None),
             "[progress.percentage]{task.percentage:>3.1f}%",
@@ -606,6 +607,7 @@ class DownloadProgress(rich.progress.Progress):
             "•",
             rich.progress.TimeRemainingColumn(),
         )
+        self.marquees: dict[rich.progress.TaskID, Marquee] = {}
 
     def add_task(
         self,
@@ -613,7 +615,7 @@ class DownloadProgress(rich.progress.Progress):
         *args,
         **kwargs
     ) -> rich.progress.TaskID:
-        """Add a task and, if long enough, a marquee"""
+        """Add a task and, if long enough, a marquee."""
         if len(description) <= Marquee.WIDTH:
             return super().add_task(description, *args, **kwargs)
 
@@ -622,19 +624,19 @@ class DownloadProgress(rich.progress.Progress):
         self.marquees[task_id] = marquee
         return task_id
 
-    def stop_task(self, task_id: rich.progress.TaskID):
-        """Stop task and marquee"""
+    def stop_task(self, task_id: rich.progress.TaskID) -> None:
+        """Stop task and marquee."""
         self.marquees.pop(task_id, None)
 
     def get_renderable(self):
-        """Do the marquee"""
+        """Do the marquee."""
         for task_id, marquee in self.marquees.items():
             self.update(task_id, description=marquee.step())
         return super().get_renderable()
 
 
 class Http:
-    """Wrapper+ for `requests.get()`"""
+    """Wrapper+ for `requests.get()`."""
 
     DEFAULT_USER_AGENT = (
         "Mozilla/5.0 (X11; Linux x86_64) "
@@ -646,16 +648,22 @@ class Http:
     log: logging.Logger
 
     def __init__(
-            self,
-            user_agent: str | None = None,
-            log: logging.Logger | None = None
-    ):
+        self,
+        user_agent: str | None = None,
+        log: logging.Logger | None = None,
+    ) -> None:
         self.log = log or logging.getLogger()
         self.user_agent = user_agent or self.DEFAULT_USER_AGENT
         self.log.debug("User-Agent: %s", self.user_agent)
 
-    def get(self, url, pos=0, stream=False) -> requests.Response:
-        """Wrapper for `requests.get()`"""
+    def get(
+        self,
+        url: str,
+        pos: int = 0,
+        *,
+        stream: bool = False,
+    ) -> requests.Response:
+        """Override parent."""
         headers = {"User-Agent": self.user_agent}
         if pos:
             headers["Range"] = f"bytes={pos}-"
@@ -666,17 +674,18 @@ class Http:
     def download(  # pylint: disable=too-many-arguments
         self,
         url: str,
+        *,
         path: Path,
         overwrite: bool,
         progress: rich.progress.Progress,
         description: str,
-    ):
-        """Download a file"""
+    ) -> None:
+        """Download a file."""
         task_id = progress.add_task(description)
         try:
             progress.console.log(description)
 
-            with open(path, "wb" if overwrite else "ab") as fobj:
+            with path.open("wb" if overwrite else "ab") as fobj:
                 got = fobj.tell()
                 if got > 0:
                     self.log.debug("Resuming at %s", self.kbmbgb(got))
@@ -695,13 +704,13 @@ class Http:
                 raise WrongReplyError(
                     f"File terminated prematurely ("
                     f"{self.kbmbgb(got)} < "
-                    f"{self.kbmbgb(size)}"
+                    f"{self.kbmbgb(size)}",
                 )
         finally:
             progress.stop_task(task_id)
 
     @staticmethod
-    def kbmbgb(num: int | float) -> str:
+    def kbmbgb(num: float) -> str:
         """Format a number as "932K", etc."""
         prefixes = ["", "K", "M", "G", "T"]
         for prefix in prefixes:
