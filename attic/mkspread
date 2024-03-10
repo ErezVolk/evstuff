@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """Create a tarot spread."""
-from pathlib import Path
-from argparse import ArgumentParser
 import random
-from typing import List
+from argparse import ArgumentParser
+from pathlib import Path
 
 from PIL import Image
 
 
-def main():
+def main() -> None:
     """Create a tarot spread."""
     parser = ArgumentParser()
     parser.add_argument(
@@ -63,7 +62,7 @@ def main():
             spread_width = sum(i.size[0] for i in images)
             spread_height = max(i.size[1] for i in images)
             spread = Image.new(
-                mode="RGB", size=(spread_width, spread_height), color="white"
+                mode="RGB", size=(spread_width, spread_height), color="white",
             )
             offset = 0
             for image in images:
@@ -77,15 +76,15 @@ def main():
         spread.show()
 
 
-def input_fn(card_dir, card) -> Path:
-    """Return Path of a card image file"""
+def input_fn(card_dir: Path, card: str) -> Path:
+    """Return Path of a card image file."""
     for path in card_dir.glob(f"{card}.*"):
         return path
     raise FileNotFoundError(card_dir / f"{card}.*")
 
 
-def spec_to_cards(spec: str) -> List[str]:
-    """Return a single card or a random sequence"""
+def spec_to_cards(spec: str) -> list[str]:
+    """Return a single card or a random sequence."""
     if not spec.startswith("r"):
         return [spec]
 
