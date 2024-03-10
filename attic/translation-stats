@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 """Calculate translation stats."""
 from argparse import ArgumentParser
-from datetime import UTC, datetime, time
+from datetime import UTC
+from datetime import datetime
+from datetime import time
 from functools import partial
 from pathlib import Path
 

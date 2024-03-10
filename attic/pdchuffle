@@ -2,7 +2,8 @@
 """Shuffle chapters in a PDF file."""
 import pickle
 import re
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
+from argparse import Namespace
 from pathlib import Path
 
 import fitz  # type: ignore; pip install pymupdf

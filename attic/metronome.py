@@ -22,7 +22,8 @@ import time
 import typing as t
 import wave
 from dataclasses import dataclass
-from pathlib import Path, PurePath
+from pathlib import Path
+from pathlib import PurePath
 
 import numpy as np
 import pyaudio
@@ -462,7 +463,7 @@ class Metronome:
         if self.tempo not in self.BPMS:
             bisect.insort(self.BPMS, self.tempo)
 
-    def set_tempo(self, tempo) -> None:
+    def set_tempo(self, tempo: int) -> None:
         """Set (with limits) a new tempo."""
         self.tempo = min(self.BPMS[-1], max(self.BPMS[0], tempo))
         self.make_loop()
