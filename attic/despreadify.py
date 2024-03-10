@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Split spreads into pages"""
+"""Split spreads into pages."""
 import argparse
 
 import fitz
@@ -32,17 +32,17 @@ for spage in src:  # for each page in input
         rect_list = [r2, r1] if args.rtl else [r1, r2]
 
     for rx in rect_list:  # run thru rect list
-        rx += d  # add the CropBox displacement
+        rx2 = rx + d  # add the CropBox displacement
         page = doc.new_page(
-            -1,  # new output page with rx dimensions
-            width=rx.width,
-            height=rx.height,
+            -1,  # new output page with rx2 dimensions
+            width=rx2.width,
+            height=rx2.height,
         )
         page.show_pdf_page(
             page.rect,  # fill all new page with the image
             src,  # input document
             n,  # input page number
-            clip=rx,  # which part to use of input page
+            clip=rx2,  # which part to use of input page
         )
 
 doc.save(
