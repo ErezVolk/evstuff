@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Create translation CVs"""
+# pylint: disable=import-error
+# pyright: reportMissingImports=false
 import argparse
 from pathlib import Path
 import re
@@ -61,7 +63,10 @@ class ConvertCV:
         bad_lgs = set(self.works.lg.unique()) - langs
         if bad_lgs:
             for _, work in self.works[self.works.lg.isin(bad_lgs)].iterrows():
-                print(f'Was "{work.title_he}" really translated from the "{work.lg}"?')
+                print(
+                    f'Was "{work.title_he}" really translated'
+                    f' from the "{work.lg}"?'
+                )
             self.die("Unknown language code(s)")
 
         # Works with an unknown publisher
