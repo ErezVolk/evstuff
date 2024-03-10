@@ -26,12 +26,15 @@ from docx_worker import DocxWorker
 class Proof(DocxWorker):
     """Checks things in .docx files."""
 
-    def parse_args(self):
+    def parse_args(self) -> None:
         """Command line"""
         parser = argparse.ArgumentParser(description=self.__class__.__doc__)
         parser.add_argument("input", type=Path, nargs="?", help="Input .docx")
         parser.add_argument(
-            "-o", "--outdir", type=Path, help="Output directory"
+            "-o",
+            "--outdir",
+            type=Path,
+            help="Output directory",
         )
         parser.add_argument(
             "-d",
@@ -56,7 +59,10 @@ class Proof(DocxWorker):
             help="Do NOT save copy of XML after processing",
         )
         parser.add_argument(
-            "-s", "--style", default="נוסחה", help="Style name for formulas"
+            "-s",
+            "--style",
+            default="נוסחה",
+            help="Style name for formulas",
         )
         parser.add_argument(
             "-S",
@@ -170,19 +176,21 @@ class Proof(DocxWorker):
     FLIP = str.maketrans("()", ")(")
 
     antidict: re.Pattern | None
-    antiwords: Counter = Counter()
+    antiwords: Counter
     args: argparse.Namespace
-    comments: dict = defaultdict(list)
+    comments: dict[list[str]]
     formula_style_id: str
     opath: Path
 
     def pre_work(self) -> Path:
-        """Return path to input .docx"""
+        """Return path to input .docx."""
         self.parse_args()
+        self.antiwords = Counter()
+        self.comments = defaultdict(list)
         return self.args.input
 
-    def figure_out_paths(self, parser: argparse.ArgumentParser):
-        """Find input and output, if not given"""
+    def figure_out_paths(self, parser: argparse.ArgumentParser) -> None:
+        """Find input and output, if not given."""
         if not self.args.input:
             docxs = [
                 path
@@ -194,20 +202,20 @@ class Proof(DocxWorker):
                 parser.error(
                     f"Please specify an input file; "
                     f"I can only guess it if there's exactly 1 .docx file "
-                    f"(found {len(docxs)})"
+                    f"(found {len(docxs)})",
                 )
 
             self.args.input = docxs[0]
 
         if not self.args.outdir:
-            now = datetime.datetime.now()
+            now = datetime.datetime.now(tz=datetime.UTC)
             self.args.outdir = Path("proof-out") / now.strftime("%Y%m%d-%H%M")
 
         self.args.outdir.mkdir(parents=True, exist_ok=True)
         self.opath = self.args.outdir / f"proofed-{self.args.input.stem}.docx"
 
-    def work(self):
-        """Work with the open input zip file"""
+    def work(self) -> None:
+        """Work with the open input zip file."""
         self._copy(self.args.input, self.args.outdir / "proof-input.docx")
         self._save_to("input")
 
@@ -227,26 +235,26 @@ class Proof(DocxWorker):
         if changed and self.args.open:
             subprocess.run(["open", str(self.opath)], check=False)
 
-    def _save_to(self, infix: str):
-        """Save the XML files in a nice format"""
+    def _save_to(self, infix: str) -> None:
+        """Save the XML files in a nice format."""
         for name, doc in self.docs.items():
             output = self.args.outdir / f"proof-{infix}-{name}.xml"
             print(f"Writing {output}")
             doc.write(output, encoding="utf-8", pretty_print=True)
 
     def _first(self, node: etree._Entity, expr: str) -> etree._Entity | None:
-        """First entity matching xpath"""
+        """Return first entity matching xpath."""
         for entity in self.xpath(node, expr):
             return entity
         return None
 
     @classmethod
     def _find(cls, node: etree._Entity, expr: str) -> etree._Entity:
-        """Wrapper for etree.find, with namespaces"""
+        """Wrap etree.find, with namespaces."""
         return node.find(expr, namespaces=cls._NS)
 
     def _is_open(self, path: Path) -> bool:
-        """Check if a Word document seems to be open"""
+        """Check if a Word document seems to be open."""
         tail = path.stem[len(self.LOCK_MARK):]
         lock = path.with_stem(self.LOCK_MARK + tail)
         if lock.is_file():
@@ -255,7 +263,7 @@ class Proof(DocxWorker):
         return False
 
     def _proof(self) -> bool:
-        """Does the heavly lifting"""
+        """Do the heavly lifting."""
         worked = False
         if self.find_formula_style():
             worked = self._fix_rtl_formulas() or worked
@@ -273,9 +281,9 @@ class Proof(DocxWorker):
         return worked
 
     def _italicize_math(self) -> bool:
-        """Convert text in formulas to italics"""
+        """Convert text in formulas to italics."""
         italicable_xpath = self._ITALICABLE_XPATH_FORMAT.format(
-            style_id=self.formula_style_id
+            style_id=self.formula_style_id,
         )
         for rnode in self.doc_xpath(italicable_xpath):
             text = self._rnode_text(rnode)
@@ -295,18 +303,24 @@ class Proof(DocxWorker):
                 (idx_from, idx_to) = match.span()
                 if idx_prev < idx_from:
                     addend = self._mknode(
-                        rnode, text[idx_prev:idx_from], False
+                        rnode,
+                        text[idx_prev:idx_from],
+                        italic=False,
                     )
                     rnode.addprevious(addend)
                     self._count("non-italicized part", addend)
                 if idx_from < idx_to:
-                    addend = self._mknode(rnode, text[idx_from:idx_to], True)
+                    addend = self._mknode(
+                        rnode,
+                        text[idx_from:idx_to],
+                        italic=True,
+                    )
                     rnode.addprevious(addend)
                     self._count("italicized part", addend)
                     self._count(self.TOTAL_ITALICIZED_KEY)
                 idx_prev = idx_to
             if idx_prev < len(text):
-                addend = self._mknode(rnode, text[idx_prev:], False)
+                addend = self._mknode(rnode, text[idx_prev:], italic=False)
                 rnode.addprevious(addend)
                 self._count("non-italicized part", addend)
             rnode.getparent().remove(rnode)
@@ -314,7 +328,7 @@ class Proof(DocxWorker):
         return self.counts[self.TOTAL_ITALICIZED_KEY] > 0
 
     def _nbspize_math(self) -> bool:
-        """Convert regular spaces in formulas to NBSP"""
+        """Convert regular spaces in formulas to NBSP."""
         expr = (
             f"//w:r["
             f" w:rPr[w:rStyle[@w:val='{self.formula_style_id}']]"
@@ -327,7 +341,7 @@ class Proof(DocxWorker):
         return self.counts["nbsp"] > 0
 
     def _fix_weird_ltr_spaces(self) -> bool:
-        """Find islands of LTR whitespace in RTL"""
+        """Find islands of LTR whitespace in RTL."""
         for rnode in self.doc_xpath(self.WEIRD_LTR_SPACE_XPATH):
             # WEIRD_LTR_SPACE_XPATH takes care of these, but I can't read it
             assert self._rnode_text(rnode).isspace()
@@ -339,7 +353,7 @@ class Proof(DocxWorker):
         return self.counts["rtlized spaces"] > 0
 
     def _force_rtl_islands(self) -> bool:
-        """Find things which should be forced to be RTL"""
+        """Find things which should be forced to be RTL."""
         style_id = self.find_style_id(self.args.rtl_style)
         if not style_id:
             return False
@@ -368,8 +382,8 @@ class Proof(DocxWorker):
             self._count("force rtl", rnode)
         return self.counts["force rtl"] > 0
 
-    def _fix_rtl_formulas(self):
-        """Fix RTL (parts) of formulas"""
+    def _fix_rtl_formulas(self) -> bool:
+        """Fix RTL (parts) of formulas."""
         expr = (
             f"//w:r["
             f" w:rPr["
@@ -380,14 +394,14 @@ class Proof(DocxWorker):
         )
         for tnode in self.doc_xpath(expr):
             self._count("rtl formulas", tnode)
-            self._count(f"rtl formula: {repr(tnode.text.strip())}")
+            self._count(f"rtl formula: {tnode.text.strip()!r}")
             tnode.text = tnode.text.translate(self.FLIP)
             rtl = self.find(tnode.getparent(), "./w:rPr/w:rtl")
             rtl.getparent().remove(rtl)
         return self.counts["rtl formulas"] > 0
 
-    def _note_suspects(self):
-        """Look for text that may be an unmarked formula"""
+    def _note_suspects(self) -> None:
+        """Look for text that may be an unmarked formula."""
         anti_style_id = self.find_style_id(self.args.anti_style)
         if anti_style_id is not None:
             suspect_xpath = self._SUSPECT_XPATH_FORMAT_WITH_ANTI_STYLE.format(
@@ -396,7 +410,7 @@ class Proof(DocxWorker):
             )
         else:
             suspect_xpath = self._SUSPECT_XPATH_FORMAT.format(
-                style_id=self.formula_style_id
+                style_id=self.formula_style_id,
             )
 
         for rnode in self.doc_xpath(suspect_xpath):
@@ -405,17 +419,17 @@ class Proof(DocxWorker):
             assert re.search(self.SUSPECT_RE, text)  # XPath checks, but
             ptext = self._rnode_text(rnode.getprevious())
             ntext = self._rnode_text(rnode.getnext())
-            context = "".join([ptext, text, ntext])
+            context = f"{ptext}{text}{ntext}"
             print(f"You may want to look at ... '{context}' ...")
 
     def _load_antidict(self) -> None:
-        """Load (and test before it's too late) antidict"""
+        """Load (and test before it's too late) antidict."""
         self.antidict = None
 
         if not self.args.antidict.is_file():
             return
 
-        with open(self.args.antidict, encoding="utf-8") as fobj:
+        with self.args.antidict.open(encoding="utf-8") as fobj:
             antire = "|".join(self._uncommented_lines(fobj))
         if not antire:
             return
@@ -429,19 +443,16 @@ class Proof(DocxWorker):
             if exc.pos is not None:
                 context = pattern[(exc.pos - 10):(exc.pos + 10)]
                 print(f" - {exc}")
-                print(f" - Context: {repr(context)}")
+                print(f" - Context: {context!r}")
 
     def _uncommented_lines(self, fobj: t.TextIO) -> t.Iterable[str]:
         for line in fobj:
-            if "#" in line:
-                line = line[:line.index('#')]
-            line = line.strip()
-            if line:
-                print(line)
+            if meat := re.sub(r"\s*#.*", r"", line.strip()):
+                print(meat)
                 yield line
 
-    def _check_antidict(self):
-        """Look for misspelled words"""
+    def _check_antidict(self) -> None:
+        """Look for misspelled words."""
         if self.antidict is None:
             return
 
@@ -460,12 +471,12 @@ class Proof(DocxWorker):
         for match in self.antidict.finditer(text):
             self.antiwords[match.group(0)] += 1
 
-    def _is_rtl(self, rnode) -> bool:
-        """Checks whether a <w:r> node is RTL"""
+    def _is_rtl(self, rnode: etree._Entity) -> bool:
+        """Check whether a <w:r> node is RTL."""
         return self._first(rnode, "./w:rPr/w:rtl") is not None
 
     def find_formula_style(self) -> bool:
-        """Find the formula style"""
+        """Find the formula style."""
         formula_style_id = self.find_style_id(self.args.style)
         if formula_style_id is None:
             print(f'No style named "{self.args.style}" in {self.args.input}')
@@ -474,42 +485,44 @@ class Proof(DocxWorker):
         return True
 
     def _mknode(
-        self, model: etree._Entity, text: str, italic: bool
+        self, model: etree._Entity,
+        text: str,
+        *,
+        italic: bool,
     ) -> etree._Entity:
-        """Create a duplicate of `model` with different text,
-        and possibly italics."""
+        """Create a duplicate of `model` with different text."""
         rnode = deepcopy(model)
         self._set_rnode_text(rnode, text)
         if italic:
             self._add_to_rprops(rnode, "i")
         return rnode
 
-    def _set_rnode_text(self, rnode: etree._Entity, text: str):
-        """Helper to replace <w:t> inside <w:r>"""
+    def _set_rnode_text(self, rnode: etree._Entity, text: str) -> None:
+        """Replace <w:t> inside <w:r>."""
         tnode = self._find(rnode, "w:t")
         tnode.text = text
         if text[0].isspace() or text[-1].isspace():
             tnode.set(
-                "{http://www.w3.org/XML/1998/namespace}space", "preserve"
+                "{http://www.w3.org/XML/1998/namespace}space", "preserve",
             )
 
-    def _count(self, key: str, node: etree._Entity | None = None):
-        """Save a comment to be postracted"""
+    def _count(self, key: str, node: etree._Entity | None = None) -> None:
+        """Save a comment to be postracted."""
         self.counts[key] += 1
         if node is not None:
             self.comments[key].append(node)
 
-    def _scan_images(self):
-        """Count images with/without alt-text"""
+    def _scan_images(self) -> None:
+        """Count images with/without alt-text."""
         for drawing in self.doc_xpath("//w:drawing[//a:blip[@r:embed]]"):
             self._count("images")
             for prop in self.xpath(
-                drawing, "./wp:inline/wp:docPr[not(@descr)]"
+                drawing, "./wp:inline/wp:docPr[not(@descr)]",
             ):
                 self._count("images without alt-text", prop)
 
     def _add_comments(self) -> int:
-        """Write XML comments for postracted file"""
+        """Write XML comments for postracted file."""
         n_added = 0
         for message, nodes in self.comments.items():
             comment = f"PROOF: {message}"
@@ -518,8 +531,8 @@ class Proof(DocxWorker):
                 n_added += 1
         return n_added
 
-    def _consider_overwrite(self):
-        """Carefully overwrite the input file"""
+    def _consider_overwrite(self) -> None:
+        """Carefully overwrite the input file."""
         if self.args.no_overwrite:
             return
 
@@ -530,20 +543,20 @@ class Proof(DocxWorker):
         self._copy(self.opath, self.args.input)
         self.opath = self.args.input  # So we open that one now
 
-    def _copy(self, src: Path | str, dst: Path | str):
-        """Wrapper around `shutil.copy`"""
+    def _copy(self, src: Path | str, dst: Path | str) -> None:
+        """Wrap `shutil.copy`."""
         print(f"{src} -> {dst}")
         shutil.copy(src, dst)
 
-    def _add_rstyle(self, rnode: etree._Entity, style_id: str):
-        """Add w:rStyle tag. tag"""
+    def _add_rstyle(self, rnode: etree._Entity, style_id: str) -> None:
+        """Add w:rStyle tag. tag."""
         props = self._find(rnode, "w:rPr")
         if props is None:
             props = self.make_w("rPr")
         props.append(self.make_w("rStyle", attrib={"val": style_id}))
 
-    def _add_to_rprops(self, rnode: etree._Entity, tag: str):
-        """Add the italic/rtl/etc. tag"""
+    def _add_to_rprops(self, rnode: etree._Entity, tag: str) -> None:
+        """Add the italic/rtl/etc. tag."""
         props = self._find(rnode, "w:rPr")
         if props is None:
             props = self.make_w("rPr")
@@ -551,7 +564,7 @@ class Proof(DocxWorker):
 
     @classmethod
     def _rnode_text(cls, rnode: etree._Entity) -> str:
-        """Return <w:t> node of a <w:r> node"""
+        """Return <w:t> node of a <w:r> node."""
         tnode = cls._find(rnode, "w:t")
         if tnode is None:
             return ""

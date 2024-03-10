@@ -3,13 +3,9 @@
 import abc
 import zipfile as zf
 from collections import Counter
-from collections.abc import Callable
-from collections.abc import Iterable
-from pathlib import Path
-from pathlib import PurePosixPath
-from typing import ClassVar
-from typing import IO
-from typing import TypeAlias
+from collections.abc import Callable, Iterable
+from pathlib import Path, PurePosixPath
+from typing import IO, ClassVar, TypeAlias
 
 from lxml import etree
 
