@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Shuffle chapters in a PDF file"""
-from argparse import ArgumentParser
-from argparse import Namespace
-from pathlib import Path
+"""Shuffle chapters in a PDF file."""
 import pickle
 import re
+from argparse import ArgumentParser, Namespace
+from pathlib import Path
 
 import numpy.random as npr
 import pandas as pd
@@ -12,22 +11,23 @@ import fitz  # type: ignore; pip install pymupdf
 
 # We only use bookmarks that point to a new page
 TOP_OF_PAGE = fitz.Point(0, 0)
+MIN_SPLIT = 2
 
 
 class Pdchuffle:
-    """Shuffle chapters in a PDF file"""
+    """Shuffle chapters in a PDF file."""
 
     args: Namespace
 
-    def parse_command_line(self):
-        """Command-line arguments"""
+    def parse_command_line(self) -> None:
+        """Command-line arguments."""
         parser = ArgumentParser(description="Shuffle chapters in a PDF file")
         parser.add_argument("input", type=Path, nargs="?", help="PDF file to shuffle")
         parser.add_argument(
-            "output", type=Path, nargs="?", help="Shuffled PDF file to create"
+            "output", type=Path, nargs="?", help="Shuffled PDF file to create",
         )
         parser.add_argument(
-            "-p", "--pages", action="store_true", help="Shuffle pages, not chapters"
+            "-p", "--pages", action="store_true", help="Shuffle pages, not chapters",
         )
         parser.add_argument("-e", "--keep-empty-pages", action="store_true")
         parser.add_argument("-f", "--first-chapter", type=int, default=1)
@@ -66,8 +66,8 @@ class Pdchuffle:
         group.add_argument("--no-shuffle", action="store_true", help="No shuffling")
         self.args = parser.parse_args()
 
-    def guess_input(self, suffix: str):
-        """If input file not specified, look for it"""
+    def guess_input(self, suffix: str) -> None:
+        """If input file not specified, look for it."""
         pdfs = [
             pdf
             for pdf in Path.cwd().glob("*.pdf")
@@ -79,8 +79,8 @@ class Pdchuffle:
         (self.args.input,) = pdfs
         input(f"Press Enter to shuffle '{self.args.input.name}'...")
 
-    def main(self):
-        """Shuffle chapters in a PDF file"""
+    def main(self) -> None:
+        """Shuffle chapters in a PDF file."""
         self.parse_command_line()
 
         if self.args.unshuffle:
@@ -99,21 +99,20 @@ class Pdchuffle:
 
         indoc = fitz.Document(self.args.input)
         n_pages = indoc.page_count
-        if n_pages < 2:
+        if n_pages < MIN_SPLIT:
             print(f"Not enough pages ({n_pages}) in document")
             return
 
         if self.args.pages or self.args.unshuffle:
-            chaps = pd.DataFrame.from_records(
-                [
-                    {
-                        "first_1": n_page,
-                        "title": self.get_title(n_page, page),
-                        "has_text": self.has_text(page),
-                    }
-                    for n_page, page in enumerate(indoc, 1)
-                ]
-            )
+            recs = [
+                {
+                    "first_1": n_page,
+                    "title": self.get_title(n_page, page),
+                    "has_text": self.has_text(page),
+                }
+                for n_page, page in enumerate(indoc, 1)
+            ]
+            chaps = pd.DataFrame.from_records(recs)
             if not self.args.keep_empty_pages:
                 chaps = chaps.query("has_text")
         else:
@@ -135,7 +134,7 @@ class Pdchuffle:
 
             chaps = chaps.sort_index().reset_index()
 
-        if (n_chaps := len(chaps)) < 2:
+        if (n_chaps := len(chaps)) < MIN_SPLIT:
             print(f"Not enough bookmarks in {self.args.input}")
             return
 
@@ -162,7 +161,7 @@ class Pdchuffle:
         elif self.args.reverse:
             chaps = chaps[::-1]
         elif self.args.unshuffle:
-            chaps.sort_values("title", inplace=True)
+            chaps = chaps.sort_values("title")
         else:
             rng = self.randomize()
             chaps = chaps.sample(frac=1, random_state=rng.bit_generator)
@@ -187,7 +186,7 @@ class Pdchuffle:
         outdoc.ez_save(self.args.output)
 
     def get_title(self, n_page: int, page: fitz.Page) -> int | str:
-        """Create title for a page"""
+        """Create title for a page."""
         if self.args.unshuffle:
             text = page.get_text("text")
             match = re.search(r"\.indd\s+(\d+)", text)
@@ -197,30 +196,30 @@ class Pdchuffle:
         return f"{self.args.input.name}:{n_page}"
 
     def randomize(self) -> npr.Generator:
-        """Set random seed"""
+        """Set random seed."""
         generator = npr.default_rng(seed=self.args.seed)
 
         if self.args.seed_file is True:
             self.args.seed_file = self.args.output.with_suffix(".seed")
 
-        if self.args.seed_file:
+        if isinstance(self.args.seed_file, Path):
             try:
-                with open(self.args.seed_file, "rb") as fobj:
+                with self.args.seed_file.open("rb") as fobj:
                     loaded = pickle.load(fobj)
                 if not isinstance(loaded, npr.Generator):
                     print(f"Incompatible {self.args.seed_file}, regenerating")
-                    raise TypeError()
+                    raise TypeError
                 print(f"Random state loaded from {self.args.seed_file}")
                 generator = loaded
             except (FileNotFoundError, TypeError, pickle.UnpicklingError):
                 print(f"Saving random state to {self.args.seed_file}")
-                with open(self.args.seed_file, "wb") as fobj:
+                with self.args.seed_file.open("wb") as fobj:
                     pickle.dump(generator, fobj)
         return generator
 
     @classmethod
     def num_to_idx(cls, num: int, n_chaps: int) -> int:
-        """Convert, e.g., --first-chapter=1 to 0"""
+        """Convert, e.g., --first-chapter=1 to 0."""
         if num > 0:
             return num - 1
         if num < 0:
@@ -228,7 +227,7 @@ class Pdchuffle:
         return 0
 
     def has_text(self, page: fitz.Page) -> bool:
-        """Check if a page has any text (hence is non-empty)"""
+        """Check if a page has any text (hence is non-empty)."""
         return page.get_text(clip=page.trimbox).strip() != ""
 
 
