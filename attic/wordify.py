@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Find words with vowels in a docx, compare to dict"""
+"""Find words with vowels in a docx, compare to dict."""
+import re
 from argparse import ArgumentParser
 from collections import defaultdict
 from pathlib import Path
-import re
 
 from wp2tt.docx import DocxInput
 
@@ -13,8 +13,8 @@ _OTHR = "\u05F3"
 _HEBR = f"{_NIQQ}{_ALPH}{_OTHR}"
 
 
-def main():
-    """Find words with vowels in a docx, compare to dict"""
+def main() -> None:
+    """Find words with vowels in a docx, compare to dict."""
     parser = ArgumentParser()
     parser.add_argument("-i", "--input", metavar="DOCX_FILE", type=Path)
     parser.add_argument(
@@ -61,7 +61,7 @@ def main():
     else:
         wpids = None
 
-    with open("hebrew.words", encoding="utf-8") as fobj:
+    with Path("hebrew.words").open(encoding="utf-8") as fobj:
         hebrew = {line.split("\t")[0] for line in fobj if "\t" in line}
 
     wrd2niqs = defaultdict(set)
@@ -84,17 +84,13 @@ def main():
 
             wrd2niqs[wrd].add(niq)
 
-            # wrd2niqs[re.sub("[א]", "", wrd)].add(
-            #     re.sub("([א][\u05B0-\u05BC]*)", r"(\1)", niq)
-            # )
-
             for prefix in ["הַ", "וּ", "וְ", "שֶׁ"]:
                 if niq.startswith(prefix):
                     stem = niq[len(prefix) :]
                     nniq = f"({prefix}){stem}"
                     wrd2niqs[wrd[1:]].add(nniq)
 
-    with open(args.output, "w", encoding="utf-8") as fobj:
+    with args.output.open("w", encoding="utf-8") as fobj:
         badniqs = {
             wrd: niqs
             for wrd, niqs in wrd2niqs.items()
