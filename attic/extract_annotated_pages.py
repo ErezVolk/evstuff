@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Extract PDF pages with annotations"""
+"""Extract PDF pages with annotations."""
 import argparse
 from pathlib import Path
 
-import fitz
+import fitz  # type: ignore; pip install pymupdf
+
 HALF = fitz.Matrix(.5, .5)
 
 
-def extract_annotations():
-    """Extract PDF pages with annotations"""
+def extract_annotations() -> None:
+    """Extract PDF pages with annotations."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "input",
@@ -38,11 +39,11 @@ def extract_annotations():
         ]
         if len(candidates) != 1:
             parser.error("Unable to guess input file name")
-        input(f"Press Enter to process {repr(args.input.name)}...")
+        input(f"Press Enter to process {args.input.name!r}...")
 
     if not args.output:
         args.output = args.input.with_stem(
-            f"{args.input.stem}-annotated"
+            f"{args.input.stem}-annotated",
         )
 
     print(f"Reading {args.input}")
@@ -54,7 +55,7 @@ def extract_annotations():
         if len(indoc) != len(modoc):
             print(
                 f"Cannot use {args.model} as the model, as the number of pages"
-                f" is {len(modoc)} != {len(indoc)}"
+                f" is {len(modoc)} != {len(indoc)}",
             )
             modoc = None
 
@@ -70,7 +71,8 @@ def extract_annotations():
     outdoc.ez_save(args.output)
 
 
-def should_copy(inpage, modoc) -> bool:
+def should_copy(inpage: fitz.Page, modoc: fitz.Document) -> bool:
+    """Check whether a page should be copied."""
     if inpage.annot_names():
         return True
     if modoc is None:
