@@ -1,26 +1,27 @@
 #!/usr/bin/env python
-"""Download latest wallpapers from bing"""
+"""Download latest wallpapers from bing."""
 import argparse
-from io import StringIO
 import json
 import re
+from io import StringIO
 from pathlib import Path
 
-import requests
 import lxml.etree
+import requests
 
 
 class BingWallpaper:
-    """Download latest wallpapers from bing"""
+    """Download latest wallpapers from bing."""
+
     BASE = "https://www.bing.com/"
     COUNTRIES = ("us", "jp", "cn", "uk", "de")
 
-    stem_to_state: dict[str, str] = {}
+    stem_to_state: dict[str, str]
     args: argparse.Namespace
     directory: Path
 
-    def run(self):
-        """Entry point"""
+    def run(self) -> None:
+        """Download from bing."""
         self.parse_args()
 
         self.directory = Path.home() / "Pictures" / "bing-wallpapers"
@@ -29,8 +30,8 @@ class BingWallpaper:
         for country_code in self.COUNTRIES:
             self.download(country_code)
 
-    def parse_args(self):
-        """Command line"""
+    def parse_args(self) -> None:
+        """Parse command line."""
         parser = argparse.ArgumentParser(description="Download Bing wallpaper")
         parser.add_argument(
             "-f",
@@ -62,14 +63,15 @@ class BingWallpaper:
         )
         self.args = parser.parse_args()
 
-    def scan_existing(self):
-        """Find out what files we already have"""
+    def scan_existing(self) -> None:
+        """Find out what files we already have."""
+        self.stem_to_state = {}
         for fname in self.directory.iterdir():
             match = re.match(r"([^_]*)_.*\.jpg$", fname.name)
             if match:
                 self.stem_to_state[match.group(1)] = "N/A"
 
-    def download_archive(self):
+    def download_archive(self) -> None:
         """Download N photos from the "archive" json."""
         if not self.args.archive:
             return
@@ -86,7 +88,7 @@ class BingWallpaper:
         for image in images:
             self.handle_href(image["url"])
 
-    def download(self, country_code):
+    def download(self, country_code: str) -> None:
         """Download today's image from a specific country code."""
         url = f"{self.BASE}?cc={country_code}"
         page_r = requests.get(url, timeout=self.args.timeout)
@@ -99,7 +101,7 @@ class BingWallpaper:
         except lxml.etree.XMLSyntaxError:
             print(
                 f"ERROR: Invalid HTML (length={len(page_r.text)}) "
-                f"returned from {url}"
+                f"returned from {url}",
             )
             return
         for node in html.xpath('./head/link[@as="image"]'):
@@ -113,8 +115,13 @@ class BingWallpaper:
                 source=country_code,
             )
 
-    def handle_href(self, href, desc=None, source=None):
-        """Download an image"""
+    def handle_href(
+        self,
+        href: str,
+        desc: str = "",
+        source: str = "",
+    ) -> None:
+        """Download an image."""
         if not desc:
             desc = href
 
@@ -161,24 +168,24 @@ class BingWallpaper:
         if stem in self.stem_to_state:
             self.debug(
                 f"Already downloaded {fname} "
-                f"from {self.stem_to_state[stem]}"
+                f"from {self.stem_to_state[stem]}",
             )
             return
 
         self.write(f"Downloading {remote_name} as {fname}")
 
         file_r = requests.get(url, timeout=self.args.timeout)
-        with open(self.directory / fname, "wb") as fobj:
+        with (self.directory / fname).open("wb") as fobj:
             fobj.write(file_r.content)
         self.stem_to_state[stem] = source
 
-    def write(self, *args):
-        """Write to stdout (unless configured not to)"""
+    def write(self, *args: str) -> None:
+        """Write to stdout (unless configured not to)."""
         if not self.args.quiet:
             print(*args)
 
-    def debug(self, *args):
-        """Optional debug print"""
+    def debug(self, *args: str) -> None:
+        """Debug print (if configured)."""
         if self.args.debug:
             print(*args)
 
