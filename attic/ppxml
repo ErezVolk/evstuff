@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-from argparse import ArgumentParser
+"""Pretty-print XML."""
 import xml.dom.minidom
+from argparse import ArgumentParser
+from pathlib import Path
 
 
-def main():
+def main() -> None:
+    """Pretty-print XML."""
     parser = ArgumentParser()
-    parser.add_argument("xmls", metavar="XML_FILE", nargs="+")
+    parser.add_argument("xmls", metavar="XML_FILE", nargs="+", type=Path)
     args = parser.parse_args()
 
+    xmlfn: Path
     for xmlfn in args.xmls:
-        dom = xml.dom.minidom.parse(xmlfn)
+        dom = xml.dom.minidom.parse(str(xmlfn))
         pretty = dom.toprettyxml(indent="  ")
-        with open(xmlfn, "w") as xmlfo:
+        with xmlfn.open("w", encoding="utf-8") as xmlfo:
             xmlfo.write(pretty)
 
 
