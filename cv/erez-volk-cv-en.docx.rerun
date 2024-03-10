@@ -1,3 +1,0 @@
-#!/bin/sh
-cd /Users/erez/play/evstuff/cv
-/usr/local/bin/python3 /Users/erez/play/evstuff/cv/convert.py -l en

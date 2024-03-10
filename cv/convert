@@ -1,0 +1,4 @@
+#!/bin/sh
+
+if [ -f ~/.local/venv/bin/activate ]; then source ~/.local/venv/bin/activate; fi
+python3 convert.py "$@"

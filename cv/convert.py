@@ -247,7 +247,7 @@ class ConvertCV:
             fobj.write(
                 f"#!/bin/sh\n"
                 f"cd {HERE}\n"
-                f"/usr/local/bin/python3 {THIS} -l {lang}\n"
+                f"./convert -l {lang}\n"
             )
         rerun.chmod(0o755)
 
