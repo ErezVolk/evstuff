@@ -19,3 +19,6 @@ ignore = [
    "T201",
    "TRY003" ,
 ]
+
+[tool.ruff.lint.isort]
+force-single-line = true
