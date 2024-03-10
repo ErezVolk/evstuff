@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Based on code from https://github.com/fab-jul/parse_dictionaries"""
+"""Based on code from https://github.com/fab-jul/parse_dictionaries."""
 import itertools
 import json
-from pathlib import Path
 import zlib
+from pathlib import Path
 
-from lxml import etree
 import regex as re
+from lxml import etree
 
 
 ROOT = Path(
     "/System/Library/AssetsV2"
-    "/com_apple_MobileAsset_DictionaryServices_dictionaryOSX"
+    "/com_apple_MobileAsset_DictionaryServices_dictionaryOSX",
 )
 JSON = Path("hebrew.json")
 WRDS = Path("hebrew.words")
@@ -28,21 +28,21 @@ NIQQ_RE = re.compile(f"[{_NIQQ}]")
 BRACKETS_RE = re.compile(r"\[[^\]]+:[^\]]*?\]")
 
 
-def main():
-    """Get Hebrew words"""
+def main() -> None:
+    """Get Hebrew words."""
     if JSON.is_file():
         print("Reading parsed dictionary...")
-        with open(JSON, encoding="utf8") as fobj:
+        with JSON.open(encoding="utf8") as fobj:
             entries = json.load(fobj)
     else:
         body = next(ROOT.glob("**/Hebrew.dictionary/Contents/Resources/Body.data"))
         print(f"Parsing {body}...")
         entries = _parse(body)
-        with open(JSON, "w", encoding="utf8") as fobj:
+        with JSON.open("w", encoding="utf8") as fobj:
             json.dump(entries, fobj, ensure_ascii=False)
     print(f"Number of entries: {len(entries)}")
 
-    with open(TXTS, "w", encoding="utf8") as fobj:
+    with TXTS.open("w", encoding="utf8") as fobj:
         words = {}
         for key, xml in entries:
             node = etree.fromstring(xml)
@@ -66,11 +66,11 @@ def main():
                 if tord.startswith("אְ"):
                     print(text)
                     return
-                tord = ZVOR_RE.sub("", tord)
-                words.setdefault(tord, kord)
+                nztord = ZVOR_RE.sub("", tord)
+                words.setdefault(nztord, kord)
 
     print(f"Number of words: {len(words)}")
-    with open(WRDS, "w", encoding="utf8") as fobj:
+    with WRDS.open("w", encoding="utf8") as fobj:
         for word, key in sorted(words.items()):
             fobj.write(word)
             fobj.write("\t")
@@ -78,9 +78,9 @@ def main():
             fobj.write("\n")
 
 
-def _parse(dictionary_path) -> list[tuple[str, str]]:
+def _parse(dictionary_path: Path) -> list[tuple[str, str]]:
     """Parse Body.data into a list of entries given as key, definition tuples."""
-    with open(dictionary_path, "rb") as fobj:
+    with dictionary_path.open("rb") as fobj:
         content_bytes = fobj.read()
     total_bytes = len(content_bytes)
 
@@ -105,7 +105,7 @@ def _parse(dictionary_path) -> list[tuple[str, str]]:
                 print(
                     f"{progress * 100:.1f}% // "
                     f"{len(entries)} entries parsed // "
-                    f"Latest entry: {entries[-1][0]}"
+                    f"Latest entry: {entries[-1][0]}",
                 )
             first = False
 
@@ -119,9 +119,9 @@ def _parse(dictionary_path) -> list[tuple[str, str]]:
     return entries
 
 
-def _split(input_bytes, verbose) -> tuple[list[tuple[str, str]], bool]:
+def _split(input_bytes: bytes, *, verbose: bool) -> tuple[list[tuple[str, str]], bool]:
     """Split `input_bytes` into a list of tuples (name, definition)."""
-    printv = print if verbose else lambda *a, **k: ...
+    printv = print if verbose else lambda *_, **__: ...
 
     # The first four bytes are always not UTF-8 (not sure why?)
     input_bytes = input_bytes[4:]
@@ -136,7 +136,7 @@ def _split(input_bytes, verbose) -> tuple[list[tuple[str, str]], bool]:
     while True:
         # Find the next newline, which delimits the current entry.
         try:
-            next_offset = input_bytes.index("\n".encode("utf-8"))
+            next_offset = input_bytes.index(b"\n")
         except ValueError:  # No more new-lines -> no more entries!
             break
 
@@ -149,9 +149,8 @@ def _split(input_bytes, verbose) -> tuple[list[tuple[str, str]], bool]:
             break
 
         # Make sure we have a valid entry.
-        assert entry_text.startswith("<d:entry") and entry_text.endswith(
-            "</d:entry>"
-        ), f"ENTRY: {entry_text} \n REM: {input_bytes}"
+        assert entry_text.startswith("<d:entry")
+        assert entry_text.endswith("</d:entry>")
 
         # The name of the definition is stored in the "d:title" attribute,
         # where "d" is the current domain, which we get from the nsmap - the
@@ -166,7 +165,7 @@ def _split(input_bytes, verbose) -> tuple[list[tuple[str, str]], bool]:
 
         printv(
             f"{next_offset + total_offset: 10d}",
-            f"{str(input_bytes[next_offset + 1:next_offset + 5]): <30}",
+            f"{input_bytes[next_offset + 1:next_offset + 5]!s:<30}",
             xml_entry.get(key),
         )
 
