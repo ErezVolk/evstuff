@@ -6,20 +6,19 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-   "ANN101",
-   "ANN102",
-   "D105",
-   "D107",
-   "D203",
-   "D213",
-   "EM101",
-   "EM102",
-   "S101",
-   "S311",
-   "S324",
-   "SIM102",
-   "T201",
-   "TRY003" ,
+   "ANN101",  # Missing type annotation for "self"
+   "ANN102",  # Missing type annotation for "cls"
+   "D105",  # Missing docstring in magic method
+   "D107",  # Missing docstring in "__init__"
+   "D203",  # Blank line *before* class docstring (?!)
+   "D213",  # Start multiline docstring on the second line
+   "EM101",  # No `raise Error("hello")`; makes the code ugly IMHO
+   "EM102",  # No `raise Error(f"hello {who}")`; makes the code ugly IMHO
+   "S101",  # Use of `assert`; I only do it when it's a real assert
+   "S311",  # RNG not crypto-quality
+   "SIM102",  # Collapse nested `if`s; sometimes it's more readable the other way
+   "T201",  # `print()`
+   "TRY003",  # Don't raise with messages
 ]
 
 [tool.ruff.lint.isort]
