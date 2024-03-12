@@ -639,7 +639,7 @@ class PracticeMakesPerfect:
         cards = [card.strip() for card in cardstr.split("‖")]
         notes = "|".join(cards).upper().split("|")
         assert len(notes) == len(set(notes)), f"{cardstr!r}: not unique"
-        bad = set(notes) - self.ALL_NOTES
+        bad = frozenset(notes) - self.ALL_NOTES
         assert not bad, f"{cardstr!r}: {bad}?"
         bad = self.LETTERS - {note[0] for note in notes}
         assert not bad, f"{cardstr!r}: no {bad}"
