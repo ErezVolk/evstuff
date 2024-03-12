@@ -37,7 +37,7 @@ import unicodedata as ud
 from collections.abc import Iterable
 from collections.abc import Sequence
 from pathlib import Path
-
+from xml.parsers.expat import ExpatError
 
 DEFAULT_CONFIG = """
 note:  # Just pick a note
@@ -80,7 +80,6 @@ Entry: t.TypeAlias = "Etude | BookRef"
 Books: t.TypeAlias = dict[Label, "Book"]
 Decks: t.TypeAlias = dict[Layout, "Deck"]
 StringDict: t.TypeAlias = dict[str, t.Any]
-OInt: t.TypeAlias = int | None
 
 log = logging.getLogger("pmp")
 tracked: set[Layout] = set()
@@ -362,7 +361,7 @@ class BookRef:
     """A "pointer-style" ToC, e.g. "2@song"."""
 
     book_label: Label
-    count: OInt
+    count: int | None
     book: Book = dataclasses.field(init=False)
     label: Label = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
@@ -546,7 +545,7 @@ class PracticeMakesPerfect:
         self._header(header)
         self._run_book(book, count=count, top=True)
 
-    def _run_book(self, book: Book, *, count: OInt, top: bool = False) -> None:
+    def _run_book(self, book: Book, *, count: int | None, top=False) -> None:
         """Run any book."""
         if book.sequential:
             self._run_sequential(book, top=top)
@@ -563,7 +562,7 @@ class PracticeMakesPerfect:
             elif isinstance(ref := entry, BookRef):
                 self._run_book(ref.book, count=ref.count)
 
-    def _run_plain(self, book: Book, count: OInt) -> None:
+    def _run_plain(self, book: Book, count: int | None) -> None:
         """Run a "simple" book, choosing etudes and assigining keys."""
         if count is None:
             count = len(book.deck)
@@ -571,7 +570,7 @@ class PracticeMakesPerfect:
             count = len(self.decks[Layout("ANY")])
         self._run_etudes(self._choose_etudes(book, count))
 
-    def _choose_etudes(self, book: Book, count: OInt) -> Iterable[Etude]:
+    def _choose_etudes(self, book: Book, count: int | None) -> Iterable[Etude]:
         """Yield chosen etudes.
 
         Recursion is safe here, since we've made sure the graph is cycle-free.
@@ -659,7 +658,8 @@ class PracticeMakesPerfect:
         try:
             with self.args.state_file.open("rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VER]
-        except Exception:  # Can be any number of things
+        except (KeyError, FileNotFoundError, ValueError, ExpatError):
+            log.exception("Error reading %s", self.args.state_file)
             self.state = {}
         if not isinstance(self.state, dict):
             self.state = {}
