@@ -80,6 +80,7 @@ Entry: t.TypeAlias = "Etude | BookRef"
 Runnee: t.TypeAlias = "BookRef | BookCount"
 Books: t.TypeAlias = dict[Label, "Book"]
 Decks: t.TypeAlias = dict[Layout, "Deck"]
+Strs: t.TypeAlias = Iterable[str]
 StringDict: t.TypeAlias = dict[str, t.Any]
 
 log = logging.getLogger("pmp")
@@ -111,7 +112,7 @@ class Deck:
     _RANGE_RE = r"\d+(-\d+)?"
     RANGES_RE = f"\\[({_RANGE_RE},)*{_RANGE_RE}\\]"
 
-    def __init__(self, cards: Iterable[str], label="", layout="") -> None:
+    def __init__(self, cards: Strs, label: str = "", layout: str = "") -> None:
         self.cards = tuple(cards)
         assert self.cards, f"{label or layout!r} Empty decks not supported"
         self.label = Label(label or "|".join(self.cards))
@@ -119,7 +120,7 @@ class Deck:
         self.counts = collections.Counter()
         self._set_queue(self.cards)
 
-    def _digest(self, strs: Iterable[str]) -> str:
+    def _digest(self, strs: Strs) -> str:
         """Hash a list of strings, but make it reordering-stable."""
         hashee = "\0".join(sorted(strs)).encode()
         return f":{hashlib.sha256(hashee).hexdigest()[:8]}:"
@@ -233,7 +234,7 @@ class Deck:
         descs = (f"{n1}-{n2}" if n2 > n1 else f"{n1}" for n1, n2 in ranges)
         return f"[{','.join(descs)}]"
 
-    def _set_queue(self, queue: Iterable[str]) -> None:
+    def _set_queue(self, queue: Strs) -> None:
         """Set the queue."""
         self.queue = list(queue)
         random.shuffle(self.queue)
@@ -804,17 +805,17 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             self.line = re.sub(r"\s*(#.*)?$", "", line)
 
             if self.match(r"([^:|]+):=(.*)"):
-                self.add_deck(label=self.group(1), keys=self.group(2))
+                self.do_deck(label=self.group(1), keys=self.group(2))
             elif self.match(r"([*]?)(\S[^:]*):"):
-                self.enter_book(label=self.group(2), star=bool(self.group(1)))
+                self.do_book(label=self.group(2), star=bool(self.group(1)))
             elif self.match(r"\s+([^:]*):\s+(.*)"):
-                self.add_etude(template=self.group(1), deckstr=self.group(2))
+                self.do_etude(template=self.group(1), deckstr=self.group(2))
             elif self.match(f"\\s+{self.PART_RE}\\s*") and self.group("at"):
-                self.add_ref()
+                self.do_ref()
             elif self.match(r"(?P<label>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"):
-                self.add_one_liner(serial=False)
+                self.do_one_liner(serial=False)
             elif self.match(r"(?P<label>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
-                self.add_one_liner(serial=True)
+                self.do_one_liner(serial=True)
             elif self.line != "":
                 raise ConfigError(f"Bad line: {self.line!r}")
         self.line_num = 0  # For any subsequent error messages
@@ -832,7 +833,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             msg = f"Cyclical config: {' -> '.join(exc.args[1])}"
             raise ConfigError(msg) from exc
 
-    def enter_book(self, *, label: str, star: bool, serial=False) -> None:
+    def do_book(self, label: str, *, star: bool, serial: bool = False) -> None:
         """Found a book line."""
         if (label := label.strip()) in self.books:
             raise ConfigError(f"Duplicate book: {label!r}")
@@ -842,7 +843,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         if star:
             self.starred.append(label)
 
-    def add_deck(self, label: str, keys: str) -> None:
+    def do_deck(self, label: str, keys: str) -> None:
         """Found a deck line, e.g., "easy-major := C|F|G"."""
         if (label := label.strip()) in self.labeldecks:
             raise ConfigError(f"Duplicate deck: {label!r}")
@@ -850,7 +851,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         cards = [key.strip() for key in keys.split("|")]
         self.labeldecks[Label(label)] = Deck(label=label, cards=cards)
 
-    def add_etude(self, template: str, deckstr: str) -> None:
+    def do_etude(self, template: str, deckstr: str) -> None:
         """Found an etude line, e.g., "{}-maj: {major}" or "-min: minor}."""
         if self.curr is None:
             raise ConfigError("Bookless etude")
@@ -883,7 +884,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
                         self.add_dep(self.curr.label, Label(target))
         self.curr.toc.append(Etude(template=template, decks=decks))
 
-    def add_ref(self, mobj: re.Match | None = None) -> None:
+    def do_ref(self, mobj: re.Match | None = None) -> None:
         """Add book reference line."""
         if self.curr is None:
             raise ConfigError("Bookless reference")
@@ -907,7 +908,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         self.deps[target].add(source)
         self.whences.setdefault(target, self.line_num)
 
-    def add_one_liner(self, *, serial: bool) -> None:
+    def do_one_liner(self, *, serial: bool) -> None:
         """Parse one-liner in `self.group("label" | "parts")`."""
         parts = self.group("parts").split()
         if not parts:
@@ -916,10 +917,10 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         label = self.group("label").strip()
         if star := label.startswith("*"):
             label = label[1:]
-        self.enter_book(label=label, serial=serial, star=star)
+        self.do_book(label=label, serial=serial, star=star)
         for part in parts:
             if mobj := re.fullmatch(self.PART_RE, part):
-                self.add_ref(mobj)
+                self.do_ref(mobj)
             else:
                 raise ConfigError(f"Bad {part!r}")
         self.curr = None
