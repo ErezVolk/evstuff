@@ -664,10 +664,10 @@ class PracticeMakesPerfect:
         try:
             with self.args.state_file.open("rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VER]
+            if not isinstance(self.state, dict):
+                self.state = {}
         except (KeyError, FileNotFoundError, ValueError, ExpatError):
             log.exception("Error reading %s", self.args.state_file)
-            self.state = {}
-        if not isinstance(self.state, dict):
             self.state = {}
         if not isinstance(self.state.get("deck"), dict):
             self.state["deck"] = {}
