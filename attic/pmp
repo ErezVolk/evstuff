@@ -665,7 +665,7 @@ class PracticeMakesPerfect:
             with self.args.state_file.open("rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VER]
             if not isinstance(self.state, dict):
-                self.state = {}
+                raise TypeError("Unexpected type")
         except (KeyError, FileNotFoundError, ValueError, ExpatError):
             log.exception("Error reading %s", self.args.state_file)
             self.state = {}
