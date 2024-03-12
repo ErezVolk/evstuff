@@ -77,6 +77,7 @@ Filename: t.TypeAlias = str | Path
 Label = t.NewType("Label", str)
 Layout = t.NewType("Layout", str)
 Entry: t.TypeAlias = "Etude | BookRef"
+Runnee: t.TypeAlias = "BookRef | BookCount"
 Books: t.TypeAlias = dict[Label, "Book"]
 Decks: t.TypeAlias = dict[Layout, "Deck"]
 StringDict: t.TypeAlias = dict[str, t.Any]
@@ -271,6 +272,7 @@ class RangeDeck(Deck):
 
     def _get_cards(self, saved: StringDict) -> Sequence[str]:
         """Override since cards aren't saved."""
+        del saved  # Linter B Quiet
         return self.cards
 
 
@@ -323,7 +325,7 @@ class Book:
     """A collection of etudes or pointers to other books."""
 
     label: Label
-    sequential: bool = False
+    serial: bool = False
 
     toc: list[Entry] = dataclasses.field(default_factory=list, init=False)
     deck: Deck = dataclasses.field(init=False)
@@ -349,11 +351,19 @@ class Book:
     @property
     def blurb(self) -> str:
         """Book-level blurb."""
-        return f"{self.deck.blurb} {'[]' if self.sequential else '{}'}"
+        return f"{self.deck.blurb} {'[]' if self.serial else '{}'}"
 
     def entry_blurbs(self) -> list[str]:
         """Blurbs of the entries."""
         return [entry.blurb for entry in self.toc]
+
+
+@dataclasses.dataclass
+class BookCount:
+    """Just a book reference and a count."""
+
+    book: Book
+    count: int | None
 
 
 @dataclasses.dataclass
@@ -543,16 +553,16 @@ class PracticeMakesPerfect:
         weekday = "月火水木金土日"[NOW.weekday()]
         header = NOW.strftime(f"%Y-%m-%d {weekday} %H:%M {book.label}")
         self._header(header)
-        self._run_book(book, count=count, top=True)
+        self._run_book(BookCount(book, count), top=True)
 
-    def _run_book(self, book: Book, *, count: int | None, top=False) -> None:
+    def _run_book(self, runnee: Runnee, *, top: bool = False) -> None:
         """Run any book."""
-        if book.sequential:
-            self._run_sequential(book, top=top)
+        if runnee.book.serial:
+            self._run_serial(runnee.book, top=top)
         else:
-            self._run_plain(book, count)
+            self._run_plain(runnee)
 
-    def _run_sequential(self, book: Book, *, top: bool = False) -> None:
+    def _run_serial(self, book: Book, *, top: bool = False) -> None:
         """Run a sequence of items."""
         for entry in book.draw_all():
             if top:
@@ -560,11 +570,12 @@ class PracticeMakesPerfect:
             if isinstance(etude := entry, Etude):
                 self._run_etudes([etude])
             elif isinstance(ref := entry, BookRef):
-                self._run_book(ref.book, count=ref.count)
+                self._run_book(ref)
 
-    def _run_plain(self, book: Book, count: int | None) -> None:
+    def _run_plain(self, runnee: Runnee) -> None:
         """Run a "simple" book, choosing etudes and assigining keys."""
-        if count is None:
+        book = runnee.book
+        if (count := runnee.count) is None:
             count = len(book.deck)
         elif count <= 0:
             count = len(self.decks[Layout("ANY")])
@@ -801,9 +812,9 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             elif self.match(f"\\s+{self.PART_RE}\\s*") and self.group("at"):
                 self.add_ref()
             elif self.match(r"(?P<label>[^=]*)\s*=\s*{(?P<parts>[^}]*)}"):
-                self.add_one_liner(sequential=False)
+                self.add_one_liner(serial=False)
             elif self.match(r"(?P<label>[^=]*)\s*=\s*\[(?P<parts>[^]]*)\]"):
-                self.add_one_liner(sequential=True)
+                self.add_one_liner(serial=True)
             elif self.line != "":
                 raise ConfigError(f"Bad line: {self.line!r}")
         self.line_num = 0  # For any subsequent error messages
@@ -821,13 +832,13 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             msg = f"Cyclical config: {' -> '.join(exc.args[1])}"
             raise ConfigError(msg) from exc
 
-    def enter_book(self, *, label: str, star: bool, sequential=False) -> None:
+    def enter_book(self, *, label: str, star: bool, serial=False) -> None:
         """Found a book line."""
         if (label := label.strip()) in self.books:
             raise ConfigError(f"Duplicate book: {label!r}")
 
         label = Label(label)
-        self.books[label] = self.curr = Book(label, sequential)
+        self.books[label] = self.curr = Book(label, serial)
         if star:
             self.starred.append(label)
 
@@ -896,7 +907,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         self.deps[target].add(source)
         self.whences.setdefault(target, self.line_num)
 
-    def add_one_liner(self, *, sequential: bool) -> None:
+    def add_one_liner(self, *, serial: bool) -> None:
         """Parse one-liner in `self.group("label" | "parts")`."""
         parts = self.group("parts").split()
         if not parts:
@@ -905,7 +916,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         label = self.group("label").strip()
         if star := label.startswith("*"):
             label = label[1:]
-        self.enter_book(label=label, sequential=sequential, star=star)
+        self.enter_book(label=label, serial=serial, star=star)
         for part in parts:
             if mobj := re.fullmatch(self.PART_RE, part):
                 self.add_ref(mobj)
