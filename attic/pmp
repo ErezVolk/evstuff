@@ -80,6 +80,7 @@ Entry: t.TypeAlias = "Etude | BookRef"
 Books: t.TypeAlias = dict[Label, "Book"]
 Decks: t.TypeAlias = dict[Layout, "Deck"]
 StringDict: t.TypeAlias = dict[str, t.Any]
+OInt: t.TypeAlias = int | None
 
 log = logging.getLogger("pmp")
 tracked: set[Layout] = set()
@@ -266,9 +267,11 @@ class RangeDeck(Deck):
         super().__init__(cards, label=ranges, layout=layout)
 
     def deserialize(self, saved: StringDict) -> None:
+        """Override since cards aren't saved."""
         return self._deserialize(saved, order=self.cards)
 
     def _get_cards(self, saved: StringDict) -> Sequence[str]:
+        """Override since cards aren't saved."""
         return self.cards
 
 
@@ -359,7 +362,7 @@ class BookRef:
     """A "pointer-style" ToC, e.g. "2@song"."""
 
     book_label: Label
-    count: int | None
+    count: OInt
     book: Book = dataclasses.field(init=False)
     label: Label = dataclasses.field(init=False)
     blurb: str = dataclasses.field(init=False)
@@ -543,7 +546,7 @@ class PracticeMakesPerfect:
         self._header(header)
         self._run_book(book, count=count, top=True)
 
-    def _run_book(self, book: Book, *, count: int | None, top=False) -> None:
+    def _run_book(self, book: Book, *, count: OInt, top: bool = False) -> None:
         """Run any book."""
         if book.sequential:
             self._run_sequential(book, top=top)
@@ -560,7 +563,7 @@ class PracticeMakesPerfect:
             elif isinstance(ref := entry, BookRef):
                 self._run_book(ref.book, count=ref.count)
 
-    def _run_plain(self, book: Book, count: int | None) -> None:
+    def _run_plain(self, book: Book, count: OInt) -> None:
         """Run a "simple" book, choosing etudes and assigining keys."""
         if count is None:
             count = len(book.deck)
@@ -568,7 +571,7 @@ class PracticeMakesPerfect:
             count = len(self.decks[Layout("ANY")])
         self._run_etudes(self._choose_etudes(book, count))
 
-    def _choose_etudes(self, book: Book, count: int | None) -> Iterable[Etude]:
+    def _choose_etudes(self, book: Book, count: OInt) -> Iterable[Etude]:
         """Yield chosen etudes.
 
         Recursion is safe here, since we've made sure the graph is cycle-free.
@@ -657,7 +660,7 @@ class PracticeMakesPerfect:
             with self.args.state_file.open("rb") as fobj:
                 self.state = plistlib.load(fobj)[self.STATE_VER]
         except Exception:  # Can be any number of things
-            pass
+            self.state = {}
         if not isinstance(self.state, dict):
             self.state = {}
         if not isinstance(self.state.get("deck"), dict):
