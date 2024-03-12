@@ -77,7 +77,6 @@ Filename: t.TypeAlias = str | Path
 Label = t.NewType("Label", str)
 Layout = t.NewType("Layout", str)
 Entry: t.TypeAlias = "Etude | BookRef"
-Runnee: t.TypeAlias = "BookRef | BookCount"
 Books: t.TypeAlias = dict[Label, "Book"]
 Decks: t.TypeAlias = dict[Layout, "Deck"]
 Strs: t.TypeAlias = Iterable[str]
@@ -359,27 +358,23 @@ class Book:
         return [entry.blurb for entry in self.toc]
 
 
-@dataclasses.dataclass
-class BookCount:
-    """Just a book reference and a count."""
-
-    book: Book
-    count: int | None
-
-
-@dataclasses.dataclass
-class BookRef:
+class BookRef:  # pylint: disable=too-few-public-methods
     """A "pointer-style" ToC, e.g. "2@song"."""
 
     book_label: Label
     count: int | None
-    book: Book = dataclasses.field(init=False)
-    label: Label = dataclasses.field(init=False)
-    blurb: str = dataclasses.field(init=False)
+    book: Book
+    label: Label
+    blurb: str
 
-    def __post_init__(self) -> None:
-        prefix = f"{self.count}@" if self.count else "="
-        self.blurb = self.label = Label(f"{prefix}{self.book_label}")
+    def __init__(self, bklb: Book | Label, count: int | None) -> None:
+        if isinstance(bklb, Book):
+            self.book = bklb
+            bklb = self.book.label
+        self.book_label = bklb
+        self.count = count
+        prefix = f"{count}@" if count else "="
+        self.blurb = self.label = Label(f"{prefix}{bklb}")
 
 
 @dataclasses.dataclass
@@ -554,14 +549,14 @@ class PracticeMakesPerfect:
         weekday = "月火水木金土日"[NOW.weekday()]
         header = NOW.strftime(f"%Y-%m-%d {weekday} %H:%M {book.label}")
         self._header(header)
-        self._run_book(BookCount(book, count), top=True)
+        self._run_book(BookRef(book, count), top=True)
 
-    def _run_book(self, runnee: Runnee, *, top: bool = False) -> None:
+    def _run_book(self, ref: BookRef, *, top: bool = False) -> None:
         """Run any book."""
-        if runnee.book.serial:
-            self._run_serial(runnee.book, top=top)
+        if ref.book.serial:
+            self._run_serial(ref.book, top=top)
         else:
-            self._run_plain(runnee)
+            self._run_plain(ref)
 
     def _run_serial(self, book: Book, *, top: bool = False) -> None:
         """Run a sequence of items."""
@@ -573,14 +568,13 @@ class PracticeMakesPerfect:
             elif isinstance(ref := entry, BookRef):
                 self._run_book(ref)
 
-    def _run_plain(self, runnee: Runnee) -> None:
+    def _run_plain(self, ref: BookRef) -> None:
         """Run a "simple" book, choosing etudes and assigining keys."""
-        book = runnee.book
-        if (count := runnee.count) is None:
-            count = len(book.deck)
+        if (count := ref.count) is None:
+            count = len(ref.book.deck)
         elif count <= 0:
             count = len(self.decks[Layout("ANY")])
-        self._run_etudes(self._choose_etudes(book, count))
+        self._run_etudes(self._choose_etudes(ref.book, count))
 
     def _choose_etudes(self, book: Book, count: int | None) -> Iterable[Etude]:
         """Yield chosen etudes.
@@ -910,8 +904,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
 
     def do_one_liner(self, *, serial: bool) -> None:
         """Parse one-liner in `self.group("label" | "parts")`."""
-        parts = self.group("parts").split()
-        if not parts:
+        if not (parts := self.group("parts").split()):
             raise ConfigError("Empty one-liner")
 
         label = self.group("label").strip()
@@ -919,10 +912,9 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             label = label[1:]
         self.do_book(label=label, serial=serial, star=star)
         for part in parts:
-            if mobj := re.fullmatch(self.PART_RE, part):
-                self.do_ref(mobj)
-            else:
+            if not (mobj := re.fullmatch(self.PART_RE, part)):
                 raise ConfigError(f"Bad {part!r}")
+            self.do_ref(mobj)
         self.curr = None
 
 
@@ -987,10 +979,9 @@ class Reporter:
         if deck.counts["drawn"]:
             row["used"] = self.now
         for event, count in deck.counts.items():
-            if (was := row.get(event, "N/A")).isnumeric():
-                row[event] = int(was) + count
-            else:
-                row[event] = count
+            if not (was := row.get(event, "N/A")).isnumeric():
+                was = 0
+            row[event] = int(was) + count
 
 
 if __name__ == "__main__":
