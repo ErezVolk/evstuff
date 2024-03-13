@@ -12,6 +12,7 @@ Zip file: https://stash.reaper.fm/40824/Metronomes.zip
 # pylint: disable=import-error
 # pylint: disable=no-name-in-module
 # pylint: disable=c-extension-no-member
+# mypy: disable-error-code="import-untyped,import-not-found"
 
 import argparse
 import bisect
@@ -24,6 +25,7 @@ import wave
 from dataclasses import dataclass
 from pathlib import Path
 from pathlib import PurePath
+from types import FrameType
 
 import numpy as np
 import pyaudio
@@ -31,11 +33,17 @@ import rich
 import rich.console
 import rich.live
 import rich.logging
-from soundfile import SoundFile  # type: ignore[import-untyped]
+from soundfile import SoundFile
+
+# CGEventRef is impossible(?) to properly type
+CGEventRef = t.NewType("CGEventRef", object)
+OptCGEventRef: t.TypeAlias = CGEventRef | None
 
 try:
     import pynput.keyboard
-    from Quartz import CGEventMaskBit, NSEvent, NSSystemDefined  # type: ignore
+    from Quartz import CGEventMaskBit
+    from Quartz import NSEvent
+    from Quartz import NSSystemDefined
 
     # pylint: disable-next=too-few-public-methods
     class MiniListener(pynput.keyboard.Listener):
@@ -62,6 +70,7 @@ NX_KEYTYPE_ILLUMINATION_UP = 21
 NX_KEYTYPE_ILLUMINATION_DOWN = 22
 
 SHIFT_FLAG = 1 << 17  # NSEventModifierFlagShift
+KEY_DOWN = 10  # NSEventTypeKeyDown
 
 
 class ByteLoop:
@@ -181,7 +190,7 @@ class Metronome:
     tempo: int
     suffix: str = ""
 
-    BPMS = [
+    bpms: tuple[int, ...] = (
         # Added by me
         20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
 
@@ -194,7 +203,7 @@ class Metronome:
 
         # Added by me
         216, 224, 232, 240,
-    ]
+    )
 
     def parse_args(self) -> None:
         """Parse command line."""
@@ -246,12 +255,10 @@ class Metronome:
             "--rhythm",
             choices=[
                 "half",
-                "half2",
                 "quarter",
                 "eighth",
                 "triple",
                 "clave",
-                "clave2",
             ],
             help="common rhythms",
         )
@@ -380,19 +387,16 @@ class Metronome:
 
     def figure_pattern(self) -> None:
         """Figure out where in the bar we need which clicks."""
-        his: list[int | float] = []
-        los: list[int | float] = []
+        his: list[float] = []
+        los: list[float] = []
         if self.args.subdivision:
             self.beats_per_bar = 1
             mnems = np.array(list(self.args.subdivision))
-            los = list(np.flatnonzero(mnems == "t") / len(mnems))
-            his = list(np.flatnonzero(mnems == "T") / len(mnems))
+            los = (np.flatnonzero(mnems == "t") / len(mnems)).tolist()
+            his = (np.flatnonzero(mnems == "T") / len(mnems)).tolist()
         elif self.args.rhythm == "half":
             self.beats_per_bar = 4
             (los if self.args.beats == [0] else his).extend([0, 2])
-        elif self.args.rhythm == "half2":
-            self.beats_per_bar = 4
-            (los if self.args.beats == [0] else his).extend([1, 3])
         elif self.args.rhythm == "quarter":
             self.beats_per_bar = 1
             his = [0]
@@ -407,9 +411,6 @@ class Metronome:
         elif self.args.rhythm == "clave":
             self.beats_per_bar = 4
             his = [0, 0.75, 1.5, 2.5, 3]
-        elif self.args.rhythm == "clave2":
-            self.beats_per_bar = 4
-            his = [0.5, 1, 2, 2.75, 3.5]
         elif self.args.beats == [0]:
             self.beats_per_bar = 1
             los = [0]
@@ -425,10 +426,10 @@ class Metronome:
 
     def read_more(
         self,
-        in_data,
+        in_data: bytes | None,
         frame_count: int,
-        time_info,
-        status,
+        time_info: t.Mapping[str, float],
+        status: int,
     ) -> tuple[bytes, int]:
         """Supply pyaudio with more audio."""
         del in_data, time_info, status  # unused
@@ -460,12 +461,12 @@ class Metronome:
             self.tempo = int(console.input("Please enter tempo in BPM: "))
         else:
             self.tempo = self.args.tempo
-        if self.tempo not in self.BPMS:
-            bisect.insort(self.BPMS, self.tempo)
+        if self.tempo not in self.bpms:
+            self.bpms = tuple(sorted([self.tempo, *self.bpms]))
 
     def set_tempo(self, tempo: int) -> None:
         """Set (with limits) a new tempo."""
-        self.tempo = min(self.BPMS[-1], max(self.BPMS[0], tempo))
+        self.tempo = min(self.bpms[-1], max(self.bpms[0], tempo))
         self.make_loop()
 
     def make_loop(self) -> None:
@@ -488,7 +489,7 @@ class Metronome:
         self.next_loop = loop
         self.show_tempo()
 
-    def handle_ctrl_c(self, sig, frame) -> None:
+    def handle_ctrl_c(self, sig: int, frame: FrameType | None) -> None:
         """Handle Ctrl-C."""
         del sig, frame  # unused
         self.abort()
@@ -498,7 +499,7 @@ class Metronome:
         self.status.update("Aborting...")
         self.aborting = True
 
-    def intercept(self, event_type, event) -> None:
+    def intercept(self, event_type: int, event: CGEventRef) -> OptCGEventRef:
         """Handle MacOS media key event."""
         assert NSEvent is not None, "Who called this function?!"
         del event_type  # unused
@@ -513,7 +514,7 @@ class Metronome:
             self.log.debug("bitmap=%X key=%d flags=%X", bitmap, key, flags)
             return event
 
-        is_press = ((bitmap & 0xFF00) >> 8) == 0x0A
+        is_press = ((bitmap & 0xFF00) >> 8) == KEY_DOWN
         if not is_press:  # React on key release
             handler(shift=shift)
         return None
@@ -577,11 +578,11 @@ class Metronome:
             return
 
         if direction > 0:  # Increase tempo
-            idx = bisect.bisect_right(self.BPMS, self.tempo)
+            idx = bisect.bisect_right(self.bpms, self.tempo)
         else:
-            idx = bisect.bisect_left(self.BPMS, self.tempo) - 1
-        if 0 <= idx < len(self.BPMS):
-            self.set_tempo(self.BPMS[idx])
+            idx = bisect.bisect_left(self.bpms, self.tempo) - 1
+        if 0 <= idx < len(self.bpms):
+            self.set_tempo(self.bpms[idx])
 
 
 if __name__ == "__main__":
