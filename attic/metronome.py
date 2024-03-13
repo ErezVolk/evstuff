@@ -37,7 +37,7 @@ from soundfile import SoundFile
 
 # CGEventRef is impossible(?) to properly type
 CGEventRef = t.NewType("CGEventRef", object)
-OptCGEventRef: t.TypeAlias = CGEventRef | None
+CGEventRefOpt: t.TypeAlias = CGEventRef | None
 
 try:
     import pynput.keyboard
@@ -499,7 +499,7 @@ class Metronome:
         self.status.update("Aborting...")
         self.aborting = True
 
-    def intercept(self, event_type: int, event: CGEventRef) -> OptCGEventRef:
+    def intercept(self, event_type: int, event: CGEventRef) -> CGEventRefOpt:
         """Handle MacOS media key event."""
         assert NSEvent is not None, "Who called this function?!"
         del event_type  # unused
@@ -559,8 +559,8 @@ class Metronome:
         self.paused = True
         if not self.args.rhythm:
             self.log.debug("Switching to 2/2")
-            self.args.rhythm = "half2"
-            self.suffix = " (2&4)"
+            self.args.rhythm = "half"
+            self.suffix = " (half)"
         else:
             self.log.debug("Switching to 4/4")
             self.args.rhythm = None
