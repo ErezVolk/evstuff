@@ -593,6 +593,7 @@ class DownloadProgress(rich.progress.Progress):
     """A marquee-displaying download progress element."""
 
     def __init__(self) -> None:
+        self.marquees: dict[rich.progress.TaskID, Marquee] = {}
         super().__init__(
             rich.progress.TextColumn(
                 "[bold]{task.description}",
@@ -607,7 +608,6 @@ class DownloadProgress(rich.progress.Progress):
             "•",
             rich.progress.TimeRemainingColumn(),
         )
-        self.marquees: dict[rich.progress.TaskID, Marquee] = {}
 
     def add_task(
         self,
