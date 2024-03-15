@@ -29,8 +29,8 @@ tempo:
 homeworkTechnical:
   Dean's Figure 20, F chords on page 24: NONE
   Dean's Figure 20, B♭ chords on page 24: NONE
-  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
   Steve's Etude 4 on page 37 [BMP 46]: NONE
+  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13) [Working at 46 BPM]: NONE
@@ -270,6 +270,7 @@ keepRayBrownDim:
 
 keepRayBrownAug:
   Ray Brown's Augmented Exercise (p.92) [⍻ name the notes!]: NONE
+  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -555,7 +556,6 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
-  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
   Ray Brown's Augmented Exercise (p.97, top 2): NONE
   Ray Brown's Augmented Exercise (p.97, bottom 2): NONE
   Ray Brown's Augmented Exercise (p.98): NONE
