@@ -27,10 +27,9 @@ tempo:
   ** Try MM ♩={}/{} today **: {[104-126]} {[66-82]}
 
 homeworkTechnical:
-  Dean's Figure 20, F chords on page 24: NONE
-  Dean's Figure 20, B♭ chords on page 24: NONE
-  Steve's Etude 4 on page 37 [BMP 46]: NONE
   Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
+  Dean's Figure 20 (chord inventory), page 25: NONE
+  Steve's Etude 5 on page 38: NONE
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13) [Working at 46 BPM]: NONE
@@ -121,7 +120,9 @@ _chopsLeftTodo:
   L-Dexterity II.2 (p8) [Too shifty for now]: NONE
   L-Dexterity II.3 (p9) [Too shifty for now]: NONE
 
-chopsRight:
+chopsRight = { @chopsRight16ths @chopsRightGrace-8-16-16 @chopsRightGrace-16-16-8 @chopsRightGrace-16-8-16 @chopsRightGrace-Triplets }
+
+chopsRight16ths:
   R-16th-1 (p29) ♬ 1212...: NONE
   R-16th-2 (p29) ♬ 2121...: NONE
   R-16th-3 (p29) ♬ 1211.2122...: NONE
@@ -135,6 +136,7 @@ chopsRight:
   R-16th-11 (p31) ♬ 1221.2221.2112.1112...: NONE
   R-16th-12 (p31) ♬ 1221.2111.2112.1222...: NONE
 
+chopsRightGrace-8-16-16:
   R-grace-8th-16ths-1 (p33) (♪̵♪♬ ₂122...): NONE
   R-grace-8th-16ths-2 (p33) (♪̵♪♬ ₂122...): NONE
   R-grace-8th-16ths-3 (p33) (♪̵♪♬ ₁211...): NONE
@@ -144,6 +146,7 @@ chopsRight:
   R-grace-8th-16ths-7 (p34) (♪̵♪♬ ₂122.₂121.₁211.₁212...): NONE
   R-grace-8th-16ths-8 (p34) (♪̵♪♬ ₂112.₂121.₁221.₁212...): NONE
 
+chopsRightGrace-16-16-8:
   R-grace-16ths-8th-9 (p35) (♪̵♬♪ ₂122...): NONE
   R-grace-16ths-8th-10 (p35) (♪̵♬♪ ₂122...): NONE
   R-grace-16ths-8th-11 (p35) (♪̵♬♪ ₁211...): NONE
@@ -153,6 +156,7 @@ chopsRight:
   R-grace-16ths-8th-15 (p36) (♪̵♬♪ ₂122.₂121.₁211.₁212...): NONE
   R-grace-16ths-8th-16 (p36) (♪̵♬♪ ₂112.₂121.₁221.₁212...): NONE
 
+chopsRightGrace-16-8-16:
   R-grace-16th-8th-16th-17 (p37) (₂122...): NONE
   R-grace-16th-8th-16th-18 (p37) (₁211...): NONE
   R-grace-16th-8th-16th-19 (p37) (₂121...): NONE
@@ -162,6 +166,7 @@ chopsRight:
   R-grace-16th-8th-16th-23 (p38) (₂122.₂121.₁211.₁212...): NONE
   R-grace-16th-8th-16th-24 (p38) (₂112.₂121.₁221.₁212...) [last played at ♩=50]: NONE
 
+chopsRightGrace-Triplets:
   R-grace-triplet-25 (p39) (♪̵♪♪♪ ₂122...): NONE
   R-grace-triplet-26 (p39) (♪̵♪♪♪ ₁211...): NONE
   R-grace-triplet-27 (p39) (♪̵♪♪♪ ₂121...): NONE
@@ -333,7 +338,7 @@ keepDean:
   Dean's Figure 16 on p.17: NONE
   Dean's Figure 17 on pp.18-19: NONE
   Dean's Figure 19 on page 21 (D-major scale): NONE
-  Dean's Figure 20 (chord inventory), page {} ({}): {[22-23]} {top|bottom}  # Add as I work through them
+  Dean's Figure 20 (chord inventory), page {} ({}): {[22-24]} {top|bottom}  # Add as I work through them
 
 keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Page 5 in "How to Play the Electric Bass": NONE
@@ -425,6 +430,7 @@ reviseSteve:
   Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM ♩=56]: NONE
   Slide blending etude on page 31 [last played at MM ♩=59]: NONE
   Blending "Ryan's Hope" on page 32 [last played at MM ♩=88]: NONE
+  Steve's Etude 4 on page 37 [Last played at 50 BPM]: NONE
 
 reviseBaroque:
   Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
@@ -576,7 +582,6 @@ _rayBrownTodo:
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 _steveTodo:
-  Steve's Etude 5 on page 38: NONE
   Steve's Etude 6 on page 39: NONE
 
 _bachTodo:
@@ -588,8 +593,6 @@ _bachTodo:
   Bach I. Gigue: NONE
 
 _peerTodo:
-  Dean's Figure 20, E♭ chords on page 25: NONE
-  Dean's Figure 20, A♭ chords on page 25: NONE
   Dean's Figure 20, D♭ chords on page 26: NONE
   Dean's Figure 20, F♯ chords on page 26: NONE
   Dean's Figure 20, B chords on page 27: NONE
