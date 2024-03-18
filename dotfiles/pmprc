@@ -74,7 +74,7 @@ chops = [ @chopsRight @chopsLeft @patituchops ]
 
 patituchops:
   JP@AW 1.09 Hammer-ons and pull-offs: NONE
-  JP@AW 1.10 The Spider, starting on {}: ANY
+  The +{}-String Spider, starting on {}: {1|2|3} {ANY}
   JP's Intonation Exercise with Shifting on the {} string: {oneString}
 
 chopsLeft = { @chopsLeftDexterity @chopsLeftModes @bassHanon }
