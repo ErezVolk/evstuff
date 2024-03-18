@@ -771,15 +771,15 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         self.starred = []
         self.deps = collections.defaultdict(set)
 
-    def match(self, expr: str) -> bool:
+    def match(self, expr: str, line: str | None = None) -> bool:
         """Handy wrapper around `re.fullmatch` for the current line."""
-        self.mobj = re.fullmatch(expr, self.line)
+        self.mobj = re.fullmatch(expr, self.line if line is None else line)
         return bool(self.mobj)
 
     def group(self, group: int | str) -> str:
-        """Group from previous `self.match()`."""
-        assert self.mobj is not None
-        return str(self.mobj.group(group))
+        """Group from previous `self.match()`, and also strip it."""
+        assert self.mobj is not None, "Call only after successful match()"
+        return (self.mobj.group(group) or "").strip()
 
     PART_RE = r"(?P<at>(?P<count>[1-9]\d*)?@)?(?P<label>\S+)"
 
@@ -829,7 +829,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
 
     def do_book(self, label: str, *, star: bool, serial: bool = False) -> None:
         """Found a book line."""
-        if (label := label.strip()) in self.books:
+        if label in self.books:
             raise ConfigError(f"Duplicate book: {label!r}")
 
         label = Label(label)
@@ -839,7 +839,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
 
     def do_deck(self, label: str, keys: str) -> None:
         """Found a deck line, e.g., "easy-major := C|F|G"."""
-        if (label := label.strip()) in self.labeldecks:
+        if label in self.labeldecks:
             raise ConfigError(f"Duplicate deck: {label!r}")
 
         cards = [key.strip() for key in keys.split("|")]
@@ -850,15 +850,14 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         if self.curr is None:
             raise ConfigError("Bookless etude")
 
-        template = template.strip()
-        if template and template[0] in "'\"" and template[-1] == template[0]:
-            template = template[1:-1]
+        if self.match(r"""(["'])(.*)(\1)""", template):
+            template = self.group(2)
         num_placeholders = len(re.findall(r"{}", template)) or 1
 
-        if re.fullmatch(r"\s*({[^}]*}\s*)+", deckstr):
+        if self.match(r"({[^}]*}\s*)+", deckstr):
             parts = [part[1:-1] for part in re.findall(r"{[^{}]+}", deckstr)]
         else:
-            parts = [deckstr.strip()]
+            parts = [deckstr]
 
         if len(parts) != num_placeholders:
             raise ConfigError("Placeholder mismatch")
@@ -868,7 +867,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             if (label := Label(part)) in self.labeldecks:
                 decks.append(self.labeldecks[label])
                 self.add_dep(self.curr.label, label)
-            elif re.fullmatch(Deck.RANGES_RE, ranges := part.strip()):
+            elif self.match(Deck.RANGES_RE, ranges := part.strip()):
                 decks.append(RangeDeck(template, ranges))
             else:
                 keys = [key.strip() for key in part.split("|")]
@@ -878,22 +877,19 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
                         self.add_dep(self.curr.label, Label(target))
         self.curr.toc.append(Etude(template=template, decks=decks))
 
-    def do_ref(self, mobj: re.Match | None = None) -> None:
+    def do_ref(self) -> None:
         """Add book reference line."""
         if self.curr is None:
             raise ConfigError("Bookless reference")
 
-        if (mobj := mobj or self.mobj) is None:
-            raise ConfigError("Partless reference")
-
-        if nstr := mobj.group("count"):
+        if nstr := self.group("count"):
             count = int(nstr)
-        elif mobj.group("at"):
+        elif self.group("at"):
             count = 1
         else:
             count = None
 
-        target = Label(str(mobj.group("label")))
+        target = Label(self.group("label"))
         self.curr.toc.append(BookRef(target, count))
         self.add_dep(source=self.curr.label, target=target)
 
@@ -907,14 +903,14 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         if not (parts := self.group("parts").split()):
             raise ConfigError("Empty one-liner")
 
-        label = self.group("label").strip()
+        label = self.group("label")
         if star := label.startswith("*"):
             label = label[1:]
         self.do_book(label=label, serial=serial, star=star)
         for part in parts:
-            if not (mobj := re.fullmatch(self.PART_RE, part)):
+            if not self.match(self.PART_RE, line=part):
                 raise ConfigError(f"Bad {part!r}")
-            self.do_ref(mobj)
+            self.do_ref()
         self.curr = None
 
 
