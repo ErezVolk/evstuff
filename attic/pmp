@@ -870,7 +870,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             elif self.match(Deck.RANGES_RE, ranges := part.strip()):
                 decks.append(RangeDeck(template, ranges))
             else:
-                keys = map(str.strip, part.split("|"))
+                keys = [key.strip() for key in part.split("|")]
                 decks.append(Deck(cards=keys))
                 for key in keys:
                     if (target := key.removeprefix("@")) != key:
