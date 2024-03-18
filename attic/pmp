@@ -850,11 +850,11 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         if self.curr is None:
             raise ConfigError("Bookless etude")
 
-        if template and template[0] in "'\"" and template[-1] == template[0]:
-            template = template[1:-1]
+        if self.match(r"""(["'])(.*)(\1)""", template):
+            template = self.group(2)
         num_placeholders = len(re.findall(r"{}", template)) or 1
 
-        if re.fullmatch(r"\s*({[^}]*}\s*)+", deckstr):
+        if self.match(r"({[^}]*}\s*)+", deckstr):
             parts = [part[1:-1] for part in re.findall(r"{[^{}]+}", deckstr)]
         else:
             parts = [deckstr]
@@ -867,10 +867,10 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             if (label := Label(part)) in self.labeldecks:
                 decks.append(self.labeldecks[label])
                 self.add_dep(self.curr.label, label)
-            elif re.fullmatch(Deck.RANGES_RE, ranges := part.strip()):
+            elif self.match(Deck.RANGES_RE, ranges := part.strip()):
                 decks.append(RangeDeck(template, ranges))
             else:
-                keys = [key.strip() for key in part.split("|")]
+                keys = map(str.strip, part.split("|"))
                 decks.append(Deck(cards=keys))
                 for key in keys:
                     if (target := key.removeprefix("@")) != key:
