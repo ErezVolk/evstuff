@@ -859,8 +859,8 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         else:
             parts = [deckstr]
 
-        if len(parts) != num_placeholders:
-            raise ConfigError("Placeholder mismatch")
+        if (n_1 := len(parts)) != (n_2 := num_placeholders):
+            raise ConfigError(f"Placeholder mismatch ({n_1} vs {n_2})")
 
         decks = []
         for part in parts:
