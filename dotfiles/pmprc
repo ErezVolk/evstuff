@@ -29,12 +29,12 @@ tempo:
 homeworkTechnical:
   Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
   Steve's Etude 5 on page 38 (currently at around 40 BPM): NONE
-  Dean's Figure 20 (chord inventory), page 28: NONE
+  Dean's Figure 21 on page 29: NONE
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13) [Working at 46 BPM]: NONE
   JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
-  Key of G in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of D in "Bass Lines Book 3": NONE  # to keepCarol
 
 book:
   Radley ctd. [Chapter 4, p.29]: NONE
@@ -338,7 +338,7 @@ keepDean:
   Dean's Figure 16 on p.17: NONE
   Dean's Figure 17 on pp.18-19: NONE
   Dean's Figure 19 on page 21 (D-major scale): NONE
-  Dean's Figure 20 (chord inventory), page {} ({}): {[22-27]} {top|bottom}  # Add as I work through them
+  Dean's Figure 20 (chord inventory), page {} ({}): {[22-28]} {top|bottom}  # Add as I work through them
 
 keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Page 5 in "How to Play the Electric Bass": NONE
@@ -374,9 +374,9 @@ keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Page 13 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
   'Other Recorded Licks' on Page 22 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
   Key of C in "Bass Lines Book 3": NONE
+  Key of G in "Bass Lines Book 3": NONE  # to keepCarol
 
 _carolTodo:  # As I work through them, move to keepCarol / reviseCarol
-  Key of D in "Bass Lines Book 3": NONE  # to keepCarol
   Key of A in "Bass Lines Book 3": NONE  # to keepCarol
   Key of E in "Bass Lines Book 3": NONE  # to keepCarol
   Key of B in "Bass Lines Book 3": NONE  # to keepCarol
@@ -593,7 +593,6 @@ _bachTodo:
   Bach I. Gigue: NONE
 
 _peerTodo:
-  Dean's Figure 21 on page 29: NONE
   Dean's Figure 22 on page 30: NONE
   Dean's Figure 23 on page 30: NONE
   Dean's Figure 24 on page 30: NONE
