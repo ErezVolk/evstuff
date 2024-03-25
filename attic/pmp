@@ -68,6 +68,8 @@ __TODO__ = """
 - Visitor pattern (on_etude=, on_ref=)
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - A UI to mark what was done? With a metronome? And a drone? (Kivy?)
+- Less repetitions in "{yes|no} {up|down}" (compound them)
+- Less repetitions in "{[100-200]} {a|b}"
 """
 
 NOW = datetime.datetime.now(tz=datetime.UTC)
