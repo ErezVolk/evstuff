@@ -27,7 +27,7 @@ tempo:
   ** Try MM ♩={}/{} going {} today **: {[104-126]} {[66-82]} {up|down}
 
 homeworkTechnical:
-  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
+  Ray Brown's Augmented Exercise (p.97, top 2): NONE
   Steve's Etude 5 on page 38 (currently at around 40 BPM): NONE
   Dean's Figure 21 on page 29: NONE
 
@@ -276,6 +276,7 @@ keepRayBrownDim:
 keepRayBrownAug:
   Ray Brown's Augmented Exercise (p.92) [⍻ name the notes!]: NONE
   Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
+  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -562,7 +563,6 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
-  Ray Brown's Augmented Exercise (p.97, top 2): NONE
   Ray Brown's Augmented Exercise (p.97, bottom 2): NONE
   Ray Brown's Augmented Exercise (p.98): NONE
   Ray Brown's Solo Exercise (p.118): NONE
