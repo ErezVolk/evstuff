@@ -33,7 +33,7 @@ homeworkTechnical:
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13) [Working at 46 BPM]: NONE
-  JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
+  JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
   Key of D in "Bass Lines Book 3": NONE  # to keepCarol
 
 book:
@@ -487,7 +487,6 @@ reviseJP@AW:
   JP@AW {} Simple Jazz 2 Beat Feel II⧸V Progression: 2.16 (Slow)|2.17 (Fast)
   JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets [start with roots+groove, no looking at the sheet music]: NONE
   JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets [⍻ start with roots+groove, no looking at the sheet music]: NONE
-  JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [play second time without looking at the changes]: NONE
 
 reviseCarol:  # songs; snippets and technical bits go to keepCarol
   'Little Green Apples' (pp. 18-19) from "How to Play the Electric Bass": NONE
@@ -538,6 +537,7 @@ _simandlTodo:
   Simandl Étude 30 (p.34-35): NONE
 
 _todoJP@AW:
+  JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
   JP@AW 2.22 First Time: NONE
   JP@AW 2.23 First Time v2: NONE
   JP@AW 2.24 Bossa Nova (Medium): NONE
