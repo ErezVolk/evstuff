@@ -241,10 +241,10 @@ class Deck:
         self._track("Queue set to %s", self.queue)
 
     def _parse_ranges(self, ranges: str) -> set[int]:
-        """Convert a range description to a list of numbers."""
+        """Convert a range description ("[1,5-7]") to ints ({1,5,6,7})."""
         numbers: set[int] = set()
-        for rstr in ranges[1:-1].split(","):
-            subs = [int(sub) for sub in rstr.split("-")]
+        for rstr in ranges[1:-1].split(","):  # e.g., ["1", "5-7"]
+            subs = [int(sub) for sub in rstr.split("-")]  # e.g., [1] or [5, 7]
             numbers.update(range(subs[0], subs[-1] + 1))
         return numbers
 
