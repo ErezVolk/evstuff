@@ -327,6 +327,7 @@ class Book:
     def __init__(self, label: Label, serial: bool = False) -> None:
         self.label = label
         self.serial = serial
+        self.toc = []
 
     def finalize(self) -> Deck:
         """Create the deck."""
