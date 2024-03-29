@@ -300,21 +300,17 @@ class NoneDeck(Deck):
         return self.NAME
 
 
-@dataclasses.dataclass
-class Etude:
+class Etude:  # pylint: disable=too-few-public-methods
     """A concrete etude, e.g., '{}-minor pentatonic'.
 
     A template string with one or more `Deck` variables.
     """
 
-    template: str
-    decks: list[Deck]
-    label: Label = dataclasses.field(init=False)
-
-    def __post_init__(self) -> None:
-        meat = re.sub(r"\s*\[.*\]$", "", self.template)
-        labels = (deck.label for deck in self.decks)
-        self.label = Label(f"{meat}={SEP.join(labels)}")
+    def __init__(self, template: str, decks: Iterable[Deck]) -> None:
+        self.template = template
+        self.decks = decks = list(decks)
+        meat = re.sub(r"\s*\[.*\]$", "", template)
+        self.label = Label(f"{meat}={SEP.join(deck.label for deck in decks)}")
 
     @property
     def blurb(self) -> str:
