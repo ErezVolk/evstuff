@@ -591,12 +591,9 @@ class PracticeMakesPerfect:
 
     def _choose_book(self) -> Book:
         """Pick out a book."""
-        if self.args.books:
-            labels = self.args.books
-            if unknown := set(labels) - self.books.keys():
-                self._fail(f"Unknown book(s): {' '.join(unknown)}")
-        else:
-            labels = self.starred
+        labels = self.args.books or self.starred
+        if unknown := set(labels) - self.books.keys():
+            self._fail(f"Unknown book(s): {' '.join(unknown)}")
         return self.books[random.choice(labels)]
 
     def _make_track(self, etude: Etude) -> str:
