@@ -664,10 +664,10 @@ class PracticeMakesPerfect:
     def _load_state(self) -> None:
         """Read saved deck queues state info `self.state`."""
         try:
-            with self.args.state_file.open("rb") as fobj:
-                self.state = plistlib.load(fobj)[self.STATE_VER]
+            with (path := self.args.state_file).open("rb") as fobj:
+                self.state = plistlib.load(fobj)[ver := self.STATE_VER]
             if not isinstance(self.state, dict):
-                raise TypeError("Unexpected type")
+                raise TypeError(f"{path}[{ver}] is {type(self.state)}")
         except (KeyError, FileNotFoundError, ValueError, ExpatError):
             log.exception("Error reading %s", self.args.state_file)
             self.state = {}
@@ -698,7 +698,8 @@ class PracticeMakesPerfect:
             return deck.serialize()
         except SerializationError as exc:
             log.debug("Not serializing %s: %s", deck.blurb, exc)
-            return self.state["deck"].get(deck.layout, str(exc))
+            self.state["deck"][deck.layout] = reason = str(exc)
+            return reason
 
     def _restore_state(self) -> None:
         """Restore queues for any eligible deck."""
