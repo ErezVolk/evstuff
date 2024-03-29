@@ -654,12 +654,10 @@ class PracticeMakesPerfect:
     def _load_state(self) -> None:
         """Read saved deck queues state info `self.state`."""
         try:
-            with (path := self.args.state_file).open("rb") as fobj:
-                self.state = plistlib.load(fobj)[ver := self.STATE_VER]
-            if not isinstance(self.state, dict):
-                raise TypeError(f"{path}[{ver}] is {type(self.state)}")
-        except (KeyError, FileNotFoundError, ValueError, ExpatError):
-            log.exception("Error reading %s", self.args.state_file)
+            with self.args.state_file.open("rb") as fobj:
+                self.state = plistlib.load(fobj).get(self.STATE_VER, {})
+        except (FileNotFoundError, ExpatError, AttributeError):
+            log.debug("Error reading %s", self.args.state_file, exc_info=True)
             self.state = {}
         if not isinstance(self.state.get("deck"), dict):
             self.state["deck"] = {}
