@@ -823,10 +823,9 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
 
     def do_book(self, label: str, *, star: bool, serial: bool = False) -> None:
         """Found a book line."""
-        if label in self.books:
+        if (label := Label(label)) in self.books:
             raise ConfigError(f"Duplicate book: {label!r}")
 
-        label = Label(label)
         self.books[label] = self.curr = Book(label, serial)
         if star:
             self.starred.append(label)
