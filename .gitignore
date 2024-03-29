@@ -11,3 +11,5 @@ __pycache__
 *.xlsx
 *.secret
 sandbox
+htmlcov
+.coverage
