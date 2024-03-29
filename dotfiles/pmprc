@@ -7,8 +7,8 @@ mornWarmup = [ tempo warmup chops ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
 
-eve = [ eveUp homeworkMusic 3@book 2@revise ]
-eveUp = [ @chopsLeft @arpeggio @sightReading @patituchops ]
+eve = [ dusk homeworkMusic 3@book 2@revise ]
+dusk = [ @chopsLeft @arpeggio @sightReading @patituchops ]
 
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol reviseSteve }
 
