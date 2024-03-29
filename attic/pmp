@@ -22,7 +22,6 @@ Most objects also have `x.blurb`, which is for display purposes only.
 import argparse
 import collections
 import csv
-import dataclasses
 import datetime
 import graphlib
 import hashlib
@@ -318,16 +317,22 @@ class Etude:  # pylint: disable=too-few-public-methods
         return f"{self.template}={SEP.join(deck.blurb for deck in self.decks)}"
 
 
-@dataclasses.dataclass
 class Book:
     """A collection of etudes or pointers to other books."""
 
-    label: Label
-    serial: bool = False
+    toc: list[Entry]
+    deck: Deck
+    labels: list[Label]
 
-    toc: list[Entry] = dataclasses.field(default_factory=list, init=False)
-    deck: Deck = dataclasses.field(init=False)
-    labels: list[Label] = dataclasses.field(init=False)
+    def __init__(self, label: Label, serial: bool = False) -> None:
+        self.label = label
+        self.serial = serial
+
+    def finalize(self) -> Deck:
+        """Create the deck."""
+        self.labels = [entry.label for entry in self.toc]
+        self.deck = Deck(cards=self.labels, label=self.label)
+        return self.deck
 
     def draw_all(self) -> Iterable[Entry]:
         """Yield all entries in order, one by one."""
@@ -340,19 +345,13 @@ class Book:
         for _ in range(count):
             yield self.toc[self.labels.index(Label(self.deck.draw()))]
 
-    def finalize(self) -> Deck:
-        """(Re)create the deck."""
-        self.labels = [entry.label for entry in self.toc]
-        self.deck = Deck(cards=self.labels, label=self.label)
-        return self.deck
-
     @property
     def blurb(self) -> str:
-        """Book-level blurb."""
+        """Book-level blurb (changes with the deck's state)."""
         return f"{self.deck.blurb} {'[]' if self.serial else '{}'}"
 
     def entry_blurbs(self) -> list[str]:
-        """Blurbs of the entries."""
+        """Blurbs of the entries (changes with etude states)."""
         return [entry.blurb for entry in self.toc]
 
 
@@ -375,8 +374,7 @@ class BookRef:  # pylint: disable=too-few-public-methods
         self.blurb = self.label
 
 
-@dataclasses.dataclass
-class Config:
+class Config(t.NamedTuple):
     """The information from the config file."""
 
     books: Books
