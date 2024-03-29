@@ -355,7 +355,7 @@ class Book:
 
 
 class BookRef:  # pylint: disable=too-few-public-methods
-    """A "pointer-style" ToC, e.g. "2@song"."""
+    """A "pointer-style" ToC entry, e.g. "2@song"."""
 
     book_label: Label
     count: int | None
