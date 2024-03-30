@@ -250,8 +250,7 @@ class Deck:
     def _track(self, fmt: str, *args: list[str] | str | int) -> None:
         """Print special tracking info if we're in the list."""
         if self.layout in tracked:
-            msg = f"{self.layout!r}: {fmt}"
-            log.info(msg, *args)
+            log.info(f"{self.layout!r}: {fmt}", *args)
 
 
 class RangeDeck(Deck):
