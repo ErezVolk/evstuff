@@ -11,10 +11,9 @@ There are two different types of object identifiers:
 - `x.label` is the name used by other parts of the system (references, config).
 - `x.layout` is used to identify saved states.
 
-Sometimes (e.g., in "well-known" things like the major scale), the label and
-the layout are equal and human-readable ("major", etc.). Other times, the
-layout is a hash of the different options, and the label is the reference
-name.
+Sometimes (in "well-known" things like the major scale), `label` and `layout`
+are equal and human-readable ("major", etc.). Other times, `layout` is a hash
+of the different options, and `label` is the reference name.
 
 Most objects also have `x.blurb`, which is for display purposes only.
 """
