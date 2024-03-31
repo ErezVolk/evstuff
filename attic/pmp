@@ -367,7 +367,7 @@ class BookRef:  # pylint: disable=too-few-public-methods
             bklb = self.book.label
         self.book_label = bklb
         self.count = count
-        self.label = Label(f"{count}@{bklb}" if count else f"={bklb}")
+        self.label = Label(f"{count}@{bklb}" if count else bklb)
         self.blurb = self.label
 
 
