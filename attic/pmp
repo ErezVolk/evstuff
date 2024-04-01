@@ -594,9 +594,8 @@ class PracticeMakesPerfect:
             key = deck.draw()
             if "|" in key:  # Can only come from our pitch classes
                 key = random.choice(key.split("|"))
-            if (label := key.removeprefix("@")) != key:
-                other_book = self.books[Label(label)]
-                (other_etude,) = self._choose_etudes(other_book, 1)
+            if (label := Label(key.removeprefix("@"))) != key:
+                (other_etude,) = self._choose_etudes(self.books[label], 1)
                 key = self._make_track(other_etude)
             keys.append(key)
 
