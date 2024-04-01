@@ -157,11 +157,12 @@ class Deck:
         gone = theirs - ours
         log.debug("Adapting %s +%s -%s", self.label, added, gone)
 
-        self.old_layout = old_layout
-        self.counts["flopped"] += 1
         if not (queued := self._get_queue(saved, order=old_cards) & ours):
             raise SerializationError("No shared cards in queue")
-        self._set_queue(queued & added)
+
+        self._set_queue(queued | added)
+        self.old_layout = old_layout
+        self.counts["flopped"] += 1
 
     def deserialize(self, saved: StringDict) -> None:
         """Validate and restore a saved queue."""
