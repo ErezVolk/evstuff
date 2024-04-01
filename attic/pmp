@@ -250,7 +250,8 @@ class Deck:
     def _track(self, fmt: str, *args: list[str] | str | int) -> None:
         """Print special tracking info if we're in the list."""
         if self.layout in tracked:
-            log.info(f"{self.layout!r}: {fmt}", *args)
+            fmt = f"{self.layout!r}: {fmt}"
+            log.info(fmt, *args)
 
 
 class RangeDeck(Deck):
@@ -320,7 +321,7 @@ class Book:
     deck: Deck
     labels: list[Label]
 
-    def __init__(self, label: Label, serial: bool = False) -> None:
+    def __init__(self, label: Label, *, serial: bool = False) -> None:
         self.label = label
         self.serial = serial
         self.toc = []
@@ -820,7 +821,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         if (label := Label(label)) in self.books:
             raise ConfigError(f"Duplicate book: {label!r}")
 
-        self.books[label] = self.curr = Book(label, serial)
+        self.books[label] = self.curr = Book(label, serial=serial)
         if star:
             self.starred.append(label)
 
