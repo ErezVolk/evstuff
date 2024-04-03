@@ -7,7 +7,6 @@ import rumps
 __TODO__ = """
 - App (py2app)
 - Keyboard shortcuts (https://github.com/glyph/QuickMacHotkey?)
-- Gray out/strikeout
 """
 
 
@@ -41,19 +40,32 @@ class MacMenuBarStopwatch(rumps.App):
     @rumps.timer(1)
     def tick(self, _: rumps.App) -> None:
         """Update timer."""
-        self.update()
+        if self.active:
+            self.update()
+
+    @property
+    def active(self) -> bool:
+        """Whether we're unpaused."""
+        return self.on_since is not None
 
     def on_secs(self) -> float:
         """Seconds since turned on."""
-        assert self.on_since is not None
+        if self.on_since is None:
+            return 0
         return time.monotonic() - self.on_since
 
     def update(self) -> None:
         """Display updated time."""
-        if self.on_since:
+        if self.active or self.baggage:
             self.title = self.hhmmss(self.baggage + self.on_secs())
+            self.set_appears_disabled(appears_disabled=not self.active)
         else:
-            self.title = f"({self.hhmmss(self.baggage)})"
+            self.title = self.OFF
+            self.set_appears_disabled(appears_disabled=False)
+
+    def set_appears_disabled(self, *, appears_disabled: bool = True) -> None:
+        """Gray out the text."""
+        self._nsapp.nsstatusitem.button().setAppearsDisabled_(appears_disabled)
 
     def hhmmss(self, secs: float) -> str:
         """Format seconds as HHMMSS."""
