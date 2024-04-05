@@ -626,14 +626,17 @@ class PracticeMakesPerfect:
         log.debug("Basic decks: %s", SEP.join(self.decks))
 
     def _prep(self, cardstr: str) -> list[str]:
-        """Split, strip, and sanity-check a known scale."""
+        """Split, strip, and sanity-check a known scale.
+
+        These are only hard-coded currently, so tests are assertions.
+        """
         cards = [card.strip() for card in cardstr.split("‖")]
         notes = "|".join(cards).upper().split("|")
         assert len(notes) == len(set(notes)), f"{cardstr!r}: not unique"
-        bad = frozenset(notes) - self.ALL_NOTES
-        assert not bad, f"{cardstr!r}: {bad}?"
-        bad = self.LETTERS - {note[0] for note in notes}
-        assert not bad, f"{cardstr!r}: no {bad}"
+        unknown = frozenset(notes) - self.ALL_NOTES
+        assert not unknown, f"{cardstr!r}: {unknown}?"
+        missing = self.LETTERS - {note[0] for note in notes}
+        assert not missing, f"{cardstr!r}: no {missing}"
         return cards
 
     def _have(self, deck: Deck) -> Deck:
