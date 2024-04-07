@@ -92,7 +92,7 @@ class BingWallpaper:
         """Download today's image from a specific country code."""
         url = f"{self.BASE}?cc={country_code}"
         page_r = requests.get(url, timeout=self.args.timeout)
-        if not page_r:
+        if not page_r or not page_r.text:
             return
 
         parser = lxml.etree.HTMLParser()
