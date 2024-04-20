@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+"""MacOS Menu Bar Stopwatch."""
+import time
+
+import rumps
+
+__TODO__ = """
+- App (py2app)
+- Keyboard shortcuts (https://github.com/glyph/QuickMacHotkey?)
+"""
+
+
+class MacMenuBarStopwatch(rumps.App):
+    """MacOS Menu Bar Stopwatch."""
+
+    OFF = "⏱"
+
+    on_since: float | None = None
+    baggage: float = 0
+
+    def __init__(self) -> None:
+        super().__init__(name="MacOS Menu Bar Stopwatch", title=self.OFF)
+
+    @rumps.clicked("Start/Pause")
+    def toggle(self, _: rumps.App) -> None:
+        """Toggle state."""
+        if self.on_since is None:
+            self.on_since = time.monotonic()
+        else:
+            self.baggage += self.on_secs()
+            self.on_since = None
+        self.update()
+
+    @rumps.clicked("Reset")
+    def reset(self, _: rumps.App) -> None:
+        """Reset state."""
+        self.on_since = None
+        self.title = self.OFF
+
+    @rumps.timer(1)
+    def tick(self, _: rumps.App) -> None:
+        """Update timer."""
+        if self.active:
+            self.update()
+
+    @property
+    def active(self) -> bool:
+        """Whether we're unpaused."""
+        return self.on_since is not None
+
+    def on_secs(self) -> float:
+        """Seconds since turned on."""
+        if self.on_since is None:
+            return 0
+        return time.monotonic() - self.on_since
+
+    def update(self) -> None:
+        """Display updated time."""
+        if self.active or self.baggage:
+            self.title = self.hhmmss(self.baggage + self.on_secs())
+            self.set_appears_disabled(appears_disabled=not self.active)
+        else:
+            self.title = self.OFF
+            self.set_appears_disabled(appears_disabled=False)
+
+    def set_appears_disabled(self, *, appears_disabled: bool = True) -> None:
+        """Gray out the text."""
+        self._nsapp.nsstatusitem.button().setAppearsDisabled_(appears_disabled)
+
+    def hhmmss(self, secs: float) -> str:
+        """Format seconds as HHMMSS."""
+        hh, mmss = divmod(int(secs), 3600)
+        mm, ss = divmod(mmss, 60)
+        return f"{hh:02d}:{mm:02d}:{ss:02d}"
+
+
+if __name__ == "__main__":
+    MacMenuBarStopwatch().run()
