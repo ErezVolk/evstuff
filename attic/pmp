@@ -62,12 +62,13 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
+- Make into an app (Kivy? No more pmprc parsing)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Visitor pattern (on_etude=, on_ref=)
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
-- A UI to mark what was done? With a metronome? And a drone? (Kivy?)
 - Less repetitions in "{yes|no} {up|down}" (compound them)
 - Less repetitions in "{[100-200]} {a|b}"
+- Shuffle range, something like {shuffle:1,2,3,4}?
 """
 
 NOW = datetime.datetime.now(tz=datetime.UTC)
