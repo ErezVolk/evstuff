@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Split spreads into pages."""
+# pyright: reportAttributeAccessIssue=false
 import argparse
 
-import fitz
+import fitz  # pylint: disable=import-error
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", default="ta.pdf")
 parser.add_argument("-o", "--output", default="tb.pdf")
 parser.add_argument("-r", "--rtl", action="store_true")
+parser.add_argument("-a", "--all-pages", action="store_true")
 args = parser.parse_args()
 
 src = fitz.open(args.input)
@@ -23,7 +25,7 @@ for spage in src:  # for each page in input
                   spage.cropbox_position)  # starting at (0, 0)
 
     r = fitz.Rect(r.tl + MARMARGIN, r.br - MARMARGIN)
-    if n == 0 or n + 1 == len(src):
+    if not args.all_pages and (n in [0, len(src) - 1]):
         rect_list = [r]
     else:
         center = (r.x0 + r.x1) / 2
