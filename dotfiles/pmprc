@@ -7,10 +7,10 @@ mornWarmup = [ tempo warmup chops ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
 
-eve = [ dusk homeworkMusic 3@book 2@revise ]
+eve = [ dusk homeworkMusic 3@book @playSong 2@revise ]
 dusk = [ @chopsLeft @arpeggio @sightReading @patituchops ]
 
-revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol reviseSteve }
+revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol }
 
 oneString := IV|III|II|I
 twoAdjacentStrings := IV+III|III+II|II+I
@@ -410,6 +410,12 @@ sightReading:
   Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": {[1-125]}
   Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Advanced Level)": {[1-40,51-107]}
   Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {[5-112]}
+
+
+playSong:
+  Play "Brick House": NONE
+  Play "Rock Steady": NONE
+  # ADD MORE
 
 
 #
