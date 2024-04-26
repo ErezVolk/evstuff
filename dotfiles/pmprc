@@ -76,7 +76,7 @@ chops = [ @chopsRight @chopsLeft @patituchops ]
 patituchops:
   JP@AW 1.09 Hammer-ons and pull-offs: NONE
   The +{}-String Spider, starting on {}: {1|2} {ANY}
-  JP's Intonation Exercise with Shifting on the {} string: {oneString}
+  JP's ⡠⠑ the {} string: {oneString}
 
 chopsLeft = { @chopsLeftDexterity @chopsLeftModes @bassHanon }
 
@@ -416,10 +416,10 @@ sightReading:
 playSong:
   Play "Brick House": NONE
   Play "Rock Steady": NONE
-  # Play "Little Wing": NONE
-  # Play "Daniel": NONE
-  # Play "Sunny" (Hebb): NONE
-  # Learn "Lately ": NONE
+  Play "Little Wing": NONE
+  Play "Daniel": NONE
+  Play "Sunny" (Hebb): NONE
+  Learn "Lately": NONE
   # Learn "Shining Star": NONE
   # ADD MORE
 
