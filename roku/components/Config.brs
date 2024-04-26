@@ -26,7 +26,7 @@ Function loadConfig() as Object
     Title: "Channel 14"
     streamFormat: "hls"
     Logo: "https://erezvolk.github.io/iltv/images/posters/now14.png"
-    Stream: "https://ch14-channel14eur.akamaized.net/hls/live/2099700/CH14_CHANNEL14/master.m3u8"
+    Stream: "https://now14.g-mana.live/media/91517161-44ab-4e46-af70-e9fe26117d2e/mainManifest-archive.m3u8"
 }
 '{
 '    Title: "Channel 24"
@@ -48,7 +48,7 @@ Function loadConfig() as Object
 {
     Title: "NHK World"
     streamFormat: "hls"
-    Stream: "https://nhkwlive-xjp.akamaized.net/hls/live/2003458/nhkwlive-xjp-en/index_1M.m3u8"
+    Stream: "https://cdn.nhkworld.jp/www11/nhkworld-tv/domestic/2003459/live.m3u8"
 }
     
     
