@@ -28,9 +28,9 @@ tempo:
 
 homeworkTechnical:
   Dean's Figure 23 on page 30: NONE
-  Steve's Etude 5 on page 38 (last played at 46 BPM): NONE
   {} maj7, m7, 7, m7(b7) chords in the upper register: ANY
   # Ray Brown's Augmented Exercise (p.98): NONE
+  Steve's Etude 6 on page 39: NONE
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13) [Working at 46 BPM]: NONE
@@ -450,6 +450,7 @@ reviseSteve:
   Slide blending etude on page 31 [last played at MM ♩=59]: NONE
   Blending "Ryan's Hope" on page 32 [last played at MM ♩=88]: NONE
   Steve's Etude 4 on page 37 [Last played at 50 BPM]: NONE
+  Steve's Etude 5 on page 38 (last played at 46 BPM): NONE
 
 reviseBaroque:
   Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
@@ -596,9 +597,6 @@ _rayBrownTodo:
   Ray Brown's Exercise (p.133): NONE
   Ray Brown's Arpeggios for Endings (p.134): NONE
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
-
-_steveTodo:
-  Steve's Etude 6 on page 39: NONE
 
 _bachTodo:
   # Needs to be done seriously, but I could work on it
