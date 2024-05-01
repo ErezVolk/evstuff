@@ -2,7 +2,7 @@ all = [ morn eve ]
 
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
-*morn = [ mornWarmup @sightReading mornPractice mornHomework @playSong ]
+*morn = [ mornWarmup @sightReading mornPractice mornHomework @playSong @homeworkMusic ]
 mornWarmup = [ tempo warmup chops ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
@@ -28,7 +28,6 @@ tempo:
 
 homeworkTechnical:
   Dean's Figure 23 on page 30: NONE
-  {} maj7, m7, 7, m7(b7) chords in the upper register: ANY
   # Ray Brown's Augmented Exercise (p.98): NONE
   Steve's Etude 6 on page 39: NONE
 
@@ -205,7 +204,7 @@ _chopsBothTodo:  # Not there yet
 #
 # Technical things to keep by practicing
 #
-keep = { @keepSteveInterval @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean }
+keep = { @keepSteveInterval @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean @keepOther }
 slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveOther }
 doubleStop = { @keepSteveScaleInDoubleStops }
 
@@ -381,6 +380,9 @@ keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Key of C in "Bass Lines Book 3": NONE
   Key of G in "Bass Lines Book 3": NONE
   Key of D in "Bass Lines Book 3": NONE
+
+keepOther:
+  {} maj7, m7, 7, m7(b5) chords in the upper register: ANY
 
 _carolTodo:  # As I work through them, move to keepCarol / reviseCarol
   Key of E in "Bass Lines Book 3": NONE  # to keepCarol
