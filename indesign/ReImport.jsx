@@ -238,17 +238,22 @@ function ri_get_options(ri) {
         with (dialogColumns.add() ) {
           staticTexts.add({staticLabel: "Default Parent:"});
           staticTexts.add({staticLabel: "Headless Parent:"});
+          staticTexts.add({staticLabel: "First Parent:"});
         }
         with (dialogColumns.add()) {
           var masters = ri.doc.masterSpreads.everyItem().name;
           ri.ui_a_master = dropdowns.add({stringList: masters, selectedIndex: 0});
           ri.ui_b_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
+          ri.ui_c_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
           if (ri.saved_settings.a_master)
             if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.a_master)).isValid)
               ri.ui_a_master.selectedIndex = m.index;
           if (ri.saved_settings.b_master)
             if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.b_master)).isValid)
-              ri.ui_b_master.selectedIndex = m.index;
+              ri.ui_c_master.selectedIndex = ri.ui_b_master.selectedIndex = m.index;
+          if (ri.saved_settings.c_master)
+            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.c_master)).isValid)
+              ri.ui_c_master.selectedIndex = m.index;
         }
       }
 
@@ -272,9 +277,11 @@ function ri_get_options(ri) {
   }
 
   ri.a_master_name = masters[ri.ui_a_master.selectedIndex];
-  ri.b_master_name = masters[ri.ui_b_master.selectedIndex];
   ri.a_master = ri.doc.masterSpreads.itemByName(ri.a_master_name);
+  ri.b_master_name = masters[ri.ui_b_master.selectedIndex];
   ri.b_master = ri.doc.masterSpreads.itemByName(ri.b_master_name);
+  ri.c_master_name = masters[ri.ui_c_master.selectedIndex];
+  ri.c_master = ri.doc.masterSpreads.itemByName(ri.c_master_name);
   return true;
 }
 
@@ -300,6 +307,7 @@ function ri_pre_remaster(ri) {
   if (!ri.ui_pre_remaster.checkedState)
     return;
   ri.doc.pages.everyItem().appliedMaster = ri.a_master;
+  ri.doc.pages[0].appliedMaster = ri.c_master;
 }
 
 function ri_pre_clear(ri) {
@@ -362,6 +370,7 @@ function ri_do_import(ri) {
 
     a_master: ri.a_master_name,
     b_master: ri.b_master_name,
+    c_master: ri.c_master_name,
     dont_import_images: !ri.ui_import_images.checkedState,
     dont_shrink_tables: !ri.ui_groom_resize_tables.checkedState,
     hide_import_options: !ri.ui_import_options.checkedState,
@@ -827,7 +836,7 @@ function ri_groom_fix_masters(ri) {
 
   // title page is B-Master
   var title_page = ri.doc.pages[0];
-  ri_set_master(ri, title_page, ri.b_master);
+  ri_set_master(ri, title_page, ri.c_master);
 
   for (var i = 1; i < ri.doc.pages.length; ++ i) {
     var page = ri.doc.pages[i];
