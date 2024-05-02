@@ -68,7 +68,7 @@ __TODO__ = """
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - Less repetitions in "{yes|no} {up|down}" (compound them)
 - Less repetitions in "{[100-200]} {a|b}"
-- Shuffle range, something like {shuffle:1,2,3,4}?
+- Permutations
 """
 
 NOW = datetime.datetime.now(tz=datetime.UTC)
