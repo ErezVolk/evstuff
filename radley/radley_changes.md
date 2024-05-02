@@ -37,7 +37,7 @@ Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
 
 # Daniel
 
-- In A
+- In C
 - Transcribed 2023-11-26
 - Memorized 2023-12-02
 
