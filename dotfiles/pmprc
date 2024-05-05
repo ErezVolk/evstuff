@@ -2,12 +2,12 @@ all = [ morn eve ]
 
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
-*morn = [ mornWarmup @sightReading mornPractice mornHomework song @homeworkMusic ]
+*morn = [ mornWarmup @sightReading mornPractice mornHomework @song @homeworkMusic ]
 mornWarmup = [ tempo warmup chops ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
 
-eve = [ dusk homeworkMusic 3@book song 2@revise ]
+eve = [ dusk homeworkMusic 3@book @song 2@revise ]
 dusk = [ @chopsLeft @arpeggio @sightReading @patituchops ]
 
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol }
@@ -28,8 +28,8 @@ tempo:
 
 homeworkTechnical:
   Dean's Figure 23 on page 30 [⍻]: NONE
-  Ray Brown's Augmented Exercise (p.98): NONE
   Steve's Etude 6 on page 39: NONE
+  Ray Brown's Solo Exercise (p.118): NONE
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13): NONE
@@ -278,6 +278,7 @@ keepRayBrownAug:
   Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
   Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
   Ray Brown's Augmented Exercise (p.97): NONE
+  Ray Brown's Augmented Exercise (p.98): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -587,7 +588,6 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
-  Ray Brown's Solo Exercise (p.118): NONE
   Ray Brown's Solo Exercise (p.119): NONE
   Ray Brown's Exercise in Fourths (p.120): NONE
   Ray Brown's Exercise in Fourths (p.121): NONE
