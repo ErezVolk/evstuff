@@ -79,6 +79,26 @@ Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
 ```
 
 
+# Fly Me to the Moon
+- In Am
+- Written for C
+
+```
+A: (Fly me...)
+| VIm7 | IIm7  | V7    | IM7        |
+| VIM7 | VIIo7 | III7  | VIm7       |
+B: (In other words, hold my hand...)
+| IIm7 | V7    | IM7   | VI7        |
+| IIm7 | V7    | VIIo7 | III7       |
+A: (Fill my heart...)
+| VIm7 | IIm7  | V7    | IM7        |
+| VIM7 | VIIo7 | III7  | VIm7       |
+B: (In other words, please be true...)
+| IIm7 | V7    | IIIo7 | VI7        |
+| IIm7 | V7    | IM7   | VIIo7 III7 |
+```
+
+
 # To Do
 - You Send Me
 - You Are the Sunshine of My Life
