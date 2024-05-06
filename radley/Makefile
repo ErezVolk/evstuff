@@ -5,4 +5,4 @@ MARKDOWN=$(wildcard *.md)
 all: $(MARKDOWN:%.md=%.pdf)
 
 %.pdf: %.md
-	pandoc -o $@ $<
+	pandoc --pdf-engine xelatex -o $@ $<
