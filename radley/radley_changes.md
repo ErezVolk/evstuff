@@ -85,6 +85,19 @@ Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
 - 1=C
 
 ```
+A: (Fly me...)
+| VIm7 | IIm7  | V7    | IM7        |
+| IVM7 | VIIo7 | III7  | VIm7       |
+B: (In other words, hold my hand...)
+| IIm7 | V7    | IM7   | VI7        |
+| IIm7 | V7    | VIIo7 | III7       |
+A: (Fill my heart...)
+| VIm7 | IIm7  | V7    | IM7        |
+| IVM7 | VIIo7 | III7  | VIm7       |
+C: (In other words, please be true...)
+| IIm7 | V7    | IIIo7 | VI7        |
+| IIm7 | V7    | IM7   | VIIo7 III7 |
+
 A: | 6m⁷ | 2m⁷ | 5⁷  | 1Δ     |  "Fly me to the moon..."
    | 4Δ  | 7ᴼ⁷ | 3⁷  | 6m⁷    |
 B: | 2m⁷ | 5⁷  | 1Δ  | 6⁷     |  "[in] other words, hold my hand..."
