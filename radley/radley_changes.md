@@ -96,14 +96,14 @@ C: (In other words, please be true...)
 | IIm7 | V7    | IIIo7 | VI7        |
 | IIm7 | V7    | IM7   | VIIo7 III7 |
 
-A: | 6m⁷ | 2m⁷ | 5⁷  | 1Δ     |  "Fly me to the moon..."
-   | 4Δ  | 7ᴼ⁷ | 3⁷  | 6m⁷    |
-B: | 2m⁷ | 5⁷  | 1Δ  | 6⁷     |  "[in] other words, hold my hand..."
-   | 2m⁷ | 5⁷  | 7ᴼ⁷ | 3⁷     |
-A: | 6m⁷ | 2m⁷ | 5⁷  | 1Δ     |  "Fill my heart..."
-   | 4Δ  | 7ᴼ⁷ | 3⁷  | 6m⁷    |
-C: | 2m⁷ | 5⁷  | 3ᴼ⁷ | 6⁷     |  "[in] other words, please be true..."
-   | 2m⁷ | 5⁷  | 1Δ  | 7ᴼ⁷ 3⁷ |
+A: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ       |  "Fly me to the moon..."
+   | 4Δ  | 7ᴼ⁷ | 3⁷     | 6m⁷      |
+B: | 2m⁷ | 5⁷  | 1Δ     | 6⁷       |  "[in] other words, hold my hand..."
+   | 2m⁷ | 5⁷  | 7ᴼ⁷    | 3⁷       |
+A: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ       |  "Fill my heart..."
+   | 4Δ  | 7ᴼ⁷ | 3⁷     | 6m⁷      |
+C: | 2m⁷ | 5⁷  | 3ᴼ⁷    | 6⁷       |  "[in] other words, please be true..."
+   | 2m⁷ | 5⁷  | 1Δ     | 7ᴼ⁷ 3⁷   |
 
 Tomer's second version (I=F):
 A: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ⁷      |  "Fly me to the moon..."
