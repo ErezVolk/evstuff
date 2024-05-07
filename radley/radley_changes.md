@@ -81,10 +81,8 @@ Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
 
 
 # Fly Me to the Moon
-- In Am
-- 1=C
-
 ```
+First version (I=C):
 A: (Fly me...)
 | VIm7 | IIm7  | V7    | IM7        |
 | IVM7 | VIIo7 | III7  | VIm7       |
@@ -106,6 +104,16 @@ A: | 6m⁷ | 2m⁷ | 5⁷  | 1Δ     |  "Fill my heart..."
    | 4Δ  | 7ᴼ⁷ | 3⁷  | 6m⁷    |
 C: | 2m⁷ | 5⁷  | 3ᴼ⁷ | 6⁷     |  "[in] other words, please be true..."
    | 2m⁷ | 5⁷  | 1Δ  | 7ᴼ⁷ 3⁷ |
+
+Tomer's second version (I=F):
+A: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ⁷      |  "Fly me to the moon..."
+   | 4Δ⁷ | 7ᴼ⁷ | 3⁷ᵇ⁹   | 6m⁷ 6⁷   |
+   | 2m⁷ | 5⁷  | 1Δ⁷ 4⁷ | 3m⁷ 6⁷   |  "[in] other words, hold my hand..."
+   | 2m⁷ | 5⁷  | 7ᴼ⁷    | 7ᴼ⁷ 3⁷ᵇ⁹ |
+B: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ⁷      |  "Fill my heart..."
+   | 4Δ⁷ | 7ᴼ⁷ | 3⁷b⁹   | 6m⁷ 6⁷   |
+   | 2m⁷ | 5⁷  | 3m⁷    | 6⁷       |  "[in] other words, please be true..."
+   | 2m⁷ | 5⁷  | 1⁶     | 7ᴼ⁷ 3⁷ᵇ⁹ |
 ```
 
 
