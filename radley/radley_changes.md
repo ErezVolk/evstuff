@@ -111,7 +111,7 @@ A: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ⁷      |  "Fly me to the moon..."
    | 2m⁷ | 5⁷  | 1Δ⁷ 4⁷ | 3m⁷ 6⁷   |  "[in] other words, hold my hand..."
    | 2m⁷ | 5⁷  | 7ᴼ⁷    | 7ᴼ⁷ 3⁷ᵇ⁹ |
 B: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ⁷      |  "Fill my heart..."
-   | 4Δ⁷ | 7ᴼ⁷ | 3⁷b⁹   | 6m⁷ 6⁷   |
+   | 4Δ⁷ | 7ᴼ⁷ | 3⁷ᵇ⁹   | 6m⁷ 6⁷   |
    | 2m⁷ | 5⁷  | 3m⁷    | 6⁷       |  "[in] other words, please be true..."
    | 2m⁷ | 5⁷  | 1⁶     | 7ᴼ⁷ 3⁷ᵇ⁹ |
 ```
