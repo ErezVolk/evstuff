@@ -2,7 +2,7 @@ all = [ morn eve ]
 
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
-*morn = [ mornWarmup @sightReading mornPractice mornHomework @song @homeworkMusic ]
+*morn = [ mornWarmup @sightReading mornPractice mornHomework @playSong @homeworkMusic ]
 mornWarmup = [ tempo warmup chops ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical ]
@@ -431,6 +431,7 @@ learnSong:
   Learn "Good Times": NONE
   Learn "What's Going On": NONE
   Learn "Thank You Fallettinme": NONE
+  Learn "Honky Cat": NONE
   # ADD MORE
 
 
