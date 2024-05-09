@@ -62,13 +62,14 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
+- Permutations
+- Victor's "split 4*16 into random 1-7s"
 - Make into an app (Kivy? No more pmprc parsing)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Visitor pattern (on_etude=, on_ref=)
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
 - Less repetitions in "{yes|no} {up|down}" (compound them)
 - Less repetitions in "{[100-200]} {a|b}"
-- Permutations
 """
 
 NOW = datetime.datetime.now(tz=datetime.UTC)
