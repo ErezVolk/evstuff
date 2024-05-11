@@ -29,7 +29,7 @@ tempo:
 homeworkTechnical:
   Dean's Figure 24 on page 30: NONE
   Steve's Etude 6 on page 39: NONE
-  Ray Brown's Solo Exercise (p.118=1 53 6 42 5 31 4 27 1): NONE
+  Ray Brown's Solo Exercise (p.119): NONE
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13): NONE
@@ -48,16 +48,24 @@ book:
 #
 # Warmup Selection
 #
-warmup = [ @warmupInterval warmupHarvey @warmupOtherScale ]
+warmup = [ @warmupInterval 2@warmupHarveyEtAl @warmupOtherScale ]
 
 warmupInterval:
   Octave drill on the {} strings: twoSubjacentStrings
   5ths drill on the {} strings: twoAdjacentStrings
 
-warmupHarvey:
+warmupHarveyEtAl:
   # ' Minor Harvey from C': Natural|Harmonic|Melodic  # Not a good idea, because Harvey needs to be sung!
   Harvey from {}: {G|C}
   Mickey's {}: @majMin
+  @warmupOtherInterval
+
+@warmupOtherInterval:
+  4ths drill on the {} strings: twoAdjacentStrings
+  3rds drill on the {} strings: twoAdjacentStrings
+  6ths drill on the {} strings: twoSubjacentStrings
+  Minor 6ths drill on the {} strings: IV+III~II|III+II~I
+  10ths drill on the IV+I strings: NONE
 
 warmupOtherScale:
   {}-Major Scale, ATFB and on the {} string: {major} {oneString}
@@ -204,7 +212,7 @@ _chopsBothTodo:  # Not there yet
 #
 # Technical things to keep by practicing
 #
-keep = { @keepSteveInterval @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean @keepOther }
+keep = { @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean @keepOther }
 slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveOther }
 doubleStop = { @keepSteveScaleInDoubleStops }
 
@@ -242,7 +250,7 @@ rayBrownBluesKeys := C|F|B♭|G
 rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 
-keepRayBrown = { @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug }
+keepRayBrown = { @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownSolo }
 
 keepRayBrownBlues:
   Ray Brown's Blues (p.100), {} pattern: {A+B|C|D|E|F}
@@ -279,6 +287,9 @@ keepRayBrownAug:
   Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
   Ray Brown's Augmented Exercise (p.97): NONE
   Ray Brown's Augmented Exercise (p.98): NONE
+
+keepRayBrownSolo:
+  Ray Brown's Solo Exercise (p.118, i.e. 1 53 6 42 5 31 4 27 1): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -590,7 +601,6 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
-  Ray Brown's Solo Exercise (p.119): NONE
   Ray Brown's Exercise in Fourths (p.120): NONE
   Ray Brown's Exercise in Fourths (p.121): NONE
   Ray Brown's Exercise in Fourths (p.122): NONE
