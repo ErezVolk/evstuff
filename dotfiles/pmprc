@@ -60,7 +60,7 @@ warmupHarveyEtAl:
   Mickey's {}: @majMin
   @warmupOtherInterval
 
-@warmupOtherInterval:
+warmupOtherInterval:
   4ths drill on the {} strings: twoAdjacentStrings
   3rds drill on the {} strings: twoAdjacentStrings
   6ths drill on the {} strings: twoSubjacentStrings
