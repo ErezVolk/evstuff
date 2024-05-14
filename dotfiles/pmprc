@@ -435,6 +435,10 @@ playSong:
   Play "Little Wing": NONE
   Play "Daniel": NONE
   Play "Sunny" (Hebb): NONE
+  Play "Fly Me To The Moon" (1={}): major
+  Play "Someday My Prince Will Come" (1={}): major
+  Play "Darn That Dream" (1={}): major
+  Play "The Chicken": NONE
 
 learnSong:
   Learn "Lately": NONE
