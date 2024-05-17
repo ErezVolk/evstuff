@@ -83,7 +83,7 @@ chops = [ @chopsRight @chopsLeft @patituchops ]
 patituchops:
   JP@AW 1.09 Hammer-ons and pull-offs: NONE
   The +{}-String Spider, starting on {}: {1|2} {ANY}
-  JP's ⡠⠑ the {} string: {oneString}
+  JP's ⡠⠑ on the {} string: {oneString}
 
 chopsLeft = { @chopsLeftDexterity @chopsLeftModes @bassHanon }
 
@@ -441,6 +441,7 @@ playSong:
   Play "The Chicken": NONE
 
 learnSong:
+  Learn "Master Blaster": NONE
   Learn "Lately": NONE
   Learn "Shining Star": NONE
   Learn "Good Times": NONE
