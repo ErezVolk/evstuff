@@ -2,10 +2,10 @@ all = [ morn eve ]
 
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
-*morn = [ mornWarmup @sightReading mornPractice mornHomework @playSong @homeworkMusic ]
-mornWarmup = [ tempo warmup chops ]
+*morn = [ mornWarmup @sightReading mornPractice mornHomework ]
+mornWarmup = [ tempo warmup chops @clap ]
 mornPractice = [ @arpeggio 3@keep ]
-mornHomework = [ homeworkTechnical ]
+mornHomework = [ homeworkTechnical @playSong @homeworkMusic ]
 
 eve = [ dusk homeworkMusic 3@book @song 2@revise ]
 dusk = [ @chopsLeft @arpeggio @sightReading @patituchops ]
@@ -74,6 +74,15 @@ warmupOtherScale:
   Diminished Scale from {}, ATFB and on the {} string: {ANY} {oneString}
   Chromatic scale on the {} string [sing before you play!]: {oneString}
   # Modes of the ascending melodic minor (https://en.wikipedia.org/wiki/Jazz_minor_scale#Modes_of_jazz_minor_scale) ?
+
+#
+# Clapping rhythm
+#
+
+clap:
+  Clap triplet no. {}: {1|2|3}
+  Clap 16th no. {}: {1|2|3|4}
+  # TODO: Victor's
 
 #
 # JdP's "Daily Chop-Builders for Bass"
