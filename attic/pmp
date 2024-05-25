@@ -350,7 +350,7 @@ class NoneDeck(Deck):
         return self.NAME
 
 
-class Etude:  # pylint: disable=too-few-public-methods
+class Etude:
     """A concrete etude, e.g., '{}-minor pentatonic'.
 
     A template string with one or more `Deck` variables.
@@ -407,7 +407,7 @@ class Book:
         return [entry.blurb for entry in self.toc]
 
 
-class BookRef:  # pylint: disable=too-few-public-methods
+class BookRef:
     """A "pointer-style" ToC entry, e.g. "2@song"."""
 
     book_label: Label
@@ -778,7 +778,7 @@ class PracticeMakesPerfect:
         self.parser.error(message)
 
 
-class ConfigParser:  # pylint: disable=too-many-instance-attributes
+class ConfigParser:
     """Read configuration file."""
 
     labeldecks: dict[Label, Deck]
