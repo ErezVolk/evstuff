@@ -18,6 +18,7 @@ of the different options, and `label` is the reference name.
 Most objects also have `x.blurb`, which is for display purposes only.
 """
 
+import abc
 import argparse
 import collections
 import csv
@@ -62,8 +63,6 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
-- Permutations
-- Victor's "split 4*16 into random 1-7s"
 - Make into an app (Kivy? No more pmprc parsing)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Visitor pattern (on_etude=, on_ref=)
@@ -96,15 +95,53 @@ class SerializationError(ValueError):
     """Raised internally when a deck cannot be restored."""
 
 
-class Deck:
-    """A deck of strings."""
+class Deck(abc.ABC):
+    """A deck, from which strings can be drawn."""
+
+    label: Label
+    layout: Layout
+    old_layout: Layout | None = None
+    counts: collections.Counter
+
+    def __init__(self) -> None:
+        self.counts = collections.Counter()
+
+    @abc.abstractmethod
+    def quota(self) -> int:
+        """Recommend number of cards to draw."""
+
+    @property
+    @abc.abstractmethod
+    def blurb(self) -> str:
+        """A description of the deck in its current state."""
+
+    def ping(self) -> None:
+        """Notify the deck it's being used."""
+        self.counts["drawn"] += 1
+
+    def predraw(self, count: int) -> None:
+        """Try and make sure the next `count` cards won't have dupes."""
+        assert count > 0  # Just so linters don't complain
+
+    @abc.abstractmethod
+    def draw(self) -> str:
+        """Get the next card."""
+
+    @abc.abstractmethod
+    def serialize(self) -> StringDict:
+        """Serialize for the state file."""
+
+    def _digest(self, strs: Strs) -> str:
+        """Hash a list of strings, but make it reordering-stable."""
+        hashee = "\0".join(sorted(strs)).encode()
+        return f":{hashlib.sha256(hashee).hexdigest()[:8]}:"
+
+
+class CardDeck(Deck):
+    """A deck of a reasonable number of cards."""
 
     cards: tuple[str, ...]
     queue: list[str]
-    label: Label
-    layout: Layout
-    counts: collections.Counter
-    old_layout: Layout | None = None
 
     EVENTS = ("drawn", "flipped", "flopped")
     _MIN_SERIALIZABLE = 3
@@ -114,20 +151,19 @@ class Deck:
     RANGES_RE = f"\\[({_RANGE_RE},)*{_RANGE_RE}\\]"
 
     def __init__(self, cards: Strs, label: str = "", layout: str = "") -> None:
+        super().__init__()
         self.cards = tuple(cards)
         assert self.cards, f"{label or layout!r} Empty decks not supported"
         self.label = Label(label or "|".join(self.cards))
         self.layout = Layout(layout or self._digest(self.cards))
-        self.counts = collections.Counter()
         self._set_queue(self.cards)
-
-    def _digest(self, strs: Strs) -> str:
-        """Hash a list of strings, but make it reordering-stable."""
-        hashee = "\0".join(sorted(strs)).encode()
-        return f":{hashlib.sha256(hashee).hexdigest()[:8]}:"
 
     def __len__(self) -> int:
         return len(self.cards)
+
+    def quota(self) -> int:
+        """Recommend number of cards to draw."""
+        return len(self)
 
     @property
     def blurb(self) -> str:
@@ -219,10 +255,6 @@ class Deck:
         self._track("%d after drawing %r", len(self.queue), card)
         return card
 
-    def ping(self) -> None:
-        """Notify the deck it's being used."""
-        self.counts["drawn"] += 1
-
     @property
     def qidxs(self) -> str:
         """Indexes in the queue."""
@@ -257,10 +289,10 @@ class Deck:
             log.info(fmt, *args)
 
 
-class RangeDeck(Deck):
+class RangeDeck(CardDeck):
     """Random choice from a range of numbers, e.g., "[1,3-4,15-50]"."""
 
-    SERIALIZEES = Deck.SERIALIZEES - {"cards"}
+    SERIALIZEES = CardDeck.SERIALIZEES - {"cards"}
 
     def __init__(self, parent: str, ranges: str) -> None:
         cards = [str(num) for num in sorted(self._parse_ranges(ranges))]
@@ -277,7 +309,37 @@ class RangeDeck(Deck):
         return self.cards
 
 
-class NoneDeck(Deck):
+class PermDeck(Deck):
+    """Random permutation of a list."""
+
+    items: list[str]
+
+    def __init__(self, itemstr: str) -> None:
+        super().__init__()
+        self.items = [item.strip() for item in itemstr[1:-1].split("|")]
+        self.label = Label(itemstr)
+        self.layout = Layout(itemstr)
+
+    def quota(self) -> int:
+        """Recommend number of cards to draw."""
+        return len(self.items)
+
+    @property
+    def blurb(self) -> str:
+        """A description of the deck in its current state."""
+        return self.label
+
+    def draw(self) -> str:
+        """Get another permutation."""
+        random.shuffle(self.items)
+        return "-".join(self.items)
+
+    def serialize(self) -> StringDict:
+        """Serialize for the state file."""
+        raise SerializationError("This is a PermDeck")
+
+
+class NoneDeck(CardDeck):
     """The NONE deck doesn't really have cards, so make the blurb nicer."""
 
     NAME = "NONE"
@@ -329,10 +391,10 @@ class Book:
         self.serial = serial
         self.toc = []
 
-    def finalize(self) -> Deck:
+    def finalize(self) -> CardDeck:
         """Create the deck."""
         self.labels = [entry.label for entry in self.toc]
-        self.deck = Deck(cards=self.labels, label=self.label)
+        self.deck = CardDeck(cards=self.labels, label=self.label)
         return self.deck
 
     def draw_all(self) -> Iterable[Entry]:
@@ -568,9 +630,9 @@ class PracticeMakesPerfect:
     def _run_plain(self, ref: BookRef) -> None:
         """Run a "simple" book, choosing etudes and assigining keys."""
         if (count := ref.count) is None:
-            count = len(ref.book.deck)
+            count = ref.book.deck.quota()
         elif count <= 0:
-            count = len(self.decks[Layout("ANY")])
+            count = self.decks[Layout("ANY")].quota()
         self._run_etudes(self._choose_etudes(ref.book, count))
 
     def _choose_etudes(self, book: Book, count: int | None) -> Iterable[Etude]:
@@ -624,7 +686,8 @@ class PracticeMakesPerfect:
         """Start `self.decks` with the basic scales (major, minor, etc.)."""
         self.decks = {Layout(NoneDeck.NAME): NoneDeck()}
         for key, cardstr in self.SCALE_KEYS.items():
-            self._have(Deck(cards=self._prep(cardstr), layout=key, label=key))
+            cards = self._prep(cardstr)
+            self._have(CardDeck(cards=cards, layout=key, label=key))
         log.debug("Basic decks: %s", SEP.join(self.decks))
 
     def _prep(self, cardstr: str) -> list[str]:
@@ -675,7 +738,7 @@ class PracticeMakesPerfect:
             "books": {book.blurb: book.entry_blurbs() for book in books},
         } | {
             event: [deck.blurb for deck in decks if deck.counts[event]]
-            for event in Deck.EVENTS
+            for event in CardDeck.EVENTS
         }
         self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
 
@@ -707,6 +770,8 @@ class PracticeMakesPerfect:
         n_used = 0
         for layout, deck in self.decks.items():
             try:
+                if not isinstance(deck, CardDeck):
+                    raise SerializationError("Wrong type")
                 if saved := nowies.get(layout):
                     deck.deserialize(saved)
                 elif old_layout := oldies.get(deck.label):
@@ -777,6 +842,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         return (self.mobj.group(group) or "").strip()
 
     PART_RE = r"(?P<at>(?P<count>[1-9]\d*)?@)?(?P<label>\S+)"
+    PERMS_RE = r"<[^<>]+>"
 
     def parse(self, filename: Filename, stream: t.TextIO) -> Config:
         """Read configuration file."""
@@ -837,7 +903,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             raise ConfigError(f"Duplicate deck: {label!r}")
 
         cards = [key.strip() for key in keys.split("|")]
-        self.labeldecks[Label(label)] = Deck(label=label, cards=cards)
+        self.labeldecks[Label(label)] = CardDeck(label=label, cards=cards)
 
     def do_etude(self, template: str, deckstr: str) -> None:
         """Found an etude line, e.g., "{}-maj: {major}" or "-min: minor}."""
@@ -856,16 +922,18 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         if (n_1 := len(parts)) != (n_2 := num_placeholders):
             raise ConfigError(f"Placeholder mismatch ({n_1} vs {n_2})")
 
-        decks = []
+        decks: list[Deck] = []
         for part in parts:
             if (label := Label(part)) in self.labeldecks:
                 decks.append(self.labeldecks[label])
                 self.add_dep(self.curr.label, label)
-            elif self.match(Deck.RANGES_RE, ranges := part.strip()):
+            elif self.match(CardDeck.RANGES_RE, ranges := part.strip()):
                 decks.append(RangeDeck(template, ranges))
+            elif self.match(self.PERMS_RE, itemstr := part.strip()):
+                decks.append(PermDeck(itemstr))
             else:
                 keys = [key.strip() for key in part.split("|")]
-                decks.append(Deck(cards=keys))
+                decks.append(CardDeck(cards=keys))
                 for key in keys:
                     if (target := key.removeprefix("@")) != key:
                         self.add_dep(self.curr.label, Label(target))

@@ -18,6 +18,7 @@ ignore = [
    "SIM102",  # Collapse nested `if`s; sometimes it's more readable the other way
    "T201",  # `print()`
    "TRY003",  # Don't raise with messages
+   "TRY301",  # Abstract raise to an inner function
 ]
 
 [tool.ruff.lint.isort]
