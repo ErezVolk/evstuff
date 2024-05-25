@@ -907,9 +907,6 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
 
     def do_etude(self, template: str, deckstr: str) -> None:
         """Found an etude line, e.g., "{}-maj: {major}" or "-min: minor}."""
-        if self.curr is None:
-            raise ConfigError("Bookless etude")
-
         if self.match(r"""(["'])(.*)(\1)""", template):
             template = self.group(2)
         num_placeholders = len(re.findall(r"{}", template)) or 1
@@ -921,6 +918,13 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
 
         if (n_1 := len(parts)) != (n_2 := num_placeholders):
             raise ConfigError(f"Placeholder mismatch ({n_1} vs {n_2})")
+
+        self._do_etude(template, parts)
+
+    def _do_etude(self, template: str, parts: list[str]) -> None:
+        """Execute etude after analyzing the parts."""
+        if self.curr is None:
+            raise ConfigError("Bookless etude")
 
         decks: list[Deck] = []
         for part in parts:
