@@ -63,6 +63,7 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
+- Generic Victor ("break 32 into random sum of [2-7]") -- via plugin?
 - Make into an app (Kivy? No more pmprc parsing)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Visitor pattern (on_etude=, on_ref=)
