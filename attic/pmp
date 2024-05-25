@@ -887,7 +887,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         self._do_etude(template, parts)
 
     def _do_etude(self, template: str, parts: list[str]) -> None:
-        """Execute etude after analyzing the parts."""
+        """Add etude after analyzing the parts."""
         if self.curr is None:
             raise ConfigError("Bookless etude")
 
