@@ -745,7 +745,8 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore queues for any eligible deck."""
-        Restorer(state=self.state, decks=self.decks).restore()
+        restorer = Restorer(state=self.state, decks=self.decks)
+        restorer.restore()
 
     def _parse_config(self, filename: Filename, stream: t.TextIO) -> Config:
         """Read configuration file."""
