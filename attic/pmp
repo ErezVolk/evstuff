@@ -133,8 +133,8 @@ class Deck(abc.ABC):
         raise SerializationError("Not supported")
 
 
-class CardDeck(Deck):
-    """A deck of cards."""
+class SavableDeck(Deck):
+    """A deck of cards whose state can be saved."""
 
     cards: tuple[str, ...]
     queue: list[str]
@@ -290,10 +290,10 @@ class CardDeck(Deck):
         return f":{hashlib.sha256(hashee).hexdigest()[:8]}:"
 
 
-class RangeDeck(CardDeck):
+class RangeDeck(SavableDeck):
     """Random choice from a range of numbers, e.g., "[1,3-4,15-50]"."""
 
-    SERIALIZEES = CardDeck.SERIALIZEES - {"cards"}
+    SERIALIZEES = SavableDeck.SERIALIZEES - {"cards"}
 
     def __init__(self, parent: str, ranges: str) -> None:
         cards = [str(num) for num in sorted(self._parse_ranges(ranges))]
@@ -380,10 +380,10 @@ class Book:
         self.serial = serial
         self.toc = []
 
-    def finalize(self) -> CardDeck:
+    def finalize(self) -> Deck:
         """Create the deck."""
         self.labels = [entry.label for entry in self.toc]
-        self.deck = CardDeck(cards=self.labels, label=self.label)
+        self.deck = SavableDeck(cards=self.labels, label=self.label)
         return self.deck
 
     def draw_all(self) -> Iterable[Entry]:
@@ -676,7 +676,7 @@ class PracticeMakesPerfect:
         self.decks = {Layout(NoneDeck.NAME): NoneDeck()}
         for key, cardstr in self.SCALE_KEYS.items():
             cards = self._prep(cardstr)
-            self._have(CardDeck(cards=cards, layout=key, label=key))
+            self._have(SavableDeck(cards=cards, layout=key, label=key))
         log.debug("Basic decks: %s", SEP.join(self.decks))
 
     def _prep(self, cardstr: str) -> list[str]:
@@ -727,7 +727,7 @@ class PracticeMakesPerfect:
             "books": {book.blurb: book.entry_blurbs() for book in books},
         } | {
             event: [deck.blurb for deck in decks if deck.counts[event]]
-            for event in CardDeck.EVENTS
+            for event in SavableDeck.EVENTS
         }
         self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
 
@@ -869,7 +869,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             raise ConfigError(f"Duplicate deck: {label!r}")
 
         cards = [key.strip() for key in keys.split("|")]
-        self.labeldecks[Label(label)] = CardDeck(label=label, cards=cards)
+        self.labeldecks[Label(label)] = SavableDeck(label=label, cards=cards)
 
     def do_etude(self, template: str, deckstr: str) -> None:
         """Found an etude line, e.g., "{}-maj: {major}" or "-min: minor}."""
@@ -897,13 +897,13 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             if (label := Label(part)) in self.labeldecks:
                 decks.append(self.labeldecks[label])
                 self.add_dep(self.curr.label, label)
-            elif self.match(CardDeck.RANGES_RE, ranges := part.strip()):
+            elif self.match(SavableDeck.RANGES_RE, ranges := part.strip()):
                 decks.append(RangeDeck(template, ranges))
             elif self.match(PermDeck.PERMS_RE, itemstr := part.strip()):
                 decks.append(PermDeck(itemstr))
             else:
                 keys = [key.strip() for key in part.split("|")]
-                decks.append(CardDeck(cards=keys))
+                decks.append(SavableDeck(cards=keys))
                 for key in keys:
                     if (target := key.removeprefix("@")) != key:
                         self.add_dep(self.curr.label, Label(target))
@@ -965,7 +965,7 @@ class Restorer:
         """Restore decks as much as possible."""
         n_used = 0
         for layout, deck in self.decks.items():
-            if not isinstance(deck, CardDeck):
+            if not isinstance(deck, SavableDeck):
                 continue
             try:
                 if saved := self.nowies.get(layout):
