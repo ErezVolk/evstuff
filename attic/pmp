@@ -106,9 +106,9 @@ class Deck(abc.ABC):
     def __init__(self) -> None:
         self.counts = collections.Counter()
 
-    @abc.abstractmethod
     def quota(self) -> int:
         """Recommend number of cards to draw."""
+        return 1
 
     @property
     @abc.abstractmethod
@@ -127,9 +127,9 @@ class Deck(abc.ABC):
     def draw(self) -> str:
         """Get the next card."""
 
-    @abc.abstractmethod
     def serialize(self) -> StringDict:
         """Serialize for the state file."""
+        raise SerializationError("Not supported")
 
     def _digest(self, strs: Strs) -> str:
         """Hash a list of strings, but make it reordering-stable."""
@@ -320,10 +320,6 @@ class PermDeck(Deck):
         self.label = Label(itemstr)
         self.layout = Layout(itemstr)
 
-    def quota(self) -> int:
-        """Recommend number of cards to draw."""
-        return len(self.items)
-
     @property
     def blurb(self) -> str:
         """A description of the deck in its current state."""
@@ -334,22 +330,13 @@ class PermDeck(Deck):
         random.shuffle(self.items)
         return "-".join(self.items)
 
-    def serialize(self) -> StringDict:
-        """Serialize for the state file."""
-        raise SerializationError("This is a PermDeck")
 
-
-class NoneDeck(CardDeck):
+class NoneDeck(Deck):
     """The NONE deck doesn't really have cards, so make the blurb nicer."""
 
     NAME = "NONE"
-
-    def __init__(self) -> None:
-        super().__init__([""], layout=self.NAME, label=self.NAME)
-
-    def serialize(self) -> StringDict:
-        """Override to make sure we don't try."""
-        raise SerializationError("What would be the point?")
+    label = Label(NAME)
+    layout = Layout(NAME)
 
     def draw(self) -> str:
         """Override parent so we don't count these."""
@@ -758,30 +745,7 @@ class PracticeMakesPerfect:
 
     def _restore_state(self) -> None:
         """Restore queues for any eligible deck."""
-        nowies: dict[Layout, StringDict] = {}  # Current layouts found
-        oldies: dict[Label, Layout] = {}  # Unknown layout, known label
-        for layout, saved in (saveds := self.state["deck"]).items():
-            if isinstance(saved, dict):
-                if layout in self.decks:
-                    nowies[Layout(layout)] = saved
-                elif isinstance(label := saved.get("label"), str):
-                    oldies[Label(label)] = layout
-
-        n_used = 0
-        for layout, deck in self.decks.items():
-            try:
-                if not isinstance(deck, CardDeck):
-                    raise SerializationError("Wrong type")
-                if saved := nowies.get(layout):
-                    deck.deserialize(saved)
-                elif old_layout := oldies.get(deck.label):
-                    deck.adapt(old_layout, saveds[old_layout])
-                if 0 < len(loaded := deck.queue) < len(deck):
-                    log.debug("Loaded %s -> %s", deck.blurb, SEP.join(loaded))
-                    n_used += 1
-            except SerializationError as exc:
-                log.debug("Not restoring %s: %s", deck.blurb, exc)
-        log.debug("Resuming %d of %d decks", n_used, len(self.decks))
+        Restorer(state=self.state, decks=self.decks).restore()
 
     def _parse_config(self, filename: Filename, stream: t.TextIO) -> Config:
         """Read configuration file."""
@@ -978,6 +942,40 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
                 raise ConfigError(f"Bad {part!r}")
             self.do_ref()
         self.curr = None
+
+
+class Restorer:
+    """Deserializes the state, as much as possible."""
+
+    def __init__(self, state: StringDict, decks: Decks) -> None:
+        self.decks = decks
+        self.saveds = state["deck"]
+        self.nowies: dict[Layout, StringDict] = {}  # Current layouts found
+        self.oldies: dict[Label, Layout] = {}  # Unknown layout, known label
+        for layout, saved in self.saveds.items():
+            if isinstance(saved, dict):
+                if layout in decks:
+                    self.nowies[Layout(layout)] = saved
+                elif isinstance(label := saved.get("label"), str):
+                    self.oldies[Label(label)] = layout
+
+    def restore(self) -> None:
+        """Restore decks as much as possible."""
+        n_used = 0
+        for layout, deck in self.decks.items():
+            if not isinstance(deck, CardDeck):
+                continue
+            try:
+                if saved := self.nowies.get(layout):
+                    deck.deserialize(saved)
+                elif old_layout := self.oldies.get(deck.label):
+                    deck.adapt(old_layout, self.saveds[old_layout])
+                if 0 < len(loaded := deck.queue) < len(deck):
+                    log.debug("Loaded %s -> %s", deck.blurb, SEP.join(loaded))
+                    n_used += 1
+            except SerializationError as exc:
+                log.debug("Not restoring %s: %s", deck.blurb, exc)
+        log.debug("Resuming %d of %d decks", n_used, len(self.decks))
 
 
 class Reporter:
