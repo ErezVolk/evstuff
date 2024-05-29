@@ -97,7 +97,7 @@ class SerializationError(ValueError):
 
 
 class Deck(abc.ABC):
-    """A deck, from which strings can be drawn."""
+    """A deck, from which cards are drawn."""
 
     label: Label
     layout: Layout
@@ -134,7 +134,7 @@ class Deck(abc.ABC):
 
 
 class SavableDeck(Deck):
-    """A deck of cards whose state can be saved."""
+    """A deck whose state can be saved."""
 
     cards: tuple[str, ...]
     queue: list[str]
