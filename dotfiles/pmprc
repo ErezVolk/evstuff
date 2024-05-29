@@ -115,27 +115,22 @@ chopsLeftModes:
   L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
   L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
   L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
+  L-Modes 5 (♬@♩=60 1324.3546.5768 p.15) [First time]: NONE
+  L-Modes 6 (♬@♩=60 8675.6453.4231 p.16) [First time]: NONE
+  L-Modes 7 (♬@♩=60 1342.3564.5786 p.17) [First time]: NONE
+  L-Modes 8 (♫ 1357.6421⇗ p.18) [First time]: NONE
+  L-Modes 9 (♫ 1357.6421⇘ p.19) [First time]: NONE
+  L-Modes 10 (♫ 1234.8675 p.20) [First time]: NONE
+  L-Modes 11 (♫ 1324.8765 p.21) [First time]: NONE
+  L-Modes 12 (♫ 4321.5768 p.22) [First time]: NONE
+  L-Modes 13 (♫ 4231.5678 p.23) [First time]: NONE
+  L-Modes 14 (♫ 1234.6421 p.24) [First time]: NONE
+  L-Modes 15 (♫ 4567.6421 p.25) [First time]: NONE
+  L-Modes 16 (♫ 1357.4321 p.26) [First time]: NONE
+  L-Modes 17 (♫ 1357.8765 p.27) [First time]: NONE
 
 bassHanon:
   Wolfe's "Bass Hanon Vol. 1" {} in {}: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
-
-_chopsLeftTodo:
-  L-Modes 5 (♬@♩=60 1324.3546.5768 p.15): NONE
-  L-Modes 6 (♬@♩=60 8675.6453.4231 p.16): NONE
-  L-Modes 7 (♬@♩=60 1342.3564.5786 p.17): NONE
-  L-Modes 8 (♫ 1357.6421⇗ p.18): NONE
-  L-Modes 9 (♫ 1357.6421⇘ p.19): NONE
-  L-Modes 10 (♫ 1234.8675 p.20): NONE
-  L-Modes 11 (♫ 1324.8765 p.21): NONE
-  L-Modes 12 (♫ 4321.5768 p.22): NONE
-  L-Modes 13 (♫ 4231.5678 p.23): NONE
-  L-Modes 14 (♫ 1234.6421 p.24): NONE
-  L-Modes 15 (♫ 4567.6421 p.25): NONE
-  L-Modes 16 (♫ 1357.4321 p.26): NONE
-  L-Modes 17 (♫ 1357.8765 p.27): NONE
-  L-Dexterity II.1 (p7) [Too shifty for now]: NONE
-  L-Dexterity II.2 (p8) [Too shifty for now]: NONE
-  L-Dexterity II.3 (p9) [Too shifty for now]: NONE
 
 chopsRight = { @chopsRight16ths @chopsRightGrace-8-16-16 @chopsRightGrace-16-16-8 @chopsRightGrace-16-8-16 @chopsRightGrace-Triplets }
 
@@ -193,7 +188,10 @@ chopsRightGrace-Triplets:
   R-grace-triplet-31 (p40) (♪̵♪♪♪ ₂122.₂121.₁211.₁212...): NONE
   R-grace-triplet-32 (p40) (♪̵♪♪♪ ₂112.₂121.₁221.₁212...): NONE
 
-_chopsBothTodo:  # Not there yet
+_chopsTodo:  # Not there yet
+  L-Dexterity II.1 (p7) [Too shifty for now]: NONE
+  L-Dexterity II.2 (p8) [Too shifty for now]: NONE
+  L-Dexterity II.3 (p9) [Too shifty for now]: NONE
   R+L-6ths-1 (p44) (♬@80~120 1166.2277ː3388.4499ː55AA.66BB, RH 1-2-1-2): NONE
   R+L-6ths-2 (p44) (♬@80~120 1166.2277ː3388.4499ː55AA.66BB, RH 2-1-2-1): NONE
   R+L-6ths-3 (p44) (♬@80~120 BB66.AA55ː9944.8833ː7722.6611, RH 1-2-1-2): NONE
@@ -405,6 +403,8 @@ keepCarol:  # snippets and technical bits; songs go to reviseCarol
 
 keepOther:
   {} maj7, m7, 7, m7(b5) chords in the upper register: ANY
+  Exercise 88 in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": NONE
+  Exercise 103 in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": NONE
 
 _carolTodo:  # As I work through them, move to keepCarol / reviseCarol
   Key of E in "Bass Lines Book 3": NONE  # to keepCarol
