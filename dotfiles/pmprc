@@ -24,12 +24,12 @@ majMin:
 # Currently working on
 #
 tempo:
-  ** Try MM ♩={}/{} going {}, with permutation {} today **: {[104-126]} {[66-82]} {UP|DOWN} {<1|2|3>}
+  ** Try MM ♩={}/{} going {}, with permutations {}, {}, {} today **: {[104-126]} {[66-82]} {UP|DOWN} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
   Dean's Figure 24 on page 30: NONE
   Steve's Etude 6 on page 39: NONE
-  Ray Brown's Solo Exercise (p.119): NONE
+  Ray Brown's Solo Exercise (p.119) [⍻]: NONE
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13): NONE
@@ -298,7 +298,7 @@ keepRayBrownAug:
   Ray Brown's Augmented Exercise (p.98): NONE
 
 keepRayBrownSolo:
-  Ray Brown's Solo Exercise (p.118, i.e. 1 53 6 42 5 31 4 27 1): NONE
+  Ray Brown's Solo Exercise (p.118, i.e. 1 53 6 42 5 31 4 27 1) {}: {chromatically|circle of 4ths}
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
