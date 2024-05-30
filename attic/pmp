@@ -63,7 +63,6 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
-- Generic Victor ("break 32 into random sum of [2-7]") -- via plugin?
 - Make into an app (Kivy? No more pmprc parsing)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Visitor pattern (on_etude=, on_ref=)
@@ -310,7 +309,7 @@ class RangeDeck(SavableDeck):
         return self.cards
 
 
-class PermDeck(Deck):
+class PermutationDeck(Deck):
     """Random permutation of a list (not a deck due to size)."""
 
     PERMS_RE = r"<[^<>]+>"
@@ -331,6 +330,34 @@ class PermDeck(Deck):
         """Get another permutation."""
         random.shuffle(self.items)
         return "-".join(self.items)
+
+
+class PartitionDeck(Deck):
+    """Random partition of a number into a sum of numbers."""
+
+    PARTITION_RE = r"=\d+="
+    total: int
+
+    def __init__(self, desc: str) -> None:
+        super().__init__()
+        self.total = int(desc[1:-1])
+        self.label = Label(desc)
+        self.layout = Layout(desc)
+
+    @property
+    def blurb(self) -> str:
+        """A description of the deck in its current state."""
+        return self.label
+
+    def draw(self) -> str:
+        """Get another permutation."""
+        parts: list[str] = []
+        left = self.total
+        while left:
+            part = random.randrange(min(7, left)) + 1
+            parts.append(str(part))
+            left -= part
+        return "-".join(parts)
 
 
 class NoneDeck(Deck):
@@ -899,8 +926,10 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
                 self.add_dep(self.curr.label, label)
             elif self.match(SavableDeck.RANGES_RE, ranges := part.strip()):
                 decks.append(RangeDeck(template, ranges))
-            elif self.match(PermDeck.PERMS_RE, itemstr := part.strip()):
-                decks.append(PermDeck(itemstr))
+            elif self.match(PermutationDeck.PERMS_RE, itemstr := part.strip()):
+                decks.append(PermutationDeck(itemstr))
+            elif self.match(PartitionDeck.PARTITION_RE, desc := part.strip()):
+                decks.append(PartitionDeck(desc))
             else:
                 keys = [key.strip() for key in part.split("|")]
                 decks.append(SavableDeck(cards=keys))

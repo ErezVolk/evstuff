@@ -83,6 +83,8 @@ clap:
   Clap triplet no. {}: {2|3}
   Clap 16th no. {}: {2|3|4}
   Victor's {}: {<1|2|3|4|5|6|7|1|3>}
+  Victor's {}: {=32=}
+  Victor's {}: {=16=}
 
 #
 # JdP's "Daily Chop-Builders for Bass"
