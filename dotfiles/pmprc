@@ -29,7 +29,7 @@ tempo:
 homeworkTechnical:
   Dean's Figure 24 on page 30: NONE
   Steve's Etude 6 on page 39: NONE
-  Ray Brown's Solo Exercise (p.119) [⍻]: NONE
+  Ray Brown's Exercise in Fourths (p.120): NONE
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13): NONE
@@ -120,7 +120,7 @@ chopsLeftModes:
   L-Modes 5 (♬@♩=60 1324.3546.5768 p.15) [First time]: NONE
   L-Modes 6 (♬@♩=60 8675.6453.4231 p.16) [First time]: NONE
   L-Modes 7 (♬@♩=60 1342.3564.5786 p.17) [First time]: NONE
-  L-Modes 8 (♫ 1357.6421⇗ p.18) [First time]: NONE
+  L-Modes 8 (♫ 1357.6421⇗ p.18): NONE
   L-Modes 9 (♫ 1357.6421⇘ p.19) [First time]: NONE
   L-Modes 10 (♫ 1234.8675 p.20) [First time]: NONE
   L-Modes 11 (♫ 1324.8765 p.21) [First time]: NONE
@@ -259,7 +259,7 @@ rayBrownBluesKeys := C|F|B♭|G
 rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 
-keepRayBrown = { @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownSolo }
+keepRayBrown = { @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownChapterIX }
 
 keepRayBrownBlues:
   Ray Brown's Blues (p.100), {} pattern: {A+B|C|D|E|F}
@@ -297,8 +297,9 @@ keepRayBrownAug:
   Ray Brown's Augmented Exercise (p.97): NONE
   Ray Brown's Augmented Exercise (p.98): NONE
 
-keepRayBrownSolo:
+keepRayBrownChapterIX:
   Ray Brown's Solo Exercise (p.118, i.e. 1 53 6 42 5 31 4 27 1) {}: {chromatically|circle of 4ths}
+  Ray Brown's Solo Exercise (p.119) {}: {chromatically|circle of 4ths}
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -620,7 +621,6 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
-  Ray Brown's Exercise in Fourths (p.120): NONE
   Ray Brown's Exercise in Fourths (p.121): NONE
   Ray Brown's Exercise in Fourths (p.122): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
