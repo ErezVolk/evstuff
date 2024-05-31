@@ -340,13 +340,18 @@ class PartitionDeck(Deck):
         self.layout = Layout(desc)
 
     def draw(self) -> str:
-        """Get another permutation."""
+        """Get another permutation.
+
+        This probably isn't a very good random partition generator,
+        but it's simple and quick.
+        """
         parts: list[str] = []
         left = self.total
         while left:
             part = random.randrange(min(7, left)) + 1
             parts.append(str(part))
             left -= part
+        random.shuffle(parts)
         return "-".join(parts)
 
 
