@@ -111,9 +111,9 @@ class Deck(abc.ABC):
         return 1
 
     @property
-    @abc.abstractmethod
     def blurb(self) -> str:
         """A description of the deck in its current state."""
+        return self.label
 
     def ping(self) -> None:
         """Notify the deck it's being used."""
@@ -321,11 +321,6 @@ class PermutationDeck(Deck):
         self.label = Label(itemstr)
         self.layout = Layout(itemstr)
 
-    @property
-    def blurb(self) -> str:
-        """A description of the deck in its current state."""
-        return self.label
-
     def draw(self) -> str:
         """Get another permutation."""
         random.shuffle(self.items)
@@ -343,11 +338,6 @@ class PartitionDeck(Deck):
         self.total = int(desc[1:-1])
         self.label = Label(desc)
         self.layout = Layout(desc)
-
-    @property
-    def blurb(self) -> str:
-        """A description of the deck in its current state."""
-        return self.label
 
     def draw(self) -> str:
         """Get another permutation."""
@@ -370,11 +360,6 @@ class NoneDeck(Deck):
     def draw(self) -> str:
         """Get next empty string."""
         return ""
-
-    @property
-    def blurb(self) -> str:
-        """Return the simplest of blurbs."""
-        return self.NAME
 
 
 class Etude:
