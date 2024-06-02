@@ -27,9 +27,9 @@ tempo:
   ** Try MM ♩={}/{} going {}, with permutations {}, {}, {} today **: {[104-126]} {[66-82]} {UP|DOWN} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
-  Dean's Figure 24 on page 30: NONE
   Steve's Etude 6 on page 39: NONE
-  Ray Brown's Exercise in Fourths (p.120) [⍻]: NONE
+  Ray Brown's Exercise in Fourths (p.121): NONE
+  Dean's Figure 25 on page 31: NONE
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13): NONE
@@ -300,6 +300,7 @@ keepRayBrownAug:
 keepRayBrownChapterIX:
   Ray Brown's Solo Exercise (p.118, i.e. 1 53 6 42 5 31 4 27 1) {}: {chromatically|circle of 4ths}
   Ray Brown's Solo Exercise (p.119) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.120) {}: {chromatically|circle of 4ths}
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -366,6 +367,7 @@ keepDean:
   Dean's Figure 21 on page 29: NONE
   Dean's Figure 22 on page 30: NONE
   Dean's Figure 23 on page 30: NONE
+  Dean's Figure 24 on page 30: NONE
 
 keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Page 5 in "How to Play the Electric Bass": NONE
@@ -621,7 +623,6 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
-  Ray Brown's Exercise in Fourths (p.121): NONE
   Ray Brown's Exercise in Fourths (p.122): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
@@ -644,7 +645,6 @@ _bachTodo:
 
 _peerTodo:
   # Maybe figures 22-24 in sequence?
-  Dean's Figure 25 on page 31: NONE
   Dean's Figure 26 ? (tune to E-A-D-F♯) on pages 32-33: NONE
   Dean's Figure 27 ? (tune to D-A-E-G♯) on page 34: NONE
   Dean's Figure 28 ? (tune to D-A-E-B) on page 34: NONE
