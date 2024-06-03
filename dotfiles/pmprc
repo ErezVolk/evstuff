@@ -27,7 +27,7 @@ tempo:
   ** Try MM ♩={}/{} going {}, with permutations {}, {}, {} today **: {[104-126]} {[66-82]} {UP|DOWN} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
-  Steve's Etude 6 on page 39: NONE
+  Steve's Etude 6 on page 39 [last played at ♩=48]: NONE
   Ray Brown's Exercise in Fourths (p.121): NONE
   Dean's Figure 25 on page 31: NONE
 
@@ -96,7 +96,7 @@ patituchops:
   The +{}-String Spider, starting on {}: {1|2} {ANY}
   JP's ⡠⠑ on the {} string: {oneString}
 
-chopsLeft = { @chopsLeftDexterity @chopsLeftModes @bassHanon }
+chopsLeft = { @chopsLeftDexterity @chopsLeftModes }  # @bassHanon
 
 chopsLeftDexterity:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
