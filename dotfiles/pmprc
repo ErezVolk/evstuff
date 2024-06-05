@@ -7,7 +7,7 @@ mornWarmup = [ tempo warmup chops @clap ]
 mornPractice = [ @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical @playSong @homeworkMusic ]
 
-eve = [ dusk homeworkMusic 3@book @song 2@revise ]
+eve = [ dusk homeworkMusic 2@book @song 2@revise ]
 dusk = [ @chopsLeft @arpeggio @sightReading @patituchops ]
 
 revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol }
@@ -34,15 +34,13 @@ homeworkTechnical:
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13): NONE
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
-  Key of A in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of E in "Bass Lines Book 3": NONE  # to keepCarol
 
 book:
   Radley ctd. [Chapter 4, p.29]: NONE
-  Steve ctd.: NONE
   Baroque ctd. [number 9]: NONE
   Simandl Études ctd. [number 4]: NONE
   John P's course ctd.: NONE
-  Carol Kaye ctd. [at Book 2, pp. 18-19]: NONE
   Learn a song [any song]: NONE
 
 #
@@ -405,6 +403,7 @@ keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Key of C in "Bass Lines Book 3": NONE
   Key of G in "Bass Lines Book 3": NONE
   Key of D in "Bass Lines Book 3": NONE
+  Key of A in "Bass Lines Book 3": NONE
 
 keepOther:
   {} maj7, m7, 7, m7(b5) chords in the upper register: ANY
@@ -412,7 +411,6 @@ keepOther:
   Exercise 103 in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": NONE
 
 _carolTodo:  # As I work through them, move to keepCarol / reviseCarol
-  Key of E in "Bass Lines Book 3": NONE  # to keepCarol
   Key of B in "Bass Lines Book 3": NONE  # to keepCarol
   Key of F♯ in "Bass Lines Book 3": NONE  # to keepCarol
   Key of F in "Bass Lines Book 3": NONE  # to keepCarol
