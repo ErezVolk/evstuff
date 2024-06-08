@@ -48,7 +48,7 @@ Function loadConfig() as Object
 {
     Title: "NHK World"
     streamFormat: "hls"
-    Stream: "https://cdn.nhkworld.jp/www11/nhkworld-tv/domestic/2003459/live.m3u8"
+    Stream: "https://nhkwlive-ojp.akamaized.net/hls/live/2003459/nhkwlive-ojp-en/index_1M.m3u8"
 }
     
     
