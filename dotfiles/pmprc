@@ -460,18 +460,18 @@ playSong:
   Play "Darn That Dream" (1={}, MM ♩={}): {major} {[80-200]}
   Play "The Chicken": NONE
   Play "Green Flower Street": NONE
+  Play "Good Times": NONE
+  Play "My Girl": NONE
 
 learnSong:
   Learn "Master Blaster": NONE
   Learn "Lately": NONE
   Learn "Shining Star": NONE
-  Learn "Good Times": NONE
   Learn "What's Going On": NONE
   Learn "Thank You Fallettinme": NONE
   Learn "Honky Cat": NONE
   Learn "If You Want Me to Stay": NONE
   Learn "In My Little Town": NONE
-  Learn "My Girl": NONE
   # ADD MORE
 
 
