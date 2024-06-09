@@ -27,13 +27,12 @@ tempo:
   ** Try MM ♩={}/{} going {}, with permutations {}, {}, {} today **: {[104-126]} {[66-82]} {UP|DOWN} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
-  Steve's Etude 6 on page 39 [last played at ♩=48]: NONE
-  Ray Brown's Exercise in Fourths (p.121): NONE
+  Ray Brown's Exercise in Fourths (p.121) [⍻]: NONE
   Dean's Figure 25 on page 31: NONE
-  Green Flower Street: NONE
-  Night in Tunisia: NONE
+  Learn "Night in Tunisia": NONE
   # TODO: Transcribe!
   # TODO: _standardsToDo
+  # TODO: Standards template (tempo, key, melody/bass/solo/sing?)
 
 homeworkMusic:
   Melodic Étude in G♭ Major (p.13): NONE
@@ -65,9 +64,11 @@ warmupHarveyEtAl:
 warmupOtherInterval:
   4ths drill on the {} strings: twoAdjacentStrings
   3rds drill on the {} strings: twoAdjacentStrings
+  Minor 3rds drill on the {} strings: twoAdjacentStrings
   6ths drill on the {} strings: twoSubjacentStrings
-  Minor 6ths drill on the {} strings: IV+III~II|III+II~I
+  Minor 6ths drill with the low string being {}: IV|III
   10ths drill on the IV+I strings: NONE
+  Minor 10ths drill on the IV+I strings: NONE
 
 warmupOtherScale:
   {}-Major Scale, ATFB and on the {} string: {major} {oneString}
@@ -309,9 +310,11 @@ keepSteveInterval:
   5ths drill on the {} strings: twoAdjacentStrings
   4ths drill on the {} strings: twoAdjacentStrings
   3rds drill on the {} strings: twoAdjacentStrings
+  Minor 3rds drill on the {} strings: twoAdjacentStrings
   6ths drill on the {} strings: twoSubjacentStrings
-  Minor 6ths drill on the {} strings: IV+III~II|III+II~I
+  Minor 6ths drill with the low string being {}: IV|III
   10ths drill on the IV+I strings: NONE
+  Minor 10ths drill on the IV+I strings: NONE
 
 keepSteveHazard:
   Hazard 3rds, {}: 2-1-4-3 (Ex. 2 on page 11)|4-1-2-3 (Ex. 3A on page 12)|1-3-4-2 (Ex. 3B on page 12)|1-4-3-2 (Ex. 3C on page 12)
@@ -357,8 +360,9 @@ keepSteveOther:
   {} Diatonic string-crossing slides of a 7th (page 33): @majMin
   {} Octave string-crossing slide exercise on page 34: @majMin
   Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
-  Harmonic slides exercise on page 35 [⍻]: NONE
-  Steve's Exercise 3 on page 36 [note right hand]: NONE
+  Harmonic slides exercise on page 35: NONE
+  Steve's Exercise 3 on page 36 [N.B. right hand]: NONE
+  Steve's Etude 6 on page 39 [last played at ♩=45]: NONE
 
 keepDean:
   Dean's Figure 15 on p.16: NONE
@@ -455,6 +459,7 @@ playSong:
   Play "Someday My Prince Will Come" (1={}, MM ♩={}): {major} {[80-200]}
   Play "Darn That Dream" (1={}, MM ♩={}): {major} {[80-200]}
   Play "The Chicken": NONE
+  Play "Green Flower Street": NONE
 
 learnSong:
   Learn "Master Blaster": NONE
