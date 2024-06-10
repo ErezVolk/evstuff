@@ -27,7 +27,7 @@ tempo:
   ** Try MM ♩={}/{} going {}, with permutations {}, {}, {} today **: {[104-126]} {[66-82]} {UP|DOWN} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
-  Ray Brown's Exercise in Fourths (p.121) [⍻]: NONE
+  Ray Brown's Exercise in Fourths (p.122): NONE
   Dean's Figure 25 on page 31: NONE
   Learn "Night in Tunisia": NONE
   # TODO: Transcribe!
@@ -304,6 +304,7 @@ keepRayBrownChapterIX:
   Ray Brown's Solo Exercise (p.118, i.e. 1 53 6 42 5 31 4 27 1) {}: {chromatically|circle of 4ths}
   Ray Brown's Solo Exercise (p.119) {}: {chromatically|circle of 4ths}
   Ray Brown's Exercise in Fourths (p.120) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.121) [⍻]: NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -630,7 +631,6 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
-  Ray Brown's Exercise in Fourths (p.122): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
   Ray Brown's Exercise (Solo) (p.125-126): NONE
