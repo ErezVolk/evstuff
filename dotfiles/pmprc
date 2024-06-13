@@ -29,7 +29,7 @@ tempo:
 homeworkTechnical:
   Ray Brown's Exercise in Fourths (p.122): NONE
   Dean's Figure 25 on page 31: NONE
-  Learn "Night in Tunisia": NONE
+  Memorize "Fly Me to the Moon": NONE
   # TODO: Transcribe!
   # TODO: _standardsToDo
   # TODO: Standards template (tempo, key, melody/bass/solo/sing?)
@@ -127,9 +127,7 @@ chopsLeftModes:
   L-Modes 9 (♫ 1357.6421⇘ p.19) [First time]: NONE
   L-Modes 10 (♫ 1234.8675 p.20) [First time]: NONE
   L-Modes 11 (♫ 1324.8765 p.21) [First time]: NONE
-  L-Modes 12 (♫ 4321.5768 p.22) [First time]: NONE
-  L-Modes 13 (♫ 4231.5678 p.23): NONE
-  L-Modes 14 (♫ 1234.6421 p.24) [First time]: NONE
+  L-Modes 12 (♫ 4321.5768 p.22) [First time]: NONE L-Modes 13 (♫ 4231.5678 p.23): NONE L-Modes 14 (♫ 1234.6421 p.24) [First time]: NONE
   L-Modes 15 (♫ 4567.6421 p.25) [First time]: NONE
   L-Modes 16 (♫ 1357.4321 p.26) [First time]: NONE
   L-Modes 17 (♫ 1357.8765 p.27) [First time]: NONE
@@ -137,61 +135,8 @@ chopsLeftModes:
 bassHanon:
   Wolfe's "Bass Hanon Vol. 1" {} in {}: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
 
-chopsRight = { @chopsRight16ths @chopsRightGrace-8-16-16 @chopsRightGrace-16-16-8 @chopsRightGrace-16-8-16 @chopsRightGrace-Triplets }
-
-chopsRight16ths:
-  R-16th-1 (p29) ♬ 1212...: NONE
-  R-16th-2 (p29) ♬ 2121...: NONE
-  R-16th-3 (p29) ♬ 1211.2122...: NONE
-  R-16th-4 (p29) ♬ 1121.2212...: NONE
-  R-16th-5 (p30) ♬ 1221.2112...: NONE
-  R-16th-6 (p30) ♬ 1211.2112...: NONE
-  R-16th-7 (p30) ♬ 2122.1221...: NONE
-  R-16th-8 (p30) ♬ 1122.1221.2211.2112...: NONE
-  R-16th-9 (p31) ♬ 1122.1121.2211.2212...: NONE
-  R-16th-10 (p31) ♬ 1122.1211.2211.2122...: NONE
-  R-16th-11 (p31) ♬ 1221.2221.2112.1112...: NONE
-  R-16th-12 (p31) ♬ 1221.2111.2112.1222...: NONE
-
-chopsRightGrace-8-16-16:
-  R-grace-8th-16ths-1 (p33) (♪̵♪♬ ₂122...): NONE
-  R-grace-8th-16ths-2 (p33) (♪̵♪♬ ₂122...): NONE
-  R-grace-8th-16ths-3 (p33) (♪̵♪♬ ₁211...): NONE
-  R-grace-8th-16ths-4 (p33) (♪̵♪♬ ₂121...): NONE
-  R-grace-8th-16ths-5 (p34) (♪̵♪♬ ₂121.₁212...): NONE
-  R-grace-8th-16ths-6 (p34) (♪̵♪♬ ₂122.₁211...): NONE
-  R-grace-8th-16ths-7 (p34) (♪̵♪♬ ₂122.₂121.₁211.₁212...): NONE
-  R-grace-8th-16ths-8 (p34) (♪̵♪♬ ₂112.₂121.₁221.₁212...): NONE
-
-chopsRightGrace-16-16-8:
-  R-grace-16ths-8th-9 (p35) (♪̵♬♪ ₂122...): NONE
-  R-grace-16ths-8th-10 (p35) (♪̵♬♪ ₂122...): NONE
-  R-grace-16ths-8th-11 (p35) (♪̵♬♪ ₁211...): NONE
-  R-grace-16ths-8th-12 (p35) (♪̵♬♪ ₂121...): NONE
-  R-grace-16ths-8th-13 (p36) (♪̵♬♪ ₂121.₁212...) [last played at ♩=76]: NONE
-  R-grace-16ths-8th-14 (p36) (♪̵♬♪ ₂122.₁211...): NONE
-  R-grace-16ths-8th-15 (p36) (♪̵♬♪ ₂122.₂121.₁211.₁212...): NONE
-  R-grace-16ths-8th-16 (p36) (♪̵♬♪ ₂112.₂121.₁221.₁212...): NONE
-
-chopsRightGrace-16-8-16:
-  R-grace-16th-8th-16th-17 (p37) (₂122...): NONE
-  R-grace-16th-8th-16th-18 (p37) (₁211...): NONE
-  R-grace-16th-8th-16th-19 (p37) (₂121...): NONE
-  R-grace-16th-8th-16th-20 (p37) (₁212...): NONE
-  R-grace-16th-8th-16th-21 (p38) (₂121.₁212...): NONE
-  R-grace-16th-8th-16th-22 (p38) (₂122.₁211...): NONE
-  R-grace-16th-8th-16th-23 (p38) (₂122.₂121.₁211.₁212...): NONE
-  R-grace-16th-8th-16th-24 (p38) (₂112.₂121.₁221.₁212...) [last played at ♩=54]: NONE
-
-chopsRightGrace-Triplets:
-  R-grace-triplet-25 (p39) (♪̵♪♪♪ ₂122...): NONE
-  R-grace-triplet-26 (p39) (♪̵♪♪♪ ₁211...): NONE
-  R-grace-triplet-27 (p39) (♪̵♪♪♪ ₂121...): NONE
-  R-grace-triplet-28 (p39) (♪̵♪♪♪ ₁212...): NONE
-  R-grace-triplet-29 (p40) (♪̵♪♪♪ ₂121.₁212...): NONE
-  R-grace-triplet-30 (p40) (♪̵♪♪♪ ₂122.₁211...): NONE
-  R-grace-triplet-31 (p40) (♪̵♪♪♪ ₂122.₂121.₁211.₁212...): NONE
-  R-grace-triplet-32 (p40) (♪̵♪♪♪ ₂112.₂121.₁221.₁212...): NONE
+chopsRight:
+  R-{} {}: {16ths|grace-8th-16ths|grace-16ths-8th|grace-16th-8th-16th|grace-triplets} {2122|1211|2121|1212|2121-1212|2122-1211|2122-2121-1211-1212|2112-2121-1221-1212}
 
 _chopsTodo:  # Not there yet
   L-Dexterity II.1 (p7) [Too shifty for now]: NONE
