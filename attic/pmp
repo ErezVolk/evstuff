@@ -63,6 +63,7 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
+- Template (what to do with a standard)
 - Make into an app (Kivy? No more pmprc parsing)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Visitor pattern (on_etude=, on_ref=)
@@ -192,6 +193,9 @@ class SavableDeck(Deck):
 
         if not (queued := self._get_queue(saved, order=old_cards) & ours):
             raise SerializationError("No shared cards in queue")
+
+        if len(added) >= len(queued):
+            raise SerializationError("Give unqueud cards a chance")
 
         self._set_queue(queued | added)
         self.old_layout = old_layout
