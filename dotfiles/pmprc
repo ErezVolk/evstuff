@@ -25,11 +25,13 @@ majMin:
 #
 tempo:
   ** Try MM ♩={}/{} going {}, with permutations {}, {}, {}-8 today **: {[104-126]} {[66-82]} {UP|DOWN} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
+  ** RECORD & SING 2 SOLO **: NONE
 
 homeworkTechnical:
-  Ray Brown's Exercise in Fourths (p.122): NONE
-  Dean's Figure 25 on page 31: NONE
-  Memorize "Fly Me to the Moon": NONE
+  Ray Brown's Exercise in Fourths (p.122) [⍻]: NONE
+  Stricker Concert: NONE
+  Dean's Figure 30 (dual node harmonics) on page 36: NONE
+  Figure Out {}{} in Harmonics: {ANY}{M|m|M7|m7|dim}
   # TODO: Transcribe!
   # TODO: _standardsToDo
   # TODO: Standards template (tempo, key, melody/bass/solo/sing?)
@@ -322,6 +324,7 @@ keepDean:
   Dean's Figure 22 on page 30: NONE
   Dean's Figure 23 on page 30: NONE
   Dean's Figure 24 on page 30: NONE
+  Dean's Figure 25 on page 31: NONE
 
 keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Page 5 in "How to Play the Electric Bass": NONE
@@ -602,7 +605,6 @@ _peerTodo:
   Dean's Figure 26 ? (tune to E-A-D-F♯) on pages 32-33: NONE
   Dean's Figure 27 ? (tune to D-A-E-G♯) on page 34: NONE
   Dean's Figure 28 ? (tune to D-A-E-B) on page 34: NONE
-  Dean's Figure 30 (dual node harmonics) on page 36: NONE
   Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
   Dean's Figure 34 (false harmonics--right hand) on page 39: NONE
   Dean's Figure 35 (false harmonics) on page 40: NONE
