@@ -28,7 +28,7 @@ tempo:
   ** RECORD & SING 2 SOLO **: NONE
 
 homeworkTechnical:
-  Ray Brown's Exercise in Fourths (p.122) [⍻]: NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
   Stricker Concert: NONE
   Dean's Figure 30 (dual node harmonics) on page 36: NONE
   Figure Out {}{} in Harmonics: {ANY}{M|m|M7|m7|dim}
@@ -254,6 +254,7 @@ keepRayBrownChapterIX:
   Ray Brown's Solo Exercise (p.119) {}: {chromatically|circle of 4ths}
   Ray Brown's Exercise in Fourths (p.120) {}: {chromatically|circle of 4ths}
   Ray Brown's Exercise in Fourths (p.121) [⍻]: NONE
+  Ray Brown's Exercise in Fourths (p.122): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -581,7 +582,6 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
-  Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
   Ray Brown's Exercise (Solo) (p.125-126): NONE
   Ray Brown's Exercise (Solo) (p.127-128): NONE
