@@ -27,7 +27,7 @@ tempo:
   ** Try MM ♩={}/{} going {}, with permutations {}, {}, {}-8 today **: {[104-126]} {[66-82]} {UP|DOWN} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
-  Ray Brown's Exercise in Fourths (Solo) (p.123) [⍻]: NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
   Darn@60: NONE
   Prince@140: NONE
   Fly@192: NONE
@@ -103,9 +103,7 @@ patituchops:
   The +{}-String Spider, starting on {}: {1|2} {ANY}
   JP's ⡠⠑ on the {} string: {oneString}
 
-chopsLeft = { @chopsLeftDexterity @chopsLeftModes }  # @bassHanon
-
-chopsLeftDexterity:
+chopsLeft:
   L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
   L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
   L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42₆₇: NONE
@@ -118,8 +116,6 @@ chopsLeftDexterity:
   L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
   L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
   L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
-
-chopsLeftModes:
   L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
   L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
   L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
@@ -255,8 +251,9 @@ keepRayBrownChapterIX:
   Ray Brown's Solo Exercise (p.118, i.e. 1 53 6 42 5 31 4 27 1) {}: {chromatically|circle of 4ths}
   Ray Brown's Solo Exercise (p.119) {}: {chromatically|circle of 4ths}
   Ray Brown's Exercise in Fourths (p.120) {}: {chromatically|circle of 4ths}
-  Ray Brown's Exercise in Fourths (p.121) [⍻]: NONE
+  Ray Brown's Exercise in Fourths (p.121): NONE
   Ray Brown's Exercise in Fourths (p.122): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
 
 keepSteveInterval:
   8ths drill on the {} strings: twoSubjacentStrings
@@ -584,7 +581,6 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
-  Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
   Ray Brown's Exercise (Solo) (p.125-126): NONE
   Ray Brown's Exercise (Solo) (p.127-128): NONE
   Ray Brown's Exercise (Solo) (p.129): NONE
