@@ -15,6 +15,7 @@ revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW rev
 oneString := IV|III|II|I
 twoAdjacentStrings := IV+III|III+II|II+I
 twoSubjacentStrings := IV+II|III+I
+inversion := 1st|2nd|3rd|4th
 
 majMin:
   -major: major
@@ -24,10 +25,10 @@ majMin:
 # Currently working on
 #
 tempo:
-  ** Try MM ♩={}/{} going {}, with permutations {}, {}, {}-8 today **: {[104-126]} {[66-82]} {UP|DOWN} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
+  ** Try MM ♩={}/{} going {}, {} inversion, with permutations {}, {}, {}-8 today **: {[104-126]} {[66-82]} {UP|DOWN} {inversion} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
-  Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.124) [⍻]: NONE
   Darn@60: NONE
   Prince@140: NONE
   Fly@192: NONE
