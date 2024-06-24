@@ -172,7 +172,7 @@ _chopsTodo:  # Not there yet
 # Technical things to keep by practicing
 #
 keep = { @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean @keepOther }
-slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveOther }
+slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveSlideBig @keepSteveOther }
 doubleStop = { @keepSteveScaleInDoubleStops }
 
 arpeggio:
@@ -241,7 +241,7 @@ keepRayBrownDim:
   Ray Brown's Diminished Exercise (p.85): NONE
 
 keepRayBrownAug:
-  Ray Brown's Augmented Exercise (p.92) [⍻ name the notes!]: NONE
+  Ray Brown's Augmented Exercise (p.92): NONE
   Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
   Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
   Ray Brown's Augmented Exercise (p.97): NONE
@@ -306,10 +306,12 @@ keepSteveSlide6th:
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
   {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): {major}
 
-keepSteveOther:
-  Slide blending exercises on page 30: NONE
+keepSteveSlideBig:
   {} Diatonic string-crossing slides of a 7th (page 33): @majMin
   {} Octave string-crossing slide exercise on page 34: @majMin
+
+keepSteveOther:
+  Slide blending exercises on page 30: NONE
   Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
   Harmonic slides exercise on page 35: NONE
   Steve's Exercise 3 on page 36 [N.B. right hand]: NONE
