@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""Will I Like It?"""
+"""Tells you if you'd like it."""
 import argparse
+import contextlib
 import logging
-from pathlib import Path
-import re
-import time
 import random
+import re
 import subprocess
+import time
+from pathlib import Path
 
-import pandas as pd
-import browser_cookie3
-import requests
+try:
+    import pandas as pd
+    import browser_cookie3
+    import requests
+except ImportError:
+    print("Please install requirements.")
+    raise
 
 
 logging.basicConfig(format="%(asctime)s %(message)s")
@@ -19,9 +24,10 @@ log.setLevel(logging.INFO)
 
 
 class LikeIt:
-    """Will I Like It?"""
+    """Tells you if you'd like a book."""
+
     def parse_cli(self) -> argparse.Namespace:
-        """Usage"""
+        """Handle usage."""
         parser = argparse.ArgumentParser(
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
             description="LibraryThing 'Will You Like It?'",
@@ -61,11 +67,12 @@ class LikeIt:
         return parser.parse_args()
 
     NO_TITLE = "(N/A)"
+    TOO_LONG = 120
 
     args: argparse.Namespace
 
     def run(self):
-        """Main"""
+        """Do the work."""
         self.args = self.parse_cli()
 
         if self.args.ltws:
@@ -82,12 +89,10 @@ class LikeIt:
         for _, row in wishlist.iterrows():
             title = row.Title or self.NO_TITLE
             ltw = row.LTW
-            tmap = wishlist.LTW == ltw
+            tmap = ltw == wishlist.LTW
 
-            try:
+            with contextlib.suppress(ValueError, AttributeError):
                 ltw = ltw[ltw.rindex("/") + 1:]
-            except (ValueError, AttributeError):
-                pass
 
             try:
                 ltw = int(ltw)
@@ -145,7 +150,7 @@ class LikeIt:
             if self.args.debug:
                 break
 
-            if done and time.time() - checkpoint > 120:
+            if done and time.time() - checkpoint > self.TOO_LONG:
                 log.info("Courtesy writing %s", self.args.output)
                 wishlist.to_excel(self.args.output)
                 checkpoint = time.time()
@@ -160,24 +165,24 @@ class LikeIt:
 
         if not self.args.no_open and not self.args.ltws:
             subprocess.run([
-                "open",
+                "/usr/bin/open",
                 str(self.args.input),
                 str(self.args.output),
             ], check=False)
 
     def read_wishlist(self) -> pd.DataFrame:
-        """Read the whole thing"""
+        """Read the whole thing."""
         return pd.read_excel(self.args.input)
 
     def make_wishlist(self) -> pd.DataFrame:
-        """Create mock spreadsheet when given LTW(s) from the command line"""
+        """Create mock spreadsheet when given LTW(s) from the command line."""
         return pd.DataFrame(
             {
                 "Title": self.NO_TITLE,
                 "LTW": self.args.ltws,
                 "L": 250.0,
                 "T": 500,
-            }
+            },
         )
 
 
