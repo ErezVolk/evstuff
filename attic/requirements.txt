@@ -4,6 +4,7 @@ fitz
 jupyterlab
 lxml
 mutagen
+openpyxl
 pandas
 pip
 pyaudio
@@ -17,3 +18,4 @@ seaborn
 simple_term_menu
 soundfile
 xlrd
+xlsxwriter
