@@ -74,7 +74,7 @@ class LikeIt:
             log.info("Reading %s", self.args.input)
             wishlist = self.read_wishlist()
 
-        cookies = browser_cookie3.firefox()
+        cookies = browser_cookie3.safari()
 
         done = {}
         undone = []
