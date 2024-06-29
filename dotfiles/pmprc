@@ -43,8 +43,8 @@ homeworkMusic:
 
 book:
   Radley ctd. [Chapter 4, p.29]: NONE
-  Baroque ctd. [number 9]: NONE
-  Simandl Études ctd. [number 4]: NONE
+  Baroque ctd. [number 10]: NONE
+  Simandl Études ctd. [number 4 ⍻]: NONE
   John P's course ctd.: NONE
   Learn a song [any song]: NONE
 
@@ -206,9 +206,9 @@ rayBrownBluesKeys := C|F|B♭|G
 rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 
-keepRayBrown = { @keepRayBrownTriads @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownChapterIX }
+keepRayBrown = { @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownChapterIX }
 
-keepRayBrownTriads:
+keepRayBrownTriads:  # TODO
   Ray Brown's Major Triads (p.29): NONE
   Ray Brown's Minor Triads (p.29): NONE
 
@@ -461,6 +461,7 @@ reviseBaroque:
   Baroque Étude No. 6 (p.6) [last played at ♩=72 of 72]: NONE
   Baroque Étude No. 7 (p.6) [last played at ♩=84 of 108]: NONE
   Baroque Étude No. 8 (p.6): NONE
+  Baroque Étude No. 9 (p.7): NONE
 
 reviseMelodic:
   Melodic Étude in C Major (p.7): NONE
@@ -583,6 +584,8 @@ _melodicTodo:
   # Add more as I play them
 
 _rayBrownTodo:
+  Ray Brown's Major Triads (p.29): NONE
+  Ray Brown's Minor Triads (p.29): NONE
   Ray Brown's Exercise (Solo) (p.127-128): NONE
   Ray Brown's Exercise (Solo) (p.129): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
