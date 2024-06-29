@@ -100,7 +100,7 @@ chops = [ @chopsRight @chopsLeft @patituchops ]
 
 patituchops:
   JP@AW 1.09 Hammer-ons and pull-offs: NONE
-  The +{}-String Spider, starting on {}: {1|2} {ANY}
+  The {}-String Spider, starting on {}: {+1|+2|-1|-2} {ANY}
   JP's ⡠⠑ on the {} string: {oneString}
 
 chopsLeft:
