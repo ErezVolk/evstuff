@@ -206,7 +206,11 @@ rayBrownBluesKeys := C|F|B♭|G
 rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 
-keepRayBrown = { @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownChapterIX }
+keepRayBrown = { @keepRayBrownTriads @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownChapterIX }
+
+keepRayBrownTriads:
+  Ray Brown's Major Triads (p.29): NONE
+  Ray Brown's Minor Triads (p.29): NONE
 
 keepRayBrownBlues:
   Ray Brown's Blues (p.100), {} pattern: {A+B|C|D|E|F}
@@ -215,6 +219,7 @@ keepRayBrownBlues:
   Ray Brown's Blues (III) (p.103), starting from {}: rayBrownBluesKeys
 
 keepRayBrown10ths:
+  Ray Brown's Exercise in 10ths (p.{}): {36|37|39-40|41-42}
   Ray Brown's 10ths with a 5th, {}: rayBrown10thKeys
   Ray Brown's minor 10ths with a 5th, {}: rayBrown10thKeys
   Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
