@@ -172,7 +172,6 @@ _chopsTodo:  # Not there yet
 # Technical things to keep by practicing
 #
 keep = { @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean @keepOther }
-slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveSlideBig @keepSteveOther }
 doubleStop = { @keepSteveScaleInDoubleStops }
 
 arpeggio:
@@ -281,41 +280,36 @@ keepSteveScaleInDoubleStops:
   {} in octave double stops 1-3-2-4-... (Ex 5 on page 7): @majMin
   Chromatic scale in 5th double stops on {} (page 6): twoAdjacentStrings
 
-keepSteveSlide2nd:
+#slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveSlideBig }
+slide:
+#keepSteveSlide2nd:
   -melodic minor linear slides of a second in octave double stops (Ex 4A on p.19): minor
   -melodic minor zig-zag slides of a third in octave double stops (Ex 4B on p.19): minor
   -melodic minor linear slides of a second in fifth double stops (Ex 5A on p.19): minor
   -*natural* minor zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): minor
 
-keepSteveSlide3rd:
+#keepSteveSlide3rd:
   Slides in 3rds (Ex. 3 on page 21) on the {} strings: twoAdjacentStrings
   Slides in 3rds (Ex. 4A on page 22) on the {} strings: twoAdjacentStrings
   Slides in 3rds (Ex. 4B on page 22) on the {} strings: twoAdjacentStrings
   Slides in 3rds (Ex. 4C on page 22) on the {} strings: twoAdjacentStrings
   1-2-3-2-3-4... slides (Ex. 4D on page 22) on the {} string: oneString
 
-keepSteveSlide4th:
+#keepSteveSlide4th:
   {}-major Diatonic Slides of 4th half notes (1↗4 4↘1 2↗5 5↘2 ...): major
   {}-major Diatonic Slides in 4ths 143₇-2541-3652-... (Ex. 2A on page 23): major
 
-keepSteveSlide5th:
+#keepSteveSlide5th:
   {}-major Diatonic Slides of 5th half notes (1↗5 5↘1 2↗6 ..) (Ex. 1 on page 25): major
   {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
 
-keepSteveSlide6th:
+#keepSteveSlide6th:
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
   {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): {major}
 
-keepSteveSlideBig:
+#keepSteveSlideBig:
   {} Diatonic string-crossing slides of a 7th (page 33): @majMin
   {} Octave string-crossing slide exercise on page 34: @majMin
-
-keepSteveOther:
-  Slide blending exercises on page 30: NONE
-  Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
-  Harmonic slides exercise on page 35: NONE
-  Steve's Exercise 3 on page 36 [N.B. right hand]: NONE
-  Steve's Etude 6 on page 39 [last played at ♩=45]: NONE
 
 keepDean:
   Dean's Figure 15 on p.16: NONE
@@ -371,6 +365,11 @@ keepOther:
   {} maj7, m7, 7, m7(b5) chords in the upper register: ANY
   Exercise 88 in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": NONE
   Exercise 103 in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": NONE
+  Slide blending exercises on page 30: NONE
+  Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
+  Harmonic slides exercise on page 35: NONE
+  Steve's Exercise 3 on page 36 [N.B. right hand]: NONE
+  Steve's Etude 6 on page 39 [last played at ♩=45]: NONE
 
 _carolTodo:  # As I work through them, move to keepCarol / reviseCarol
   Key of B in "Bass Lines Book 3": NONE  # to keepCarol
