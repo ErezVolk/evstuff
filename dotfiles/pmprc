@@ -289,10 +289,7 @@ slide:
   -*natural* minor zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): minor
 
 #keepSteveSlide3rd:
-  Slides in 3rds (Ex. 3 on page 21) on the {} strings: twoAdjacentStrings
-  Slides in 3rds (Ex. 4A on page 22) on the {} strings: twoAdjacentStrings
-  Slides in 3rds (Ex. 4B on page 22) on the {} strings: twoAdjacentStrings
-  Slides in 3rds (Ex. 4C on page 22) on the {} strings: twoAdjacentStrings
+  Slides in 3rds (Ex. {} on page 21/22) on the {} strings: {3|4A|4B|4C} {twoAdjacentStrings}
   1-2-3-2-3-4... slides (Ex. 4D on page 22) on the {} string: oneString
 
 #keepSteveSlide4th:
