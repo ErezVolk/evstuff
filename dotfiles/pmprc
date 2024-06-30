@@ -693,23 +693,3 @@ _bookTodo:  # When I'm good enough?
   #NAH# Steven Mooney's "Contructing Walking Jazz Bass Lines" [Loses to JP+Downes]: NONE
   #NAH# Ed's Building Walking Bass [Loses to JP+Downes]: NONE
 
-#
-# Generic
-#
-
-note:
-  : ANY
-
-chord:
-  Δ: major
-  m: minor
-  ⁷: major
-  m⁷: minor
-  M⁷: major
-
-scale:
-  -major: major
-  -major: major
-  -minor (natural): minor
-  -minor (harmonic): minor
-  -minor (melodic): minor
