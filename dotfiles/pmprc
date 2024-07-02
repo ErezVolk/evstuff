@@ -25,7 +25,7 @@ majMin:
 # Currently working on
 #
 tempo:
-  ** Try MM ♩={}/{} going {}, {} inversion, with permutations {}, {}, {}-8 today **: {[104-126]} {[66-82]} {UP|DOWN} {inversion} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
+  ** Try MM ♩={}/{} going {}, {} inversion, with permutations {}, {}, *{}-8 today **: {[104-126]} {[66-82]} {UP|DOWN} {inversion} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
   Ray Brown's Major Triads (p.29): NONE
