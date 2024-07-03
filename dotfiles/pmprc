@@ -182,14 +182,15 @@ arpeggio:
   X-minor pentatonic, starting from {}: minor
   Xᴼ⁷, starting from {}: minor
   Xaug⁷, starting from {}: major
-  X⁹, starting from {}: major
-  Xmaj⁹, starting from {}: major
-  Xmin⁹, starting from {}: minor
+  X⁹, starting from {} [skip 1 on multi-octave]: major
+  Xmaj⁹, starting from {} [skip 1 on multi-octave]: major
+  Xmin⁹, starting from {} [skip 1 on multi-octave]: minor
   X⁶, starting from {}: major
   Xm⁶, starting from {}: minor
   Xm⁷⁺, starting from {}: minor
 
 _arpeggioTodo:
+  Xmaj7+11, starting from {} [See JP's book]: major
   Xⁱ³, starting from {}: major
   X⁷⁻⁵, starting from {}: major
   X⁷⁻⁹, starting from {}: major
@@ -671,6 +672,9 @@ _standardsToDo:
 _bookTodo:  # When I'm good enough?
   JP's Walking Bass [After his course?]: NONE
   Mike Downes [Too much self-reliance? Or maybe it eats up all the rest?]: NONE
+  JP's Arpeggio "Episode 1" book [Should incorporate his first exercise into daily somehow]: NONE
+  Ziemann (dannyziemann.company.site/) [Specifically about walking]: NONE
+
   Blues Grooves [Take a look?]: NONE
   Chuck Sher's "Improviser's Bass Book" [Loses to JP+Downes? But Harvey likes it]: NONE
   Ron Carter's "Building Jazz Bass Lines" [Try it?]: NONE
@@ -679,8 +683,7 @@ _bookTodo:  # When I'm good enough?
   Stuart Clayton's Guide to Scales and Modes [Hm, pretty comprehensive]: NONE
   Di Bartolo's Complete Guide to Scales and Chords [Hm, quite comprehensive, but not sure I like the tone]: NONE
   Cuneo, Angelo Francesco - 32 Exercises And Studies For Sight Reading [After Simandl?]: NONE
-  JP's Arpeggio book [Should incorporate his first exercise into daily somehow]: NONE
-  Goldsby's "The Jazz Bass Book" [Take a look]: NONE
+  Goldsby's "The Jazz Bass Book" [Take a look, not really a method book]: NONE
 
   Connecting Chords with Linear Harmony by Bert Ligon [Check it out? See youtu.be/W4RkIVTbezs]: NONE
   Coker's Patterns for Jazz [Pretty serious stuff, for improvising]: NONE
