@@ -210,7 +210,7 @@ rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 keepRayBrown = { @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownChapterIX }
 
 keepRayBrownTriads:  # TODO
-  Ray Brown's Major Triads (p.29): NONE
+  Ray Brown's Major Triads (p.29), starting from {}: rayBrownDrillKeys
   Ray Brown's Minor Triads (p.29): NONE
 
 keepRayBrownBlues:
