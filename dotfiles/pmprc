@@ -21,6 +21,10 @@ majMin:
   -major: major
   -minor: minor
 
+rayBrownBluesKeys := C|F|B♭|G
+rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
+
 #
 # Currently working on
 #
@@ -203,10 +207,6 @@ _arpeggioTodo:
   Xm⁷⁻⁹, starting from {}: minor
   Xm⁷⁻⁵⁻⁹, starting from {}: minor
   Xᴼ⁹, starting from {}: minor
-
-rayBrownBluesKeys := C|F|B♭|G
-rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
-rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 
 keepRayBrown = { @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownChapterIX }
 
