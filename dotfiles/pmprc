@@ -29,7 +29,7 @@ rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 # Currently working on
 #
 tempo:
-  ** Try MM ♩={}/{} going {}, {} inversion, with permutations {}, {}, *{}-8 today **: {[104-126]} {[66-82]} {UP|DOWN} {inversion} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
+  ** Try MM ♩={}/{} going {}, {} inversion, with permutations {}, {}, *{}-8 today **: {[104-126]} {[66-82]} {↗|↘} {inversion} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
   Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
@@ -180,7 +180,7 @@ keep = { @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean 
 doubleStop = { @keepSteveScaleInDoubleStops }
 
 deboo:
-  Bob DeBoo's {} triads from {} [remember daily UP/DOWN]: {major|minor|aug|dim} {ANY}
+  Bob DeBoo's {} triads from {}, {}: {major|minor|aug|dim} {ANY} {↗|↘|↗↘|↘↗}
 
 arpeggio:
   Xmaj, starting from {}: major
@@ -430,6 +430,8 @@ learnSong:
   Learn "Honky Cat": NONE
   Learn "If You Want Me to Stay": NONE
   Learn "In My Little Town": NONE
+  Learn "Xeshbon pashut": NONE
+  Learn "Suru meni": NONE
   # ADD MORE
 
 
