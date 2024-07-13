@@ -32,9 +32,8 @@ tempo:
   ** Try MM ♩={}/{} going {}, {} inversion, with permutations {}, {}, *{}-8 today **: {[104-126]} {[66-82]} {↗|↘} {inversion} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
 homeworkTechnical:
-  Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
-  Ray Brown's Minor Triads (p.30): NONE
-  Stricker Concert: NONE
+  Dean's Figure 33 (false harmonics--left hand) on page 38 [⍻]: NONE
+  Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major [NB D♭]: {rayBrownDrillKeys}
   Figure Out {}{} in Harmonics: {ANY}{M|m|M7|m7|dim}
   Learn "Ornithology": NONE
   Transcribe Harvey's 10th piece: NONE
@@ -134,7 +133,7 @@ chopsLeft:
   L-Modes 11 (♫ 1324.8765 p.21) [First time]: NONE
   L-Modes 12 (♫ 4321.5768 p.22): NONE
   L-Modes 13 (♫ 4231.5678 p.23): NONE
-  L-Modes 14 (♫ 1234.6421 p.24) [First time]: NONE
+  L-Modes 14 (♫ 1234.6421 p.24): NONE
   L-Modes 15 (♫ 4567.6421 p.25): NONE
   L-Modes 16 (♫ 1357.4321 p.26) [First time]: NONE
   L-Modes 17 (♫ 1357.8765 p.27): NONE
@@ -180,7 +179,7 @@ keep = { @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean 
 doubleStop = { @keepSteveScaleInDoubleStops }
 
 deboo:
-  Bob DeBoo's {} triads from {}, {}: {major|minor|aug|dim} {ANY} {↗|↘|↗↘|↘↗}
+  Bob DeBoo's {} triads from {} in {}/4: {major|minor|aug|dim} {ANY} {[7-13]} # TODO: {↗|↘|↗↘|↘↗} {7th. etc} {Range} {N/4}
 
 arpeggio:
   Xmaj, starting from {}: major
