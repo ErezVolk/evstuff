@@ -179,7 +179,7 @@ keep = { @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean 
 doubleStop = { @keepSteveScaleInDoubleStops }
 
 deboo:
-  Bob DeBoo's {} triads from {} in {}/4: {major|minor|aug|dim} {ANY} {[7-13]} # TODO: {↗|↘|↗↘|↘↗} {7th. etc} {Range} {N/4}
+  Bob DeBoo's {} triads from {}: {major|minor|aug|dim} {ANY}  # TODO: {↗|↘|↗↘|↘↗} {add 7ths} {expand range} {whole|N/4}
 
 arpeggio:
   Xmaj, starting from {}: major
