@@ -2,7 +2,7 @@ all = [ morn eve ]
 
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
-*morn = [ mornWarmup @sightReading mornPractice mornHomework ]
+*morn = [ mornWarmup @sightReading mornPractice mornHomework earTraining ]
 mornWarmup = [ tempo warmup chops @clap ]
 mornPractice = [ @deboo @arpeggio 3@keep ]
 mornHomework = [ homeworkTechnical @playSong @homeworkMusic ]
@@ -31,8 +31,11 @@ rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 tempo:
   ** Try MM ♩={}/{} going {}, {} inversion, with permutations {}, {}, *{}-8 today **: {[104-126]} {[66-82]} {↗|↘} {inversion} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
 
+earTraining:
+  ** Don't forget some ear training! **: NONE
+
 homeworkTechnical:
-  Dean's Figure 33 (false harmonics--left hand) on page 38 [⍻]: NONE
+  Dean's Figure 34 (false harmonics--right hand) on page 39: NONE
   Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major [NB D♭]: {rayBrownDrillKeys}
   Figure Out {}{} in Harmonics: {ANY}{M|m|M7|m7|dim}
   Learn "Ornithology": NONE
@@ -129,7 +132,7 @@ chopsLeft:
   L-Modes 8 (♫ 1357.6421⇗ p.18): NONE
   L-Modes 9 (♫ 1357.6421⇘ p.19): NONE
   L-Modes 10 (♫ 1234.8675 p.20): NONE
-  L-Modes 11 (♫ 1324.8765 p.21) [First time]: NONE
+  L-Modes 11 (♫ 1324.8765 p.21): NONE
   L-Modes 12 (♫ 4321.5768 p.22): NONE
   L-Modes 13 (♫ 4231.5678 p.23): NONE
   L-Modes 14 (♫ 1234.6421 p.24): NONE
@@ -178,7 +181,7 @@ keep = { @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean 
 doubleStop = { @keepSteveScaleInDoubleStops }
 
 deboo:
-  Bob DeBoo's {} triads from {}: {major|minor|aug|dim} {ANY}  # TODO: {↗|↘|↗↘|↘↗} {add 7ths} {expand range} {whole|N/4}
+  Bob DeBoo's triads from {}: {ANY}  # TODO: {major|minor|aug|dim} {↗|↘|↗↘|↘↗} {add 7ths} {expand range} {whole|N/4}
 
 arpeggio:
   Xmaj, starting from {}: major
@@ -319,7 +322,8 @@ keepDean:
   Dean's Figure 23 on page 30: NONE
   Dean's Figure 24 on page 30: NONE
   Dean's Figure 25 on page 31: NONE
-  Dean's Figure 30 (dual node harmonics) on page 36 [⍻]: NONE
+  Dean's Figure 30 (dual node harmonics) on page 36: NONE
+  Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
 
 keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Page 5 in "How to Play the Electric Bass": NONE
@@ -606,7 +610,6 @@ _peerTodo:
   Dean's Figure 26 ? (tune to E-A-D-F♯) on pages 32-33: NONE
   Dean's Figure 27 ? (tune to D-A-E-G♯) on page 34: NONE
   Dean's Figure 28 ? (tune to D-A-E-B) on page 34: NONE
-  Dean's Figure 34 (false harmonics--right hand) on page 39: NONE
   Dean's Figure 35 (false harmonics) on page 40: NONE
   Dean's Figure 36 (false harmonics) on page 41: NONE
   Dean's Figure 37 (false harmonics) on page 41: NONE
