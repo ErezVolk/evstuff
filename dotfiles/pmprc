@@ -38,8 +38,7 @@ homeworkTechnical:
   Learn "Ornithology": NONE
   Transcribe Harvey's 10th piece: NONE
   REALLY Learn Stella: NONE
-  # TODO: standard -> Fuqua -> Transcribe
-  # MAYBE: That guy's triad exercise? Certainly as an enricher (option for arpeggios?)
+  REALLY Learn Autumn Leaves: NONE
   # Goldsby: ii-V patterns; "the list" (pdf-153); minor ii-V; ch70 "Playing Standards"
 
 homeworkMusic:
@@ -293,23 +292,18 @@ slide:
   -melodic minor zig-zag slides of a third in octave double stops (Ex 4B on p.19): minor
   -melodic minor linear slides of a second in fifth double stops (Ex 5A on p.19): minor
   -*natural* minor zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): minor
-
 #keepSteveSlide3rd:
   Slides in 3rds (Ex. {} on page 21/22) on the {} strings: {3|4A|4B|4C} {twoAdjacentStrings}
   1-2-3-2-3-4... slides (Ex. 4D on page 22) on the {} string: oneString
-
 #keepSteveSlide4th:
   {}-major Diatonic Slides of 4th half notes (1↗4 4↘1 2↗5 5↘2 ...): major
   {}-major Diatonic Slides in 4ths 143₇-2541-3652-... (Ex. 2A on page 23): major
-
 #keepSteveSlide5th:
   {}-major Diatonic Slides of 5th half notes (1↗5 5↘1 2↗6 ..) (Ex. 1 on page 25): major
   {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
-
 #keepSteveSlide6th:
   {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
   {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): {major}
-
 #keepSteveSlideBig:
   {} Diatonic string-crossing slides of a 7th (page 33): @majMin
   {} Octave string-crossing slide exercise on page 34: @majMin
