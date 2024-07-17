@@ -35,7 +35,7 @@ earTraining:
   ** Don't forget some ear training! **: NONE
 
 homeworkTechnical:
-  Dean's Figure 34 (false harmonics--right hand) on page 39: NONE
+  Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky]: NONE
   Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major [NB D♭]: {rayBrownDrillKeys}
   Figure Out {}{} in Harmonics: {ANY}{M|m|M7|m7|dim}
   Learn "Ornithology": NONE
@@ -324,6 +324,7 @@ keepDean:
   Dean's Figure 25 on page 31: NONE
   Dean's Figure 30 (dual node harmonics) on page 36: NONE
   Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
+  Dean's Figure 34 (false harmonics--right hand) on page 39, play {}: ANY
 
 keepCarol:  # snippets and technical bits; songs go to reviseCarol
   Page 5 in "How to Play the Electric Bass": NONE
@@ -610,7 +611,6 @@ _peerTodo:
   Dean's Figure 26 ? (tune to E-A-D-F♯) on pages 32-33: NONE
   Dean's Figure 27 ? (tune to D-A-E-G♯) on page 34: NONE
   Dean's Figure 28 ? (tune to D-A-E-B) on page 34: NONE
-  Dean's Figure 35 (false harmonics) on page 40: NONE
   Dean's Figure 36 (false harmonics) on page 41: NONE
   Dean's Figure 37 (false harmonics) on page 41: NONE
   Dean's Figure 38 (false harmonics) on page 42: NONE
