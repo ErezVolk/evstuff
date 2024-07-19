@@ -1,0 +1,240 @@
+*morn = [ randomize warmup 2@intonation 2@theory 2@current ]
+
+eve = [ @warmup 2@theory 2@music ]
+
+#
+# Shorthand
+#
+oneString := IV|III|II|I
+twoAdjacentStrings := IV+III|III+II|II+I
+twoSubjacentStrings := IV+II|III+I
+rayBrownBluesKeys := C|F|B♭|G
+rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
+majMin:
+  -major: major
+  -minor: minor
+
+randomize:
+  ** Try MM ♩={} {} {} today **: {[60-100]} {↗|↘} {<1̤|2̤|3̤|4̣|5|6|7|8>}
+
+#######
+
+current:
+  Bob DeBoo's triads from {}: {ANY}  # TODO: {major|minor|aug|dim} {↗|↘|↗↘|↘↗} {add 7ths|pentatonic} {expand range} {whole|N/4}
+  Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major [NB D♭]: {rayBrownDrillKeys}
+  Learn "Ornithology": NONE
+  Fuqua-up Stella: NONE
+  Fuqua-up Autumn Leaves [in C-minor, and figure out what Sinatra/Cole/Piaf/etc. are singing]: NONE
+
+#######
+
+warmup = [ @warmupInterval @warmupOther ]
+
+warmupOther = { @warmupHarvey @warmupRhythm }
+
+warmupInterval:
+  {} drill: {Octave|5th}
+
+warmupHarvey:
+  Harvey from {}: {G|C}
+  Mickey's {}: @majMin
+  {} Meta-chops: {Modal|Chromatic}
+
+warmupRhythm:
+  4-bar 4/4 Victor's {}: {<1|2|3|4|5|6|7|1|3>}
+  4-bar 6/8 Victor's {}: {<1|2|3|4|5|6|1|2>}
+
+intonation:  # TODO: split into boring and non-boring?
+  4ths drill on the {} strings: twoAdjacentStrings
+  3rds drill on the {} strings: twoAdjacentStrings
+  Minor 3rds drill on the {} strings: twoAdjacentStrings
+  6ths drill on the {} strings: twoSubjacentStrings
+  Minor 6ths drill with the low string being {}: IV|III
+  10ths drill on the IV+I strings: NONE
+  Minor 10ths drill on the IV+I strings: NONE
+  Chromatic scale on the {} string [sing before you play!]: {oneString}
+  JP's ⡠⠑ on the {} string: {oneString}
+  Hazard {} in today's string permutation: {3rds|minor 3rds|6ths|minor 6ths}
+  {} in 10th double stops (page 13): @majMin
+  {} in 4th double stops (Ex 5 on page 10): @majMin
+  {} in "chairs" (Ex 6 on page 10): @majMin  # Not really double stops, but had to put it somewhere
+  {} in 5th double stops (Ex 6 on page 7): @majMin
+  {} in octave double stops 1-3-2-4-... (Ex 5 on page 7): @majMin
+  Chromatic scale in 5th double stops on {} (page 6): twoAdjacentStrings
+  -melodic minor linear slides of a second in octave double stops (Ex 4A on p.19): minor
+  -melodic minor zig-zag slides of a third in octave double stops (Ex 4B on p.19): minor
+  -melodic minor linear slides of a second in fifth double stops (Ex 5A on p.19): minor
+  -*natural* minor zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): minor
+  Slides in 3rds (Ex. {} on page 21/22) on the {} strings: {3|4A|4B|4C} {twoAdjacentStrings}
+  1-2-3-2-3-4... slides (Ex. 4D on page 22) on the {} string: oneString
+  {}-major Diatonic Slides of 4th half notes (1↗4 4↘1 2↗5 5↘2 ...): major
+  {}-major Diatonic Slides in 4ths 143₇-2541-3652-... (Ex. 2A on page 23): major
+  {}-major Diatonic Slides of 5th half notes (1↗5 5↘1 2↗6 ..) (Ex. 1 on page 25): major
+  {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
+  {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
+  {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): {major}
+  {} Diatonic string-crossing slides of a 7th (page 33): @majMin
+  {} Octave string-crossing slide exercise on page 34: @majMin
+  Slide blending exercises on page 30: NONE
+  Harmonic slides exercise on page 35: NONE
+  Steve's Exercise 3 on page 36 [N.B. right hand]: NONE
+  Steve's Etude 6 on page 39 [last played at ♩=45]: NONE
+  Steve's 5th Shifting (Ex 3 on page 6): NONE
+  Steve's 5th Combination (Ex 4 on page 7): NONE
+  Steve's 4th Shifting (Ex 3 on page 9): NONE
+  Steve's 4th Combination (Ex 4 on page 9): NONE
+  Steve's 6ths étude (Ex 5 on page 16): NONE
+  Steve's 10th Combination (page 13): NONE
+  Steve's Triads 1 (page 17) [last played at ♩=69]: NONE
+  Steve's Triads 2 (page 18): NONE
+  Steve's linear Slides (Ex 3 on page 18) using the {} finger: 1st|2nd|3rd|4th
+  Steve's Ex 1 on p8age 20: NONE
+  Steve's "Slow and Bluesy" (Ex 2 on page 20) [N.B. bars 8-9]: NONE
+  {}-major Diatonic slides of 4th in ♫ 1₅₆2.3₇14... (Ex. 2B on page 23): major
+  Steve's 4th slide etude (Ex. 3 on page 24): NONE
+  Steve's 4th slide etude (Ex. 4 on page 24) [last played at ♩=60]: NONE
+  Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM ♩=56]: NONE
+  Slide blending etude on page 31 [last played at MM ♩=59]: NONE
+  Blending "Ryan's Hope" on page 32 [last played at MM ♩=88]: NONE
+  Steve's Etude 4 on page 37 [Last played at 50 BPM]: NONE
+  Steve's Etude 5 on page 38 (last played at 46 BPM): NONE
+
+  Ray Brown's Blues (p.100), {} pattern: {A+B|C|D|E|F}
+  Ray Brown's Blues (I) (p.101), starting from {}: rayBrownBluesKeys
+  Ray Brown's Blues (II) (p.102), starting from {}: rayBrownBluesKeys
+  Ray Brown's Blues (III) (p.103), starting from {}: rayBrownBluesKeys
+
+  Ray Brown's Exercise in 10ths (p.{}): {36|37|39-40|41-42}
+  Ray Brown's 10ths with a 5th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 5th, {}: rayBrown10thKeys
+  Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 6th, {}: rayBrown10thKeys
+  Ray Brown's 10ths with a 7th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 7th, {}: rayBrown10thKeys
+
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: rayBrownDrillKeys
+  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): rayBrownDrillKeys
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), start on {}: rayBrownDrillKeys
+  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), start on {}: rayBrownDrillKeys
+
+  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
+  Ray Brown's Diminished Exercise (p.79): NONE
+  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
+  Ray Brown's Diminished Exercise (p.82): NONE
+  Ray Brown's Diminished Exercise (p.83): NONE
+  Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
+  Ray Brown's Diminished Exercise (p.85): NONE
+
+  Ray Brown's Augmented Exercise (p.92): NONE
+  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
+  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
+  Ray Brown's Augmented Exercise (p.97): NONE
+  Ray Brown's Augmented Exercise (p.98): NONE
+
+  Ray Brown's Solo Exercise (p.118, i.e. 1 53 6 42 5 31 4 27 1) {}: {chromatically|circle of 4ths}
+  Ray Brown's Solo Exercise (p.119) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.120) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.121): NONE
+  Ray Brown's Exercise in Fourths (p.122): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.124) [⍻]: NONE
+  Ray Brown's Exercise (Solo) (p.125-126): NONE
+
+theory:
+  JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
+  {} Scale: @majMin
+  Whole Tone Scale from {}: ANY
+  Diminished Scale from {}: {ANY}
+  Ray Brown's Major Triads (p.29), starting from {}: rayBrownDrillKeys
+
+
+music:
+  Play "Fly Me To The Moon" (1={}, MM ♩={}): {major} {[80-200]}
+  Play "Someday My Prince Will Come" (1={}, MM ♩={}): {major} {[80-200]}
+  Play "Darn That Dream" (1={}, MM ♩={}): {major} {[80-200]}
+
+
+###
+
+_future:
+  # Fuqua-up The Girl from Ipanema [what key?]: NONE
+  # Fuqua-up I Got Rhythm [what key?]: NONE
+  # Fuqua-up Dream a Little Dream [what key?]: NONE
+
+  Ray Brown's Minor Triads (p.29): NONE
+  Ray Brown's Exercise (Solo) (p.127-128): NONE
+  Ray Brown's Exercise (Solo) (p.129): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.131): NONE
+  Ray Brown's Exercise (p.133): NONE
+  Ray Brown's Arpeggios for Endings (p.134): NONE
+  Ray Brown's Triplet Exercise for Solos (p.135): NONE
+
+  Learn "Master Blaster": NONE
+  Learn "Lately": NONE
+  Learn "What's Going On": NONE
+  Learn "Honky Cat": NONE
+  Learn "If You Want Me to Stay": NONE
+  Learn "In My Little Town": NONE
+  Learn "Xeshbon pashut": NONE
+  Learn "Suru meni": NONE
+
+  Oleo [Rhythm Changes, Weigert, etude in Goldsby pdf-212]: NONE
+
+  All of Me: NONE
+  All The Things You Are [note Goldsby's pdf-213; Also some guy on talkbass.com sez]: NONE
+  Alone Together: NONE
+  Billie’s Bounce: NONE
+  Black Orpheus (Manhã de Carnaval): NONE
+  Blue Bossa: NONE
+  Body and Soul [Jimmy Blanton transcription in Coolman]: NONE
+  But Not For Me: NONE
+  Bye Bye Blackbird: NONE
+  Cherokee: NONE
+  Confirmation [Mraz transcription in Coolman]: NONE
+  Days of Wine and Roses [Rybicki has RB transcription]: NONE
+  Doxy [Real Easy Book]: NONE
+  Fly Me To The Moon: NONE
+  Footprints: NONE
+  Four: NONE
+  Have You Met Miss Jones [*; Rybicki has RB transcription]: NONE
+  How High The Moon [Rybicki has RB transcription]: NONE
+  I Hear a Rhapsody: NONE
+  I Love You: NONE
+  I Remember You: NONE
+  I’ll Remember April: NONE
+  I’m Old Fashioned: NONE
+  If I Should Lose You: NONE
+  If I Were A Bell: NONE
+  In A Mellow Tone: NONE
+  In A Sentimental Mood: NONE
+  It Could Happen To You: NONE
+  Just Friends: NONE
+  Killer Joe [*Real Easy Book, RB transcriptions in RB and Coolman]: NONE
+  Misty: NONE
+  My Funny Valentine: NONE
+  Night and Day: NONE
+  On Green Dolphin Street [Also some guy on talkbass.com sez]: NONE
+  Recorda Me: NONE
+  Satin Doll: NONE
+  Stella By Starlight [*; Sam Jones transcription in Coolman]: NONE
+  Scrapple From The Apple: NONE
+  So What [Also some guy on talkbass.com sez]: NONE
+  Solar: NONE
+  St. Thomas [Real Easy Book]: NONE
+  Sweet Georgia Brown: NONE
+  Take The A Train: NONE
+  The Girl From Ipanema: NONE
+  There Is No Greater Love: NONE
+  There Will Never Be Another You: NONE
+  Up Jumped Spring: NONE
+  What Is This Thing Called Love: NONE
+  Yesterdays: NONE
+
+  Perdido [etude in Goldsbypdf-209]: NONE
+  Cold Duck Time [Real Easy Book]: NONE
+  Equinox [Real Easy Book, Weigert]: NONE
+  Song for My Father [*, Real Easy Book]: NONE
+
+
