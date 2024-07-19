@@ -1,0 +1,705 @@
+all = [ morn eve ]
+
+# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
+
+*morn = [ mornWarmup @sightReading mornPractice mornHomework earTraining ]
+mornWarmup = [ tempo warmup chops @clap ]
+mornPractice = [ @deboo @arpeggio 3@keep ]
+mornHomework = [ homeworkTechnical @playSong @homeworkMusic ]
+
+eve = [ dusk homeworkMusic 2@book @song 2@revise ]
+dusk = [ @chopsLeft @arpeggio @sightReading @patituchops ]
+
+revise = { reviseSteve reviseBaroque reviseMelodic reviseSimandl reviseJP@AW reviseOther reviseCarol }
+
+oneString := IV|III|II|I
+twoAdjacentStrings := IV+III|III+II|II+I
+twoSubjacentStrings := IV+II|III+I
+inversion := 1st|2nd|3rd|4th
+
+majMin:
+  -major: major
+  -minor: minor
+
+rayBrownBluesKeys := C|F|B♭|G
+rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
+
+#
+# Currently working on
+#
+tempo:
+  ** Try MM ♩={}/{} going {}, {} inversion, with permutations {}, {}, *{}-8 today **: {[104-126]} {[66-82]} {↗|↘} {inversion} {<1|2|3>} {<I|II|III|IV>} {<1|2|3|4|5|6|7>}
+
+earTraining:
+  ** Don't forget some ear training! **: NONE
+
+homeworkTechnical:
+  Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky]: NONE
+  Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major [NB D♭]: {rayBrownDrillKeys}
+  Figure Out {}{} in Harmonics: {ANY}{M|m|M7|m7|dim}
+  Learn "Ornithology": NONE
+  Transcribe Harvey's 10th piece: NONE
+  REALLY Learn Stella: NONE
+  REALLY Learn Autumn Leaves [in C-minor, and figure out what Sinatra/Cole/Piaf/etc. are singing]: NONE
+  REALLY Learn The Girl from Ipanema [what key?]: NONE
+  REALLY Learn I Got Rhythm [what key?]: NONE
+  REALLY Learn Dream a Little Dream [what key?]: NONE
+  # Goldsby: ii-V patterns; "the list" (pdf-153); minor ii-V; ch70 "Playing Standards"
+
+homeworkMusic:
+  Melodic Étude in G♭ Major (p.13): NONE
+  JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
+  Key of E in "Bass Lines Book 3": NONE  # to keepCarol
+
+book:
+  Radley ctd. [Chapter 4, p.29]: NONE
+  Baroque ctd. [number 10]: NONE
+  Simandl Études ctd. [number 4 ⍻]: NONE
+  John P's course ctd.: NONE
+  Learn a song [any song]: NONE
+
+#
+# Warmup Selection
+#
+warmup = [ @warmupInterval 2@warmupHarveyEtAl @warmupOtherScale ]
+
+warmupInterval:
+  Octave drill on the {} strings: twoSubjacentStrings
+  5ths drill on the {} strings: twoAdjacentStrings
+
+warmupHarveyEtAl:
+  # ' Minor Harvey from C': Natural|Harmonic|Melodic  # Not a good idea, because Harvey needs to be sung!
+  Harvey from {}: {G|C}
+  Mickey's {}: @majMin
+  @warmupOtherInterval
+
+warmupOtherInterval:
+  4ths drill on the {} strings: twoAdjacentStrings
+  3rds drill on the {} strings: twoAdjacentStrings
+  Minor 3rds drill on the {} strings: twoAdjacentStrings
+  6ths drill on the {} strings: twoSubjacentStrings
+  Minor 6ths drill with the low string being {}: IV|III
+  10ths drill on the IV+I strings: NONE
+  Minor 10ths drill on the IV+I strings: NONE
+
+warmupOtherScale:
+  {}-Major Scale, ATFB and on the {} string: {major} {oneString}
+  {}-{} Minor Scale, ATFB and on the {} string: {minor} {Natural|Harmonic|Melodic} {oneString}
+  Whole Tone Scale from {}, ATFB and on the {} string: {ANY} {oneString}
+  Diminished Scale from {}, ATFB and on the {} string: {ANY} {oneString}
+  Chromatic scale on the {} string [sing before you play!]: {oneString}
+  # Modes of the ascending melodic minor (https://en.wikipedia.org/wiki/Jazz_minor_scale#Modes_of_jazz_minor_scale) ?
+
+#
+# Clapping rhythm
+#
+
+clap:
+  Clap triplet no. {}: {2|3}
+  Clap 16th no. {}: {2|3|4}
+  Classic 4-bar Victor's {}: {<1|2|3|4|5|6|7|1|3>}
+  Free 4-bar Victor's {}: {=32=}
+  Free 2-bar Victor's {}: {=16=}
+
+#
+# JdP's "Daily Chop-Builders for Bass"
+#
+chops = [ @chopsRight @chopsLeft @patituchops ]
+
+patituchops:
+  JP@AW 1.09 Hammer-ons and pull-offs: NONE
+  The {}-String Spider, starting on {}: {+1|+2|-1|-2} {ANY}
+  JP's ⡠⠑ on the {} string: {oneString}
+
+chopsLeft:
+  L-Dexterity I.1 (p4) ♫@80~120 1345.6767|5656.4532: NONE
+  L-Dexterity I.2 (p4) ♫@80~120 1345.6787|6756.4532: NONE
+  L-Dexterity I.3 (p4) ♫@80~120 1564.7587|6425.42₆₇: NONE
+  L-Dexterity I.4 (p4) ♫@80~120 1658.7547|6538.75₇2: NONE
+  L-Dexterity I.5 (p5) ♫@80~120 1365.2465|3565.7542: NONE
+  L-Dexterity I.6 (p5) ♫@80~120 1365.4265|3165.42₆₇: NONE
+  L-Dexterity I.7 (p5) ♫@80~120 1867.5645|3823.18₇2: NONE
+  L-Dexterity I.8 (p5) ♫@80~120 1653.4652|1875.6523 [⚠]: NONE
+  L-Dexterity I.9 (p6) ♫@80~120 1875.6758|6756.4532: NONE
+  L-Dexterity I.10 (p6) ♫@80~120 3123.4568|7546.5324: NONE
+  L-Dexterity I.11 (p6) ♫@80~120 1812.3848|5867.8765: NONE
+  L-Dexterity I.12 (p6) ♫@80~120 1234.7658|4325.6781: NONE
+  L-Modes 1 (♫ 1↗4.8↘5 p.11): NONE
+  L-Modes 2 (♫ 8↘5.1↗4 p.12): NONE
+  L-Modes 3 (♫ 4↘1.5↗8 p.13): NONE
+  L-Modes 4 (♫ 5↗8.4↘1 p.14): NONE
+  L-Modes 5 (♬@♩=60 1324.3546.5768 p.15): NONE
+  L-Modes 6 (♬@♩=60 8675.6453.4231 p.16): NONE
+  L-Modes 7 (♬@♩=60 1342.3564.5786 p.17) [First time]: NONE
+  L-Modes 8 (♫ 1357.6421⇗ p.18): NONE
+  L-Modes 9 (♫ 1357.6421⇘ p.19): NONE
+  L-Modes 10 (♫ 1234.8675 p.20): NONE
+  L-Modes 11 (♫ 1324.8765 p.21): NONE
+  L-Modes 12 (♫ 4321.5768 p.22): NONE
+  L-Modes 13 (♫ 4231.5678 p.23): NONE
+  L-Modes 14 (♫ 1234.6421 p.24): NONE
+  L-Modes 15 (♫ 4567.6421 p.25): NONE
+  L-Modes 16 (♫ 1357.4321 p.26) [First time]: NONE
+  L-Modes 17 (♫ 1357.8765 p.27): NONE
+
+bassHanon:
+  Wolfe's "Bass Hanon Vol. 1" {} in {}: {[1-20]} {C|F|B♭|E♭|A♭|D♭|G♭|B|E|A|D|G}
+
+chopsRight:
+  R-{} {}: {16ths|grace-8th-16ths|grace-16ths-8th|grace-16th-8th-16th|grace-triplets} {2122|1211|2121|1212|2121-1212|2122-1211|2122-2121-1211-1212|2112-2121-1221-1212}
+
+_chopsTodo:  # Not there yet
+  L-Dexterity II.1 (p7) [Too shifty for now]: NONE
+  L-Dexterity II.2 (p8) [Too shifty for now]: NONE
+  L-Dexterity II.3 (p9) [Too shifty for now]: NONE
+  R+L-6ths-1 (p44) (♬@80~120 1166.2277ː3388.4499ː55AA.66BB, RH 1-2-1-2): NONE
+  R+L-6ths-2 (p44) (♬@80~120 1166.2277ː3388.4499ː55AA.66BB, RH 2-1-2-1): NONE
+  R+L-6ths-3 (p44) (♬@80~120 BB66.AA55ː9944.8833ː7722.6611, RH 1-2-1-2): NONE
+  R+L-6ths-4 (p44) (♬@80~120 BB66.AA55ː9944.8833ː7722.6611, RH 2-1-2-1): NONE
+  R+L-5ths-1 (p45): NONE
+  R+L-5ths-2 (p46): NONE
+  R+L-5ths-3 (p47): NONE
+  R+L-var.-1 (p48): NONE
+  R+L-var.-1a (p48): NONE
+  R+L-var.-2 (p48): NONE
+  R+L-var.-2a (p48): NONE
+  R+L-combination-1 (p49): NONE
+  R+L-combination-2 (p50): NONE
+  R+L-combination-3 (p51): NONE
+  R+L-inversion-whole-1 (p52): NONE
+  R+L-inversion-whole-2 (p52): NONE
+  R+L-inversion-whole-3 (p53): NONE
+  R+L-inversion-whole-4 (p53): NONE
+  R+L-inversion-half-1 (p54): NONE
+  R+L-inversion-half-2 (p54): NONE
+  R+L-inversion-half-3 (p55): NONE
+  R+L-inversion-half-4 (p55): NONE
+
+
+#
+# Technical things to keep by practicing
+#
+keep = { @keepSteveHazard @slide @doubleStop @keepRayBrown @keepCarol @keepDean @keepOther }
+doubleStop = { @keepSteveScaleInDoubleStops }
+
+deboo:
+  Bob DeBoo's triads from {}: {ANY}  # TODO: {major|minor|aug|dim} {↗|↘|↗↘|↘↗} {add 7ths|pentatonic} {expand range} {whole|N/4}
+
+arpeggio:
+  Xmaj, starting from {}: major
+  Xm, starting from {}: minor
+  X⁷, starting from {}: major
+  Xm⁷, starting from {}: minor
+  XM⁷, starting from {}: major
+  X-major pentatonic, starting from {}: major
+  X-minor pentatonic, starting from {}: minor
+  Xᴼ⁷, starting from {}: minor
+  Xaug⁷, starting from {}: major
+  X⁹, starting from {} [skip 1 on multi-octave]: major
+  Xmaj⁹, starting from {} [skip 1 on multi-octave]: major
+  Xmin⁹, starting from {} [skip 1 on multi-octave]: minor
+  X⁶, starting from {}: major
+  Xm⁶, starting from {}: minor
+  Xm⁷⁺, starting from {}: minor
+
+_arpeggioTodo:
+  Xmaj7+11, starting from {} [See JP's book]: major
+  Xⁱ³, starting from {}: major
+  X⁷⁻⁵, starting from {}: major
+  X⁷⁻⁹, starting from {}: major
+  X⁷⁻⁵⁻⁹, starting from {}: major
+  X⁶⁹, starting from {}: major
+  X⁷⁺⁹, starting from {}: major
+  Xⁱ³⁻⁹, starting from {}: major
+  X⁷sus4, starting from {}: major
+  Xm⁷⁻⁹, starting from {}: minor
+  Xm⁷⁻⁵⁻⁹, starting from {}: minor
+  Xᴼ⁹, starting from {}: minor
+
+keepRayBrown = { @keepRayBrownTriads @keepRayBrownBlues @keepRayBrown10ths @keepRayBrownDrops @keepRayBrownDim @keepRayBrownAug @keepRayBrownChapterIX }
+
+keepRayBrownTriads:
+  Ray Brown's Major Triads (p.29), starting from {}: rayBrownDrillKeys
+
+keepRayBrownBlues:
+  Ray Brown's Blues (p.100), {} pattern: {A+B|C|D|E|F}
+  Ray Brown's Blues (I) (p.101), starting from {}: rayBrownBluesKeys
+  Ray Brown's Blues (II) (p.102), starting from {}: rayBrownBluesKeys
+  Ray Brown's Blues (III) (p.103), starting from {}: rayBrownBluesKeys
+
+keepRayBrown10ths:
+  Ray Brown's Exercise in 10ths (p.{}): {36|37|39-40|41-42}
+  Ray Brown's 10ths with a 5th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 5th, {}: rayBrown10thKeys
+  Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 6th, {}: rayBrown10thKeys
+  Ray Brown's 10ths with a 7th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 7th, {}: rayBrown10thKeys
+
+keepRayBrownDrops:
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: rayBrownDrillKeys
+  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): rayBrownDrillKeys
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), start on {}: rayBrownDrillKeys
+  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), start on {}: rayBrownDrillKeys
+
+keepRayBrownDim:
+  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
+  Ray Brown's Diminished Exercise (p.79): NONE
+  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
+  Ray Brown's Diminished Exercise (p.82): NONE
+  Ray Brown's Diminished Exercise (p.83): NONE
+  Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
+  Ray Brown's Diminished Exercise (p.85): NONE
+
+keepRayBrownAug:
+  Ray Brown's Augmented Exercise (p.92): NONE
+  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
+  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
+  Ray Brown's Augmented Exercise (p.97): NONE
+  Ray Brown's Augmented Exercise (p.98): NONE
+
+keepRayBrownChapterIX:
+  Ray Brown's Solo Exercise (p.118, i.e. 1 53 6 42 5 31 4 27 1) {}: {chromatically|circle of 4ths}
+  Ray Brown's Solo Exercise (p.119) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.120) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.121): NONE
+  Ray Brown's Exercise in Fourths (p.122): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.123): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.124) [⍻]: NONE
+  Ray Brown's Exercise (Solo) (p.125-126): NONE
+
+keepSteveInterval:
+  8ths drill on the {} strings: twoSubjacentStrings
+  5ths drill on the {} strings: twoAdjacentStrings
+  4ths drill on the {} strings: twoAdjacentStrings
+  3rds drill on the {} strings: twoAdjacentStrings
+  Minor 3rds drill on the {} strings: twoAdjacentStrings
+  6ths drill on the {} strings: twoSubjacentStrings
+  Minor 6ths drill with the low string being {}: IV|III
+  10ths drill on the IV+I strings: NONE
+  Minor 10ths drill on the IV+I strings: NONE
+
+keepSteveHazard:
+  Hazard {} in today's string permutation: {3rds|minor 3rds|6ths|minor 6ths}
+
+keepSteveScaleInDoubleStops:
+  {} in 10th double stops (page 13): @majMin
+  {} in 4th double stops (Ex 5 on page 10): @majMin
+  {} in "chairs" (Ex 6 on page 10): @majMin  # Not really double stops, but had to put it somewhere
+  {} in 5th double stops (Ex 6 on page 7): @majMin
+  {} in octave double stops 1-3-2-4-... (Ex 5 on page 7): @majMin
+  Chromatic scale in 5th double stops on {} (page 6): twoAdjacentStrings
+
+#slide = { @keepSteveSlide2nd @keepSteveSlide3rd @keepSteveSlide4th @keepSteveSlide5th @keepSteveSlide6th @keepSteveSlideBig }
+slide:
+#keepSteveSlide2nd:
+  -melodic minor linear slides of a second in octave double stops (Ex 4A on p.19): minor
+  -melodic minor zig-zag slides of a third in octave double stops (Ex 4B on p.19): minor
+  -melodic minor linear slides of a second in fifth double stops (Ex 5A on p.19): minor
+  -*natural* minor zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): minor
+#keepSteveSlide3rd:
+  Slides in 3rds (Ex. {} on page 21/22) on the {} strings: {3|4A|4B|4C} {twoAdjacentStrings}
+  1-2-3-2-3-4... slides (Ex. 4D on page 22) on the {} string: oneString
+#keepSteveSlide4th:
+  {}-major Diatonic Slides of 4th half notes (1↗4 4↘1 2↗5 5↘2 ...): major
+  {}-major Diatonic Slides in 4ths 143₇-2541-3652-... (Ex. 2A on page 23): major
+#keepSteveSlide5th:
+  {}-major Diatonic Slides of 5th half notes (1↗5 5↘1 2↗6 ..) (Ex. 1 on page 25): major
+  {}-major Diatonic Slides of up to a 5ths ({}): {major} {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
+#keepSteveSlide6th:
+  {}-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): major
+  {}-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): {major}
+#keepSteveSlideBig:
+  {} Diatonic string-crossing slides of a 7th (page 33): @majMin
+  {} Octave string-crossing slide exercise on page 34: @majMin
+
+keepDean:
+  Dean's Figure 15 on p.16: NONE
+  Dean's Figure 16 on p.17 (C(9) chord): NONE
+  Dean's Figure 17 on pp.18-19: NONE
+  Dean's Figure 19 on page 21 (D-major scale): NONE
+  Dean's Figure 20 (chord inventory), page {} ({}): {[22-28]} {top|bottom}  # Add as I work through them
+  Dean's Figure 21 on page 29: NONE
+  Dean's Figure 22 on page 30: NONE
+  Dean's Figure 23 on page 30: NONE
+  Dean's Figure 24 on page 30: NONE
+  Dean's Figure 25 on page 31: NONE
+  Dean's Figure 30 (dual node harmonics) on page 36: NONE
+  Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
+  Dean's Figure 34 (false harmonics--right hand) on page 39, play {}: ANY
+
+keepCarol:  # snippets and technical bits; songs go to reviseCarol
+  Page 5 in "How to Play the Electric Bass": NONE
+  Page 6 in "How to Play the Electric Bass": NONE
+  Page 7 in "How to Play the Electric Bass": NONE
+  Page 8 in "How to Play the Electric Bass": NONE
+  Page 9 in "How to Play the Electric Bass": NONE
+  Page 10 in "How to Play the Electric Bass": NONE
+  Page 11 in "How to Play the Electric Bass": NONE
+  Page 20 in "How to Play the Electric Bass": NONE
+  Page 21 in "How to Play the Electric Bass": NONE
+  Page 22 in "How to Play the Electric Bass": NONE
+  Page 23 in "How to Play the Electric Bass": NONE
+  Page 28 in "How to Play the Electric Bass": NONE
+  Page 4 in "Bass Lines Book 1": NONE
+  Page 5 in "Bass Lines Book 1": NONE
+  Page 6 in "Bass Lines Book 1": NONE
+  Page 7 in "Bass Lines Book 1": NONE
+  Page 8 in "Bass Lines Book 1": NONE
+  Page 9 in "Bass Lines Book 1": NONE
+  Page 10 in "Bass Lines Book 1": NONE
+  Page 11 in "Bass Lines Book 1": NONE
+  Fills on page 13-14 in "Bass Lines Book 1": NONE
+  Double Stop Studies on page 14 in "Bass Lines Book 1": NONE
+  Page 15 in "Bass Lines Book 1": NONE
+  Page 3 in "Bass Lines Book 2": NONE
+  Page 4 in "Bass Lines Book 2": NONE
+  Page 5 in "Bass Lines Book 2": NONE
+  Page 6 in "Bass Lines Book 2": NONE
+  Page 10 in "Bass Lines Book 2" [last played at MM ♩=80]: NONE
+  Page 11 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
+  Page 12 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
+  Page 13 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
+  'Other Recorded Licks' on Page 22 in "Bass Lines Book 2" [last played at MM ♩=69]: NONE
+  Key of C in "Bass Lines Book 3": NONE
+  Key of G in "Bass Lines Book 3": NONE
+  Key of D in "Bass Lines Book 3": NONE
+  Key of A in "Bass Lines Book 3": NONE
+
+keepOther:
+  {} maj7, m7, 7, m7(b5) chords in the upper register: ANY
+  Exercise 88 in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": NONE
+  Exercise 103 in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": NONE
+  Slide blending exercises on page 30: NONE
+  Steve's Stella by Starlight vibrato+legato exercise on page 35: NONE
+  Harmonic slides exercise on page 35: NONE
+  Steve's Exercise 3 on page 36 [N.B. right hand]: NONE
+  Steve's Etude 6 on page 39 [last played at ♩=45]: NONE
+
+_carolTodo:  # As I work through them, move to keepCarol / reviseCarol
+  Key of B in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of F♯ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of F in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of B♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of E♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of A♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of D♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Key of G♭ in "Bass Lines Book 3": NONE  # to keepCarol
+  Scale Practice in "Bass Lines Book 3": NONE  # to keepCarol
+  Happy Together in "Bass Lines Book 3": NONE  # to reviseCarol
+  'Games People Play' (pp. 23-26) from "Electric Bass Lines 2" [120 BPM, I've played around 70(!)]: NONE
+  "Bass Lines Book 4": NONE
+  "Bass Lines Book 5": NONE
+  "Bass Lines Book 6": NONE
+
+sightReading:
+  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Minor": {[1-10]} {[4-23]}
+  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Major": {[1-10]} {[4-27]}
+  Line {} on Page {} in "Sightreading Mastery For Bass Guitar Exersices": {[1-8]} {[2-63]}
+  Exercise {} in "Robert Anthony - 300 Progressive Sight Reading Exercises for Bass Guitar": {[1-300]}
+  Track {} in "Motto - Essential sightreading studies for electric bass": {[1-82]}
+  "Lewis Jamey - Sight Reading For Electric Bassist Book 1", key of {}, number {}: {C Major|A Minor|F Major|D Minor|G Major|E Minor} {[1-10]}
+  Page {} in "Simplified Sight Reading": {[37-46,48-53,56-59,65-68]}
+  Page {} in PDF of "Evans, Arnold - Note Reading Studies For Bass": {[2-49,52-65]}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": {[1-125]}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Advanced Level)": {[1-40,51-107]}
+  Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {[5-112]}
+
+song = [ @playSong @learnSong ]
+
+playSong:
+  Play "Brick House": NONE
+  Play "Rock Steady": NONE
+  Play "Little Wing": NONE
+  Play "Daniel": NONE
+  Play "Sunny" (Hebb): NONE
+  Play "Fly Me To The Moon" (1={}, MM ♩={}): {major} {[80-200]}
+  Play "Someday My Prince Will Come" (1={}, MM ♩={}): {major} {[80-200]}
+  Play "Darn That Dream" (1={}, MM ♩={}): {major} {[80-200]}
+  Play "The Chicken": NONE
+  Play "Green Flower Street": NONE
+  Play "Good Times": NONE
+  Play "My Girl": NONE
+  Play "Shining Star": NONE
+  Play "Thank You Fallettinme": NONE
+
+learnSong:
+  Learn "Master Blaster": NONE
+  Learn "Lately": NONE
+  Learn "What's Going On": NONE
+  Learn "Honky Cat": NONE
+  Learn "If You Want Me to Stay": NONE
+  Learn "In My Little Town": NONE
+  Learn "Xeshbon pashut": NONE
+  Learn "Suru meni": NONE
+  # ADD MORE
+
+
+#
+# Etudes and pieces to revise from time to time
+#
+
+reviseSteve:
+  Steve's 5th Shifting (Ex 3 on page 6): NONE
+  Steve's 5th Combination (Ex 4 on page 7): NONE
+  Steve's 4th Shifting (Ex 3 on page 9): NONE
+  Steve's 4th Combination (Ex 4 on page 9): NONE
+  Steve's 6ths étude (Ex 5 on page 16): NONE
+  Steve's 10th Combination (page 13): NONE
+  Steve's Triads 1 (page 17) [last played at ♩=69]: NONE
+  Steve's Triads 2 (page 18): NONE
+  Steve's linear Slides (Ex 3 on page 18) using the {} finger: 1st|2nd|3rd|4th
+  Steve's Ex 1 on p8age 20: NONE
+  Steve's "Slow and Bluesy" (Ex 2 on page 20) [N.B. bars 8-9]: NONE
+  {}-major Diatonic slides of 4th in ♫ 1₅₆2.3₇14... (Ex. 2B on page 23): major
+  Steve's 4th slide etude (Ex. 3 on page 24): NONE
+  Steve's 4th slide etude (Ex. 4 on page 24) [last played at ♩=60]: NONE
+  Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM ♩=56]: NONE
+  Slide blending etude on page 31 [last played at MM ♩=59]: NONE
+  Blending "Ryan's Hope" on page 32 [last played at MM ♩=88]: NONE
+  Steve's Etude 4 on page 37 [Last played at 50 BPM]: NONE
+  Steve's Etude 5 on page 38 (last played at 46 BPM): NONE
+
+reviseBaroque:
+  Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
+  Baroque Étude No. 2 (p.3) [last played at ♩=92 of 126; N.B. bars 20-24]: NONE
+  Baroque Étude No. 3 (p.4) [last played at ♩=80 of 104, N.B. intonation]: NONE
+  Baroque Étude No. 4 (p.4-5): NONE
+  Baroque Étude No. 6 (p.6) [last played at ♩=72 of 72]: NONE
+  Baroque Étude No. 7 (p.6) [last played at ♩=84 of 108]: NONE
+  Baroque Étude No. 8 (p.6): NONE
+  Baroque Étude No. 9 (p.7): NONE
+
+reviseMelodic:
+  Melodic Étude in C Major (p.7): NONE
+  Melodic Etude in F Major (p.8) [last played at ♩=84 of 93]: NONE
+  Melodic Étude in B♭ Major (p.9) [last played at ♩=69 of 86]: NONE
+  Melodic Étude in E♭ Major (p.10) [last played at ♩=92]: NONE
+  Melodic Étude in A♭ Major (p.11): NONE
+  Melodic Étude in D♭ Major (p.12) [last played fully at MM ♩=66/86]: NONE
+
+reviseSimandl:
+  Simandl Étude 1 (p.3): NONE
+  Simandl Étude 2 (p.4): NONE
+  Simandl Étude 3 (p.4-5) [N.B. intonation]: NONE
+
+reviseJP@AW:
+  JP@AW 1.25 Basic Etude in C Major (2. solo): NONE
+  JP@AW 1.26 Basic Etude in F Major (2. bass, 3. solo): NONE
+  JP@AW 1.27 Basic Etude in B♭ Major (2. bass line like sample groove): NONE
+  JP@AW 1.28 Basic Etude in E♭ Major (2. two-feel, 3. walk, 4. solo): NONE
+  JP@AW 1.29 Basic Etude in A♭ Major (2. bass line, 3. solo): NONE
+  JP@AW 1.30 Basic Etude in D♭ Major (2. half bassline, then solo): NONE
+  JP@AW 1.31 Basic Etude in G♭ Major (2. two-feel, 3. solo): NONE
+  JP@AW 1.32 Basic Etude in B Major (2. bass line): NONE
+  JP@AW 1.33 Basic Etude in E Major (2. solo): NONE
+  JP@AW 1.34 Basic Etude in A Major (2. two-feel, maybe walking, 3. solo): NONE
+  JP@AW 1.35 Basic Etude in D Major (2. Baião, 3+4. solo): NONE
+  JP@AW 1.36 Basic Etude in G Major (2. two-feel, 3. solo): NONE
+  JP@AW 1.37 Basic Etude in C Minor (2. solo, 3+4. walk): NONE
+  JP@AW 1.38 Basic Etude in F Minor (2+3. Baião): NONE
+  JP@AW 1.39 Basic Etude in B♭ Minor (2. two-feel, 3. solo): NONE
+  JP@AW 1.40 Basic Etude in E♭ Minor (2. solo, 3. samba feel): NONE
+  JP@AW 1.41 Basic Etude in G♯ Minor (2. solo, 3. two-feel): NONE
+  JP@AW 1.42 Basic Etude in C♯ Minor (2+3. 6/8 bass line): NONE
+  JP@AW 1.43 Basic Etude in F♯ Minor (straight eighths 2. bass line, 3. solo): NONE
+  JP@AW 1.44 Basic Etude in B Minor (2. two-feel, 3. solo): NONE
+  JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
+  JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
+  JP@AW 1.47 Basic Etude in D Minor (2. ballad bass line): NONE
+  JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
+  JP@AW 1.49 Bolero (Slow): NONE
+  JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
+  JP@AW 1.52 Bossa Nova (Slow): NONE
+  JP@AW {} Cells: F7 (2.10)|Bb7 (2.11)|Am7 (2.12)|D7 (2.13)|Gm7 (2.14)|C7 (2.15)
+  JP@AW {} Simple Jazz 2 Beat Feel II⧸V Progression: 2.16 (Slow)|2.17 (Fast)
+  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets [start with roots+groove, no looking at the sheet music]: NONE
+  JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets [⍻ start with roots+groove, no looking at the sheet music]: NONE
+
+reviseCarol:  # songs; snippets and technical bits go to keepCarol
+  'Little Green Apples' (pp. 18-19) from "How to Play the Electric Bass": NONE
+  'I Don't Need No Doctor' (p.20) from "How to Play the Electric Bass": NONE
+  'Peace of Mind' (pp. 24-25) from "How to Play the Electric Bass": NONE
+  'Out of this World' (pp. 26-27) from "How to Play the Electric Bass" [real speed is about ♩=220, last played without the recording at ♩=176]: NONE
+  'When I Die' (pp. 16-17) from "Electric Bass Lines 2": NONE
+  'Come Together' (pp. 18-19) from "Electric Bass Lines 2" [I can play it so-so at 0.88x, don't lose the grove!]: NONE
+  'Hikky Burr' (pp. 20-22) from "Electric Bass Lines 2" [original tempo is about 180 BPM, I can do maybe x.85]: NONE
+
+reviseOther:
+  Bach I. Prelude [last played at ♩=76]: NONE
+  Bach I. Allemande [40 BPM, NB bars 20-24, BREATHE!]: NONE
+  Darker Side: NONE
+
+
+#
+# Future of things currently at work
+#
+
+_simandlTodo:
+  Simandl Étude 4 (p.6): NONE
+  Simandl Étude 5 (p.7): NONE
+  Simandl Étude 6 (p.8): NONE
+  Simandl Étude 7 (p.9): NONE
+  Simandl Étude 8 (p.10): NONE
+  Simandl Étude 9 (p.11): NONE
+  Simandl Étude 10 (p.12-13): NONE
+  Simandl Étude 11 (p.13): NONE
+  Simandl Étude 12 (p.14): NONE
+  Simandl Étude 13 (p.15): NONE
+  Simandl Étude 14 (p.16): NONE
+  Simandl Étude 15 (p.17): NONE
+  Simandl Étude 16 (p.18): NONE
+  Simandl Étude 17 (p.19): NONE
+  Simandl Étude 18 (p.20-21): NONE
+  Simandl Étude 19 (p.21): NONE
+  Simandl Étude 20 (p.22-23): NONE
+  Simandl Étude 21 (p.23): NONE
+  Simandl Étude 22 (p.24-25): NONE
+  Simandl Étude 23 (p.25): NONE
+  Simandl Étude 24 (p.26): NONE
+  Simandl Étude 25 (p.27): NONE
+  Simandl Étude 26 (p.28): NONE
+  Simandl Étude 27 (p.29): NONE
+  Simandl Étude 28 (p.30-31): NONE
+  Simandl Étude 29 (p.32-33): NONE
+  Simandl Étude 30 (p.34-35): NONE
+
+_todoJP@AW:
+  JP@AW 2.21 Walking Bass in the Lower Positions (Fast): NONE
+  JP@AW 2.22 First Time: NONE
+  JP@AW 2.23 First Time v2: NONE
+  JP@AW 2.24 Bossa Nova (Medium): NONE
+  JP@AW 2.25 Cha Cha: NONE
+  JP@AW 2.26 Bolero (Fast): NONE
+  JP@AW 2.27 Baiao (Medium): NONE
+  JP@AW 2.28 Samba (Medium): NONE
+  JP@AW 2.28-2.33 ???: NONE
+  JP@AW 2.34 Blues on the Bottom: NONE
+  JP@AW 2.35 Summers Eve: NONE
+  JP@AW 2.36 Blues by the Bay: NONE
+  # JP@AW 3.*...
+
+_melodicTodo:
+  Melodic Étude in B Major (p.14): NONE
+  Melodic Étude in E Major (p.15): NONE
+  Melodic Étude in A Major (p.16): NONE
+  Melodic Étude in D Major (p.17): NONE
+  Melodic Étude in G Major (p.18): NONE
+  Melodic Étude in C Aeolian (p.19): NONE
+  Melodic Étude in D Dorian (p.20): NONE
+  Melodic Étude in D♭ Aeolian (p.32): NONE
+  # Add more as I play them
+
+_rayBrownTodo:
+  Ray Brown's Minor Triads (p.29): NONE
+  Ray Brown's Exercise (Solo) (p.127-128): NONE
+  Ray Brown's Exercise (Solo) (p.129): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.131): NONE
+  Ray Brown's Exercise (p.133): NONE
+  Ray Brown's Arpeggios for Endings (p.134): NONE
+  Ray Brown's Triplet Exercise for Solos (p.135): NONE
+
+_bachTodo:
+  # Needs to be done seriously, but I could work on it
+  Bach I. Courante: NONE
+  Bach I. Sarabande: NONE
+  Bach I. Menuet I: NONE
+  Bach I. Menuet II: NONE
+  Bach I. Gigue: NONE
+
+_peerTodo:
+  # Maybe figures 22-24 in sequence?
+  Dean's Figure 26 ? (tune to E-A-D-F♯) on pages 32-33: NONE
+  Dean's Figure 27 ? (tune to D-A-E-G♯) on page 34: NONE
+  Dean's Figure 28 ? (tune to D-A-E-B) on page 34: NONE
+  Dean's Figure 36 (false harmonics) on page 41: NONE
+  Dean's Figure 37 (false harmonics) on page 41: NONE
+  Dean's Figure 38 (false harmonics) on page 42: NONE
+  Dean's Figure 39 (sliding harmonics) on page 42: NONE
+
+_standardsToDo:
+  Autumn Leaves [*]: NONE
+  Oleo [Rhythm Changes, Weigert, etude in Goldsby pdf-212]: NONE
+
+  All of Me: NONE
+  All The Things You Are [note Goldsby's pdf-213; Also some guy on talkbass.com sez]: NONE
+  Alone Together: NONE
+  Billie’s Bounce: NONE
+  Black Orpheus (Manhã de Carnaval): NONE
+  Blue Bossa: NONE
+  Body and Soul [Jimmy Blanton transcription in Coolman]: NONE
+  But Not For Me: NONE
+  Bye Bye Blackbird: NONE
+  Cherokee: NONE
+  Confirmation [Mraz transcription in Coolman]: NONE
+  Days of Wine and Roses [Rybicki has RB transcription]: NONE
+  Doxy [Real Easy Book]: NONE
+  Fly Me To The Moon: NONE
+  Footprints: NONE
+  Four: NONE
+  Have You Met Miss Jones [*; Rybicki has RB transcription]: NONE
+  How High The Moon [Rybicki has RB transcription]: NONE
+  I Hear a Rhapsody: NONE
+  I Love You: NONE
+  I Remember You: NONE
+  I’ll Remember April: NONE
+  I’m Old Fashioned: NONE
+  If I Should Lose You: NONE
+  If I Were A Bell: NONE
+  In A Mellow Tone: NONE
+  In A Sentimental Mood: NONE
+  It Could Happen To You: NONE
+  Just Friends: NONE
+  Killer Joe [*Real Easy Book, RB transcriptions in RB and Coolman]: NONE
+  Misty: NONE
+  My Funny Valentine: NONE
+  Night and Day: NONE
+  On Green Dolphin Street [Also some guy on talkbass.com sez]: NONE
+  Recorda Me: NONE
+  Satin Doll: NONE
+  Stella By Starlight [*; Sam Jones transcription in Coolman]: NONE
+  Scrapple From The Apple: NONE
+  So What [Also some guy on talkbass.com sez]: NONE
+  Solar: NONE
+  St. Thomas [Real Easy Book]: NONE
+  Sweet Georgia Brown: NONE
+  Take The A Train: NONE
+  The Girl From Ipanema: NONE
+  There Is No Greater Love: NONE
+  There Will Never Be Another You: NONE
+  Up Jumped Spring: NONE
+  What Is This Thing Called Love: NONE
+  Yesterdays: NONE
+
+  Perdido [etude in Goldsbypdf-209]: NONE
+  Cold Duck Time [Real Easy Book]: NONE
+  Equinox [Real Easy Book, Weigert]: NONE
+  Song for My Father [*, Real Easy Book]: NONE
+
+_bookTodo:  # When I'm good enough?
+  JP's Walking Bass [After his course?]: NONE
+  Mike Downes [Too much self-reliance? Or maybe it eats up all the rest?]: NONE
+  Ziemann (dannyziemann.company.site/) [Specifically about walking]: NONE
+
+  www.openstudiojazz.com [online course, take a look]: NONE
+  JP's Arpeggio "Episode 1" book [what's in there beyond the first exercise?]: NONE
+  Chuck Sher's "Improviser's Bass Book" [Loses to JP+Downes? But Harvey likes it]: NONE
+  Ron Carter's "Building Jazz Bass Lines" [Try it? I'm not a big fan, though]: NONE
+  Richmond's "Modern Walking Bass Technique" [Maybe?]: NONE
+  Bailey's "Rock Bass" [Not sure]: NONE
+  Stuart Clayton's Guide to Scales and Modes [Hm, pretty comprehensive]: NONE
+  Di Bartolo's Complete Guide to Scales and Chords [Hm, quite comprehensive, but not sure I like the tone]: NONE
+  Cuneo, Angelo Francesco - 32 Exercises And Studies For Sight Reading [After Simandl?]: NONE
+  Goldsby's "The Jazz Bass Book" [Take a look, not really a method book]: NONE
+
+  Connecting Chords with Linear Harmony by Bert Ligon [Check it out? See youtu.be/W4RkIVTbezs]: NONE
+  Coker's Patterns for Jazz [Pretty serious stuff, for improvising]: NONE
+  Comprehensive Technique for Jazz Musicians by Bert Ligon [Maybe in the distant future]: NONE
+
+  #NAH# Blues Grooves [Not what I'm interested in]: NONE
+  #NAH# Bob Magnusson's "The Art of Walking Bass" [Loses to JP+Downes]: NONE
+  #NAH# Steven Mooney's "Contructing Walking Jazz Bass Lines" [Loses to JP+Downes]: NONE
+  #NAH# Ed's Building Walking Bass [Loses to JP+Downes]: NONE
+
