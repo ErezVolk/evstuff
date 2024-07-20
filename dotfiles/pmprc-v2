@@ -1,8 +1,9 @@
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
 *morn = [ seed warmup 2@intonation 2@theory 2@current ]
-eve = [ @warmup 2@theory 2@music ]
-day = [ seed warmup 2@intonation 2@theory 2@current 2@music ]
+eve = [ @warmup _eve ]
+day = [ seed warmup 2@intonation _eve ]
+_eve = [ 2@theory 1@digression 2@current 2@music ]
 
 #
 # Shorthand
@@ -28,6 +29,7 @@ current:
   Learn "Ornithology": NONE
   Fuqua-up Stella: NONE
   Fuqua-up Autumn Leaves [in C-minor, and figure out what Sinatra/Cole/Piaf/etc. are singing]: NONE
+  Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky]: NONE
 
 #######
 
@@ -158,6 +160,94 @@ music:
 
 
 ###
+
+digression = { reviseDean reviseMelodic reviseClassical reviseJP@AW sightReading }
+
+reviseDean:
+  Dean's Figure 15 on p.16: NONE
+  Dean's Figure 16 on p.17 (C(9) chord): NONE
+  Dean's Figure 17 on pp.18-19: NONE
+  Dean's Figure 19 on page 21 (D-major scale): NONE
+  Dean's Figure 20 (chord inventory), page {} ({}): {[22-28]} {top|bottom}  # Add as I work through them
+  Dean's Figure 21 on page 29: NONE
+  Dean's Figure 22 on page 30: NONE
+  Dean's Figure 23 on page 30: NONE
+  Dean's Figure 24 on page 30: NONE
+  Dean's Figure 25 on page 31: NONE
+  Dean's Figure 30 (dual node harmonics) on page 36: NONE
+  Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
+  Dean's Figure 34 (false harmonics--right hand) on page 39, play {}: ANY
+  {} maj7, m7, 7, m7(b5) chords in the upper register: ANY
+
+reviseClassical:
+  Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
+  Baroque Étude No. 2 (p.3) [last played at ♩=92 of 126; N.B. bars 20-24]: NONE
+  Baroque Étude No. 3 (p.4) [last played at ♩=80 of 104, N.B. intonation]: NONE
+  Baroque Étude No. 4 (p.4-5): NONE
+  Baroque Étude No. 6 (p.6) [last played at ♩=72 of 72]: NONE
+  Baroque Étude No. 7 (p.6) [last played at ♩=84 of 108]: NONE
+  Baroque Étude No. 8 (p.6): NONE
+  Baroque Étude No. 9 (p.7): NONE
+  Simandl Étude 1 (p.3): NONE
+  Simandl Étude 2 (p.4): NONE
+  Simandl Étude 3 (p.4-5) [N.B. intonation]: NONE
+  Bach I. Prelude [last played at ♩=76]: NONE
+  Bach I. Allemande [40 BPM, NB bars 20-24, BREATHE!]: NONE
+
+reviseMelodic:
+  Melodic Étude in C Major (p.7): NONE
+  Melodic Etude in F Major (p.8) [last played at ♩=84 of 93]: NONE
+  Melodic Étude in B♭ Major (p.9) [last played at ♩=69 of 86]: NONE
+  Melodic Étude in E♭ Major (p.10) [last played at ♩=92]: NONE
+  Melodic Étude in A♭ Major (p.11): NONE
+  Melodic Étude in D♭ Major (p.12) [last played fully at MM ♩=66/86]: NONE
+
+reviseJP@AW:
+  JP@AW 1.25 Basic Etude in C Major (2. solo): NONE
+  JP@AW 1.26 Basic Etude in F Major (2. bass, 3. solo): NONE
+  JP@AW 1.27 Basic Etude in B♭ Major (2. bass line like sample groove): NONE
+  JP@AW 1.28 Basic Etude in E♭ Major (2. two-feel, 3. walk, 4. solo): NONE
+  JP@AW 1.29 Basic Etude in A♭ Major (2. bass line, 3. solo): NONE
+  JP@AW 1.30 Basic Etude in D♭ Major (2. half bassline, then solo): NONE
+  JP@AW 1.31 Basic Etude in G♭ Major (2. two-feel, 3. solo): NONE
+  JP@AW 1.32 Basic Etude in B Major (2. bass line): NONE
+  JP@AW 1.33 Basic Etude in E Major (2. solo): NONE
+  JP@AW 1.34 Basic Etude in A Major (2. two-feel, maybe walking, 3. solo): NONE
+  JP@AW 1.35 Basic Etude in D Major (2. Baião, 3+4. solo): NONE
+  JP@AW 1.36 Basic Etude in G Major (2. two-feel, 3. solo): NONE
+  JP@AW 1.37 Basic Etude in C Minor (2. solo, 3+4. walk): NONE
+  JP@AW 1.38 Basic Etude in F Minor (2+3. Baião): NONE
+  JP@AW 1.39 Basic Etude in B♭ Minor (2. two-feel, 3. solo): NONE
+  JP@AW 1.40 Basic Etude in E♭ Minor (2. solo, 3. samba feel): NONE
+  JP@AW 1.41 Basic Etude in G♯ Minor (2. solo, 3. two-feel): NONE
+  JP@AW 1.42 Basic Etude in C♯ Minor (2+3. 6/8 bass line): NONE
+  JP@AW 1.43 Basic Etude in F♯ Minor (straight eighths 2. bass line, 3. solo): NONE
+  JP@AW 1.44 Basic Etude in B Minor (2. two-feel, 3. solo): NONE
+  JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
+  JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
+  JP@AW 1.47 Basic Etude in D Minor (2. ballad bass line): NONE
+  JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
+  JP@AW 1.49 Bolero (Slow): NONE
+  JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
+  JP@AW 1.52 Bossa Nova (Slow): NONE
+  JP@AW {} Cells: F7 (2.10)|Bb7 (2.11)|Am7 (2.12)|D7 (2.13)|Gm7 (2.14)|C7 (2.15)
+  JP@AW {} Simple Jazz 2 Beat Feel II⧸V Progression: 2.16 (Slow)|2.17 (Fast)
+  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets [start with roots+groove, no looking at the sheet music]: NONE
+  JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets [⍻ start with roots+groove, no looking at the sheet music]: NONE
+
+sightReading:
+  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Minor": {[1-10]} {[4-23]}
+  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Major": {[1-10]} {[4-27]}
+  Line {} on Page {} in "Sightreading Mastery For Bass Guitar Exersices": {[1-8]} {[2-63]}
+  Exercise {} in "Robert Anthony - 300 Progressive Sight Reading Exercises for Bass Guitar": {[1-300]}
+  Track {} in "Motto - Essential sightreading studies for electric bass": {[1-82]}
+  "Lewis Jamey - Sight Reading For Electric Bassist Book 1", key of {}, number {}: {C Major|A Minor|F Major|D Minor|G Major|E Minor} {[1-10]}
+  Page {} in "Simplified Sight Reading": {[37-46,48-53,56-59,65-68]}
+  Page {} in PDF of "Evans, Arnold - Note Reading Studies For Bass": {[2-49,52-65]}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": {[1-125]}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Advanced Level)": {[1-40,51-107]}
+  Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {[5-112]}
+
 
 _future:
   # Fuqua-up The Girl from Ipanema [what key?]: NONE
