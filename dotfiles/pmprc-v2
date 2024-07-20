@@ -1,6 +1,8 @@
-*morn = [ seed warmup 2@intonation 2@theory 2@current ]
+# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
+*morn = [ seed warmup 2@intonation 2@theory 2@current ]
 eve = [ @warmup 2@theory 2@music ]
+day = [ seed warmup 2@intonation 2@theory 2@current 2@music ]
 
 #
 # Shorthand
@@ -22,7 +24,7 @@ seed:
 
 current:
   Bob DeBoo's triads from {}: {ANY}  # TODO: {major|minor|aug|dim} {↗|↘|↗↘|↘↗} {add 7ths|pentatonic} {expand range} {whole|N/4}
-  Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major [NB D♭]: {rayBrownDrillKeys}
+  Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major [⍻, NB D♭]: {rayBrownDrillKeys}
   Learn "Ornithology": NONE
   Fuqua-up Stella: NONE
   Fuqua-up Autumn Leaves [in C-minor, and figure out what Sinatra/Cole/Piaf/etc. are singing]: NONE
