@@ -19,7 +19,7 @@ majMin:
   -minor: minor
 
 seed:
-  ** Try MM ♩={} {} {} today; record yourself! **: {[60-100]} {↗|↘} {<1̤|2̤|3̤|4̣|5|6|7|8>}
+  ** Try MM ♩={} {} {} {} today; record yourself! **: {[60-100]} {↗|↘} {<1̤|2̤|3̤|4̣|5|6|7|8>} {I|II|III|IV}
 
 #######
 
@@ -123,7 +123,7 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), start on {}: rayBrownDrillKeys
 
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
-  Ray Brown's Diminished Exercise (p.79): NONE
+  Ray Brown's Diminished Exercise (p.79) from {}: rayBrownDrillKeys
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   Ray Brown's Diminished Exercise (p.82): NONE
   Ray Brown's Diminished Exercise (p.83): NONE
