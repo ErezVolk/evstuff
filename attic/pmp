@@ -298,9 +298,9 @@ class RangeDeck(SavableDeck):
 
     SERIALIZEES = SavableDeck.SERIALIZEES - {"cards"}
 
-    def __init__(self, parent: str, ranges: str) -> None:
+    def __init__(self, ranges: str) -> None:
         cards = [str(num) for num in sorted(self._parse_ranges(ranges))]
-        layout = self._digest([parent, *cards])
+        layout = self._digest(cards)
         super().__init__(cards, label=ranges, layout=layout)
 
     def deserialize(self, saved: StringDict) -> None:
@@ -919,7 +919,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
                 decks.append(self.labeldecks[label])
                 self.add_dep(self.curr.label, label)
             elif self.match(SavableDeck.RANGES_RE, ranges := part.strip()):
-                decks.append(RangeDeck(template, ranges))
+                decks.append(RangeDeck(ranges))
             elif self.match(PermutationDeck.PERMS_RE, itemstr := part.strip()):
                 decks.append(PermutationDeck(itemstr))
             elif self.match(PartitionDeck.PARTITION_RE, desc := part.strip()):
