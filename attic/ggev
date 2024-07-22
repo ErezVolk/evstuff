@@ -12,7 +12,10 @@ import urllib.parse
 from collections import defaultdict
 from pathlib import Path
 
-from bidi.algorithm import get_display
+try:
+    from bidi import get_display
+except ImportError:
+    from bidi.algorithm import get_display
 
 BIN = Path.home() / "bin"
 CONFIG = BIN / "ggev.json"
