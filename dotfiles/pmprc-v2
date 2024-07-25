@@ -146,8 +146,8 @@ intonation:  # TODO: split into boring and non-boring?
 
 theory:
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
-  -Major Scale: major
-  -Minor Scale: minor
+  -major Scale: major
+  -minor Scale: minor
   {} Scale from {}: {Whole Tone|Diminished} {ANY}
   Ray Brown's Major Triads (p.29), starting from {}: rayBrownDrillKeys
 
