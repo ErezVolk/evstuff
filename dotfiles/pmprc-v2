@@ -54,8 +54,8 @@ intonation:  # TODO: split into boring and non-boring?
   Minor 3rds drill on the {} strings: twoAdjacentStrings
   6ths drill on the {} strings: twoSubjacentStrings
   Minor 6ths drill with the low string being {}: IV|III
-  10ths drill on the IV+I strings: NONE
-  Minor 10ths drill on the IV+I strings: NONE
+  10ths drill: NONE
+  Minor 10ths drill: NONE
   Chromatic scale on the {} string [sing before you play!]: {oneString}
   JP's ⡠⠑ on the {} string: {oneString}
   Hazard {} in today's string permutation: {3rds|minor 3rds|6ths|minor 6ths}
