@@ -117,6 +117,22 @@ B: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ⁷      |  "Fill my heart..."
 ```
 
 
+# Autumn Leaves
+
+
+I=G, i.e., E-min
+
+```
+A: |: II-7   | V7      | IM7      | 4M7       |
+   | VII-7b5 | *III7   | VI-      | %        :|
+   | VII-7b5 | *III7b9 | VI-      | %         |
+B: | II-7    | V7      | IM7      | %         |
+   | VII-7b5 | *III7b9 | VI- *II7 | *V-7 *IV7 |
+   | VII-7b5 | *III7b9 | VI-      | %         |
+```
+
+
+
 # To Do
 - You Send Me
 - You Are the Sunshine of My Life
