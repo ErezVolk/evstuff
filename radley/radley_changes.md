@@ -122,15 +122,27 @@ B: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ⁷      |  "Fill my heart..."
 
 I=G, i.e., E-min
 
+(Real Book 6ed)
+
 ```
 A: |: II-7   | V7      | IM7      | 4M7       |
    | VII-7b5 | *III7   | VI-      | %        :|
-   | VII-7b5 | *III7b9 | VI-      | %         |
-B: | II-7    | V7      | IM7      | %         |
+B: | VII-7b5 | *III7b9 | VI-      | %         |
+   | II-7    | V7      | IM7      | %         |
    | VII-7b5 | *III7b9 | VI- *II7 | *V-7 *IV7 |
    | VII-7b5 | *III7b9 | VI-      | %         |
 ```
 
+(Real Jazz Standards -- Original)
+
+```
+A: |: II-7         | V7      | I                    |
+   | VII-7b5       | *III7   | VI-      | %        :|
+B: | *III7         | %       | VI-      | %         |
+   | V7            | %       | I        | %         |
+   | *III7b9/VII   | *III7   | VI-      | %         |
+   | *II/IV II-/IV | *III7   | VI-      | %         |
+```
 
 
 # To Do
