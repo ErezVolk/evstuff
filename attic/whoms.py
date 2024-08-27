@@ -25,7 +25,7 @@ def main() -> None:
         "-N",
         "--shortest-nth",
         type=int,
-        default=3,
+        default=2,
     )
     parser.add_argument(
         "-n",
@@ -54,12 +54,13 @@ def main() -> None:
     print(f"Writing {len(whoms)} whoms to {args.output}")
     whoms.to_excel(args.output)
     if args.verbose:
-        print(whoms)
+        print(whoms.iloc[:10])
+        print()
 
-    unheard = albums[albums.When.isna()]
+    unheard = albums.loc[albums.When.isna()]
     shorts = unheard.sort_values("dt").iloc[:len(unheard) // args.shortest_nth]
     offer = shorts.sample(n=args.count).sort_values("n")
-    print(f"Some suggestions ({len(offer)} of {len(unheard)}):")
+    print(f"Suggestions ({len(offer)} of {len(shorts)} of {len(unheard)}):")
     for _, row in offer.iterrows():
         print(
             f'- [{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)} '
