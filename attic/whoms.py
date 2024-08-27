@@ -49,7 +49,18 @@ def main() -> None:
     offer = shorts.sample(n=args.count).sort_values("n")
     print(f"Some suggestions ({len(offer)} of {len(unheard)}):")
     for _, row in offer.iterrows():
-        print(f'- [{row.n}] "{row.What}" by {row.Who} ({row["dt"]})')
+        print(
+            f'- [{row.n}] "{row.What}" by {one_of(row.Who)} '
+            f'(with {one_of(row.Whom)}, {row["dt"]})',
+        )
+
+
+def one_of(names: str) -> str:
+    """For a list of names, return the first one."""
+    for sep in ",&":
+        if (off := names.find(sep)) > 0:
+            return names[:off].strip() + " +"
+    return names
 
 
 if __name__ == "__main__":
