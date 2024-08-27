@@ -21,6 +21,18 @@ def main() -> None:
         type=Path,
         default=Path(__file__).with_suffix(".xlsx"),
     )
+    parser.add_argument(
+        "-N",
+        "--shortest-nth",
+        type=int,
+        default=3,
+    )
+    parser.add_argument(
+        "-n",
+        "--count",
+        type=int,
+        default=4,
+    )
     args = parser.parse_args()
 
     albums = pd.read_excel(args.input)
@@ -33,9 +45,9 @@ def main() -> None:
     whoms.to_excel(args.output)
 
     unheard = albums[albums.When.isna()]
-    shorts = unheard.sort_values("dt").iloc[:len(unheard) // 3]
-    offer = shorts.sample(n=3).sort_values("n")
-    print(f"Some suggestions ({len(offer)} of {len(shorts)}):")
+    shorts = unheard.sort_values("dt").iloc[:len(unheard) // args.shortest_nth]
+    offer = shorts.sample(n=args.count).sort_values("n")
+    print(f"Some suggestions ({len(offer)} of {len(unheard)}):")
     for _, row in offer.iterrows():
         print(f'- [{row.n}] "{row.What}" by {row.Who} ({row["dt"]})')
 
