@@ -34,10 +34,10 @@ def main() -> None:
 
     unheard = albums[albums.When.isna()]
     shorts = unheard.sort_values("dt").iloc[:len(unheard) // 3]
-    offer = shorts.sample(n=3)
+    offer = shorts.sample(n=3).sort_values("n")
     print(f"Some suggestions ({len(offer)} of {len(shorts)}):")
     for _, row in offer.iterrows():
-        print(f"- {row.What!r} by {row.Who} ({row['dt']})")
+        print(f"- [{row.n}] {row.What!r} by {row.Who} ({row['dt']})")
 
 
 if __name__ == "__main__":
