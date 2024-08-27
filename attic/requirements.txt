@@ -4,6 +4,7 @@ fitz
 jupyterlab
 lxml
 mutagen
+odfpy
 openpyxl
 pandas
 pip
