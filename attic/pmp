@@ -27,6 +27,7 @@ import graphlib
 import hashlib
 import io
 import logging
+import os
 import plistlib
 import random
 import re
@@ -524,6 +525,12 @@ class PracticeMakesPerfect:
             help="Report file",
         )
         parser.add_argument(
+            "-a",
+            "--annals-file",
+            type=Path,
+            help="Annals file",
+        )
+        parser.add_argument(
             "-S",
             "--saveless",
             action="store_true",
@@ -533,6 +540,7 @@ class PracticeMakesPerfect:
         args.config = args.config or args.home / ".pmprc"
         args.state_file = args.state_file or args.home / ".pmpstate.plist"
         args.report_file = args.report_file or args.home / ".pmpreport.csv"
+        args.annals_file = args.annals_file or args.home / ".pmp_annals"
         self.parser = parser
 
     LETTERS = frozenset("ABCDEFG")
@@ -556,6 +564,7 @@ class PracticeMakesPerfect:
     starred: list[Label]
     state: StringDict
     reporter: "Reporter"
+    annals: t.TextIO
 
     STATE_VER = "v4"
 
@@ -575,7 +584,10 @@ class PracticeMakesPerfect:
         self._load_state()
         self._restore_state()
 
-        self._run()
+        with self._open_annals() as self.annals:
+            self._run()
+            self.annals.write("\n")
+
         if not self.args.saveless:
             self._save_state()
         log.debug("\n\n\n")
@@ -583,7 +595,9 @@ class PracticeMakesPerfect:
     def _header(self, text: str, level: int = 1) -> None:
         """Print a markdown-like header."""
         if level == 1:
-            print(f"{text}\n{'=' * self._vlen(text)}")
+            print(line := f"{text}\n{'=' * self._vlen(text)}")
+            self.annals.write(line)
+            self.annals.write("\n")
         else:
             print(f"\n{text}\n{'-' * self._vlen(text)}")
 
@@ -610,6 +624,14 @@ class PracticeMakesPerfect:
         handler.setFormatter(fmt)
         log.addHandler(handler)
         log.setLevel(logging.DEBUG)
+
+    def _open_annals(self) -> t.TextIO:
+        """Open the annals file for appending."""
+        if self.args.saveless:
+            path = Path(os.devnull)
+        else:
+            path = self.args.annals_file
+        return path.open("a+t", encoding="utf-8")
 
     def _run(self) -> None:
         """Choose, report, and run the top-level book."""
@@ -685,12 +707,12 @@ class PracticeMakesPerfect:
     def _run_etudes(self, etudes: Iterable[Etude]) -> None:
         """Choose keys for a bunch of etudes and print them."""
         tracks = [self._make_track(etude) for etude in etudes]
-        txt = "\n".join(tracks)
-        if not self.args.multiline:
-            if " " not in txt:
-                if self._vlen(txt) < WIDTH:
-                    txt = " ".join(tracks)
+        txt = line = " ".join(tracks)
+        if self.args.multiline or self._vlen(txt) >= WIDTH:
+            txt = "\n".join(tracks)
         print(txt)
+        self.annals.write(line)
+        self.annals.write("\n")
 
     def _make_basic_decks(self) -> None:
         """Start `self.decks` with the basic scales (major, minor, etc.)."""
