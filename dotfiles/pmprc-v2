@@ -28,7 +28,7 @@ current:
   Fuqua-up Stella: NONE
   Fuqua-up Autumn Leaves: NONE
   Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky; muting! ⍻]: NONE
-  Ray Brown's Exercise (Solo) (p.127-128) [⍻]: NONE
+  Ray Brown's Exercise (Solo) (p.129): NONE
 
 #######
 
@@ -66,9 +66,9 @@ intonation:  # TODO: split into boring and non-boring?
   {} in octave double stops 1-3-2-4-... (Ex 5 on page 7): @majMin
   Chromatic scale in 5th double stops on {} (page 6): twoAdjacentStrings
   -melodic minor linear slides of a second in octave double stops (Ex 4A on p.19): minor
-  -melodic minor zig-zag slides of a third in octave double stops (Ex 4B on p.19): minor
+  -dorian zig-zag slides of a third (1̊-3̊ 2̊-4̊ 5̊-7̊ 6̊-8̊) in octave double stops (Ex 4B on p.19): minor
   -melodic minor linear slides of a second in fifth double stops (Ex 5A on p.19): minor
-  -*natural* minor zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): minor
+  -dorian zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): minor
   Slides in 3rds (Ex. {} on page 21/22) on the {} strings: {3|4A|4B|4C} {twoAdjacentStrings}
   1-2-3-2-3-4... slides (Ex. 4D on page 22) on the {} string: oneString
   {}-major Diatonic Slides of 4th half notes (1↗4 4↘1 2↗5 5↘2 ...): major
@@ -143,6 +143,7 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Exercise in Fourths (Solo) (p.123), from {}: {rayBrownDrillKeys}
   Ray Brown's Exercise in Fourths (Solo) (p.124) [⍻]: NONE
   Ray Brown's Exercise (Solo) (p.125-126): NONE
+  Ray Brown's Exercise (Solo) (p.127-128): NONE
 
 theory:
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
@@ -262,7 +263,6 @@ _future:
   # Fuqua-up I Got Rhythm [what key?]: NONE
   # Fuqua-up Dream a Little Dream [what key?]: NONE
 
-  Ray Brown's Exercise (Solo) (p.129): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.131): NONE
   Ray Brown's Exercise (p.133): NONE
