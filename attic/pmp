@@ -104,6 +104,7 @@ class Deck(abc.ABC):
     layout: Layout
     old_layout: Layout | None = None
     counts: collections.Counter
+    last: str
 
     def __init__(self) -> None:
         self.counts = collections.Counter()
@@ -125,8 +126,13 @@ class Deck(abc.ABC):
         """Try and make sure the next `count` cards won't have dupes."""
         del count  # For the linters
 
-    @abc.abstractmethod
     def draw(self) -> str:
+        """Get the next card and save it."""
+        self.last = self._draw()
+        return self.last
+
+    @abc.abstractmethod
+    def _draw(self) -> str:
         """Get the next card."""
 
     def serialize(self) -> StringDict:
@@ -245,7 +251,7 @@ class SavableDeck(Deck):
             self.counts["flipped"] += 1
             self.queue = list(self.queue + lineup)
 
-    def draw(self) -> str:
+    def _draw(self) -> str:
         """Get the next card."""
         self.ping()
         if not self.queue:
@@ -326,7 +332,7 @@ class PermutationDeck(Deck):
         self.label = Label(itemstr)
         self.layout = Layout(itemstr)
 
-    def draw(self) -> str:
+    def _draw(self) -> str:
         """Get another permutation."""
         random.shuffle(self.items)
         return "-".join(self.items)
@@ -344,7 +350,7 @@ class PartitionDeck(Deck):
         self.label = Label(desc)
         self.layout = Layout(desc)
 
-    def draw(self) -> str:
+    def _draw(self) -> str:
         """Get another permutation.
 
         This probably isn't a very good random partition generator,
@@ -367,7 +373,7 @@ class NoneDeck(Deck):
     label = Label(NAME)
     layout = Layout(NAME)
 
-    def draw(self) -> str:
+    def _draw(self) -> str:
         """Get next empty string."""
         return ""
 
