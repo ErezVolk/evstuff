@@ -71,8 +71,9 @@ def main() -> None:
         )
     stars = whoms.query("heard == 0 and total > 1")
     if len(stars) > 0:
-        stars = stars[stars.total == stars.total.max()]
-        print(f" - Maybe something with {stars.sample(1).index[0]}?")
+        starness = stars.total.max()
+        star = stars[stars.total == starness].sample(1).index[0]
+        print(f" - Maybe one of the {starness} albums with {star}?")
 
 
 def k_of_n(heard: pd.Series) -> str:
