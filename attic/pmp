@@ -104,7 +104,7 @@ class Deck(abc.ABC):
     layout: Layout
     old_layout: Layout | None = None
     counts: collections.Counter
-    last: str
+    last: str = "-"
 
     def __init__(self) -> None:
         self.counts = collections.Counter()
@@ -641,13 +641,18 @@ class PracticeMakesPerfect:
 
     def _sign_annals(self) -> None:
         """Write summary at the bottom of the annals entry."""
-        flipped = SEP.join(
-            deck.blurb
+        flipped = [
+            f"{deck.blurb} | {deck.last}"
             for deck in self.decks.values()
             if deck.counts["flipped"]
-        )
+        ]
         if flipped:
-            self.annals.write(f"Flipped: {flipped}\n")
+            self.annals.write("\nFlipped:")
+            sep = " " if len(flipped) == 1 else "\n- "
+            for desc in flipped:
+                self.annals.write(sep)
+                self.annals.write(desc)
+            self.annals.write("\n")
         self.annals.write("\n")
 
     def _run(self) -> None:
