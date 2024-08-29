@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-import pandas as pd
+import pandas as pd  # type: ignore[import-not-found]
 
 
 def main() -> None:
@@ -69,11 +69,10 @@ def main() -> None:
             f'- [{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)} '
             f'(with {one_of(row.Whom)}, {row["dt"]})',
         )
-
-
-def normalize(series: pd.Series) -> pd.Series:
-    """Normalize all commas and ampersands to |s."""
-    return series.str.replace(r"\s*[,&]\s*", "|", regex=True)
+    stars = whoms.query("heard == 0 and total > 1")
+    if len(stars) > 0:
+        stars = stars[stars.total == stars.total.max()]
+        print(f" - Maybe something with {stars.sample(1).index[0]}?")
 
 
 def k_of_n(heard: pd.Series) -> str:
