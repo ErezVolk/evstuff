@@ -42,6 +42,7 @@ def main() -> None:
 
     albums = pd.read_excel(args.input)
     albums["heard"] = albums.When.notna()
+    albums["Whom"] = albums.Whom.fillna("N/A")
     albums["Whoms"] = albums.Whom.str.replace(
         r"\s*[,&]\s*", "|", regex=True,
     ).str.split("|")
