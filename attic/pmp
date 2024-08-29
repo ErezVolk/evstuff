@@ -707,11 +707,13 @@ class PracticeMakesPerfect:
     def _run_etudes(self, etudes: Iterable[Etude]) -> None:
         """Choose keys for a bunch of etudes and print them."""
         tracks = [self._make_track(etude) for etude in etudes]
-        txt = line = " ".join(tracks)
-        if self.args.multiline or self._vlen(txt) >= WIDTH:
-            txt = "\n".join(tracks)
-        print(txt)
-        self.annals.write(line)
+        mul = scr = "\n".join(tracks)
+        if not self.args.multiline:
+            if " " not in mul:
+                if self._vlen(mul) < WIDTH:
+                    scr = " ".join(tracks)
+        print(scr)
+        self.annals.write(mul)
         self.annals.write("\n")
 
     def _make_basic_decks(self) -> None:
