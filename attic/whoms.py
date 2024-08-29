@@ -42,6 +42,7 @@ def main() -> None:
 
     albums = pd.read_excel(args.input)
     albums["heard"] = albums.When.notna()
+    print(f"Heard {k_of_n(albums.heard)} albums")
     albums["Whom"] = albums.Whom.fillna("N/A")
     albums["Whoms"] = albums.Whom.str.replace(
         r"\s*[,&]\s*", "|", regex=True,
@@ -51,6 +52,7 @@ def main() -> None:
     whoms = whalbums.Whoms.value_counts().to_frame("total")
     whoms["heard"] = whalbums[whalbums.heard].Whoms.value_counts()
     whoms["heard"] = whoms.heard.fillna(0).astype(int)
+    print(f"Heard {k_of_n(whoms.heard)} players")
     whoms["cov"] = whoms.heard / whoms.total
     print(f"Writing {len(whoms)} whoms to {args.output}")
     whoms.to_excel(args.output)
@@ -72,6 +74,12 @@ def main() -> None:
 def normalize(series: pd.Series) -> pd.Series:
     """Normalize all commas and ampersands to |s."""
     return series.str.replace(r"\s*[,&]\s*", "|", regex=True)
+
+
+def k_of_n(heard: pd.Series) -> str:
+    """Format "K of N (X%)"."""
+    flags = heard > 0
+    return f"{flags.sum()} of {len(flags)} ({flags.mean() * 100:.0f}%)"
 
 
 def one_of(names: str) -> str:
