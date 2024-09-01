@@ -17,6 +17,7 @@ rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 majMin:
   -major: major
   -minor: minor
+triad := major|minor|augmented|diminished
 
 seed:
   ** Try MM ♩={} {} {} today **: {[60-100]} {↗|↘} {<1̤|2̤|3̤|4̣|5̇|6̇|7̇|8̇>}
@@ -24,7 +25,7 @@ seed:
 #######
 
 current:
-  Bob DeBoo's {} triads from {} [BLIND!]: {<maj|min|aug>} {ANY}  # TODO: dim add7 {↗|↘|↗↘|↘↗} {to C/E/G/C^/G^} {whole|N/4}
+  Bob DeBoo's today-directed {} triads from {} [BLIND!]: {triad} {ANY}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
   Fuqua-up Stella: NONE
   Fuqua-up Autumn Leaves: NONE
   Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky; muting! ⍻]: NONE
