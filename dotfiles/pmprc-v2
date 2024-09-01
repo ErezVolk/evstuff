@@ -24,7 +24,7 @@ seed:
 #######
 
 current:
-  Bob DeBoo's triads from {} [BLIND!]: {ANY}  # TODO: {major|minor|aug|dim} {↗|↘|↗↘|↘↗} {add 7ths|pentatonic} {to C/E/G/C^/G^} {whole|N/4}
+  Bob DeBoo's {} triads from {} [BLIND!]: {<maj|min|aug>} {ANY}  # TODO: dim add7 {↗|↘|↗↘|↘↗} {to C/E/G/C^/G^} {whole|N/4}
   Fuqua-up Stella: NONE
   Fuqua-up Autumn Leaves: NONE
   Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky; muting! ⍻]: NONE
@@ -46,7 +46,7 @@ warmupHarvey:
 
 warmupRhythm:
   4-bar 4/4 Victor's {}: {<1|2|3|4|5|6|7|1|3>}
-  4-bar 6/8 Victor's {}: {<1|2|3|4|5|6|1|2>}
+  4-bar 6/8 Victor's {}: {<1|2|3|4|5|1|3|5>}
 
 intonation:  # TODO: split into boring and non-boring?
   4ths drill on the {} strings: twoAdjacentStrings
@@ -58,7 +58,7 @@ intonation:  # TODO: split into boring and non-boring?
   Minor 10ths drill: NONE
   Chromatic scale on the {} string [sing before you play!]: {oneString}
   JP's ⡠⠑ on the {} string: {oneString}
-  Hazard {} in today's string permutation: {3rds|minor 3rds|6ths|minor 6ths}
+  Hazard {} in today's permutation: {3rds|minor 3rds|6ths|minor 6ths}
   {} in 10th double stops (page 13): @majMin
   {} in 4th double stops (Ex 5 on page 10): @majMin
   {} in "chairs" (Ex 6 on page 10): @majMin  # Not really double stops, but had to put it somewhere
