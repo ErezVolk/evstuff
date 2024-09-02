@@ -64,6 +64,8 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
+- Annals: Local time
+- Annals: New decks
 - Template (what to do with a standard)
 - Make into an app (Kivy? No more pmprc parsing)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
