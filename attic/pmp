@@ -64,7 +64,6 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
-- Annals: Local time
 - Annals: New decks
 - Template (what to do with a standard)
 - Make into an app (Kivy? No more pmprc parsing)
@@ -75,7 +74,7 @@ __TODO__ = """
 - Less repetitions in "{[100-200]} {a|b}"
 """
 
-NOW = datetime.datetime.now(tz=datetime.UTC)
+NOW = datetime.datetime.now(tz=datetime.UTC).astimezone()
 WIDTH = shutil.get_terminal_size().columns
 SEP = " ‖ "
 Filename: t.TypeAlias = str | Path
@@ -662,7 +661,8 @@ class PracticeMakesPerfect:
         book = self._choose_book()
         count = None if self.args.one_of_each else self.args.num_tracks
         weekday = "月火水木金土日"[NOW.weekday()]
-        header = NOW.strftime(f"%Y-%m-%d {weekday} %H:%M {book.label}")
+        zone = NOW.tzname()
+        header = NOW.strftime(f"%Y-%m-%d {weekday} %H:%M {zone} {book.label}")
         self._header(header)
         self._run_book(BookRef(book, count), top=True)
 
