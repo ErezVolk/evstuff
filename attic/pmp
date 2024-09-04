@@ -643,7 +643,7 @@ class PracticeMakesPerfect:
     def _sign_annals(self) -> None:
         """Write summary at the bottom of the annals entry."""
         flipped = [
-            f"{deck.blurb} | {deck.last}"
+            f"{deck.blurb} last={deck.last!r}"
             for deck in self.decks.values()
             if deck.counts["flipped"]
         ]
