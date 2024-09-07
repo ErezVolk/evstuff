@@ -28,8 +28,8 @@ current:
   Bob DeBoo's today-directed {} triads from {} [BLIND!]: {triad} {ANY}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
   Fuqua-up Stella: NONE
   Fuqua-up Autumn Leaves: NONE
-  Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky; muting! ⍻]: NONE
   Ray Brown's Exercise (p.131): NONE
+  Dean's Figure 36 (false harmonics) on page 41: NONE
 
 #######
 
@@ -181,6 +181,7 @@ reviseDean:
   Dean's Figure 30 (dual node harmonics) on page 36: NONE
   Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
   Dean's Figure 34 (false harmonics--right hand) on page 39, play {}: ANY
+  Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky; muting!]: NONE
   {} maj7, m7, 7, m7(b5) chords in the upper register: ANY
 
 reviseClassical:
