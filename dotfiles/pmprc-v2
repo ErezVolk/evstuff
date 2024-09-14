@@ -17,7 +17,7 @@ rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 majMin:
   -major: major
   -minor: minor
-triad := major|minor|augmented|diminished
+triad := major|minor
 
 seed:
   ** Try MM ♩={} {} {} today **: {[60-100]} {↗|↘} {<1̤|2̤|3̤|4̣|5̇|6̇|7̇|8̇>}
@@ -145,7 +145,7 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Exercise in Fourths (Solo) (p.124) [⍻]: NONE
   Ray Brown's Exercise (Solo) (p.125-126): NONE
   Ray Brown's Exercise (Solo) (p.127-128): NONE
-  Ray Brown's Exercise (Solo) (p.129) [⍻]: NONE
+  Ray Brown's Exercise (Solo) (p.129): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
 
 theory:
