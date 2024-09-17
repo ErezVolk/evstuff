@@ -61,19 +61,33 @@ def main() -> None:
         print()
 
     unheard = albums.loc[albums.When.isna()]
+    if len(unheard) == 0:
+        print("Time to find more music.")
+        return
+
     shorts = unheard.sort_values("dt").iloc[:len(unheard) // args.shortest_nth]
     offer = shorts.sample(n=args.count).sort_values("n")
     print(f"Suggestions ({len(offer)} of {len(shorts)} of {len(unheard)}):")
     for _, row in offer.iterrows():
-        print(
-            f'- [{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)} '
-            f'(with {one_of(row.Whom)}, {row["dt"]})',
-        )
+        print(f"- {row_desc(row)}")
+
+    print(f"Oldest unheard:\n - {row_desc(unheard.sort_values('n').iloc[0])}")
+
     stars = whoms.query("heard == 0 and total > 1")
     if len(stars) > 0:
         starness = stars.total.max()
         star = stars[stars.total == starness].sample(1).index[0]
-        print(f" - Maybe one of the {starness} albums with {star}?")
+        print(f"Maybe one of the {starness} albums with {star}")
+        row = unheard[unheard.Whom.str.contains(star)].sample(1).iloc[0]
+        print(f" - e.g., {row_desc(row)}")
+
+
+def row_desc(row: pd.Series) -> str:
+    """Nicely format a "to listen" row."""
+    return (
+        f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)} '
+        f'(with {one_of(row.Whom)}, {row["dt"]})'
+    )
 
 
 def k_of_n(heard: pd.Series) -> str:
