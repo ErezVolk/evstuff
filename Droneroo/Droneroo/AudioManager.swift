@@ -17,11 +17,14 @@ enum SequenceType: String, CaseIterable, Identifiable {
 }
 
 class AudioManager: NSObject, ObservableObject {
+    private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
+    private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
     private var audioEngine = AVAudioEngine()
     private var sampler = AVAudioUnitSampler()
     @Published var isPlaying = false
     var sequenceType: SequenceType = .circleOfFourth
     private var noteSequence: [UInt8] = []
+    private var nameSequence: [String] = []
     private var currentIndex = 0
     private var currentNote: UInt8 = 60 // Default to Middle C
     @Published var currentNoteName: String = "None"
@@ -44,9 +47,9 @@ class AudioManager: NSObject, ObservableObject {
 
     func startDrone() {
         currentNote = noteSequence[currentIndex]
+        currentNoteName = nameSequence[currentIndex]
         sampler.startNote(currentNote, withVelocity: 64, onChannel: 0)
         isPlaying = true
-        currentNoteName = midiNoteNumberToName(currentNote)
     }
 
     func stopDrone() {
@@ -75,30 +78,26 @@ class AudioManager: NSObject, ObservableObject {
         currentIndex = 0
         switch sequenceType {
         case .circleOfFourth:
-            noteSequence = generateCircleOfFourthSequence()
+            nameSequence = ["C", "F", "A♯/B♭", "D♯/E♭", "G♯/A♭", "C♯/D♭", "F♯/G♭", "B", "E", "A", "D", "G"]
         case .rayBrown:
-            noteSequence = generateRayBrown()
+            nameSequence = ["C", "F", "B♭", "E♭", "A♭", "D♭", "G", "D", "A", "E", "B", "F♯"]
         case .chromatic:
-            noteSequence = Array(48...72) // C2 to C4
+            nameSequence = sharps
+        }
+        noteSequence = nameSequence.map { noteNameToMidiNumber($0) }
+        if isPlaying {
+            stopDrone()
+            startDrone()
         }
     }
-
-    private func generateCircleOfFourthSequence() -> [UInt8] {
-        let circleOfFourths = [0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7] // In semitones
-        return circleOfFourths.map { UInt8(60 + $0) } // Starting from Middle C (60)
-    }
-
-    private func generateRayBrown() -> [UInt8] {
-        let rayBrown = [0, 5, 10, 3, 8, 1,  7, 2, 9, 4, 11, 6] // In semitones
-        return rayBrown.map { UInt8(48 + $0) } // Starting from C
-    }
     
-    private func midiNoteNumberToName(_ noteNumber: UInt8) -> String {
-        let noteNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
-        let noteIndex = Int(noteNumber) % 12
-        let octave = (Int(noteNumber) / 12) - 1
-        let noteName = noteNames[noteIndex]
-        return "\(noteName)\(octave)"
+    private func noteNameToMidiNumber(_ noteName: String) -> UInt8 {
+        let note = String(noteName.prefix(2))
+        var idx = sharps.firstIndex(of: note)
+        if idx == nil {
+            idx = flats.firstIndex(of: note)
+        }
+        return UInt8(48 + idx!)
     }
 }
 
