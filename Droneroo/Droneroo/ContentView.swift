@@ -17,7 +17,7 @@ struct ContentView: View {
             Button(action: {
                 audioManager.toggleDrone()
             }) {
-                Text(audioManager.isPlaying ? "Pause Drone" : "Start Drone")
+                Text(audioManager.isPlaying ? "⏸" : "⏵")
                     .font(.title)
                     .padding()
                     .background(Color.blue.opacity(0.7))
@@ -28,7 +28,7 @@ struct ContentView: View {
             Button(action: {
                 audioManager.nextDrone()
             }) {
-                Text("Next Drone")
+                Text("⏭")
                     .font(.title)
                     .padding()
                     .background(Color.green.opacity(0.7))
