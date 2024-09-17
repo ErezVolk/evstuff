@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
+    @FocusState private var focused: Bool
 
     var body: some View {
         VStack(spacing: 20) {
@@ -38,6 +39,15 @@ struct ContentView: View {
             Text("Current Note: \(audioManager.currentNoteName)")
                 .font(.headline)
                 .padding()
+                .focusable()
+                .focused($focused)
+                .onKeyPress(keys: [.rightArrow]) { press in
+                    audioManager.nextDrone()
+                    return .handled
+                }
+                .onAppear {
+                    focused = true
+                }
 
             Picker("Sequence", selection: $selectedSequence) {
                 ForEach(SequenceType.allCases) { sequence in
