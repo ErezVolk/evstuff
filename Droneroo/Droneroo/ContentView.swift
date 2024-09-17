@@ -35,7 +35,7 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
-            
+
             Text("Current Note: \(audioManager.currentNoteName)")
                 .font(.headline)
                 .padding()

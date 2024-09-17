@@ -50,12 +50,14 @@ class AudioManager: NSObject, ObservableObject {
         currentNoteName = nameSequence[currentIndex]
         sampler.startNote(currentNote, withVelocity: 64, onChannel: 0)
         isPlaying = true
+        UIApplication.shared.isIdleTimerDisabled = true
     }
 
     func stopDrone() {
         sampler.stopNote(currentNote, onChannel: 0)
         isPlaying = false
         currentNoteName = "None"
+        UIApplication.shared.isIdleTimerDisabled = false
     }
 
     func toggleDrone() {
