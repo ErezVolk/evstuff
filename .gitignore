@@ -13,3 +13,4 @@ __pycache__
 sandbox
 htmlcov
 .coverage
+*.xcuserstate
