@@ -11,6 +11,7 @@ import SwiftUI
 
 enum SequenceType: String, CaseIterable, Identifiable {
     case circleOfFourth = "Circle of Fourths"
+    case rayBrown = "Ray Brown"
     case chromatic = "Chromatic"
     var id: String { self.rawValue }
 }
@@ -75,6 +76,8 @@ class AudioManager: NSObject, ObservableObject {
         switch sequenceType {
         case .circleOfFourth:
             noteSequence = generateCircleOfFourthSequence()
+        case .rayBrown:
+            noteSequence = generateRayBrown()
         case .chromatic:
             noteSequence = Array(48...72) // C2 to C4
         }
@@ -85,13 +88,9 @@ class AudioManager: NSObject, ObservableObject {
         return circleOfFourths.map { UInt8(60 + $0) } // Starting from Middle C (60)
     }
 
-    // Bluetooth Pedal Integration
-    @objc func nextDroneCommand() {
-        nextDrone()
-    }
-
-    @objc func toggleDroneCommand() {
-        toggleDrone()
+    private func generateRayBrown() -> [UInt8] {
+        let rayBrown = [0, 5, 10, 3, 8, 1,  7, 2, 9, 4, 11, 6] // In semitones
+        return rayBrown.map { UInt8(48 + $0) } // Starting from C
     }
     
     private func midiNoteNumberToName(_ noteNumber: UInt8) -> String {
