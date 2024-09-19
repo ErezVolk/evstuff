@@ -68,12 +68,23 @@ class AudioManager: NSObject, ObservableObject {
         }
     }
 
+    func prevDrone() {
+        plusDrone(-1)
+    }
+
     func nextDrone() {
-        if isPlaying {
+        plusDrone(1)
+    }
+    
+    func plusDrone(_ delta: Int) {
+        let wasPlaying = isPlaying
+        if wasPlaying {
             stopDrone()
         }
-        currentIndex = (currentIndex + 1) % noteSequence.count
-        startDrone()
+        currentIndex = (currentIndex + noteSequence.count + delta) % noteSequence.count
+        if wasPlaying {
+            startDrone()
+        }
     }
 
     func loadSequence() {

@@ -14,26 +14,39 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Button(action: {
-                audioManager.toggleDrone()
-            }) {
-                Text(audioManager.isPlaying ? "⏸" : "⏵")
-                    .font(.title)
-                    .padding()
-                    .background(Color.blue.opacity(0.7))
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-
-            Button(action: {
-                audioManager.nextDrone()
-            }) {
-                Text("⏭")
-                    .font(.title)
-                    .padding()
-                    .background(Color.green.opacity(0.7))
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+            HStack() {
+                Button(action: {
+                    audioManager.prevDrone()
+                }) {
+                    Text("⏮")
+                        .font(.title)
+                        //.padding()
+                        //.background(Color.green.opacity(0.7))
+                        //.foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    audioManager.toggleDrone()
+                }) {
+                    Text("⏯" /*audioManager.isPlaying ? "⏸" : "⏵"*/)
+                        .font(.title)
+                        //.padding()
+                        //.background(Color.blue.opacity(0.7))
+                        //.foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    audioManager.nextDrone()
+                }) {
+                    Text("⏭")
+                        .font(.title)
+                        //.padding()
+                        //.background(Color.green.opacity(0.7))
+                        //.foregroundColor(.white)
+                        .cornerRadius(10)
+                }
             }
 
             Text("Current Note: \(audioManager.currentNoteName)")
@@ -41,6 +54,10 @@ struct ContentView: View {
                 .padding()
                 .focusable()
                 .focused($focused)
+                .onKeyPress(keys: [.leftArrow]) { press in
+                    audioManager.prevDrone()
+                    return .handled
+                }
                 .onKeyPress(keys: [.rightArrow]) { press in
                     audioManager.nextDrone()
                     return .handled
