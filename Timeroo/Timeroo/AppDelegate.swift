@@ -24,7 +24,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.menu = menu
         
         // Add scriptability
-        NSAppleEventManager.shared().setEventHandler(self, andSelector: #selector(handleAppleScript(_:withReplyEvent:)), forEventClass: UInt32(kAECoreSuite), andEventID: UInt32(kAEDoScript))
+        NSAppleEventManager.shared().setEventHandler(
+            self,
+            andSelector: #selector(handleAppleScript(_:withReplyEvent:)),
+            forEventClass: UInt32(kAECoreSuite),
+            andEventID: UInt32(kAEDoScript)
+        )
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {
