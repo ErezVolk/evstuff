@@ -14,3 +14,4 @@ sandbox
 htmlcov
 .coverage
 *.xcuserstate
+*.xcuserdatad
