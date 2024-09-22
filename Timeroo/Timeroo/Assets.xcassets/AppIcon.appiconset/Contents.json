@@ -21,6 +21,7 @@
       "size" : "32x32"
     },
     {
+      "filename" : "Timeroo-128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
@@ -31,6 +32,7 @@
       "size" : "128x128"
     },
     {
+      "filename" : "Timeroo-256.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
@@ -41,6 +43,7 @@
       "size" : "256x256"
     },
     {
+      "filename" : "Timeroo-512.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
