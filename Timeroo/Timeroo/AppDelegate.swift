@@ -1,16 +1,6 @@
 import Cocoa
 import UserNotifications
 
-class SaveScriptCommand: NSScriptCommand {
-    override func performDefaultImplementation() -> Any? {
-        print( "in" )
-        let filePath = self.evaluatedArguments!["FilePath"] as! String
-
-        print( "here" )
-        return filePath
-    }
-}
-
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var timer: Timer?
@@ -33,15 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "Clear", action: #selector(clearTimer), keyEquivalent: "c"))
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApplication), keyEquivalent: "q"))
         statusItem.menu = menu
-        
-        // Add scriptability
-        NSAppleEventManager.shared().setEventHandler(
-            self,
-            andSelector: #selector(handleAppleScript(_:withReplyEvent:)),
-            forEventClass: UInt32(kAECoreSuite),
-            andEventID: UInt32(kAEDoScript)
-        )
-        
+
         // Request Notification Permissions
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { granted, error in
             if granted {
@@ -119,11 +101,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let seconds = Int(now) % 60
         let title = String(format: "%02d:%02d", minutes, seconds)
         return title
-    }
-    
-    // Handle AppleScript Start/Pause
-    @objc dynamic func handleAppleScript(_ event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
-        startPauseTimer()
     }
     
     func sendNotification(_ body: String) {
