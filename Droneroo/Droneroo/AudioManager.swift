@@ -19,6 +19,7 @@ enum SequenceType: String, CaseIterable, Identifiable {
 
 @MainActor
 class AudioManager: NSObject, ObservableObject {
+    private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
     private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
     private var audioEngine = AVAudioEngine()
@@ -63,13 +64,15 @@ class AudioManager: NSObject, ObservableObject {
     func startDrone() {
         currentNote = noteSequence[currentIndex]
         currentNoteName = nameSequence[currentIndex]
-        sampler.startNote(currentNote, withVelocity: 127, onChannel: 0)
+        sampler.startNote(currentNote, withVelocity: velocity, onChannel: 0)
+        sampler.startNote(currentNote + 12, withVelocity: velocity, onChannel: 0)
         isPlaying = true
         UIApplication.shared.isIdleTimerDisabled = true
     }
 
     func stopDrone() {
         sampler.stopNote(currentNote, onChannel: 0)
+        sampler.stopNote(currentNote + 12, onChannel: 0)
         isPlaying = false
         currentNoteName = "None"
         UIApplication.shared.isIdleTimerDisabled = false
