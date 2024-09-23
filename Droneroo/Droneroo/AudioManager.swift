@@ -9,6 +9,10 @@ import Foundation
 import AVFoundation
 import SwiftUI
 import Combine
+#if os(macOS)
+import IOKit
+import IOKit.pwr_mgt
+#endif
 
 enum SequenceType: String, CaseIterable, Identifiable {
     case circleOfFourth = "Circle of Fourths"
@@ -33,6 +37,10 @@ class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
     @Published var volume: Float = 1.0
     private var cancellables = Set<AnyCancellable>()
+    #if os(macOS)
+    private var assertionID: IOPMAssertionID = 0
+    private     var sleepDisabled = false
+    #endif
 
     override init() {
         super.init()
@@ -67,7 +75,17 @@ class AudioManager: NSObject, ObservableObject {
         sampler.startNote(currentNote, withVelocity: velocity, onChannel: 0)
         sampler.startNote(currentNote + 12, withVelocity: velocity, onChannel: 0)
         isPlaying = true
+        #if os(macOS)
+        if !sleepDisabled {
+            sleepDisabled = IOPMAssertionCreateWithName(
+                kIOPMAssertionTypeNoDisplaySleep as CFString,
+                IOPMAssertionLevel(kIOPMAssertionLevelOn),
+                "Drone Playing" as CFString,
+                &assertionID) == kIOReturnSuccess
+        }
+        #else
         UIApplication.shared.isIdleTimerDisabled = true
+        #endif
     }
 
     func stopDrone() {
@@ -75,7 +93,14 @@ class AudioManager: NSObject, ObservableObject {
         sampler.stopNote(currentNote + 12, onChannel: 0)
         isPlaying = false
         currentNoteName = "None"
+        #if os(macOS)
+        if sleepDisabled {
+            IOPMAssertionRelease(assertionID)
+            sleepDisabled = false
+        }
+        #else
         UIApplication.shared.isIdleTimerDisabled = false
+        #endif
     }
 
     func toggleDrone() {
