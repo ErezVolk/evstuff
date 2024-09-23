@@ -12,25 +12,25 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                Button(action: {
+                Button {
                     audioManager.prevDrone()
-                }) {
+                } label: {
                     Text("⏮")
                         .font(.title)
                         .cornerRadius(10)
                 }
 
-                Button(action: {
+                Button {
                     audioManager.toggleDrone()
-                }) {
+                } label: {
                     Text("⏯")
                         .font(.title)
                         .cornerRadius(10)
                 }
 
-                Button(action: {
+                Button {
                     audioManager.nextDrone()
-                }) {
+                } label: {
                     Text("⏭")
                         .font(.title)
                         .cornerRadius(10)
