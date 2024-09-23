@@ -1,6 +1,16 @@
 import Cocoa
 import UserNotifications
 
+class SaveScriptCommand: NSScriptCommand {
+    override func performDefaultImplementation() -> Any? {
+        print( "in" )
+        let filePath = self.evaluatedArguments!["FilePath"] as! String
+
+        print( "here" )
+        return filePath
+    }
+}
+
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var timer: Timer?

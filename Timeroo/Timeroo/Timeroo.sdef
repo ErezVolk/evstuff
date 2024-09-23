@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+
+<dictionary title="Timeroo Terminology">
+
+    <suite name="Timeroo Scripting Suite" code="ESss" description="Standard suite for application communication.">
+
+        <command name="run" code="ESssErun" description="Save something.">
+            <cocoa class="SaveScriptCommand"/>
+
+            <parameter name="in" code="Fpat" type="text" description="The file path in which to save the document.">
+                <cocoa key="FilePath"/>
+            </parameter>
+            <result type="text" description="Echoes back the filepath supplied."/>
+        </command>
+
+    </suite>
+</dictionary>
