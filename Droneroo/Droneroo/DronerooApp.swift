@@ -1,9 +1,4 @@
-//
-//  DronerooApp.swift
-//  Droneroo
-//
-//  Created by Erez Volk on 17/09/2024.
-//
+// Created by Erez Volk.
 
 import SwiftUI
 

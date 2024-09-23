@@ -1,9 +1,4 @@
-//
-//  SettingsManager.swift
-//  Droneroo
-//
-//  Created by Erez Volk on 17/09/2024.
-//
+// Created by Erez Volk.
 
 import Foundation
 import CloudKit
@@ -34,7 +29,7 @@ class SettingsManager: ObservableObject {
             let record = CKRecord(recordType: "Settings", recordID: recordID)
             record["data"] = asset
 
-            container.privateCloudDatabase.save(record) { record, error in
+            container.privateCloudDatabase.save(record) { _, error in
                 if let error = error {
                     print("Error saving settings: \(error.localizedDescription)")
                 } else {
@@ -61,4 +56,3 @@ class SettingsManager: ObservableObject {
         }
     }
 }
-

@@ -1,9 +1,4 @@
-//
-//  ContentView.swift
-//  Droneroo
-//
-//  Created by Erez Volk on 17/09/2024.
-//
+// Created by Erez Volk.
 
 import SwiftUI
 import Combine
@@ -15,7 +10,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            HStack() {
+            HStack {
                 Button(action: {
                     audioManager.prevDrone()
                 }) {
@@ -23,7 +18,7 @@ struct ContentView: View {
                         .font(.title)
                         .cornerRadius(10)
                 }
-                
+
                 Button(action: {
                     audioManager.toggleDrone()
                 }) {
@@ -31,7 +26,7 @@ struct ContentView: View {
                         .font(.title)
                         .cornerRadius(10)
                 }
-                
+
                 Button(action: {
                     audioManager.nextDrone()
                 }) {
@@ -46,11 +41,11 @@ struct ContentView: View {
                 .padding()
                 .focusable()
                 .focused($focused)
-                .onKeyPress(keys: [.leftArrow]) { press in
+                .onKeyPress(keys: [.leftArrow]) { _ in
                     audioManager.prevDrone()
                     return .handled
                 }
-                .onKeyPress(keys: [.rightArrow]) { press in
+                .onKeyPress(keys: [.rightArrow]) { _ in
                     audioManager.nextDrone()
                     return .handled
                 }
@@ -69,7 +64,7 @@ struct ContentView: View {
                 audioManager.sequenceType = selectedSequence
                 audioManager.loadSequence()
             }
-            
+
             // Volume Slider
             VStack {
                 HStack {

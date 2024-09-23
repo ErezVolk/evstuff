@@ -1,16 +1,10 @@
-//
-//  AUdioManager.swift
-//  Droneroo
-//
-//  Created by Erez Volk on 17/09/2024.
-//
+// Created by Erez Volk.
 
 import Foundation
 import AVFoundation
 import SwiftUI
 import Combine
 #if os(macOS)
-import IOKit
 import IOKit.pwr_mgt
 #endif
 
@@ -23,23 +17,23 @@ enum SequenceType: String, CaseIterable, Identifiable {
 
 @MainActor
 class AudioManager: NSObject, ObservableObject {
+    @Published var currentNoteName: String = "None"
+    @Published var volume: Float = 1.0
+    var sequenceType: SequenceType = .circleOfFourth
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
     private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
     private var audioEngine = AVAudioEngine()
     private var sampler = AVAudioUnitSampler()
-    @Published var isPlaying = false
-    var sequenceType: SequenceType = .circleOfFourth
+    private var isPlaying = false
     private var noteSequence: [UInt8] = []
     private var nameSequence: [String] = []
     private var currentIndex = 0
     private var currentNote: UInt8 = 60 // Default to Middle C
-    @Published var currentNoteName: String = "None"
-    @Published var volume: Float = 1.0
     private var cancellables = Set<AnyCancellable>()
     #if os(macOS)
     private var assertionID: IOPMAssertionID = 0
-    private     var sleepDisabled = false
+    private var sleepDisabled = false
     #endif
 
     override init() {
@@ -50,7 +44,7 @@ class AudioManager: NSObject, ObservableObject {
     private func setupAudioEngine() {
         audioEngine.attach(sampler)
         audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
-        
+
         // Set initial volume
         audioEngine.mainMixerNode.outputVolume = volume
 
@@ -112,14 +106,14 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     func prevDrone() {
-        plusDrone(-1)
+        changeDrone(-1)
     }
 
     func nextDrone() {
-        plusDrone(1)
+        changeDrone(1)
     }
-    
-    func plusDrone(_ delta: Int) {
+
+    func changeDrone(_ delta: Int) {
         let wasPlaying = isPlaying
         if wasPlaying {
             stopDrone()
@@ -146,7 +140,7 @@ class AudioManager: NSObject, ObservableObject {
             startDrone()
         }
     }
-    
+
     private func noteNameToMidiNumber(_ noteName: String) -> UInt8 {
         let note = String(noteName.prefix(2))
         var idx = sharps.firstIndex(of: note)
@@ -156,4 +150,3 @@ class AudioManager: NSObject, ObservableObject {
         return UInt8(48 + idx!)
     }
 }
-
