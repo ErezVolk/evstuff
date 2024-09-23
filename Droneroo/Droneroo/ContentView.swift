@@ -6,6 +6,7 @@ import Combine
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
+    @State private var delta = 0
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -42,15 +43,19 @@ struct ContentView: View {
                 .focusable()
                 .focused($focused)
                 .onKeyPress(keys: [.leftArrow]) { _ in
-                    audioManager.prevDrone()
+                    delta -= 1
                     return .handled
                 }
                 .onKeyPress(keys: [.rightArrow]) { _ in
-                    audioManager.nextDrone()
+                    delta += 1
                     return .handled
                 }
                 .onAppear {
                     focused = true
+                }
+                .onChange(of: delta) {
+                    audioManager.changeDrone(delta)
+                    delta = 0
                 }
 
             Picker("Sequence", selection: $selectedSequence) {
