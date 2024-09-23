@@ -66,14 +66,15 @@ class AudioManager: NSObject, ObservableObject {
     }
     
     func loadInstrument(_ at: URL) {
-        let wasPlaying = isPlaying
-        if wasPlaying { stopDrone() }
-        do {
-            try sampler.loadSoundBankInstrument(at: at, program: 0, bankMSB: 0x79, bankLSB: 0)
-        } catch {
-            print("Couldn't load instrument: \(error.localizedDescription)")
+        timeOut { () in
+            do {
+                try sampler.loadSoundBankInstrument(at: at, program: 0, bankMSB: 0x79, bankLSB: 0)
+                // not sure how to wait for it to be ready
+                sleep(1)
+            } catch {
+                print("Couldn't load instrument: \(error.localizedDescription)")
+            }
         }
-        if wasPlaying { startDrone() }
     }
 
     func startDrone() {
@@ -127,26 +128,30 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     func changeDrone(_ delta: Int) {
-        let wasPlaying = isPlaying
-        if wasPlaying { stopDrone() }
-        currentIndex = (currentIndex + noteSequence.count + delta) % noteSequence.count
-        if wasPlaying { startDrone() }
+        timeOut { () in
+            currentIndex = (currentIndex + noteSequence.count + delta) % noteSequence.count
+        }
     }
 
+    private func timeOut(_ hey: () -> ()) {
+        let wasPlaying = isPlaying
+        if wasPlaying { stopDrone() }
+        hey()
+        if wasPlaying { startDrone() }
+    }
+    
     func loadSequence() {
-        currentIndex = 0
-        switch sequenceType {
-        case .circleOfFourth:
-            nameSequence = ["C", "F", "A♯/B♭", "D♯/E♭", "G♯/A♭", "C♯/D♭", "F♯/G♭", "B", "E", "A", "D", "G"]
-        case .rayBrown:
-            nameSequence = ["C", "F", "B♭", "E♭", "A♭", "D♭", "G", "D", "A", "E", "B", "F♯"]
-        case .chromatic:
-            nameSequence = sharps
-        }
-        noteSequence = nameSequence.map { noteNameToMidiNumber($0) }
-        if isPlaying {
-            stopDrone()
-            startDrone()
+        timeOut { () in
+            currentIndex = 0
+            switch sequenceType {
+            case .circleOfFourth:
+                nameSequence = ["C", "F", "A♯/B♭", "D♯/E♭", "G♯/A♭", "C♯/D♭", "F♯/G♭", "B", "E", "A", "D", "G"]
+            case .rayBrown:
+                nameSequence = ["C", "F", "B♭", "E♭", "A♭", "D♭", "G", "D", "A", "E", "B", "F♯"]
+            case .chromatic:
+                nameSequence = sharps
+            }
+            noteSequence = nameSequence.map { noteNameToMidiNumber($0) }
         }
     }
 
