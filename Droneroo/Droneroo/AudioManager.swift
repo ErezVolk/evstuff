@@ -21,7 +21,7 @@ class AudioManager: NSObject, ObservableObject {
     private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
     private var audioEngine = AVAudioEngine()
     private var sampler = AVAudioUnitSampler()
-    @Published var isPlaying = false
+    var isPlaying = false
     var sequenceType: SequenceType = .circleOfFourth
     private var noteSequence: [UInt8] = []
     private var nameSequence: [String] = []

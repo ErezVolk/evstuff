@@ -20,20 +20,14 @@ struct ContentView: View {
                 }) {
                     Text("⏮")
                         .font(.title)
-                        //.padding()
-                        //.background(Color.green.opacity(0.7))
-                        //.foregroundColor(.white)
                         .cornerRadius(10)
                 }
                 
                 Button(action: {
                     audioManager.toggleDrone()
                 }) {
-                    Text("⏯" /*audioManager.isPlaying ? "⏸" : "⏵"*/)
+                    Text("⏯")
                         .font(.title)
-                        //.padding()
-                        //.background(Color.blue.opacity(0.7))
-                        //.foregroundColor(.white)
                         .cornerRadius(10)
                 }
                 
@@ -42,9 +36,6 @@ struct ContentView: View {
                 }) {
                     Text("⏭")
                         .font(.title)
-                        //.padding()
-                        //.background(Color.green.opacity(0.7))
-                        //.foregroundColor(.white)
                         .cornerRadius(10)
                 }
             }
