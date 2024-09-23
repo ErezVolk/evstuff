@@ -1,4 +1,5 @@
 import Cocoa
+import UserNotifications
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
@@ -30,6 +31,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             forEventClass: UInt32(kAECoreSuite),
             andEventID: UInt32(kAEDoScript)
         )
+        
+        // Request Notification Permissions
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { granted, error in
+            if granted {
+                print("Permission granted for notifications")
+            } else if let error = error {
+                print("Failed to request notification permission: \(error)")
+            }
+        }
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -43,12 +53,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
             isPaused = false
             updateStatusBarTitle()
+            
+            if totalTime == 0 {
+                sendNotification("Starting")
+            } else {
+                sendNotification("Resuming at \(getTimeString())")
+            }
         } else {
             // Pause the timer
             timer?.invalidate()
             timer = nil
             isPaused = true
             updateStatusBarTitle()
+            sendNotification("Pausing at \(getTimeString())")
         }
     }
     
@@ -74,10 +91,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Display Unicode clock symbol when the timer is zero and paused
             statusItem.button?.title = "🕒"
         } else {
-            // Display the timer in MM:SS format
-            let minutes = Int(totalTime) / 60
-            let seconds = Int(totalTime) % 60
-            let title = String(format: "%02d:%02d", minutes, seconds)
+            let title = getTimeString()
             
             if isPaused {
                 // Greyed-out timer when paused
@@ -88,9 +102,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
+
+    func getTimeString() -> String {
+        let now = totalTime
+        let minutes = Int(now) / 60
+        let seconds = Int(now) % 60
+        let title = String(format: "%02d:%02d", minutes, seconds)
+        return title
+    }
     
     // Handle AppleScript Start/Pause
     @objc dynamic func handleAppleScript(_ event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         startPauseTimer()
+    }
+    
+    func sendNotification(_ body: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "Timeroo"
+        content.body = body
+        
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Failed to deliver notification: \(error)")
+            }
+        }
     }
 }
