@@ -78,7 +78,7 @@ class AudioManager: NSObject, ObservableObject {
                     program: 0,
                     bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB),
                     bankLSB: UInt8(kAUSampler_DefaultBankLSB))
-                instrument = at.deletingPathExtension().lastPathComponent
+                instrument = url.deletingPathExtension().lastPathComponent
                 // not sure how to wait for it to be ready
                 if wasPlaying { sleep(1) }
             } catch {
