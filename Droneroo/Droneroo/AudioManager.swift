@@ -66,11 +66,11 @@ class AudioManager: NSObject, ObservableObject {
     }
     
     func loadInstrument(_ at: URL) {
-        timeOut { () in
+        timeOut { wasPlaying in
             do {
                 try sampler.loadSoundBankInstrument(at: at, program: 0, bankMSB: 0x79, bankLSB: 0)
                 // not sure how to wait for it to be ready
-                sleep(1)
+                if wasPlaying { sleep(1) }
             } catch {
                 print("Couldn't load instrument: \(error.localizedDescription)")
             }
@@ -128,20 +128,20 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     func changeDrone(_ delta: Int) {
-        timeOut { () in
+        timeOut { _ in
             currentIndex = (currentIndex + noteSequence.count + delta) % noteSequence.count
         }
     }
 
-    private func timeOut(_ hey: () -> ()) {
+    private func timeOut(_ hey: (_ wasPlaying: Bool) -> ()) {
         let wasPlaying = isPlaying
         if wasPlaying { stopDrone() }
-        hey()
+        hey(wasPlaying)
         if wasPlaying { startDrone() }
     }
     
     func loadSequence() {
-        timeOut { () in
+        timeOut { _ in
             currentIndex = 0
             switch sequenceType {
             case .circleOfFourth:
