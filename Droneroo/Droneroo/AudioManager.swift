@@ -15,7 +15,6 @@ enum SequenceType: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
-@MainActor
 class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
     @Published var volume: Float = 1.0
