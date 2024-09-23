@@ -7,6 +7,7 @@ struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
     @State private var delta = 0
+    @State private var toggle = false
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -42,6 +43,9 @@ struct ContentView: View {
                 .padding()
                 .focusable()
                 .focused($focused)
+                .onAppear {
+                    focused = true
+                }
                 .onKeyPress(keys: [.leftArrow]) { _ in
                     delta -= 1
                     return .handled
@@ -50,12 +54,17 @@ struct ContentView: View {
                     delta += 1
                     return .handled
                 }
-                .onAppear {
-                    focused = true
-                }
                 .onChange(of: delta) {
-                    audioManager.changeDrone(delta)
+                    if (delta != 0) { audioManager.changeDrone(delta) }
                     delta = 0
+                }
+                .onKeyPress(keys: [.space]) { _ in
+                    toggle = !toggle
+                    return .handled
+                }
+                .onChange(of: toggle) {
+                    if (toggle) {audioManager.toggleDrone()}
+                    toggle = false
                 }
 
             Picker("Sequence", selection: $selectedSequence) {
