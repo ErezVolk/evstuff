@@ -16,12 +16,13 @@ enum SequenceType: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
+@MainActor
 class AudioManager: NSObject, ObservableObject {
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
     private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
     private var audioEngine = AVAudioEngine()
     private var sampler = AVAudioUnitSampler()
-    var isPlaying = false
+    @Published var isPlaying = false
     var sequenceType: SequenceType = .circleOfFourth
     private var noteSequence: [UInt8] = []
     private var nameSequence: [String] = []
