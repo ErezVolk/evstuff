@@ -18,6 +18,7 @@ enum SequenceType: String, CaseIterable, Identifiable {
 class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
     @Published var volume: Float = 1.0
+    @Published var instrument: String = "N/A"
     var sequenceType: SequenceType = .circleOfFourth
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
@@ -36,20 +37,20 @@ class AudioManager: NSObject, ObservableObject {
     private var assertionID: IOPMAssertionID = 0
     private var sleepDisabled = false
 #endif
-    
+
     override init() {
         super.init()
         setupAudioEngine()
     }
-    
+
     private func setupAudioEngine() {
-        loadInstrument(organ)
+        resetInstrument()
         audioEngine.attach(sampler)
         audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
-        
+
         // Set initial volume
         audioEngine.mainMixerNode.outputVolume = volume
-        
+
         // Observe volume changes
         $volume
             .receive(on: RunLoop.main)
@@ -57,18 +58,27 @@ class AudioManager: NSObject, ObservableObject {
                 self?.audioEngine.mainMixerNode.outputVolume = newVolume
             }
             .store(in: &cancellables)
-        
+
         do {
             try audioEngine.start()
         } catch {
             print("Audio Engine couldn't start: \(error.localizedDescription)")
         }
     }
-    
-    func loadInstrument(_ at: URL) {
+
+    func resetInstrument() {
+        loadInstrument(organ)
+    }
+
+    func loadInstrument(_ url: URL) {
         timeOut { wasPlaying in
             do {
-                try sampler.loadSoundBankInstrument(at: at, program: 0, bankMSB: 0x79, bankLSB: 0)
+                try sampler.loadSoundBankInstrument(
+                    at: url,
+                    program: 0,
+                    bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB),
+                    bankLSB: UInt8(kAUSampler_DefaultBankLSB))
+                instrument = at.deletingPathExtension().lastPathComponent
                 // not sure how to wait for it to be ready
                 if wasPlaying { sleep(1) }
             } catch {
@@ -133,13 +143,13 @@ class AudioManager: NSObject, ObservableObject {
         }
     }
 
-    private func timeOut(_ hey: (_ wasPlaying: Bool) -> ()) {
+    private func timeOut(_ hey: (_ wasPlaying: Bool) -> Void) {
         let wasPlaying = isPlaying
         if wasPlaying { stopDrone() }
         hey(wasPlaying)
         if wasPlaying { startDrone() }
     }
-    
+
     func loadSequence() {
         timeOut { _ in
             currentIndex = 0

@@ -55,7 +55,7 @@ struct ContentView: View {
                     return .handled
                 }
                 .onChange(of: delta) {
-                    if (delta != 0) { audioManager.changeDrone(delta) }
+                    if delta != 0 { audioManager.changeDrone(delta) }
                     delta = 0
                 }
                 .onKeyPress(keys: [.space]) { _ in
@@ -63,7 +63,7 @@ struct ContentView: View {
                     return .handled
                 }
                 .onChange(of: toggle) {
-                    if (toggle) {audioManager.toggleDrone()}
+                    if toggle {audioManager.toggleDrone()}
                     toggle = false
                 }
 
@@ -78,15 +78,22 @@ struct ContentView: View {
                 audioManager.sequenceType = selectedSequence
                 audioManager.loadSequence()
             }
-            
+
             // Instrument
-            Button("Load Instrument") {
-                let panel = NSOpenPanel()
-                panel.allowsMultipleSelection = false
-                panel.canChooseDirectories = false
-                if panel.runModal() == .OK {
-                    audioManager.loadInstrument(panel.url!)
+            HStack {
+                Button("Load SoundFont") {
+                    let panel = NSOpenPanel()
+                    panel.allowsMultipleSelection = false
+                    panel.canChooseDirectories = false
+                    if panel.runModal() == .OK {
+                        audioManager.loadInstrument(panel.url!)
+                    }
                 }
+                Button("Reset") {
+                    audioManager.resetInstrument()
+                }
+                Text(audioManager.instrument)
+                    .monospaced()
             }
 
             // Volume Slider
