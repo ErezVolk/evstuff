@@ -78,6 +78,16 @@ struct ContentView: View {
                 audioManager.sequenceType = selectedSequence
                 audioManager.loadSequence()
             }
+            
+            // Instrument
+            Button("Load Instrument") {
+                let panel = NSOpenPanel()
+                panel.allowsMultipleSelection = false
+                panel.canChooseDirectories = false
+                if panel.runModal() == .OK {
+                    audioManager.loadInstrument(panel.url!)
+                }
+            }
 
             // Volume Slider
             VStack {

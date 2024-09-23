@@ -30,32 +30,26 @@ class AudioManager: NSObject, ObservableObject {
     private var currentIndex = 0
     private var currentNote: UInt8 = 60 // Default to Middle C
     private var cancellables = Set<AnyCancellable>()
-    #if os(macOS)
+    // From http://johannes.roussel.free.fr/music/soundfonts.htm
+    private let organ = Bundle.main.url(forResource: "organ", withExtension: "sf2")!
+#if os(macOS)
     private var assertionID: IOPMAssertionID = 0
     private var sleepDisabled = false
-    #endif
-
+#endif
+    
     override init() {
         super.init()
         setupAudioEngine()
     }
-
+    
     private func setupAudioEngine() {
-        do {
-            // From http://johannes.roussel.free.fr/music/soundfonts.htm
-            try sampler.loadSoundBankInstrument(
-                at: Bundle.main.url(forResource: "organ", withExtension: "sf2")!,
-                program: 0, bankMSB: 0x79, bankLSB: 0
-            )
-        } catch {
-            print("Couldn't load sf2 file: \(error.localizedDescription)")
-        }
+        loadInstrument(organ)
         audioEngine.attach(sampler)
         audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
-
+        
         // Set initial volume
         audioEngine.mainMixerNode.outputVolume = volume
-
+        
         // Observe volume changes
         $volume
             .receive(on: RunLoop.main)
@@ -63,12 +57,23 @@ class AudioManager: NSObject, ObservableObject {
                 self?.audioEngine.mainMixerNode.outputVolume = newVolume
             }
             .store(in: &cancellables)
-
+        
         do {
             try audioEngine.start()
         } catch {
             print("Audio Engine couldn't start: \(error.localizedDescription)")
         }
+    }
+    
+    func loadInstrument(_ at: URL) {
+        let wasPlaying = isPlaying
+        if wasPlaying { stopDrone() }
+        do {
+            try sampler.loadSoundBankInstrument(at: at, program: 0, bankMSB: 0x79, bankLSB: 0)
+        } catch {
+            print("Couldn't load instrument: \(error.localizedDescription)")
+        }
+        if wasPlaying { startDrone() }
     }
 
     func startDrone() {
@@ -123,13 +128,9 @@ class AudioManager: NSObject, ObservableObject {
 
     func changeDrone(_ delta: Int) {
         let wasPlaying = isPlaying
-        if wasPlaying {
-            stopDrone()
-        }
+        if wasPlaying { stopDrone() }
         currentIndex = (currentIndex + noteSequence.count + delta) % noteSequence.count
-        if wasPlaying {
-            startDrone()
-        }
+        if wasPlaying { startDrone() }
     }
 
     func loadSequence() {
