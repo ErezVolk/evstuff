@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
@@ -68,6 +69,22 @@ struct ContentView: View {
                 audioManager.sequenceType = selectedSequence
                 audioManager.loadSequence()
             }
+            
+            // Volume Slider
+            VStack {
+                HStack {
+                    Text("Volume")
+                        .font(.headline)
+                    Spacer()
+                    Text("\(Int(audioManager.volume * 100))%")
+                        .font(.subheadline)
+                }
+                .padding([.leading, .trailing], 40)
+
+                Slider(value: $audioManager.volume, in: 0...1)
+                    .padding([.leading, .trailing], 40)
+            }
+            .padding()
         }
         .padding()
         .onAppear {

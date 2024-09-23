@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import SwiftUI
+import Combine
 
 enum SequenceType: String, CaseIterable, Identifiable {
     case circleOfFourth = "Circle of Fourths"
@@ -29,6 +30,8 @@ class AudioManager: NSObject, ObservableObject {
     private var currentIndex = 0
     private var currentNote: UInt8 = 60 // Default to Middle C
     @Published var currentNoteName: String = "None"
+    @Published var volume: Float = 1.0
+    private var cancellables = Set<AnyCancellable>()
 
     override init() {
         super.init()
@@ -38,6 +41,17 @@ class AudioManager: NSObject, ObservableObject {
     private func setupAudioEngine() {
         audioEngine.attach(sampler)
         audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
+        
+        // Set initial volume
+        audioEngine.mainMixerNode.outputVolume = volume
+
+        // Observe volume changes
+        $volume
+            .receive(on: RunLoop.main)
+            .sink { [weak self] newVolume in
+                self?.audioEngine.mainMixerNode.outputVolume = newVolume
+            }
+            .store(in: &cancellables)
 
         do {
             try audioEngine.start()
@@ -49,7 +63,7 @@ class AudioManager: NSObject, ObservableObject {
     func startDrone() {
         currentNote = noteSequence[currentIndex]
         currentNoteName = nameSequence[currentIndex]
-        sampler.startNote(currentNote, withVelocity: 64, onChannel: 0)
+        sampler.startNote(currentNote, withVelocity: 127, onChannel: 0)
         isPlaying = true
         UIApplication.shared.isIdleTimerDisabled = true
     }
