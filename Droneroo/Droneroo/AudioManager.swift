@@ -41,6 +41,15 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     private func setupAudioEngine() {
+        do {
+            // From http://johannes.roussel.free.fr/music/soundfonts.htm
+            try sampler.loadSoundBankInstrument(
+                at: Bundle.main.url(forResource: "organ", withExtension: "sf2")!,
+                program: 0, bankMSB: 0x79, bankLSB: 0
+            )
+        } catch {
+            print("Couldn't load sf2 file: \(error.localizedDescription)")
+        }
         audioEngine.attach(sampler)
         audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
 
