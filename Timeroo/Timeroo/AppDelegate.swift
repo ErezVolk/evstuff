@@ -90,20 +90,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func updateStatusBarTitle() {
         if totalTime == 0 && isPaused {
-            // Display stopwatch image when the timer is zero and paused
             statusItem.button?.image = stopwatch
             statusItem.button?.title = ""
-        } else if isPaused {
-            // Greyed-out timer when paused
-            statusItem.button?.image = nil
-            statusItem.button?.attributedTitle = NSAttributedString(
-                string: getTimeString(),
-                attributes: [.foregroundColor: NSColor.darkGray]
-            )
+            statusItem.button?.appearsDisabled = false
         } else {
-            // Normal timer display when running
             statusItem.button?.image = nil
             statusItem.button?.title = getTimeString()
+            statusItem.button?.appearsDisabled = isPaused
         }
     }
 
