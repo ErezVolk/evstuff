@@ -64,24 +64,26 @@ class AudioManager: NSObject, ObservableObject {
         }
     }
 
-    private func connectSampler() {
-        audioEngine.attach(sampler)
-        audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
-    }
-
+    /// Reset to the default Beep sound
     func resetInstrument() {
         timeOut { _ in
             newSampler()
         }
     }
 
+    /// Recreate sample, resetting to beep (internal fucntion, called when not playing)
     private func newSampler() {
         audioEngine.detach(sampler)
         sampler = AVAudioUnitSampler()
-        connectSampler()
         instrument = "None"
     }
 
+    private func connectSampler() {
+        audioEngine.attach(sampler)
+        audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
+    }
+
+    /// Load a SoundFont file
     func loadInstrument(_ url: URL? = nil) {
         timeOut { wasPlaying in
             do {
@@ -112,7 +114,7 @@ class AudioManager: NSObject, ObservableObject {
             sleepDisabled = IOPMAssertionCreateWithName(
                 kIOPMAssertionTypeNoDisplaySleep as CFString,
                 IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                "Drone Playing" as CFString,
+                "Droneroo" as CFString,
                 &assertionID) == kIOReturnSuccess
         }
         #else
