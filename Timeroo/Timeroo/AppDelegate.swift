@@ -6,6 +6,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var timer: Timer?
     var totalTime: TimeInterval = 0
     var isPaused: Bool = true
+    let stopwatch = NSImage( // https://github.com/sam4096/apple-sf-symbols-list
+        systemSymbolName: "stopwatch.fill",
+        accessibilityDescription: "timer"
+    )
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Remove the app from Force Quit menu
@@ -19,9 +23,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Create the menu
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Start/Pause", action: #selector(startPauseTimer), keyEquivalent: "s"))
-        menu.addItem(NSMenuItem(title: "Clear", action: #selector(clearTimer), keyEquivalent: "c"))
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApplication), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Start/Pause", action: #selector(startPauseTimer), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Clear", action: #selector(clearTimer), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApplication), keyEquivalent: ""))
         statusItem.menu = menu
 
         // Request Notification Permissions
@@ -42,7 +46,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func startPauseTimer() {
         if isPaused {
             // Start the timer
-            timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
+            timer = Timer.scheduledTimer(
+                timeInterval: 1.0,
+                target: self,
+                selector: #selector(updateTimer),
+                userInfo: nil,
+                repeats: true
+            )
             isPaused = false
             updateStatusBarTitle()
             
@@ -80,18 +90,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func updateStatusBarTitle() {
         if totalTime == 0 && isPaused {
-            // Display Unicode clock symbol when the timer is zero and paused
-            statusItem.button?.title = "🕒"
+            // Display stopwatch image when the timer is zero and paused
+            statusItem.button?.image = stopwatch
+            statusItem.button?.title = ""
+        } else if isPaused {
+            // Greyed-out timer when paused
+            statusItem.button?.image = nil
+            statusItem.button?.attributedTitle = NSAttributedString(
+                string: getTimeString(),
+                attributes: [.foregroundColor: NSColor.darkGray]
+            )
         } else {
-            let title = getTimeString()
-            
-            if isPaused {
-                // Greyed-out timer when paused
-                statusItem.button?.attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: NSColor.gray])
-            } else {
-                // Normal timer display when running
-                statusItem.button?.title = title
-            }
+            // Normal timer display when running
+            statusItem.button?.image = nil
+            statusItem.button?.title = getTimeString()
         }
     }
 
