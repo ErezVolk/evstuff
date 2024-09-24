@@ -18,12 +18,12 @@ enum SequenceType: String, CaseIterable, Identifiable {
 class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
     @Published var volume: Float = 1.0
-    @Published var instrument: String = "N/A"
+    @Published var instrument: String = "None"
     var sequenceType: SequenceType = .circleOfFourth
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
     private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
-    private var audioEngine = AVAudioEngine()
+    private let audioEngine = AVAudioEngine()
     private var sampler = AVAudioUnitSampler()
     private var isPlaying = false
     private var noteSequence: [UInt8] = []
@@ -31,7 +31,7 @@ class AudioManager: NSObject, ObservableObject {
     private var currentIndex = 0
     private var currentNote: UInt8 = 60 // Default to Middle C
     private var cancellables = Set<AnyCancellable>()
-    // From http://johannes.roussel.free.fr/music/soundfonts.htm
+    // From http://johannes.roussel.free.fr/music/soundfonts.htm (TO DO: Use!)
     private let defaultInstrument = Bundle.main.url(forResource: "JR_String2", withExtension: "sf2")!
 #if os(macOS)
     private var assertionID: IOPMAssertionID = 0
@@ -44,8 +44,7 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     private func setupAudioEngine() {
-        audioEngine.attach(sampler)
-        audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
+        connectSampler()
 
         // Set initial volume
         audioEngine.mainMixerNode.outputVolume = volume
@@ -65,8 +64,25 @@ class AudioManager: NSObject, ObservableObject {
         }
     }
 
+    private func connectSampler() {
+        audioEngine.attach(sampler)
+        audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
+    }
+
     func resetInstrument() {
-        loadInstrument(defaultInstrument)
+        timeOut { _ in
+            audioEngine.detach(sampler)
+            sampler = AVAudioUnitSampler()
+            connectSampler()
+            instrument = "None"
+        }
+    }
+
+    private func newSampler() {
+        audioEngine.detach(sampler)
+        sampler = AVAudioUnitSampler()
+        connectSampler()
+        instrument = "None"
     }
 
     func loadInstrument(_ url: URL) {
@@ -82,7 +98,7 @@ class AudioManager: NSObject, ObservableObject {
                 if wasPlaying { sleep(1) }
             } catch {
                 print("Couldn't load instrument: \(error.localizedDescription)")
-                // TO DO: Fallback to default
+                newSampler()
             }
         }
     }
