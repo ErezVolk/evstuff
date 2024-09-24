@@ -71,10 +71,7 @@ class AudioManager: NSObject, ObservableObject {
 
     func resetInstrument() {
         timeOut { _ in
-            audioEngine.detach(sampler)
-            sampler = AVAudioUnitSampler()
-            connectSampler()
-            instrument = "None"
+            newSampler()
         }
     }
 
