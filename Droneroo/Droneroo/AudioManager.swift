@@ -32,7 +32,7 @@ class AudioManager: NSObject, ObservableObject {
     private var currentNote: UInt8 = 60 // Default to Middle C
     private var cancellables = Set<AnyCancellable>()
     // From http://johannes.roussel.free.fr/music/soundfonts.htm
-    private let organ = Bundle.main.url(forResource: "organ", withExtension: "sf2")!
+    private let defaultInstrument = Bundle.main.url(forResource: "JR_String2", withExtension: "sf2")!
 #if os(macOS)
     private var assertionID: IOPMAssertionID = 0
     private var sleepDisabled = false
@@ -67,7 +67,7 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     func resetInstrument() {
-        loadInstrument(organ)
+        loadInstrument(defaultInstrument)
     }
 
     func loadInstrument(_ url: URL) {
