@@ -1,5 +1,7 @@
 // Created by Erez Volk.
 
+// TO DO: More keyboard controls
+
 import SwiftUI
 import Combine
 
@@ -88,6 +90,9 @@ struct ContentView: View {
                     if panel.runModal() == .OK {
                         audioManager.loadInstrument(panel.url!)
                     }
+                }
+                Button("Default") {
+                    audioManager.loadInstrument()
                 }
                 Button("Reset") {
                     audioManager.resetInstrument()

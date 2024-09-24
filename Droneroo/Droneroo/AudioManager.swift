@@ -29,9 +29,9 @@ class AudioManager: NSObject, ObservableObject {
     private var noteSequence: [UInt8] = []
     private var nameSequence: [String] = []
     private var currentIndex = 0
-    private var currentNote: UInt8 = 60 // Default to Middle C
+    private var currentNote: UInt8!
     private var cancellables = Set<AnyCancellable>()
-    // From http://johannes.roussel.free.fr/music/soundfonts.htm (TO DO: Use!)
+    // From http://johannes.roussel.free.fr/music/soundfonts.htm
     private let defaultInstrument = Bundle.main.url(forResource: "JR_String2", withExtension: "sf2")!
 #if os(macOS)
     private var assertionID: IOPMAssertionID = 0
@@ -85,15 +85,16 @@ class AudioManager: NSObject, ObservableObject {
         instrument = "None"
     }
 
-    func loadInstrument(_ url: URL) {
+    func loadInstrument(_ url: URL? = nil) {
         timeOut { wasPlaying in
             do {
+                let actual = url ?? defaultInstrument
                 try sampler.loadSoundBankInstrument(
-                    at: url,
+                    at: actual,
                     program: 0, // TO DO: Make Configurable (echo 'inst 1' |fluidsynth foobar.sf2)
                     bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB),
                     bankLSB: UInt8(kAUSampler_DefaultBankLSB))
-                instrument = url.deletingPathExtension().lastPathComponent
+                instrument = actual.deletingPathExtension().lastPathComponent
                 // not sure how to wait for it to be ready
                 if wasPlaying { sleep(1) }
             } catch {
@@ -175,7 +176,7 @@ class AudioManager: NSObject, ObservableObject {
             case .rayBrown:
                 nameSequence = ["C", "F", "B♭", "E♭", "A♭", "D♭", "G", "D", "A", "E", "B", "F♯"]
             case .chromatic:
-                nameSequence = sharps
+                nameSequence = ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"]
             }
             noteSequence = nameSequence.map { noteNameToMidiNumber($0) }
         }
