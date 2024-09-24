@@ -44,7 +44,6 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     private func setupAudioEngine() {
-        resetInstrument()
         audioEngine.attach(sampler)
         audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
 
@@ -75,7 +74,7 @@ class AudioManager: NSObject, ObservableObject {
             do {
                 try sampler.loadSoundBankInstrument(
                     at: url,
-                    program: 0,
+                    program: 0, // TO DO: Make Configurable (echo 'inst 1' |fluidsynth foobar.sf2)
                     bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB),
                     bankLSB: UInt8(kAUSampler_DefaultBankLSB))
                 instrument = url.deletingPathExtension().lastPathComponent
@@ -83,6 +82,7 @@ class AudioManager: NSObject, ObservableObject {
                 if wasPlaying { sleep(1) }
             } catch {
                 print("Couldn't load instrument: \(error.localizedDescription)")
+                // TO DO: Fallback to default
             }
         }
     }
