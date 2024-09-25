@@ -101,10 +101,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func getTimeString() -> String {
-        let now = totalTime
-        let minutes = Int(now) / 60
-        let seconds = Int(now) % 60
-        let title = String(format: "%02d:%02d", minutes, seconds)
+        var total = Int(totalTime)
+        let seconds = total % 60
+        total /= 60
+        let minutes = total % 60
+        let hours = total / 60
+        let title = String(format: "%d:%02d:%02d", hours, minutes, seconds)
         return title
     }
     
