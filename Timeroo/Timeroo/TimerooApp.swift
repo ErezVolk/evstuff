@@ -4,7 +4,7 @@ import SwiftUI
 
 @main
 struct TimerooApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @NSApplicationDelegateAdaptor(TimerooAppDelegate.self) var appDelegate
 
     var body: some Scene {
         Settings { EmptyView() }

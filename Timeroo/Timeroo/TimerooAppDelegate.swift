@@ -3,11 +3,13 @@
 import Cocoa
 import UserNotifications
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+class TimerooAppDelegate: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
     var statusItem: NSStatusItem!
     var timer: Timer?
     var totalTime: TimeInterval = 0
     var isPaused: Bool = true
+    var popover: NSPopover!
+    var popoverWindow: PopoverWindow!
     let stopwatch = NSImage( // https://github.com/sam4096/apple-sf-symbols-list
         systemSymbolName: "stopwatch.fill",
         accessibilityDescription: "timer"
@@ -17,29 +19,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Remove the app from Force Quit menu
         NSApplication.shared.setActivationPolicy(.prohibited)
 
-        // Create Status Bar Item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-
-        // Set initial title
         updateStatusBarTitle()
+        setUpPopover()
 
         // Create the menu
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Start/Pause", action: #selector(startPauseTimer), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Clear", action: #selector(clearTimer), keyEquivalent: ""))
-
-        let setMenuItem = NSMenuItem(title: "Set", action: nil, keyEquivalent: "")
-        let setSubMenu = NSMenu()
-        let timerInputItem = NSMenuItem()
-        let timerInputView = TimerInputView(frame: NSRect(x: 0, y: 0, width: 130, height: 24)) { [weak self] total in
-            self?.setTimer(total)
-        }
-        timerInputView.parentMenu = menu
-        timerInputItem.view = timerInputView
-        setSubMenu.addItem(timerInputItem)
-
-        setMenuItem.submenu = setSubMenu
-        menu.addItem(setMenuItem)
+        menu.addItem(NSMenuItem(title: "Set...", action: #selector(showPopover), keyEquivalent: ""))
 
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApplication), keyEquivalent: ""))
@@ -137,9 +125,94 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
+    
+    func setUpPopover() {
+        let contentViewController = NSViewController()
+        contentViewController.view = NSView(frame: NSRect(x: 0, y: 0, width: 200, height: 64))
+        
+        let textField = NSTextField(frame: NSRect(x: 20, y: 20, width: 160, height: 24))
+        textField.placeholderString = "Enter time ([h:]mm:ss)"
+        textField.delegate = self
+        contentViewController.view.addSubview(textField)
+        
+        popover = NSPopover()
+        popover.contentViewController = contentViewController
+        popover.behavior = .transient // Automatically closes when focus is lost
+    }
+    
+    /// Gets called when the user presses Enter in the popover
+    func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        if commandSelector == #selector(NSResponder.insertNewline(_:)) {
+            setTimerFromPopover()
+            return true
+        }
+        return false
+    }
+    
+    @objc func showPopover() {
+        // Show the popover next to the status item
+        if let button = statusItem.button {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            if let textField = popover.contentViewController?.view.subviews.first(where: { $0 is NSTextField }) as? NSTextField {
+                textField.becomeFirstResponder() // Make the text field active
+            }
+        }
+    }
+    
+    @objc func setTimerFromPopover() {
+        if let total = parsePopover() {
+            setTimer(total)
+        } else {
+        }
+        popover.performClose(nil) // Close the popover after setting the timer
+    }
+    
+    func parsePopover() -> Int? {
+        guard let textField = popover.contentViewController?.view.subviews.first(where: { $0 is NSTextField }) as? NSTextField else {
+            return nil
+        }
 
+        let timeString = textField.stringValue
+        textField.stringValue = ""  // For next time
+        let parts = timeString.split(separator: ":")
+
+        guard parts.count == 2 || parts.count == 3 else {
+            return nil
+        }
+
+        guard let seconds = Int(parts[parts.count - 1]) else {
+            return nil
+        }
+        guard seconds >= 0 && seconds < 60 else {
+            return nil
+        }
+
+        guard let minutes = Int(parts[parts.count - 2]) else {
+            return nil
+        }
+        guard minutes >= 0 && minutes < 60 else {
+            return nil
+        }
+
+        if parts.count <= 2 {
+            return seconds + 60 * minutes
+        }
+
+        guard let hours = Int(parts[0]) else {
+            return nil
+        }
+        guard hours >= 0 else {
+            return nil
+        }
+
+        return seconds + 60 * (minutes + 60 * hours)
+    }
+    
     func setTimer(_ total: Int) {
         totalTime = TimeInterval(total)
         updateStatusBarTitle()
     }
 }
+
+
+
