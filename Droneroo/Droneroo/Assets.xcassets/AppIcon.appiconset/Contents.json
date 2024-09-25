@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "PS-Droneroo-iPhone.png",
+      "filename" : "PS-Droneroo-V3-1024.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -69,7 +69,7 @@
       "size" : "256x256"
     },
     {
-      "filename" : "PS-Droneroo-512.png",
+      "filename" : "PS-Droneroo-V3-512.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"

@@ -5,6 +5,10 @@
 import SwiftUI
 import Combine
 
+let backgroundGradient = LinearGradient(
+    colors: [Color.red, Color.blue],
+    startPoint: .top, endPoint: .bottom)
+
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
@@ -40,7 +44,7 @@ struct ContentView: View {
                 }
             }
 
-            Text("Current Note: \(audioManager.currentNoteName)")
+            Text("Now playing: \(audioManager.currentNoteName)")
                 .font(.headline)
                 .padding()
                 .focusable()
