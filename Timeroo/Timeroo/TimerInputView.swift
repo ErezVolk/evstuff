@@ -28,6 +28,7 @@ class TimerInputView: NSView, NSTextFieldDelegate {
             timeTextField.textColor = .labelColor
             onEnter?(total)
             parentMenu?.cancelTracking()
+            timeTextField.stringValue = ""
         } else {
             timeTextField.textColor = .red
         }
