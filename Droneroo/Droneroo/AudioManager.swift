@@ -126,6 +126,7 @@ class AudioManager: NSObject, ObservableObject {
         }
     }
 
+    /// Start playing.
     func startDrone() {
         currentNote = noteSequence[currentIndex]
         currentNoteName = nameSequence[currentIndex]
@@ -134,6 +135,7 @@ class AudioManager: NSObject, ObservableObject {
         setIsPlaying(true)
     }
 
+    /// Stop playing.
     func stopDrone() {
         sampler.stopNote(currentNote, onChannel: 0)
         sampler.stopNote(currentNote + 12, onChannel: 0)
@@ -166,6 +168,7 @@ class AudioManager: NSObject, ObservableObject {
         #endif
     }
 
+    /// Pause/Play.
     func toggleDrone() {
         if isPlaying {
             stopDrone()
@@ -174,14 +177,17 @@ class AudioManager: NSObject, ObservableObject {
         }
     }
 
+    /// Move to the next note in the current sequence
     func prevDrone() {
         changeDrone(-1)
     }
 
+    /// Move to the next note in the current sequence
     func nextDrone() {
         changeDrone(1)
     }
 
+    /// Update the current note, based on `delta` and `sequenceOrder`
     func changeDrone(_ delta: Int) {
         let n = noteSequence.count
         let uncut: Int
@@ -202,6 +208,7 @@ class AudioManager: NSObject, ObservableObject {
         if wasPlaying { startDrone() }
     }
 
+    /// Configure the actual sequence of notes, based on `sequenceType`.
     func loadSequence() {
         timeOut { _ in
             currentIndex = 0
