@@ -16,11 +16,11 @@ enum SequenceType: String, CaseIterable, Identifiable {
 }
 
 /// Ordering of sequence; the values are system image names
-enum SequenceOrder: String, CaseIterable, Identifiable {
-    case forward = "goforward"
-    case backward = "gobackward"
-    case shuffle = "shuffle"
-    var id: String { self.rawValue }
+enum SequenceOrder: CaseIterable, Identifiable {
+    case forward
+    case backward
+    case shuffle
+    var id: Self { self }
 }
 
 /// Helper to get a value from the bundle's info dictionary

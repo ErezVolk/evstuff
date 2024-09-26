@@ -7,6 +7,11 @@ let backgroundGradient = LinearGradient(
     colors: [Color.red, Color.blue],
     startPoint: .top, endPoint: .bottom)
 
+let orderShapes: [SequenceOrder: String] = [
+    .forward: "arrow.forward",
+    .backward: "arrow.backward",
+    .shuffle: "shuffle"]
+
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
@@ -21,19 +26,19 @@ struct ContentView: View {
                 Button {
                     audioManager.prevDrone()
                 } label: {
-                    Image(systemName: "backward")
+                    Image(systemName: "backward.circle.fill").font(.title)
                 }
 
                 Button {
                     audioManager.toggleDrone()
                 } label: {
-                    Image(systemName: "playpause")
+                    Image(systemName: "playpause.circle.fill").font(.largeTitle)
                 }
 
                 Button {
                     audioManager.nextDrone()
                 } label: {
-                    Image(systemName: "forward")
+                    Image(systemName: "forward.circle.fill").font(.title)
                 }
             }
 
@@ -79,7 +84,7 @@ struct ContentView: View {
                 }
                 Picker("", selection: $selectedOrder) {
                     ForEach(SequenceOrder.allCases) { order in
-                        Image(systemName: order.rawValue).tag(order)
+                        Image(systemName: orderShapes[order]!).tag(order)
                     }
                 }
                 .pickerStyle(PalettePickerStyle())
