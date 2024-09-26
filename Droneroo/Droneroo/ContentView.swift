@@ -3,14 +3,14 @@
 import SwiftUI
 import Combine
 
-let backgroundGradient = LinearGradient(
-    colors: [Color.red, Color.blue],
-    startPoint: .top, endPoint: .bottom)
-
-let orderShapes: [SequenceOrder: String] = [
-    .forward: "arrow.forward",
-    .backward: "arrow.backward",
-    .shuffle: "shuffle"]
+/// Convert a `SequenceOrder` constant to the SF shape we want for it
+fileprivate func orderShape(_ order: SequenceOrder) -> String {
+    switch order {
+    case .forward: return "arrow.forward"
+    case .backward: return "arrow.backward"
+    case .shuffle: return "shuffle"
+    }
+}
 
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
@@ -84,7 +84,7 @@ struct ContentView: View {
                 }
                 Picker("", selection: $selectedOrder) {
                     ForEach(SequenceOrder.allCases) { order in
-                        Image(systemName: orderShapes[order]!).tag(order)
+                        Image(systemName: orderShape(order)).tag(order)
                     }
                 }
                 .pickerStyle(PalettePickerStyle())
