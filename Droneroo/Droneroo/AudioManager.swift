@@ -22,12 +22,25 @@ enum SequenceOrder: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
+/// Helper to get a value from the bundle's info dictionary
+fileprivate func getBundleProperty(_ key: CFString) -> String {
+    return Bundle.main.infoDictionary?[key as String] as? String ?? "???"
+}
+
+/// Just for fun, figure out our name and version programmatically
+func getWhoAmI() -> String {
+    let app = getBundleProperty(kCFBundleNameKey)
+    let ver = getBundleProperty(kCFBundleVersionKey)
+    return "\(app) v\(ver)"
+}
+
 class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
     @Published var volume: Float = 1.0
     @Published var instrument: String = "None"
     var sequenceType: SequenceType = .circleOfFourth
     var sequenceOrder: SequenceOrder = .forward
+    private let whoAmI = getWhoAmI()
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
     private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
@@ -43,7 +56,6 @@ class AudioManager: NSObject, ObservableObject {
     private let defaultInstrument = Bundle.main.url(forResource: "JR_String2", withExtension: "sf2")!
 #if os(macOS)
     private var assertionID: IOPMAssertionID = 0
-    private var sleepDisabled = false
 #endif
 
     override init() {
@@ -119,32 +131,38 @@ class AudioManager: NSObject, ObservableObject {
         currentNoteName = nameSequence[currentIndex]
         sampler.startNote(currentNote, withVelocity: velocity, onChannel: 0)
         sampler.startNote(currentNote + 12, withVelocity: velocity, onChannel: 0)
-        isPlaying = true
-        #if os(macOS)
-        if !sleepDisabled {
-            sleepDisabled = IOPMAssertionCreateWithName(
-                kIOPMAssertionTypeNoDisplaySleep as CFString,
-                IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                "Droneroo" as CFString,
-                &assertionID) == kIOReturnSuccess
-        }
-        #else
-        UIApplication.shared.isIdleTimerDisabled = true
-        #endif
+        setIsPlaying(true)
     }
 
     func stopDrone() {
         sampler.stopNote(currentNote, onChannel: 0)
         sampler.stopNote(currentNote + 12, onChannel: 0)
-        isPlaying = false
         currentNoteName = "None"
+        setIsPlaying(false)
+    }
+    
+    /// Set the isPlaying flag, and also try to disable screen sleeping
+    func setIsPlaying(_ newValue: Bool) {
+        if newValue == isPlaying { return }
+        isPlaying = newValue
+        
         #if os(macOS)
-        if sleepDisabled {
+        if newValue {
+            let status = IOPMAssertionCreateWithName(
+                kIOPMAssertionTypeNoDisplaySleep as CFString,
+                IOPMAssertionLevel(kIOPMAssertionLevelOn),
+                whoAmI as CFString,
+                &assertionID)
+            if status != kIOReturnSuccess {
+                print("Cannot disable sleep: \(status)")
+                assertionID = 0
+            }
+        } else {
             IOPMAssertionRelease(assertionID)
-            sleepDisabled = false
+            assertionID = 0
         }
         #else
-        UIApplication.shared.isIdleTimerDisabled = false
+        UIApplication.shared.isIdleTimerDisabled = newValue
         #endif
     }
 
