@@ -126,11 +126,9 @@ struct ContentView: View {
                 .padding([.leading, .trailing], 40)
 
                 Slider(value: $audioManager.volume, in: 0...1)
-                    .padding([.leading, .trailing], 40)
+                .padding([.leading, .trailing], 40)
             }
-            .padding()
         }
-        .padding()
         .onAppear {
             audioManager.loadSequence()
         }
