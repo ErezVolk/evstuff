@@ -85,7 +85,7 @@ struct ContentView: View {
                     audioManager.sequenceType = selectedSequence
                     audioManager.loadSequence()
                 }
-                
+
                 Picker("", selection: $selectedOrder) {
                     ForEach(SequenceOrder.allCases) { order in
                         Text(order.rawValue).tag(order)
