@@ -21,25 +21,19 @@ struct ContentView: View {
                 Button {
                     audioManager.prevDrone()
                 } label: {
-                    Text("⏮")
-                        .font(.title)
-                        .cornerRadius(10)
+                    Image(systemName: "backward")
                 }
 
                 Button {
                     audioManager.toggleDrone()
                 } label: {
-                    Text("⏯")
-                        .font(.largeTitle)
-                        .cornerRadius(10)
+                    Image(systemName: "playpause")
                 }
 
                 Button {
                     audioManager.nextDrone()
                 } label: {
-                    Text("⏭")
-                        .font(.title)
-                        .cornerRadius(10)
+                    Image(systemName: "forward")
                 }
             }
 
