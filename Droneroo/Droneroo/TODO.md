@@ -4,4 +4,5 @@
 - Info screen
 - Get clicks from a specific keyboard even when not in focus (maybe using Karabiner/BTT)
 - Configurable and savable sequences
+- Get rid of the sleep
 
