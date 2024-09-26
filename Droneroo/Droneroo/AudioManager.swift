@@ -219,7 +219,7 @@ class AudioManager: NSObject, ObservableObject {
 
     private func noteNameToMidiNumber(_ noteName: String) -> UInt8 {
         let note = String(noteName.prefix(2))
-        var idx = sharps.firstIndex(of: note) ?? flats.firstIndex(of: note)
+        let idx = sharps.firstIndex(of: note) ?? flats.firstIndex(of: note)
         return UInt8(48 + idx!)
     }
 }

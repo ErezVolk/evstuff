@@ -79,6 +79,7 @@ struct ContentView: View {
                     }
                 }
                 .pickerStyle(SegmentedPickerStyle())
+                .fixedSize()
                 .onChange(of: selectedSequence) {
                     audioManager.sequenceType = selectedSequence
                     audioManager.loadSequence()
