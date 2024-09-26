@@ -43,7 +43,7 @@ struct ContentView: View {
                 }
             }
 
-            Text("Now playing: \(audioManager.currentNoteName)")
+            Text("Current note: \(audioManager.currentNoteName)")
                 .font(.headline)
                 .padding()
                 .focusable()

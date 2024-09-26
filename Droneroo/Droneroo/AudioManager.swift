@@ -40,13 +40,13 @@ class AudioManager: NSObject, ObservableObject {
     @Published var instrument: String = "None"
     var sequenceType: SequenceType = .circleOfFourth
     var sequenceOrder: SequenceOrder = .forward
+    var isPlaying = false
     private let whoAmI = getWhoAmI()
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
     private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
     private let audioEngine = AVAudioEngine()
     private var sampler = AVAudioUnitSampler()
-    private var isPlaying = false
     private var noteSequence: [UInt8] = []
     private var nameSequence: [String] = []
     private var currentIndex = 0
@@ -137,7 +137,7 @@ class AudioManager: NSObject, ObservableObject {
     func stopDrone() {
         sampler.stopNote(currentNote, onChannel: 0)
         sampler.stopNote(currentNote + 12, onChannel: 0)
-        currentNoteName = "None"
+        currentNoteName = "(\(nameSequence[currentIndex]))"
         setIsPlaying(false)
     }
     
