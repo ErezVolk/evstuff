@@ -98,6 +98,7 @@ struct ContentView: View {
 
             // Instrument
             HStack {
+#if os(macOS)
                 Button("Load SoundFont") {
                     let panel = NSOpenPanel()
                     panel.allowsMultipleSelection = false
@@ -106,6 +107,7 @@ struct ContentView: View {
                         audioManager.loadInstrument(panel.url!)
                     }
                 }
+#endif
                 Button("Default") {
                     audioManager.loadInstrument()
                 }
