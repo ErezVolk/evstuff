@@ -30,7 +30,7 @@ struct ContentView: View {
                     audioManager.toggleDrone()
                 } label: {
                     Text("⏯")
-                        .font(.title)
+                        .font(.largeTitle)
                         .cornerRadius(10)
                 }
 
@@ -78,13 +78,11 @@ struct ContentView: View {
                         Text(sequence.rawValue).tag(sequence)
                     }
                 }
-                .pickerStyle(SegmentedPickerStyle())
                 .fixedSize()
                 .onChange(of: selectedSequence) {
                     audioManager.sequenceType = selectedSequence
                     audioManager.loadSequence()
                 }
-
                 Picker("", selection: $selectedOrder) {
                     ForEach(SequenceOrder.allCases) { order in
                         Text(order.rawValue).tag(order)
