@@ -79,7 +79,7 @@ struct ContentView: View {
                 }
                 Picker("", selection: $selectedOrder) {
                     ForEach(SequenceOrder.allCases) { order in
-                        Text(order.rawValue).tag(order)
+                        Image(systemName: order.rawValue).tag(order)
                     }
                 }
                 .pickerStyle(PalettePickerStyle())

@@ -15,10 +15,11 @@ enum SequenceType: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
+/// Ordering of sequence; the values are system image names
 enum SequenceOrder: String, CaseIterable, Identifiable {
-    case forward = "⏵"
-    case backward = "⏴"
-    case shuffle = "🎲"
+    case forward = "goforward"
+    case backward = "gobackward"
+    case shuffle = "shuffle"
     var id: String { self.rawValue }
 }
 
