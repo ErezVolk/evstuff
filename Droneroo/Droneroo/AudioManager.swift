@@ -15,11 +15,19 @@ enum SequenceType: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
+enum SequenceOrder: String, CaseIterable, Identifiable {
+    case forward = "⏵"
+    case backward = "⏴"
+    case shuffle = "🎲"
+    var id: String { self.rawValue }
+}
+
 class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
     @Published var volume: Float = 1.0
     @Published var instrument: String = "None"
     var sequenceType: SequenceType = .circleOfFourth
+    var sequenceOrder: SequenceOrder = .forward
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
     private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
@@ -154,8 +162,16 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     func changeDrone(_ delta: Int) {
+        var nextIndex: Int
+        if sequenceOrder == .shuffle {nextIndex = Int.random(in: 0..<noteSequence.count)}
+        else {
+            if sequenceOrder == .forward {nextIndex = currentIndex + delta}
+            else {nextIndex = currentIndex - delta}
+            while nextIndex < 0 {nextIndex += noteSequence.count}
+            nextIndex = nextIndex % noteSequence.count
+        }
         timeOut { _ in
-            currentIndex = (currentIndex + noteSequence.count + delta) % noteSequence.count
+            currentIndex = nextIndex
         }
     }
 

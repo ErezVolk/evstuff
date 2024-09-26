@@ -12,6 +12,7 @@ let backgroundGradient = LinearGradient(
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
+    @State private var selectedOrder: SequenceOrder = .forward
     @State private var delta = 0
     @State private var toggle = false
     @FocusState private var focused: Bool
@@ -73,16 +74,26 @@ struct ContentView: View {
                     toggle = false
                 }
 
-            Picker("Sequence", selection: $selectedSequence) {
-                ForEach(SequenceType.allCases) { sequence in
-                    Text(sequence.rawValue).tag(sequence)
+            HStack {
+                Picker("", selection: $selectedSequence) {
+                    ForEach(SequenceType.allCases) { sequence in
+                        Text(sequence.rawValue).tag(sequence)
+                    }
                 }
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding()
-            .onChange(of: selectedSequence) {
-                audioManager.sequenceType = selectedSequence
-                audioManager.loadSequence()
+                .pickerStyle(SegmentedPickerStyle())
+                .onChange(of: selectedSequence) {
+                    audioManager.sequenceType = selectedSequence
+                    audioManager.loadSequence()
+                }
+                
+                Picker("", selection: $selectedOrder) {
+                    ForEach(SequenceOrder.allCases) { order in
+                        Text(order.rawValue).tag(order)
+                    }
+                }
+                .pickerStyle(PalettePickerStyle())
+                .fixedSize()
+                .onChange(of: selectedOrder) { audioManager.sequenceOrder = selectedOrder }
             }
 
             // Instrument
