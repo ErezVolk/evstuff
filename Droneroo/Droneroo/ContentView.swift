@@ -3,15 +3,6 @@
 import SwiftUI
 import Combine
 
-/// Convert a `SequenceOrder` constant to the SF shape we want for it
-fileprivate func orderShape(_ order: SequenceOrder) -> String {
-    switch order {
-    case .forward: return "arrow.forward"
-    case .backward: return "arrow.backward"
-    case .shuffle: return "shuffle"
-    }
-}
-
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
@@ -19,6 +10,15 @@ struct ContentView: View {
     @State private var delta = 0
     @State private var toggle = false
     @FocusState private var focused: Bool
+
+    /// Convert a `SequenceOrder` constant to the SF shape we want for it
+    private func orderShape(_ order: SequenceOrder) -> String {
+        switch order {
+        case .forward: return "arrow.forward"
+        case .backward: return "arrow.backward"
+        case .shuffle: return "shuffle"
+        }
+    }
 
     var body: some View {
         VStack(spacing: 20) {
