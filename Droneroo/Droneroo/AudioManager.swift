@@ -162,15 +162,15 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     func changeDrone(_ delta: Int) {
-        var nextIndex: Int
+        let n = noteSequence.count
+        let uncut: Int
         switch sequenceOrder {
-        case .forward: nextIndex = currentIndex + delta
-        case .backward: nextIndex = currentIndex - delta
-        case .shuffle: nextIndex = Int.random(in: 0..<noteSequence.count)
+        case .forward: uncut = currentIndex + delta
+        case .backward: uncut = currentIndex - delta
+        case .shuffle: uncut = Int.random(in: 0..<n)
         }
-        while nextIndex < 0 {nextIndex += noteSequence.count}
         timeOut { _ in
-            currentIndex = nextIndex % noteSequence.count
+            currentIndex = ((uncut % n) + n) % n
         }
     }
 
