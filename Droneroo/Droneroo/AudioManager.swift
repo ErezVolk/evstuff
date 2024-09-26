@@ -98,7 +98,7 @@ class AudioManager: NSObject, ObservableObject {
                 let actual = url ?? defaultInstrument
                 try sampler.loadSoundBankInstrument(
                     at: actual,
-                    program: 0, // TO DO: Make Configurable (echo 'inst 1' |fluidsynth foobar.sf2)
+                    program: 0,
                     bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB),
                     bankLSB: UInt8(kAUSampler_DefaultBankLSB))
                 instrument = actual.deletingPathExtension().lastPathComponent
