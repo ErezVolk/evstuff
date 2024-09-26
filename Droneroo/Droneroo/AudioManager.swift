@@ -102,8 +102,11 @@ class AudioManager: NSObject, ObservableObject {
                     bankMSB: UInt8(kAUSampler_DefaultMelodicBankMSB),
                     bankLSB: UInt8(kAUSampler_DefaultBankLSB))
                 instrument = actual.deletingPathExtension().lastPathComponent
-                // not sure how to wait for it to be ready
-                if wasPlaying { sleep(1) }
+
+                if wasPlaying {
+                    // Loading a new instrument can disable sound, so flip of and on after a short delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.timeOut { _ in /* NOP */ } }
+                }
             } catch {
                 print("Couldn't load instrument: \(error.localizedDescription)")
                 newSampler()

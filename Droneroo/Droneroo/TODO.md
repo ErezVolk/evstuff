@@ -1,8 +1,7 @@
 #  TODO List
-- Prettier main window
-- Show note even when silent
-- Info screen
+- Make prettier
+- Show note even when silent (🔇)
+- "About..."
 - Get clicks from a specific keyboard even when not in focus (maybe using Karabiner/BTT)
 - Configurable and savable sequences
-- Get rid of the sleep
 
