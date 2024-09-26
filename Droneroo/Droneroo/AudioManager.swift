@@ -141,7 +141,7 @@ class AudioManager: NSObject, ObservableObject {
         setIsPlaying(false)
     }
     
-    /// Set the isPlaying flag, and also try to disable screen sleeping
+    /// Set the `isPlaying` flag, and also try to disable screen sleeping
     func setIsPlaying(_ newValue: Bool) {
         if newValue == isPlaying { return }
         isPlaying = newValue
