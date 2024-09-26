@@ -104,7 +104,7 @@ class AudioManager: NSObject, ObservableObject {
                 instrument = actual.deletingPathExtension().lastPathComponent
 
                 if wasPlaying {
-                    // Loading a new instrument can disable sound, so flip of and on after a short delay
+                    // Loading a new instrument can disable sound, so flip off and on after a short delay
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.timeOut { _ in /* NOP */ } }
                 }
             } catch {
