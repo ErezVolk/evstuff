@@ -1,7 +1,5 @@
 // Created by Erez Volk.
 
-// TO DO: More keyboard controls
-
 import SwiftUI
 import Combine
 
