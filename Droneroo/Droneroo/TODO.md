@@ -1,5 +1,6 @@
 #  TODO List
 
+- The shuffle option should shuffle, not random
 - Make prettier on mobile
 - Make prettier on desktop
 - "About..." (how does that work in mobile?)
