@@ -18,37 +18,44 @@ struct ContentView: View {
         case .backward: return "arrow.backward"
         }
     }
-    
-    let randomLabel = Image(systemName: "dice.fill")
 
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                // Ugly hack to center the
-                Button {()} label: { randomLabel }.hidden()
-                
-                Button {
-                    audioManager.prevDrone()
-                } label: {
-                    Image(systemName: "backward.circle.fill").font(.title)
+                Spacer(minLength: 0).overlay {
+                    HStack {
+                        Spacer()
+
+                        Button {
+                            audioManager.prevDrone()
+                        } label: {
+                            Image(systemName: "backward.circle.fill").font(.title)
+                        }
+                    }
                 }
 
                 Button {
                     audioManager.toggleDrone()
                 } label: {
                     Image(systemName: "playpause.circle.fill").font(.largeTitle)
-                }
+                }.padding()
 
-                Button {
-                    audioManager.nextDrone()
-                } label: {
-                    Image(systemName: "forward.circle.fill").font(.title)
-                }
-                    
-                Button {
-                    audioManager.randomDrone()
-                } label: {
-                    randomLabel
+                Spacer(minLength: 0).overlay {
+                    HStack {
+                        Button {
+                            audioManager.nextDrone()
+                        } label: {
+                            Image(systemName: "forward.circle.fill").font(.title)
+                        }
+
+                        Button {
+                            audioManager.randomDrone()
+                        } label: {
+                            Image(systemName: "dice.fill")
+                        }
+
+                        Spacer()
+                    }
                 }
             }
 
