@@ -16,13 +16,17 @@ struct ContentView: View {
         switch order {
         case .forward: return "arrow.forward"
         case .backward: return "arrow.backward"
-        case .shuffle: return "shuffle"
         }
     }
+    
+    let randomLabel = Image(systemName: "dice.fill")
 
     var body: some View {
         VStack(spacing: 20) {
             HStack {
+                // Ugly hack to center the
+                Button {()} label: { randomLabel }.hidden()
+                
                 Button {
                     audioManager.prevDrone()
                 } label: {
@@ -39,6 +43,12 @@ struct ContentView: View {
                     audioManager.nextDrone()
                 } label: {
                     Image(systemName: "forward.circle.fill").font(.title)
+                }
+                    
+                Button {
+                    audioManager.randomDrone()
+                } label: {
+                    randomLabel
                 }
             }
 

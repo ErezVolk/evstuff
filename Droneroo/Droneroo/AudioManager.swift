@@ -19,7 +19,6 @@ enum SequenceType: String, CaseIterable, Identifiable {
 enum SequenceOrder: CaseIterable, Identifiable {
     case forward
     case backward
-    case shuffle
     var id: Self { self }
 }
 
@@ -187,6 +186,11 @@ class AudioManager: NSObject, ObservableObject {
     func nextDrone() {
         changeDrone(1)
     }
+    
+    /// Switch to a random note in the current sequence
+    func randomDrone() {
+        changeDrone(Int.random(in: 1...noteSequence.count))
+    }
 
     /// Update the current note, based on `delta` and `sequenceOrder`
     func changeDrone(_ delta: Int) {
@@ -195,7 +199,6 @@ class AudioManager: NSObject, ObservableObject {
         switch sequenceOrder {
         case .forward: uncut = currentIndex + delta
         case .backward: uncut = currentIndex - delta
-        case .shuffle: uncut = Int.random(in: 0..<n)
         }
         timeOut { _ in
             currentIndex = ((uncut % n) + n) % n
