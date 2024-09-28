@@ -1,5 +1,6 @@
 #  TODO List
 
+- Support chords
 - Make prettier on mobile
 - Make prettier on desktop
 - "About..." (how does that work in mobile?)
