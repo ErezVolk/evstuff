@@ -1,5 +1,7 @@
 #  TODO List
 
+- Pick a note NOW (wheel or something)
+- Piano keyboard
 - Support chords
 - Make prettier on mobile
 - Make prettier on desktop
@@ -7,3 +9,4 @@
 - Get clicks from a specific keyboard even when not in focus (maybe using Karabiner/BTT)
 - Configurable and savable sequences
 - Load specific intstrument from soundbank (echo 'inst 1' |fluidsynth foobar.sf2)
+- Chord (or anything) which then moves according to the circle defined
