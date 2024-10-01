@@ -3,6 +3,38 @@
 import SwiftUI
 import Combine
 
+struct Encircled: ViewModifier {
+    let diameter: CGFloat
+    
+    func body(content: Content) -> some View {
+        return Circle()
+            .frame(width: diameter, height: diameter)
+            .overlay { content }
+    }
+}
+
+extension View {
+    func encircle(big: Bool = false, shadowRadius: CGFloat = 3, circleColor: Color = .gray) -> some View {
+        font(.system(size: big ? 32 : 24))
+            .foregroundColor(.white)
+            .modifier(Encircled(diameter: big ? 120 : 80))
+            .shadow(radius: shadowRadius)
+            .foregroundColor(circleColor)
+    }
+}
+
+struct CircledToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .encircle(big: true, shadowRadius: configuration.isOn ? 10: 3, circleColor: configuration.isOn ? Color.black : Color.gray)
+            .onTapGesture { configuration.isOn.toggle() }
+    }
+}
+
+extension ToggleStyle where Self == CircledToggleStyle {
+    static var encircled: CircledToggleStyle { .init() }
+}
+
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
@@ -22,71 +54,40 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                Spacer(minLength: 0).overlay {
-                    HStack {
-                        Spacer()
-
-                        Button {
-                            audioManager.prevDrone()
-                        } label: {
-                            Image(systemName: "backward.circle.fill").font(.title)
-                        }
+                Text(audioManager.previousNoteName)
+                    .encircle()
+                
+                Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
+                    .focusable()
+                    .focused($focused)
+                    .onAppear {
+                        focused = true
                     }
-                }
-
-                Button {
-                    audioManager.toggleDrone()
-                } label: {
-                    Image(systemName: "playpause.circle.fill").font(.largeTitle)
-                }.padding()
-
-                Spacer(minLength: 0).overlay {
-                    HStack {
-                        Button {
-                            audioManager.nextDrone()
-                        } label: {
-                            Image(systemName: "forward.circle.fill").font(.title)
-                        }
-
-                        Button {
-                            audioManager.randomDrone()
-                        } label: {
-                            Image(systemName: "dice.fill")
-                        }
-
-                        Spacer()
+                    .onKeyPress(keys: [.leftArrow]) { _ in
+                        delta -= 1
+                        return .handled
                     }
-                }
+                    .onKeyPress(keys: [.rightArrow]) { _ in
+                        delta += 1
+                        return .handled
+                    }
+                    .onChange(of: delta) {
+                        if delta != 0 { audioManager.changeDrone(delta) }
+                        delta = 0
+                    }
+                    .onKeyPress(keys: [.space]) { _ in
+                        toggle = !toggle
+                        return .handled
+                    }
+                    .onChange(of: toggle) {
+                        if toggle {audioManager.toggleDrone()}
+                        toggle = false
+                    }
+                    .toggleStyle(.encircled)
+                
+                Text(audioManager.nextNoteName)
+                    .encircle()
             }
-
-            Text("Current note: \(audioManager.currentNoteName)")
-                .font(.headline)
-                .padding()
-                .focusable()
-                .focused($focused)
-                .onAppear {
-                    focused = true
-                }
-                .onKeyPress(keys: [.leftArrow]) { _ in
-                    delta -= 1
-                    return .handled
-                }
-                .onKeyPress(keys: [.rightArrow]) { _ in
-                    delta += 1
-                    return .handled
-                }
-                .onChange(of: delta) {
-                    if delta != 0 { audioManager.changeDrone(delta) }
-                    delta = 0
-                }
-                .onKeyPress(keys: [.space]) { _ in
-                    toggle = !toggle
-                    return .handled
-                }
-                .onChange(of: toggle) {
-                    if toggle {audioManager.toggleDrone()}
-                    toggle = false
-                }
 
             HStack {
                 Picker("", selection: $selectedSequence) {

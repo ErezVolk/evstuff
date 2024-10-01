@@ -36,11 +36,13 @@ func getWhoAmI() -> String {
 
 class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
+    @Published var previousNoteName: String = "N/A"
+    @Published var nextNoteName: String = "N/A"
     @Published var volume: Float = 1.0
     @Published var instrument: String = "None"
+    @Published var isPlaying = false
     var sequenceType: SequenceType = .circleOfFourth
     var sequenceOrder: SequenceOrder = .forward
-    var isPlaying = false
     private let whoAmI = getWhoAmI()
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
@@ -130,6 +132,8 @@ class AudioManager: NSObject, ObservableObject {
     func startDrone() {
         currentNote = noteSequence[currentIndex]
         currentNoteName = nameSequence[currentIndex]
+        previousNoteName = nameSequence[(currentIndex + nameSequence.count - 1) % nameSequence.count]
+        nextNoteName = nameSequence[(currentIndex + 1) % nameSequence.count]
         sampler.startNote(currentNote, withVelocity: velocity, onChannel: 0)
         sampler.startNote(currentNote + 12, withVelocity: velocity, onChannel: 0)
         setIsPlaying(true)
@@ -137,9 +141,9 @@ class AudioManager: NSObject, ObservableObject {
 
     /// Stop playing.
     func stopDrone() {
+        guard isPlaying else { return }
         sampler.stopNote(currentNote, onChannel: 0)
         sampler.stopNote(currentNote + 12, onChannel: 0)
-        currentNoteName = "(\(nameSequence[currentIndex]))"
         setIsPlaying(false)
     }
     
