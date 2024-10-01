@@ -131,21 +131,6 @@ struct ContentView: View {
                 Text(audioManager.instrument)
                     .monospaced()
             }
-
-            // Volume Slider
-            VStack {
-                HStack {
-                    Text("Volume")
-                        .font(.headline)
-                    Spacer()
-                    Text("\(Int(audioManager.volume * 100))%")
-                        .font(.subheadline)
-                }
-                .padding([.leading, .trailing], 40)
-
-                Slider(value: $audioManager.volume, in: 0...1)
-                .padding([.leading, .trailing], 40)
-            }
         }
         .onAppear {
             audioManager.loadSequence()
