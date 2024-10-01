@@ -3,37 +3,6 @@
 import SwiftUI
 import Combine
 
-struct Encircled: ViewModifier {
-    let diameter: CGFloat
-    
-    func body(content: Content) -> some View {
-        return Circle()
-            .frame(width: diameter, height: diameter)
-            .overlay { content }
-    }
-}
-
-extension View {
-    func encircle(big: Bool = false, shadowRadius: CGFloat = 3, circleColor: Color = .gray) -> some View {
-        font(.system(size: big ? 32 : 24))
-            .foregroundColor(.white)
-            .modifier(Encircled(diameter: big ? 120 : 80))
-            .shadow(radius: shadowRadius)
-            .foregroundColor(circleColor)
-    }
-}
-
-struct CircledToggleStyle: ToggleStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .encircle(big: true, shadowRadius: configuration.isOn ? 10: 3, circleColor: configuration.isOn ? Color.black : Color.gray)
-            .onTapGesture { configuration.isOn.toggle() }
-    }
-}
-
-extension ToggleStyle where Self == CircledToggleStyle {
-    static var encircled: CircledToggleStyle { .init() }
-}
 
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
@@ -55,7 +24,7 @@ struct ContentView: View {
         VStack(spacing: 20) {
             HStack {
                 Text(audioManager.previousNoteName)
-                    .encircle()
+                    .encircle(diameter: 80)
                 
                 Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
                     .focusable()
@@ -79,6 +48,9 @@ struct ContentView: View {
                         toggle = !toggle
                         return .handled
                     }
+                    .onTapGesture {
+                        toggle = !toggle
+                    }
                     .onChange(of: toggle) {
                         if toggle {audioManager.toggleDrone()}
                         toggle = false
@@ -86,7 +58,7 @@ struct ContentView: View {
                     .toggleStyle(.encircled)
                 
                 Text(audioManager.nextNoteName)
-                    .encircle()
+                    .encircle(diameter: 104)
             }
 
             HStack {

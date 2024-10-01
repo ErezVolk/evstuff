@@ -22,17 +22,6 @@ enum SequenceOrder: CaseIterable, Identifiable {
     var id: Self { self }
 }
 
-/// Helper to get a value from the bundle's info dictionary
-fileprivate func getBundleProperty(_ key: CFString) -> String {
-    return Bundle.main.infoDictionary?[key as String] as? String ?? "???"
-}
-
-/// Just for fun, figure out our name and version programmatically
-func getWhoAmI() -> String {
-    let app = getBundleProperty(kCFBundleNameKey)
-    let ver = getBundleProperty(kCFBundleVersionKey)
-    return "\(app) v\(ver)"
-}
 
 class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
@@ -63,6 +52,8 @@ class AudioManager: NSObject, ObservableObject {
     override init() {
         super.init()
         setupAudioEngine()
+        loadSequence()
+        setCurrentNote()
     }
 
     private func setupAudioEngine() {
@@ -130,13 +121,18 @@ class AudioManager: NSObject, ObservableObject {
 
     /// Start playing.
     func startDrone() {
+        setCurrentNote()
+        sampler.startNote(currentNote, withVelocity: velocity, onChannel: 0)
+        sampler.startNote(currentNote + 12, withVelocity: velocity, onChannel: 0)
+        setIsPlaying(true)
+    }
+    
+    /// Set current note for playback and display (and profit).
+    private func setCurrentNote() {
         currentNote = noteSequence[currentIndex]
         currentNoteName = nameSequence[currentIndex]
         previousNoteName = nameSequence[(currentIndex + nameSequence.count - 1) % nameSequence.count]
         nextNoteName = nameSequence[(currentIndex + 1) % nameSequence.count]
-        sampler.startNote(currentNote, withVelocity: velocity, onChannel: 0)
-        sampler.startNote(currentNote + 12, withVelocity: velocity, onChannel: 0)
-        setIsPlaying(true)
     }
 
     /// Stop playing.
