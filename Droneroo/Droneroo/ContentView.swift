@@ -25,6 +25,7 @@ struct ContentView: View {
             HStack {
                 Text(audioManager.previousNoteName)
                     .encircle(diameter: 80)
+                    .onTapGesture { delta += 1 }
                 
                 Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
                     .focusable()
@@ -59,6 +60,7 @@ struct ContentView: View {
                 
                 Text(audioManager.nextNoteName)
                     .encircle(diameter: 104)
+                    .onTapGesture { delta -= 1 }
             }
 
             HStack {
