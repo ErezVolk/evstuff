@@ -98,8 +98,10 @@ struct ContentView: View {
                     .monospaced()
             }
         }
+#if os(iOS)
         .containerRelativeFrame([.horizontal, .vertical])
         .background(Color.dronerooBack)
+#endif
         .onAppear {
             audioManager.loadSequence()
         }
