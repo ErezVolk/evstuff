@@ -10,6 +10,11 @@ struct ContentView: View {
     @State private var delta = 0
     @State private var toggle = false
     @FocusState private var focused: Bool
+#if os(macOS)
+    private let signpostDiameter = 32
+#else
+    private let signpostDiameter = 40
+#endif
 
     var body: some View {
         VStack(spacing: 20) {
@@ -53,7 +58,7 @@ struct ContentView: View {
                     .toggleStyle(EncircledToggleStyle())
                 
                 Text(audioManager.nextNoteName)
-                    .encircle(diameter: 104,
+                    .encircle(diameter: 80,
                               textColor: audioManager.isForward ? .circleText : .otherCircleText,
                               circleColor: audioManager.isForward ? .circleBack : .otherCircleBack)
                     .onTapGesture { delta -= 1 }
@@ -71,8 +76,8 @@ struct ContentView: View {
                     audioManager.loadSequence()
                 }
 
-                Image(systemName: audioManager.isForward ? "chevron.right.dotted.chevron.right" : "chevron.left.chevron.left.dotted")
-                    .encircle(diameter: 24, shadowRadius: 0, textColor: .directionText, circleColor: .directionBack, textFont: .body)
+                Image(systemName: audioManager.isForward ? "signpost.right.fill" : "signpost.left.fill")
+                    .encircle(diameter: signpostDiameter, textColor: .directionText, circleColor: .directionBack, textFont: .body)
                     .onTapGesture { audioManager.flipDirection() }
             }
 

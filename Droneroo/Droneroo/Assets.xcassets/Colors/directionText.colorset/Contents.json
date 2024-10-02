@@ -23,7 +23,7 @@
     {
       "color" : {
         "platform" : "ios",
-        "reference" : "labelColor"
+        "reference" : "secondaryLabelColor"
       },
       "idiom" : "iphone"
     },
@@ -36,7 +36,7 @@
       ],
       "color" : {
         "platform" : "ios",
-        "reference" : "labelColor"
+        "reference" : "secondaryLabelColor"
       },
       "idiom" : "iphone"
     }
