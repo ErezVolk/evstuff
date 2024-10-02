@@ -30,8 +30,9 @@ class AudioManager: NSObject, ObservableObject {
     @Published var volume: Float = 1.0
     @Published var instrument: String = "None"
     @Published var isPlaying = false
-    var sequenceType: SequenceType = .circleOfFourth
-    var sequenceOrder: SequenceOrder = .forward
+    @Published var isReversed = false
+    @Published var sequenceType: SequenceType = .circleOfFourth
+    @Published var sequenceOrder: SequenceOrder = .forward
     private let whoAmI = getWhoAmI()
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]

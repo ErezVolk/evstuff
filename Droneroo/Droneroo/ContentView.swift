@@ -24,7 +24,10 @@ struct ContentView: View {
         VStack(spacing: 20) {
             HStack {
                 Text(audioManager.previousNoteName)
-                    .encircle(diameter: 80)
+                    .encircle(
+                        diameter: 80,
+                        textColor: audioManager.sequenceOrder == .backward ? .circleText : .otherCircleText,
+                        circleColor: audioManager.sequenceOrder == .backward ? .circleBack : .otherCircleBack)
                     .onTapGesture { delta += 1 }
                 
                 Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
@@ -59,7 +62,9 @@ struct ContentView: View {
                     .toggleStyle(.encircled)
                 
                 Text(audioManager.nextNoteName)
-                    .encircle(diameter: 104)
+                    .encircle(diameter: 104,
+                              textColor: audioManager.sequenceOrder == .forward ? .circleText : .otherCircleText,
+                              circleColor: audioManager.sequenceOrder == .forward ? .circleBack : .otherCircleBack)
                     .onTapGesture { delta -= 1 }
             }
 
