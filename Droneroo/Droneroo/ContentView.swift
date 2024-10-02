@@ -7,18 +7,9 @@ import Combine
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
-    @State private var selectedOrder: SequenceOrder = .forward
     @State private var delta = 0
     @State private var toggle = false
     @FocusState private var focused: Bool
-
-    /// Convert a `SequenceOrder` constant to the SF shape we want for it
-    private func orderShape(_ order: SequenceOrder) -> String {
-        switch order {
-        case .forward: return "arrow.forward"
-        case .backward: return "arrow.backward"
-        }
-    }
 
     var body: some View {
         VStack(spacing: 20) {
@@ -26,8 +17,8 @@ struct ContentView: View {
                 Text(audioManager.previousNoteName)
                     .encircle(
                         diameter: 80,
-                        textColor: audioManager.sequenceOrder == .backward ? .circleText : .otherCircleText,
-                        circleColor: audioManager.sequenceOrder == .backward ? .circleBack : .otherCircleBack)
+                        textColor: audioManager.isForward ? .otherCircleText : .circleText,
+                        circleColor: audioManager.isForward ? .otherCircleBack : .circleBack)
                     .onTapGesture { delta += 1 }
                 
                 Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
@@ -59,12 +50,12 @@ struct ContentView: View {
                         if toggle {audioManager.toggleDrone()}
                         toggle = false
                     }
-                    .toggleStyle(.encircled)
+                    .toggleStyle(EncircledToggleStyle())
                 
                 Text(audioManager.nextNoteName)
                     .encircle(diameter: 104,
-                              textColor: audioManager.sequenceOrder == .forward ? .circleText : .otherCircleText,
-                              circleColor: audioManager.sequenceOrder == .forward ? .circleBack : .otherCircleBack)
+                              textColor: audioManager.isForward ? .circleText : .otherCircleText,
+                              circleColor: audioManager.isForward ? .circleBack : .otherCircleBack)
                     .onTapGesture { delta -= 1 }
             }
 
@@ -79,14 +70,10 @@ struct ContentView: View {
                     audioManager.sequenceType = selectedSequence
                     audioManager.loadSequence()
                 }
-                Picker("", selection: $selectedOrder) {
-                    ForEach(SequenceOrder.allCases) { order in
-                        Image(systemName: orderShape(order)).tag(order)
-                    }
-                }
-                .pickerStyle(PalettePickerStyle())
-                .fixedSize()
-                .onChange(of: selectedOrder) { audioManager.sequenceOrder = selectedOrder }
+
+                Image(systemName: audioManager.isForward ? "chevron.right.dotted.chevron.right" : "chevron.left.chevron.left.dotted")
+                    .encircle(diameter: 24, shadowRadius: 0, textColor: .directionText, circleColor: .directionBack, textFont: .body)
+                    .onTapGesture { audioManager.flipDirection() }
             }
 
             // Instrument
@@ -111,6 +98,8 @@ struct ContentView: View {
                     .monospaced()
             }
         }
+        .containerRelativeFrame([.horizontal, .vertical])
+        .background(Color.dronerooBack)
         .onAppear {
             audioManager.loadSequence()
         }

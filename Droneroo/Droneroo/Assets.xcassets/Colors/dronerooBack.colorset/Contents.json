@@ -2,8 +2,8 @@
   "colors" : [
     {
       "color" : {
-        "platform" : "universal",
-        "reference" : "tertiaryLabelColor"
+        "platform" : "osx",
+        "reference" : "gridColor"
       },
       "idiom" : "universal"
     },
@@ -15,15 +15,15 @@
         }
       ],
       "color" : {
-        "platform" : "universal",
-        "reference" : "secondaryLabelColor"
+        "platform" : "osx",
+        "reference" : "gridColor"
       },
       "idiom" : "universal"
     },
     {
       "color" : {
         "platform" : "ios",
-        "reference" : "quaternaryLabelColor"
+        "reference" : "systemGroupedBackgroundColor"
       },
       "idiom" : "iphone"
     },
@@ -36,7 +36,7 @@
       ],
       "color" : {
         "platform" : "ios",
-        "reference" : "secondaryLabelColor"
+        "reference" : "systemGroupedBackgroundColor"
       },
       "idiom" : "iphone"
     }

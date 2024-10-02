@@ -15,13 +15,6 @@ enum SequenceType: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
-/// Ordering of sequence; the values are system image names
-enum SequenceOrder: CaseIterable, Identifiable {
-    case forward
-    case backward
-    var id: Self { self }
-}
-
 
 class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
@@ -32,7 +25,7 @@ class AudioManager: NSObject, ObservableObject {
     @Published var isPlaying = false
     @Published var isReversed = false
     @Published var sequenceType: SequenceType = .circleOfFourth
-    @Published var sequenceOrder: SequenceOrder = .forward
+    @Published var isForward = true
     private let whoAmI = getWhoAmI()
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
@@ -196,11 +189,7 @@ class AudioManager: NSObject, ObservableObject {
     /// Update the current note, based on `delta` and `sequenceOrder`
     func changeDrone(_ delta: Int) {
         let n = noteSequence.count
-        let uncut: Int
-        switch sequenceOrder {
-        case .forward: uncut = currentIndex + delta
-        case .backward: uncut = currentIndex - delta
-        }
+        let uncut = isForward ? currentIndex + delta : currentIndex - delta
         timeOut { _ in
             currentIndex = ((uncut % n) + n) % n
         }
@@ -211,6 +200,10 @@ class AudioManager: NSObject, ObservableObject {
         if wasPlaying { stopDrone() }
         hey(wasPlaying)
         if wasPlaying { startDrone() }
+    }
+    
+    func flipDirection() {
+        isForward = !isForward
     }
 
     /// Configure the actual sequence of notes, based on `sequenceType`.
