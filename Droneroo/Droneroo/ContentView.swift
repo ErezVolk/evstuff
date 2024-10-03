@@ -8,7 +8,8 @@ struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
     @State private var delta = 0
-    @State private var toggle = false
+    @State private var onOff = false
+    @State private var alpha = 1
     @FocusState private var focused: Bool
 #if os(macOS)
     private let signpostDiameter = 32
@@ -22,9 +23,9 @@ struct ContentView: View {
                 Text(audioManager.previousNoteName)
                     .encircle(
                         diameter: 80,
-                        textColor: audioManager.isForward ? .otherCircleText : .circleText,
-                        circleColor: audioManager.isForward ? .otherCircleBack : .circleBack)
-                    .onTapGesture { delta += 1 }
+                        textColor: alpha > 0 ? .otherCircleText : .circleText,
+                        circleColor: alpha > 0 ? .otherCircleBack : .circleBack)
+                    .onTapGesture { delta -= 1 }
                 
                 Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
                     .focusable()
@@ -33,11 +34,11 @@ struct ContentView: View {
                         focused = true
                     }
                     .onKeyPress(keys: [.leftArrow]) { _ in
-                        delta -= 1
+                        delta -= alpha
                         return .handled
                     }
                     .onKeyPress(keys: [.rightArrow]) { _ in
-                        delta += 1
+                        delta += alpha
                         return .handled
                     }
                     .onChange(of: delta) {
@@ -45,23 +46,23 @@ struct ContentView: View {
                         delta = 0
                     }
                     .onKeyPress(keys: [.space]) { _ in
-                        toggle = !toggle
+                        onOff = !onOff
                         return .handled
                     }
                     .onTapGesture {
-                        toggle = !toggle
+                        onOff = !onOff
                     }
-                    .onChange(of: toggle) {
-                        if toggle {audioManager.toggleDrone()}
-                        toggle = false
+                    .onChange(of: onOff) {
+                        if onOff {audioManager.toggleDrone()}
+                        onOff = false
                     }
                     .toggleStyle(EncircledToggleStyle())
                 
                 Text(audioManager.nextNoteName)
                     .encircle(diameter: 80,
-                              textColor: audioManager.isForward ? .circleText : .otherCircleText,
-                              circleColor: audioManager.isForward ? .circleBack : .otherCircleBack)
-                    .onTapGesture { delta -= 1 }
+                              textColor: alpha > 0 ? .circleText : .otherCircleText,
+                              circleColor: alpha > 0 ? .circleBack : .otherCircleBack)
+                    .onTapGesture { delta += 1 }
             }
 
             HStack {
@@ -76,9 +77,9 @@ struct ContentView: View {
                     audioManager.loadSequence()
                 }
 
-                Image(systemName: audioManager.isForward ? "signpost.right.fill" : "signpost.left.fill")
+                Image(systemName: alpha > 0 ? "signpost.right.fill" : "signpost.left.fill")
                     .encircle(diameter: signpostDiameter, textColor: .directionText, circleColor: .directionBack, textFont: .body)
-                    .onTapGesture { audioManager.flipDirection() }
+                    .onTapGesture { alpha = -alpha }
             }
 
             // Instrument

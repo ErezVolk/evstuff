@@ -25,7 +25,6 @@ class AudioManager: NSObject, ObservableObject {
     @Published var isPlaying = false
     @Published var isReversed = false
     @Published var sequenceType: SequenceType = .circleOfFourth
-    @Published var isForward = true
     private let whoAmI = getWhoAmI()
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
@@ -189,9 +188,8 @@ class AudioManager: NSObject, ObservableObject {
     /// Update the current note, based on `delta` and `sequenceOrder`
     func changeDrone(_ delta: Int) {
         let n = noteSequence.count
-        let uncut = isForward ? currentIndex + delta : currentIndex - delta
         timeOut { _ in
-            currentIndex = ((uncut % n) + n) % n
+            currentIndex = (((currentIndex + delta) % n) + n) % n
         }
     }
 
@@ -200,10 +198,6 @@ class AudioManager: NSObject, ObservableObject {
         if wasPlaying { stopDrone() }
         hey(wasPlaying)
         if wasPlaying { startDrone() }
-    }
-    
-    func flipDirection() {
-        isForward = !isForward
     }
 
     /// Configure the actual sequence of notes, based on `sequenceType`.
