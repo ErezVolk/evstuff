@@ -2,8 +2,8 @@
   "colors" : [
     {
       "color" : {
-        "platform" : "osx",
-        "reference" : "controlBackgroundColor"
+        "platform" : "ios",
+        "reference" : "secondarySystemBackgroundColor"
       },
       "idiom" : "universal"
     },
@@ -15,8 +15,8 @@
         }
       ],
       "color" : {
-        "platform" : "osx",
-        "reference" : "controlBackgroundColor"
+        "platform" : "ios",
+        "reference" : "secondarySystemBackgroundColor"
       },
       "idiom" : "universal"
     },
@@ -39,6 +39,26 @@
         "reference" : "secondarySystemBackgroundColor"
       },
       "idiom" : "iphone"
+    },
+    {
+      "color" : {
+        "platform" : "osx",
+        "reference" : "controlBackgroundColor"
+      },
+      "idiom" : "mac"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "color" : {
+        "platform" : "osx",
+        "reference" : "controlBackgroundColor"
+      },
+      "idiom" : "mac"
     }
   ],
   "info" : {

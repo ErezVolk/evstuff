@@ -2,10 +2,50 @@
   "colors" : [
     {
       "color" : {
+        "platform" : "ios",
+        "reference" : "systemFillColor"
+      },
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "color" : {
+        "platform" : "ios",
+        "reference" : "systemFillColor"
+      },
+      "idiom" : "universal"
+    },
+    {
+      "color" : {
+        "platform" : "ios",
+        "reference" : "systemFillColor"
+      },
+      "idiom" : "iphone"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "color" : {
+        "platform" : "ios",
+        "reference" : "systemFillColor"
+      },
+      "idiom" : "iphone"
+    },
+    {
+      "color" : {
         "platform" : "osx",
         "reference" : "selectedTextBackgroundColor"
       },
-      "idiom" : "universal"
+      "idiom" : "mac"
     },
     {
       "appearances" : [
@@ -18,27 +58,7 @@
         "platform" : "osx",
         "reference" : "selectedContentBackgroundColor"
       },
-      "idiom" : "universal"
-    },
-    {
-      "color" : {
-        "platform" : "ios",
-        "reference" : "systemFillColor"
-      },
-      "idiom" : "iphone"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "color" : {
-        "platform" : "ios",
-        "reference" : "systemFillColor"
-      },
-      "idiom" : "iphone"
+      "idiom" : "mac"
     }
   ],
   "info" : {

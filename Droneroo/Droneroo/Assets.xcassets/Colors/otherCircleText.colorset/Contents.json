@@ -2,8 +2,8 @@
   "colors" : [
     {
       "color" : {
-        "platform" : "universal",
-        "reference" : "tertiaryLabelColor"
+        "platform" : "ios",
+        "reference" : "quaternaryLabelColor"
       },
       "idiom" : "universal"
     },
@@ -15,7 +15,7 @@
         }
       ],
       "color" : {
-        "platform" : "universal",
+        "platform" : "ios",
         "reference" : "secondaryLabelColor"
       },
       "idiom" : "universal"
@@ -39,6 +39,26 @@
         "reference" : "secondaryLabelColor"
       },
       "idiom" : "iphone"
+    },
+    {
+      "color" : {
+        "platform" : "osx",
+        "reference" : "tertiaryLabelColor"
+      },
+      "idiom" : "mac"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "color" : {
+        "platform" : "osx",
+        "reference" : "secondaryLabelColor"
+      },
+      "idiom" : "mac"
     }
   ],
   "info" : {
