@@ -8,7 +8,7 @@ struct ContentView: View {
     @State private var selectedSequence: SequenceType = .circleOfFourth
     @FocusState private var focused: Bool
     /// How much to add to the current note index on right arrow, meaning "forward"
-    @State private var quantum = 1
+    @State private var direction = 1
     // Since calling `audioManager` from `.onKeyPress` issues errors, save them aside
     @State private var toChangeNote = 0
     // Since calling `audioManager` from `.onTap` issues errors, save them aside
@@ -19,21 +19,26 @@ struct ContentView: View {
     private let signpostDiameter = 40
 #endif
 
+    /// The "previous tone" circle
     var leftButton: some View {
         Text(audioManager.previousNoteName)
             .encircle(
                 diameter: 80,
-                textColor: quantum > 0 ? .otherCircleText : .circleText,
-                circleColor: quantum > 0 ? .otherCircleBack : .circleBack)
+                shadowRadius: direction > 0 ? 3 : 6,
+                textColor: direction > 0 ? .otherCircleText : .circleText,
+                circleColor: direction > 0 ? .otherCircleBack : .circleBack)
     }
 
+    /// The "next tone" circle
     var rightButton: some View {
         Text(audioManager.nextNoteName)
             .encircle(diameter: 80,
-                      textColor: quantum > 0 ? .circleText : .otherCircleText,
-                      circleColor: quantum > 0 ? .circleBack : .otherCircleBack)
+                      shadowRadius: direction > 0 ? 6 : 3,
+                      textColor: direction > 0 ? .circleText : .otherCircleText,
+                      circleColor: direction > 0 ? .circleBack : .otherCircleBack)
     }
 
+    /// The "current tone" circle and keyboard event receiver
     var middleButton: some View {
         Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
             .focusable()
@@ -42,17 +47,22 @@ struct ContentView: View {
             .toggleStyle(EncircledToggleStyle())
     }
 
+    /// The sequence type (circle of fourths, etc.) picker
     var sequencePicker: some View {
         Picker("", selection: $selectedSequence) {
             ForEach(SequenceType.allCases) { sequence in
                 Text(sequence.rawValue).tag(sequence)
             }
         }
+#if os(macOS)
+        .pickerStyle(.segmented)
+#endif
         .fixedSize()
     }
 
+    /// The "which way" button
     var signpost: some View {
-        Image(systemName: quantum > 0 ? "signpost.right.fill" : "signpost.left.fill")
+        Image(systemName: direction > 0 ? "signpost.right.fill" : "signpost.left.fill")
             .encircle(diameter: signpostDiameter,
                       textColor: .directionText,
                       circleColor: .directionBack,
@@ -67,11 +77,11 @@ struct ContentView: View {
 
                 middleButton
                     .onKeyPress(keys: [.leftArrow]) { _ in
-                        toChangeNote -= quantum
+                        toChangeNote -= direction
                         return .handled
                     }
                     .onKeyPress(keys: [.rightArrow]) { _ in
-                        toChangeNote += quantum
+                        toChangeNote += direction
                         return .handled
                     }
                     .onKeyPress(keys: [.space]) { _ in
@@ -102,7 +112,7 @@ struct ContentView: View {
                     }
 
                 signpost
-                    .onTapGesture { quantum = -quantum }
+                    .onTapGesture { direction = -direction }
             }
 
             // Instrument

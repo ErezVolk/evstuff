@@ -10,7 +10,7 @@ import IOKit.pwr_mgt
 
 enum SequenceType: String, CaseIterable, Identifiable {
     case circleOfFourth = "Circle of Fourths"
-    case rayBrown = "Ray Brown"
+    case rayBrown = "Flats, then Sharps"
     case chromatic = "Chromatic"
     var id: String { self.rawValue }
 }
