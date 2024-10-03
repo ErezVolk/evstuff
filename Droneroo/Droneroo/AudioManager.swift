@@ -15,7 +15,6 @@ enum SequenceType: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
-
 class AudioManager: NSObject, ObservableObject {
     @Published var currentNoteName: String = "None"
     @Published var previousNoteName: String = "N/A"
@@ -25,7 +24,6 @@ class AudioManager: NSObject, ObservableObject {
     @Published var isPlaying = false
     @Published var isReversed = false
     @Published var sequenceType: SequenceType = .circleOfFourth
-    private let whoAmI = getWhoAmI()
     private let velocity: UInt8 = 101
     private let sharps = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
     private let flats = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"]
@@ -119,7 +117,7 @@ class AudioManager: NSObject, ObservableObject {
         sampler.startNote(currentNote + 12, withVelocity: velocity, onChannel: 0)
         setIsPlaying(true)
     }
-    
+
     /// Set current note for playback and display (and profit).
     private func setCurrentNote() {
         currentNote = noteSequence[currentIndex]
@@ -135,18 +133,18 @@ class AudioManager: NSObject, ObservableObject {
         sampler.stopNote(currentNote + 12, onChannel: 0)
         setIsPlaying(false)
     }
-    
+
     /// Set the `isPlaying` flag, and also try to disable screen sleeping
     func setIsPlaying(_ newValue: Bool) {
         if newValue == isPlaying { return }
         isPlaying = newValue
-        
+
         #if os(macOS)
         if newValue {
             let status = IOPMAssertionCreateWithName(
                 kIOPMAssertionTypeNoDisplaySleep as CFString,
                 IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                whoAmI as CFString,
+                "Droneroo" as CFString,
                 &assertionID)
             if status != kIOReturnSuccess {
                 print("Cannot disable sleep: \(status)")
@@ -179,7 +177,7 @@ class AudioManager: NSObject, ObservableObject {
     func nextDrone() {
         changeDrone(1)
     }
-    
+
     /// Switch to a random note in the current sequence
     func randomDrone() {
         changeDrone(Int.random(in: 1...noteSequence.count))
@@ -187,9 +185,9 @@ class AudioManager: NSObject, ObservableObject {
 
     /// Update the current note, based on `delta` and `sequenceOrder`
     func changeDrone(_ delta: Int) {
-        let n = noteSequence.count
+        let mod = noteSequence.count
         timeOut { _ in
-            currentIndex = (((currentIndex + delta) % n) + n) % n
+            currentIndex = (((currentIndex + delta) % mod) + mod) % mod
         }
     }
 

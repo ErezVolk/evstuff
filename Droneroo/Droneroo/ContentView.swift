@@ -3,7 +3,6 @@
 import SwiftUI
 import Combine
 
-
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
@@ -20,22 +19,53 @@ struct ContentView: View {
     private let signpostDiameter = 40
 #endif
 
+    var leftButton: some View {
+        Text(audioManager.previousNoteName)
+            .encircle(
+                diameter: 80,
+                textColor: quantum > 0 ? .otherCircleText : .circleText,
+                circleColor: quantum > 0 ? .otherCircleBack : .circleBack)
+    }
+
+    var rightButton: some View {
+        Text(audioManager.nextNoteName)
+            .encircle(diameter: 80,
+                      textColor: quantum > 0 ? .circleText : .otherCircleText,
+                      circleColor: quantum > 0 ? .circleBack : .otherCircleBack)
+    }
+
+    var middleButton: some View {
+        Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
+            .focusable()
+            .focused($focused)
+            .onAppear { focused = true }
+            .toggleStyle(EncircledToggleStyle())
+    }
+
+    var sequencePicker: some View {
+        Picker("", selection: $selectedSequence) {
+            ForEach(SequenceType.allCases) { sequence in
+                Text(sequence.rawValue).tag(sequence)
+            }
+        }
+        .fixedSize()
+    }
+
+    var signpost: some View {
+        Image(systemName: quantum > 0 ? "signpost.right.fill" : "signpost.left.fill")
+            .encircle(diameter: signpostDiameter,
+                      textColor: .directionText,
+                      circleColor: .directionBack,
+                      textFont: .body)
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                Text(audioManager.previousNoteName)
-                    .encircle(
-                        diameter: 80,
-                        textColor: quantum > 0 ? .otherCircleText : .circleText,
-                        circleColor: quantum > 0 ? .otherCircleBack : .circleBack)
+                leftButton
                     .onTapGesture { toChangeNote -= 1 }
-                
-                Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
-                    .focusable()
-                    .focused($focused)
-                    .onAppear {
-                        focused = true
-                    }
+
+                middleButton
                     .onKeyPress(keys: [.leftArrow]) { _ in
                         toChangeNote -= quantum
                         return .handled
@@ -51,12 +81,8 @@ struct ContentView: View {
                     .onTapGesture {
                         toToggleDrone = !toToggleDrone
                     }
-                    .toggleStyle(EncircledToggleStyle())
-                
-                Text(audioManager.nextNoteName)
-                    .encircle(diameter: 80,
-                              textColor: quantum > 0 ? .circleText : .otherCircleText,
-                              circleColor: quantum > 0 ? .circleBack : .otherCircleBack)
+
+                rightButton
                     .onTapGesture { toChangeNote += 1 }
             }
             .onChange(of: toToggleDrone) {
@@ -69,19 +95,13 @@ struct ContentView: View {
             }
 
             HStack {
-                Picker("", selection: $selectedSequence) {
-                    ForEach(SequenceType.allCases) { sequence in
-                        Text(sequence.rawValue).tag(sequence)
+                sequencePicker
+                    .onChange(of: selectedSequence) {
+                        audioManager.sequenceType = selectedSequence
+                        audioManager.loadSequence()
                     }
-                }
-                .fixedSize()
-                .onChange(of: selectedSequence) {
-                    audioManager.sequenceType = selectedSequence
-                    audioManager.loadSequence()
-                }
 
-                Image(systemName: quantum > 0 ? "signpost.right.fill" : "signpost.left.fill")
-                    .encircle(diameter: signpostDiameter, textColor: .directionText, circleColor: .directionBack, textFont: .body)
+                signpost
                     .onTapGesture { quantum = -quantum }
             }
 
