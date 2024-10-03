@@ -7,10 +7,13 @@ import Combine
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
-    @State private var delta = 0
-    @State private var onOff = false
-    @State private var alpha = 1
     @FocusState private var focused: Bool
+    /// How much to add to the current note index on right arrow, meaning "forward"
+    @State private var quantum = 1
+    // Since calling `audioManager` from `.onKeyPress` issues errors, save them aside
+    @State private var toChangeNote = 0
+    // Since calling `audioManager` from `.onTap` issues errors, save them aside
+    @State private var toToggleDrone = false
 #if os(macOS)
     private let signpostDiameter = 32
 #else
@@ -23,9 +26,9 @@ struct ContentView: View {
                 Text(audioManager.previousNoteName)
                     .encircle(
                         diameter: 80,
-                        textColor: alpha > 0 ? .otherCircleText : .circleText,
-                        circleColor: alpha > 0 ? .otherCircleBack : .circleBack)
-                    .onTapGesture { delta -= 1 }
+                        textColor: quantum > 0 ? .otherCircleText : .circleText,
+                        circleColor: quantum > 0 ? .otherCircleBack : .circleBack)
+                    .onTapGesture { toChangeNote -= 1 }
                 
                 Toggle(audioManager.currentNoteName, isOn: $audioManager.isPlaying)
                     .focusable()
@@ -34,35 +37,35 @@ struct ContentView: View {
                         focused = true
                     }
                     .onKeyPress(keys: [.leftArrow]) { _ in
-                        delta -= alpha
+                        toChangeNote -= quantum
                         return .handled
                     }
                     .onKeyPress(keys: [.rightArrow]) { _ in
-                        delta += alpha
+                        toChangeNote += quantum
                         return .handled
                     }
-                    .onChange(of: delta) {
-                        if delta != 0 { audioManager.changeDrone(delta) }
-                        delta = 0
-                    }
                     .onKeyPress(keys: [.space]) { _ in
-                        onOff = !onOff
+                        toToggleDrone = !toToggleDrone
                         return .handled
                     }
                     .onTapGesture {
-                        onOff = !onOff
-                    }
-                    .onChange(of: onOff) {
-                        if onOff {audioManager.toggleDrone()}
-                        onOff = false
+                        toToggleDrone = !toToggleDrone
                     }
                     .toggleStyle(EncircledToggleStyle())
                 
                 Text(audioManager.nextNoteName)
                     .encircle(diameter: 80,
-                              textColor: alpha > 0 ? .circleText : .otherCircleText,
-                              circleColor: alpha > 0 ? .circleBack : .otherCircleBack)
-                    .onTapGesture { delta += 1 }
+                              textColor: quantum > 0 ? .circleText : .otherCircleText,
+                              circleColor: quantum > 0 ? .circleBack : .otherCircleBack)
+                    .onTapGesture { toChangeNote += 1 }
+            }
+            .onChange(of: toToggleDrone) {
+                if toToggleDrone {audioManager.toggleDrone()}
+                toToggleDrone = false
+            }
+            .onChange(of: toChangeNote) {
+                if toChangeNote != 0 { audioManager.changeDrone(toChangeNote) }
+                toChangeNote = 0
             }
 
             HStack {
@@ -77,9 +80,9 @@ struct ContentView: View {
                     audioManager.loadSequence()
                 }
 
-                Image(systemName: alpha > 0 ? "signpost.right.fill" : "signpost.left.fill")
+                Image(systemName: quantum > 0 ? "signpost.right.fill" : "signpost.left.fill")
                     .encircle(diameter: signpostDiameter, textColor: .directionText, circleColor: .directionBack, textFont: .body)
-                    .onTapGesture { alpha = -alpha }
+                    .onTapGesture { quantum = -quantum }
             }
 
             // Instrument
