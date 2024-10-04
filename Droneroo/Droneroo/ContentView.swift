@@ -3,6 +3,12 @@
 import SwiftUI
 import Combine
 
+enum Instrument: String, CaseIterable, Identifiable {
+    case strings = "Strings"
+    case beep = "Beep"
+    var id: String { self.rawValue }
+}
+
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
@@ -17,6 +23,7 @@ struct ContentView: View {
     private let signpostDiameter = 32
 #else
     private let signpostDiameter = 40
+    @State private var instrument: Instrument = .beep
 #endif
 
     /// The "previous tone" circle
@@ -116,8 +123,8 @@ struct ContentView: View {
             }
 
             // Instrument
-            HStack {
 #if os(macOS)
+            HStack {
                 Button("Load SoundFont") {
                     let panel = NSOpenPanel()
                     panel.allowsMultipleSelection = false
@@ -126,16 +133,31 @@ struct ContentView: View {
                         audioManager.loadInstrument(panel.url!)
                     }
                 }
-#endif
-                Button("Default") {
+                Button(Instrument.strings.rawValue) {
                     audioManager.loadInstrument()
                 }
-                Button("Reset") {
+                Button(Instrument.beep.rawValue) {
                     audioManager.resetInstrument()
                 }
+                
                 Text(audioManager.instrument)
                     .monospaced()
             }
+#else
+            Picker("Instrument", selection: $instrument) {
+                ForEach(Instrument.allCases) { instrument in
+                    Text(instrument.rawValue).tag(instrument)
+                }
+            }
+            .pickerStyle(.segmented)
+            .fixedSize()
+            .onChange(of: instrument) {
+                switch (instrument) {
+                case .strings: audioManager.loadInstrument()
+                case .beep: audioManager.resetInstrument()
+                }
+            }
+#endif
         }
 #if os(iOS)
         .containerRelativeFrame([.horizontal, .vertical])
