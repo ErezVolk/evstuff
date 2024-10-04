@@ -112,7 +112,7 @@ class AudioManager: NSObject, ObservableObject {
 
     /// Start playing.
     func startDrone() {
-        setCurrentNote()
+        setCurrentNote() // Probably redundant, but can't hurt
         sampler.startNote(currentNote, withVelocity: velocity, onChannel: 0)
         sampler.startNote(currentNote + 12, withVelocity: velocity, onChannel: 0)
         setIsPlaying(true)
@@ -188,6 +188,7 @@ class AudioManager: NSObject, ObservableObject {
         let mod = noteSequence.count
         timeOut { _ in
             currentIndex = (((currentIndex + delta) % mod) + mod) % mod
+            setCurrentNote()
         }
     }
 
@@ -211,6 +212,7 @@ class AudioManager: NSObject, ObservableObject {
                 nameSequence = ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"]
             }
             noteSequence = nameSequence.map { noteNameToMidiNumber($0) }
+            setCurrentNote()
         }
     }
 
