@@ -28,8 +28,7 @@ current:
   Bob DeBoo's today-directed {} triads from {} [BLIND!]: {triad} {ANY}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
   Fuqua-up Stella: NONE
   Fuqua-up Autumn Leaves: NONE
-  Dean's Figure 39 (slides) on page 42 [⍻]: NONE
-  Ray Brown's Exercise (p.133) [⍻]: NONE
+  Ray Brown's Arpeggios for Endings (p.134): NONE
 
 #######
 
@@ -149,6 +148,7 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
   Ray Brown's Exercise (p.131): NONE
   Ray Brown's Exercise (p.132) [⍻]: NONE
+  Ray Brown's Exercise (p.133): NONE
 
 theory:
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
@@ -184,6 +184,7 @@ reviseDean:
   Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
   Dean's Figure 34 (false harmonics--right hand) on page 39, play {}: ANY
   Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky; muting!]: NONE
+  Dean's Figure 39 (slides) on page 42 [⍻]: NONE
   {} maj7, m7, 7, m7(b5) chords in the upper register: ANY
 
 reviseClassical:
@@ -265,13 +266,12 @@ _future:
   Fuqua-up Dolphin Dance [Harvey]: NONE
   Fuqua-up Pork Pie Hat [Harvey]: NONE
 
-  # CB's Tapping course on scottsbasslessons.com ?
+  # Tapping? Clayton? CB's Tapping course on scottsbasslessons.com ?
 
   # Fuqua-up The Girl from Ipanema [what key?]: NONE
   # Fuqua-up I Got Rhythm [what key?]: NONE
   # Fuqua-up Dream a Little Dream [what key?]: NONE
 
-  Ray Brown's Arpeggios for Endings (p.134): NONE
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
   Learn "Blame It On The Boogie": NONE
