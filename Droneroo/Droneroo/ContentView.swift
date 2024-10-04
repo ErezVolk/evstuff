@@ -66,63 +66,8 @@ struct ContentView: View {
 #endif
         .fixedSize()
     }
-
-    /// The "which way" button
-    var signpost: some View {
-        Image(systemName: direction > 0 ? "signpost.right.fill" : "signpost.left.fill")
-            .encircle(diameter: signpostDiameter,
-                      textColor: .directionText,
-                      circleColor: .directionBack,
-                      textFont: .body)
-    }
-
-    var body: some View {
-        VStack(spacing: 20) {
-            HStack {
-                leftButton
-                    .onTapGesture { toChangeNote -= 1 }
-
-                middleButton
-                    .onKeyPress(keys: [.leftArrow]) { _ in
-                        toChangeNote -= direction
-                        return .handled
-                    }
-                    .onKeyPress(keys: [.rightArrow]) { _ in
-                        toChangeNote += direction
-                        return .handled
-                    }
-                    .onKeyPress(keys: [.space]) { _ in
-                        toToggleDrone = !toToggleDrone
-                        return .handled
-                    }
-                    .onTapGesture {
-                        toToggleDrone = !toToggleDrone
-                    }
-
-                rightButton
-                    .onTapGesture { toChangeNote += 1 }
-            }
-            .onChange(of: toToggleDrone) {
-                if toToggleDrone {audioManager.toggleDrone()}
-                toToggleDrone = false
-            }
-            .onChange(of: toChangeNote) {
-                if toChangeNote != 0 { audioManager.changeDrone(toChangeNote) }
-                toChangeNote = 0
-            }
-
-            HStack {
-                sequencePicker
-                    .onChange(of: selectedSequence) {
-                        audioManager.sequenceType = selectedSequence
-                        audioManager.loadSequence()
-                    }
-
-                signpost
-                    .onTapGesture { direction = -direction }
-            }
-
-            // Instrument
+    
+    var instrumentPanel: some View {
 #if os(macOS)
             HStack {
                 Button("Load SoundFont") {
@@ -158,6 +103,62 @@ struct ContentView: View {
                 }
             }
 #endif
+    }
+
+    /// The "which way" button
+    var signpost: some View {
+        Image(systemName: direction > 0 ? "signpost.right.fill" : "signpost.left.fill")
+            .encircle(diameter: signpostDiameter,
+                      textColor: .directionText,
+                      circleColor: .directionBack,
+                      textFont: .body)
+    }
+
+    var body: some View {
+        VStack(spacing: 20) {
+            HStack {
+                leftButton
+                    .onTapGesture { toChangeNote -= 1 }
+
+                middleButton
+                    .onKeyPress(keys: [.leftArrow]) { _ in
+                        toChangeNote -= direction
+                        return .handled
+                    }
+                    .onKeyPress(keys: [.rightArrow]) { _ in
+                        toChangeNote += direction
+                        return .handled
+                    }
+                    .onKeyPress(keys: [.space]) { _ in
+                        toToggleDrone = !toToggleDrone
+                        return .handled
+                    }
+                    .onTapGesture { toToggleDrone = !toToggleDrone }
+
+                rightButton
+                    .onTapGesture { toChangeNote += 1 }
+            }
+
+            HStack {
+                sequencePicker
+
+                signpost
+                    .onTapGesture { direction = -direction }
+            }
+
+            instrumentPanel
+        }
+        .onChange(of: toToggleDrone) {
+            if toToggleDrone {audioManager.toggleDrone()}
+            toToggleDrone = false
+        }
+        .onChange(of: toChangeNote) {
+            if toChangeNote != 0 { audioManager.changeDrone(toChangeNote) }
+            toChangeNote = 0
+        }
+        .onChange(of: selectedSequence) {
+            audioManager.sequenceType = selectedSequence
+            audioManager.loadSequence()
         }
 #if os(iOS)
         .containerRelativeFrame([.horizontal, .vertical])
