@@ -113,15 +113,15 @@ struct ContentView: View {
                     .onTapGesture { toChangeNote -= 1 }
 
                 middleButton
-                    .onKeyPress(keys: [.leftArrow]) { _ in
+                    .onKeyPress(.leftArrow) {
                         toChangeNote -= direction
                         return .handled
                     }
-                    .onKeyPress(keys: [.rightArrow]) { _ in
+                    .onKeyPress(.rightArrow) {
                         toChangeNote += direction
                         return .handled
                     }
-                    .onKeyPress(keys: [.space]) { _ in
+                    .onKeyPress(.space) {
                         toToggleDrone = !toToggleDrone
                         return .handled
                     }
