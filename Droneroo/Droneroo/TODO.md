@@ -1,5 +1,6 @@
 #  TODO List
 
+- Proper gradient color background
 - Audio settings in a window
 - Pick a note NOW (wheel or something)
 - Piano keyboard

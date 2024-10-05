@@ -26,23 +26,14 @@ struct ContentView: View {
     @State private var instrument: Instrument = .beep
 #endif
 
-    /// The "previous tone" circle
-    var leftButton: some View {
-        Text(audioManager.previousNoteName)
+    /// The "previous/next tone" circles
+    func prevNextButton(text: String, cond: Bool) -> some View {
+        return Text(text)
             .encircle(
                 diameter: 80,
-                shadowRadius: direction > 0 ? 3 : 6,
-                textColor: direction > 0 ? .otherCircleText : .circleText,
-                circleColor: direction > 0 ? .otherCircleBack : .circleBack)
-    }
-
-    /// The "next tone" circle
-    var rightButton: some View {
-        Text(audioManager.nextNoteName)
-            .encircle(diameter: 80,
-                      shadowRadius: direction > 0 ? 6 : 3,
-                      textColor: direction > 0 ? .circleText : .otherCircleText,
-                      circleColor: direction > 0 ? .circleBack : .otherCircleBack)
+                shadowRadius: cond ? 6 : 3,
+                textColor: cond ? .circleText : .otherCircleText,
+                circleColor: cond ? .circleBack : .otherCircleBack)
     }
 
     /// The "current tone" circle and keyboard event receiver
@@ -66,7 +57,8 @@ struct ContentView: View {
 #endif
         .fixedSize()
     }
-    
+
+    /// Selection of MIDI instrument to play
     var instrumentPanel: some View {
 #if os(macOS)
             HStack {
@@ -84,7 +76,7 @@ struct ContentView: View {
                 Button(Instrument.beep.rawValue) {
                     audioManager.resetInstrument()
                 }
-                
+
                 Text(audioManager.instrument)
                     .monospaced()
             }
@@ -97,7 +89,7 @@ struct ContentView: View {
             .pickerStyle(.segmented)
             .fixedSize()
             .onChange(of: instrument) {
-                switch (instrument) {
+                switch instrument {
                 case .strings: audioManager.loadInstrument()
                 case .beep: audioManager.resetInstrument()
                 }
@@ -117,7 +109,7 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                leftButton
+                prevNextButton(text: audioManager.previousNoteName, cond: direction < 0)
                     .onTapGesture { toChangeNote -= 1 }
 
                 middleButton
@@ -135,7 +127,7 @@ struct ContentView: View {
                     }
                     .onTapGesture { toToggleDrone = !toToggleDrone }
 
-                rightButton
+                prevNextButton(text: audioManager.nextNoteName, cond: direction > 0)
                     .onTapGesture { toChangeNote += 1 }
             }
 
