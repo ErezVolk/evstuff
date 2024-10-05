@@ -140,6 +140,9 @@ struct ContentView: View {
 
             instrumentPanel
         }
+        .onAppear {
+            audioManager.loadSequence()
+        }
         .onChange(of: toToggleDrone) {
             if toToggleDrone {audioManager.toggleDrone()}
             toToggleDrone = false
@@ -152,12 +155,11 @@ struct ContentView: View {
             audioManager.sequenceType = selectedSequence
             audioManager.loadSequence()
         }
+
 #if os(iOS)
         .containerRelativeFrame([.horizontal, .vertical])
-        .background(Color.dronerooBack)
+        .background(.dronerooBack)
 #endif
-        .onAppear {
-            audioManager.loadSequence()
-        }
+
     }
 }
