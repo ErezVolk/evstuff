@@ -9,6 +9,16 @@ enum Instrument: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
+extension View {
+    /// Convenience wrapper around `.onKeyPress` so action can be a one-liner.
+    func handleKey(_ key: KeyEquivalent, action: @escaping () -> Void) -> some View {
+        return self.onKeyPress(key) {
+            action()
+            return .handled
+        }
+    }
+}
+
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
@@ -25,6 +35,52 @@ struct ContentView: View {
     private let signpostDiameter = 40
     @State private var instrument: Instrument = .beep
 #endif
+
+    var body: some View {
+        VStack(spacing: 20) {
+            HStack {
+                prevNextButton(text: audioManager.previousNoteName, cond: direction < 0)
+                    .onTapGesture { toChangeNote -= 1 }
+
+                middleButton
+                    .handleKey(.leftArrow) { toChangeNote -= direction }
+                    .handleKey(.rightArrow) { toChangeNote += direction }
+                    .handleKey(.space) { toToggleDrone = !toToggleDrone }
+                    .onTapGesture { toToggleDrone = !toToggleDrone }
+
+                prevNextButton(text: audioManager.nextNoteName, cond: direction > 0)
+                    .onTapGesture { toChangeNote += 1 }
+            }
+
+            HStack {
+                sequencePicker
+
+                signpost
+                    .onTapGesture { direction = -direction }
+            }
+
+            instrumentPanel
+        }
+        .onAppear {
+            audioManager.loadSequence()
+        }
+        .onChange(of: toToggleDrone) {
+            if toToggleDrone { audioManager.toggleDrone() }
+            toToggleDrone = false
+        }
+        .onChange(of: toChangeNote) {
+            if toChangeNote != 0 { audioManager.changeDrone(toChangeNote) }
+            toChangeNote = 0
+        }
+        .onChange(of: selectedSequence) {
+            audioManager.sequenceType = selectedSequence
+            audioManager.loadSequence()
+        }
+#if os(iOS)
+        .containerRelativeFrame([.horizontal, .vertical])
+        .background(.dronerooBack)
+#endif
+    }
 
     /// The "previous/next tone" circles
     func prevNextButton(text: String, cond: Bool) -> some View {
@@ -104,62 +160,5 @@ struct ContentView: View {
                       textColor: .directionText,
                       circleColor: .directionBack,
                       textFont: .body)
-    }
-
-    var body: some View {
-        VStack(spacing: 20) {
-            HStack {
-                prevNextButton(text: audioManager.previousNoteName, cond: direction < 0)
-                    .onTapGesture { toChangeNote -= 1 }
-
-                middleButton
-                    .onKeyPress(.leftArrow) {
-                        toChangeNote -= direction
-                        return .handled
-                    }
-                    .onKeyPress(.rightArrow) {
-                        toChangeNote += direction
-                        return .handled
-                    }
-                    .onKeyPress(.space) {
-                        toToggleDrone = !toToggleDrone
-                        return .handled
-                    }
-                    .onTapGesture { toToggleDrone = !toToggleDrone }
-
-                prevNextButton(text: audioManager.nextNoteName, cond: direction > 0)
-                    .onTapGesture { toChangeNote += 1 }
-            }
-
-            HStack {
-                sequencePicker
-
-                signpost
-                    .onTapGesture { direction = -direction }
-            }
-
-            instrumentPanel
-        }
-        .onAppear {
-            audioManager.loadSequence()
-        }
-        .onChange(of: toToggleDrone) {
-            if toToggleDrone {audioManager.toggleDrone()}
-            toToggleDrone = false
-        }
-        .onChange(of: toChangeNote) {
-            if toChangeNote != 0 { audioManager.changeDrone(toChangeNote) }
-            toChangeNote = 0
-        }
-        .onChange(of: selectedSequence) {
-            audioManager.sequenceType = selectedSequence
-            audioManager.loadSequence()
-        }
-
-#if os(iOS)
-        .containerRelativeFrame([.horizontal, .vertical])
-        .background(.dronerooBack)
-#endif
-
     }
 }
