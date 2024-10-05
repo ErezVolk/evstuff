@@ -23,7 +23,7 @@ struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @State private var selectedSequence: SequenceType = .circleOfFourth
     @FocusState private var focused: Bool
-    /// How much to add to the current note index on right arrow, meaning "forward"
+    /// How much to add to the current note index when the right arrow key is pressed ("forward")
     @State private var direction = 1
     // Since calling `audioManager` from `.onKeyPress` issues errors, save them aside
     @State private var toChangeNote = 0
