@@ -4,6 +4,8 @@
 eve = [ @warmup _eve ]
 day = [ seed warmup 2@intonation _eve ]
 _eve = [ 2@theory 1@digression 2@current 2@music ]
+fuq = [ 3@fuqua ]
+suggest = [ 2@_future ]
 
 #
 # Shorthand
@@ -26,9 +28,18 @@ seed:
 
 current:
   Bob DeBoo's today-directed {} triads from {} [BLIND!]: {triad} {ANY}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
+  Ray Brown's Arpeggios for Endings (p.134): NONE
+  Rehearse Stricker: NONE
+
+
+#######
+
+fuqua:
   Fuqua-up Stella: NONE
   Fuqua-up Autumn Leaves: NONE
-  Ray Brown's Arpeggios for Endings (p.134): NONE
+  Fuqua-up Billie's Bounce: NONE
+  Fuqua-up Lucky Southern: NONE
+  Fuqua-up Some Day My Prince Will Come: NONE
 
 #######
 
@@ -125,7 +136,7 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Diminished Exercise (p.79) from {}: rayBrownDrillKeys
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   Ray Brown's Diminished Exercise (p.82): NONE
-  Ray Brown's Diminished Exercise (p.83): NONE
+  Ray Brown's Diminished Exercise (p.83) [across the fingerboard]: NONE
   Ray Brown's Diminished Exercise (Solo) (p.84) [⍻ MM=92, aim for blind playing]: NONE
   Ray Brown's Diminished Exercise (p.85): NONE
 
