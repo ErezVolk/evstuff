@@ -336,7 +336,7 @@ class PermutationDeck(Deck):
     def _draw(self) -> str:
         """Get another permutation."""
         random.shuffle(self.items)
-        return "-".join(self.items)
+        return "·".join(self.items)
 
 
 class PartitionDeck(Deck):
@@ -364,7 +364,7 @@ class PartitionDeck(Deck):
             parts.append(str(part))
             left -= part
         random.shuffle(parts)
-        return "-".join(parts)
+        return "·".join(parts)
 
 
 class NoneDeck(Deck):
