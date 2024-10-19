@@ -28,8 +28,8 @@ seed:
 
 current:
   Bob DeBoo's today-directed {} triads from {} [BLIND!]: {triad} {ANY}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
-  Ray Brown's Arpeggios for Endings (p.134, 1567 3̇5̇6̇7̇ 7̇6̇5̇3̇ 7651) [⍻]: NONE
   Rehearse Stricker: NONE
+  Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 
 #######
@@ -168,6 +168,7 @@ theory:
   {} Scale from {}: {Whole Tone|Diminished} {ANY}
   Ray Brown's Major Triads (p.29), starting from {}: rayBrownDrillKeys
   Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major: {rayBrownDrillKeys}
+  Ray Brown's Arpeggios for Endings (p.134, 1567 3̇5̇6̇7̇ 7̇6̇5̇3̇ 7651) (blind!): NONE
 
 
 music:
@@ -283,8 +284,6 @@ _future:
   # The Girl from Ipanema [what key?]: NONE
   # I Got Rhythm [what key?]: NONE
   # up Dream a Little Dream [what key?]: NONE
-
-  Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
   Learn "Blame It On The Boogie": NONE
   Learn "Master Blaster": NONE
