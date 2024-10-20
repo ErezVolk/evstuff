@@ -29,7 +29,12 @@ seed:
 current:
   Bob DeBoo's today-directed {} triads from {} [BLIND!]: {triad} {ANY}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
   Rehearse Stricker: NONE
-  Ray Brown's Triplet Exercise for Solos (p.135): NONE
+  Ray Brown's Triplet Exercise for Solos (p.135) [⍻]: NONE
+
+
+#######
+
+max:
   Max De Aloe p.27-28: NONE
 
 
@@ -278,8 +283,16 @@ _future:
   Fuqua-up Dolphin Dance [Harvey]: NONE
   Fuqua-up Pork Pie Hat [Harvey]: NONE
 
-  # Add Max De Aloe highlights to review
-  # JP's Walking Book ($9.99 kindle, 100 pages)? Walking Bass Line Construction ($25 pdf, 61 pages)? Fuqua's Bassics (VERY lightweight)?
+  # Create Max De Aloe section
+  # A walking bass book:
+  #  - Just go on the JP's video course?
+  #  - JP's Walking Book ($9.99 kindle, 100 pages)? there's no self-study
+  #  - Bob Sinicrope, Walking Bass Line Construction ($25 pdf, 61 pages)? Too formulaic and resticted?
+  #  - Fuqua's Bassics (VERY lightweight)?
+  #  - Bass Foundations by Israels (120 pages, looks mostly like stories of his life with Bill Evans)?
+  #  - https://www.talkbass.com/threads/best-books-for-walking-bass.1520764/
+  #  - Friedland after all?
+  #  - Mike Downes?
   # Latin bass book? (supposed to be definitive, but is this my focus now)
   # Improviser's Bass Method? Concepts for Bass soloing? (don't I want to play proper walking bass first?)
   # Tapping? Clayton? CB's Tapping course on scottsbasslessons.com ? That Brazilian guy? (cool but basically for show)
