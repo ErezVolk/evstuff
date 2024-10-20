@@ -1,6 +1,6 @@
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
 
-*morn = [ seed warmup 2@intonation 2@theory 2@current ]
+*morn = [ seed warmup 2@intonation 2@theory 2@current max ]
 eve = [ @warmup _eve ]
 day = [ seed warmup 2@intonation _eve ]
 _eve = [ 2@theory 1@digression 2@current 2@music ]
@@ -35,7 +35,7 @@ current:
 #######
 
 max:
-  Max De Aloe p.27-28: NONE
+  Max De Aloe {}: {<3.16|3.17|3.18|3.19|3.20|3.21|3.22>}
 
 
 #######
@@ -285,6 +285,7 @@ _future:
 
   # Create Max De Aloe section
   # A walking bass book:
+  #  - Transcribe ppl instead?
   #  - Just go on the JP's video course?
   #  - JP's Walking Book ($9.99 kindle, 100 pages)? there's no self-study
   #  - Bob Sinicrope, Walking Bass Line Construction ($25 pdf, 61 pages)? Too formulaic and resticted?
