@@ -28,14 +28,13 @@ seed:
 
 current:
   Bob DeBoo's today-directed {} triads from {} [BLIND!]: {triad} {ANY}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
-  Rehearse Stricker: NONE
   Ray Brown's Triplet Exercise for Solos (p.135) [⍻]: NONE
 
 
 #######
 
 max:
-  Max De Aloe {}: {<3.16|3.17|3.18|3.19|3.20|3.21|3.22>}
+  Max De Aloe {}: {<3.16|3.17|3.18|*3.19*|3.20|3.21|3.22>}
 
 
 #######
