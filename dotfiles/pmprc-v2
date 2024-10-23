@@ -28,6 +28,7 @@ seed:
 
 current:
   Bob DeBoo's today-directed {} triads from {} [BLIND!]: {triad} {ANY}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
+  Transcribe Tony Bennett's Miss Jones: NONE
 
 
 #######
@@ -295,9 +296,6 @@ _future:
   Fuqua-up Footprints [Harvey]: NONE
   Fuqua-up Dolphin Dance [Harvey]: NONE
   Fuqua-up Pork Pie Hat [Harvey]: NONE
-
-  # A walking bass book:
-  #  - Transcribe ppl instead?
 
   # The Girl from Ipanema [what key?]: NONE
   # I Got Rhythm [what key?]: NONE
