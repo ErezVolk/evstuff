@@ -1,4 +1,4 @@
-# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³Δː≅⚠
+# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³₇Δː≅⚠
 
 *morn = [ seed warmup 2@intonation 2@theory 2@current max ]
 eve = [ @warmup _eve ]
@@ -28,7 +28,6 @@ seed:
 
 current:
   Bob DeBoo's today-directed {} triads from {} [BLIND!]: {triad} {ANY}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
-  Ray Brown's Triplet Exercise for Solos (p.135) [⍻]: NONE
 
 
 #######
@@ -162,9 +161,10 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Exercise (Solo) (p.127-128): NONE
   Ray Brown's Exercise (Solo) (p.129, i.e., 7 98 6 87 5 76 4 65 3 54 2 43 1): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
-  Ray Brown's Exercise (p.131): NONE
+  Ray Brown's Exercise (p.131) [-853 -742 -531 -42₇1]: NONE
   Ray Brown's Exercise (p.132): NONE
   Ray Brown's Exercise (p.133): NONE
+  Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
 theory:
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
@@ -274,6 +274,20 @@ sightReading:
   Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {[5-112]}
 
 
+_books:
+  Just go on the JP's video course?: NONE
+  JP's Walking Book ($9.99 kindle, 100 pages)? there's no self-study: NONE
+  Bob Sinicrope, Walking Bass Line Construction ($25 pdf, 61 pages)? Too formulaic and resticted?: NONE
+  Fuqua's Bassics (VERY lightweight)?: NONE
+  Bass Foundations by Israels (120 pages, looks mostly like stories of his life with Bill Evans)?: NONE
+  Friedland after all?: NONE
+  Mike Downes?: NONE
+  Rufus Reid?: NONE
+  Latin bass book? (supposed to be definitive, but is this my focus now): NONE
+  Improviser's Bass Method? Concepts for Bass soloing? (don't I want to play proper walking bass first?): NONE
+  Tapping? Clayton? CB's Tapping course on scottsbasslessons.com ? That Brazilian guy? (cool but basically for show): NONE
+
+
 _future:
   Dean's Fig 36-38 [Maybe someday]: NONE
 
@@ -282,22 +296,8 @@ _future:
   Fuqua-up Dolphin Dance [Harvey]: NONE
   Fuqua-up Pork Pie Hat [Harvey]: NONE
 
-  # Create Max De Aloe section
   # A walking bass book:
   #  - Transcribe ppl instead?
-  #  - Just go on the JP's video course?
-  #  - JP's Walking Book ($9.99 kindle, 100 pages)? there's no self-study
-  #  - Bob Sinicrope, Walking Bass Line Construction ($25 pdf, 61 pages)? Too formulaic and resticted?
-  #  - Fuqua's Bassics (VERY lightweight)?
-  #  - Bass Foundations by Israels (120 pages, looks mostly like stories of his life with Bill Evans)?
-  #  - https://www.talkbass.com/threads/best-books-for-walking-bass.1520764/
-  #  - Friedland after all?
-  #  - Mike Downes?
-  # Rufus Reid?
-  # Latin bass book? (supposed to be definitive, but is this my focus now)
-  # Improviser's Bass Method? Concepts for Bass soloing? (don't I want to play proper walking bass first?)
-  # Tapping? Clayton? CB's Tapping course on scottsbasslessons.com ? That Brazilian guy? (cool but basically for show)
-  # https://mikelongojazz.com/the-improvised-melodic-line/ ?
 
   # The Girl from Ipanema [what key?]: NONE
   # I Got Rhythm [what key?]: NONE
