@@ -1,9 +1,9 @@
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³₇Δː≅⚠
 
-*morn = [ seed warmup 2@intonation 2@theory 2@current max ]
+*morn = [ seed warmup 2@intonation 2@theory 2@current maxCurrent ]
 eve = [ @warmup _eve ]
 day = [ seed warmup 2@intonation _eve ]
-_eve = [ 2@theory 1@digression 2@current 2@music ]
+_eve = [ 2@theory 1@digression 2@current 2@music 2@maxRevise ]
 fuq = [ 3@fuqua ]
 suggest = [ 2@_future ]
 
@@ -33,8 +33,12 @@ current:
 
 #######
 
-max:
-  Max De Aloe {}: {<3.16|3.17|3.18|*3.19*|3.20|3.21|3.22>}
+maxCurrent:
+  MdA Technique in Ch 3. {}: {<23|24|25|26>}
+
+maxRevise:
+  MdA 3.19: NONE
+  MdA 3.22: NONE
 
 
 #######
