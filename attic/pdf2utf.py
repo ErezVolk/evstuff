@@ -14,7 +14,7 @@ from typing import Iterable
 
 import numpy as np
 import pandas as pd
-import fitz
+import pymupdf
 
 try:
     from google.cloud import texttospeech as gg_tts
@@ -254,7 +254,7 @@ class Pdf2Utf:
 
     def read_words(self) -> pd.DataFrame:
         """Read the words"""
-        doc = fitz.Document(self.args.input)
+        doc = pymupdf.Document(self.args.input)
         words = pd.DataFrame.from_records(
             [
                 [page_no, page.get_label() or str(page_no)] + list(rec)
@@ -279,10 +279,10 @@ class Pdf2Utf:
         self.ddump(words, "words")
         return words
 
-    def get_page_text(self, page: fitz.Page) -> Iterable[tuple]:
+    def get_page_text(self, page: pymupdf.Page) -> Iterable[tuple]:
         """Get text in the relevant area of the page."""
         box = page.trimbox
-        clip = fitz.Rect(
+        clip = pymupdf.Rect(
             box.x0,
             box.y0 + self.args.top,
             box.x1,

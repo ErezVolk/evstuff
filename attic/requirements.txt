@@ -1,6 +1,5 @@
 black
 browser-cookie3
-fitz
 jupyterlab
 lxml
 mutagen

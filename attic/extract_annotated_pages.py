@@ -3,9 +3,9 @@
 import argparse
 from pathlib import Path
 
-import fitz  # type: ignore; pip install pymupdf
+import pymupdf  # type: ignore; pip install pymupdf
 
-HALF = fitz.Matrix(.5, .5)
+HALF = pymupdf.Matrix(.5, .5)
 
 
 def extract_annotations() -> None:
@@ -47,11 +47,11 @@ def extract_annotations() -> None:
         )
 
     print(f"Reading {args.input}")
-    indoc = fitz.Document(args.input)
+    indoc = pymupdf.Document(args.input)
     modoc = None
     if args.model is not None:
         print(f"Reading model {args.model}")
-        modoc = fitz.Document(args.model)
+        modoc = pymupdf.Document(args.model)
         if len(indoc) != len(modoc):
             print(
                 f"Cannot use {args.model} as the model, as the number of pages"
@@ -59,7 +59,7 @@ def extract_annotations() -> None:
             )
             modoc = None
 
-    outdoc = fitz.Document()
+    outdoc = pymupdf.Document()
     for inpage in indoc:
         if should_copy(inpage, modoc):
             outdoc.insert_pdf(indoc, inpage.number, inpage.number, final=False)
@@ -71,7 +71,7 @@ def extract_annotations() -> None:
     outdoc.ez_save(args.output)
 
 
-def should_copy(inpage: fitz.Page, modoc: fitz.Document) -> bool:
+def should_copy(inpage: pymupdf.Page, modoc: pymupdf.Document) -> bool:
     """Check whether a page should be copied."""
     if inpage.annot_names():
         return True

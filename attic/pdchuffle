@@ -6,12 +6,12 @@ from argparse import ArgumentParser
 from argparse import Namespace
 from pathlib import Path
 
-import fitz  # type: ignore; pip install pymupdf
 import numpy.random as npr
 import pandas as pd
+import pymupdf
 
 # We only use bookmarks that point to a new page
-TOP_OF_PAGE = fitz.Point(0, 0)
+TOP_OF_PAGE = pymupdf.Point(0, 0)
 MIN_SPLIT = 2
 
 
@@ -23,12 +23,23 @@ class Pdchuffle:
     def parse_command_line(self) -> None:
         """Command-line arguments."""
         parser = ArgumentParser(description="Shuffle chapters in a PDF file")
-        parser.add_argument("input", type=Path, nargs="?", help="PDF file to shuffle")
         parser.add_argument(
-            "output", type=Path, nargs="?", help="Shuffled PDF file to create",
+            "input",
+            type=Path,
+            nargs="?",
+            help="PDF file to shuffle",
         )
         parser.add_argument(
-            "-p", "--pages", action="store_true", help="Shuffle pages, not chapters",
+            "output",
+            type=Path,
+            nargs="?",
+            help="Shuffled PDF file to create",
+        )
+        parser.add_argument(
+            "-p",
+            "--pages",
+            action="store_true",
+            help="Shuffle pages, not chapters",
         )
         parser.add_argument("-e", "--keep-empty-pages", action="store_true")
         parser.add_argument("-f", "--first-chapter", type=int, default=1)
@@ -70,9 +81,7 @@ class Pdchuffle:
     def guess_input(self, suffix: str) -> None:
         """If input file not specified, look for it."""
         pdfs = [
-            pdf
-            for pdf in Path.cwd().glob("*.pdf")
-            if not pdf.stem.endswith(suffix)
+            pdf for pdf in Path.cwd().glob("*.pdf") if not pdf.stem.endswith(suffix)
         ]
         if len(pdfs) != 1:
             print("Please specify input file")
@@ -98,7 +107,7 @@ class Pdchuffle:
 
         print(f"{self.args.input} -> {self.args.output}")
 
-        indoc = fitz.Document(self.args.input)
+        indoc = pymupdf.Document(self.args.input)
         n_pages = indoc.page_count
         if n_pages < MIN_SPLIT:
             print(f"Not enough pages ({n_pages}) in document")
@@ -167,7 +176,7 @@ class Pdchuffle:
             rng = self.randomize()
             chaps = chaps.sample(frac=1, random_state=rng.bit_generator)
 
-        outdoc = fitz.Document()
+        outdoc = pymupdf.Document()
         outtoc = []
 
         for _, chap in chaps.iterrows():
@@ -182,11 +191,11 @@ class Pdchuffle:
                     outdoc.delete_page(pno)
 
         if outdoc.page_count < indoc.page_count:
-            print(f"Number of pages in {self.args.input}: {indoc.page_count}")
-            print(f"Number of pages in {self.args.output}: {outdoc.page_count}")
+            print(f"Pages in {self.args.input}: {indoc.page_count}")
+            print(f"Pages in {self.args.output}: {outdoc.page_count}")
         outdoc.ez_save(self.args.output)
 
-    def get_title(self, n_page: int, page: fitz.Page) -> int | str:
+    def get_title(self, n_page: int, page: pymupdf.Page) -> int | str:
         """Create title for a page."""
         if self.args.unshuffle:
             text = page.get_text("text")
@@ -227,7 +236,7 @@ class Pdchuffle:
             return n_chaps + num
         return 0
 
-    def has_text(self, page: fitz.Page) -> bool:
+    def has_text(self, page: pymupdf.Page) -> bool:
         """Check if a page has any text (hence is non-empty)."""
         return page.get_text(clip=page.trimbox).strip() != ""
 

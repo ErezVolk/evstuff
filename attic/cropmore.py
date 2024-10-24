@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-import fitz
+import pymupdf
 
 
 class CropMore:
@@ -76,8 +76,8 @@ class CropMore:
         self.parse_args()
 
         print(f"`{self.args.input}' -> `{self.args.output}'")
-        idoc = fitz.Document(self.args.input)
-        odoc = fitz.Document()
+        idoc = pymupdf.Document(self.args.input)
+        odoc = pymupdf.Document()
 
         odoc.insert_pdf(
             idoc,
@@ -88,7 +88,7 @@ class CropMore:
         if self.cropping:
             for page in odoc:
                 box = page.mediabox if self.args.media else page.cropbox
-                crop = fitz.Rect(
+                crop = pymupdf.Rect(
                     box.x0 + self.args.left,
                     box.y0 + self.args.top,
                     box.x1 - self.args.right,
@@ -98,7 +98,7 @@ class CropMore:
 
         if self.args.pixmap:
             tdoc = odoc
-            odoc = fitz.Document()
+            odoc = pymupdf.Document()
             for tpage in tdoc:
                 timg = tpage.get_pixmap(dpi=self.args.dpi)
                 opage = odoc.new_page(
