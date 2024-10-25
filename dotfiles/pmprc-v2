@@ -38,6 +38,7 @@ earTraining:
 #######
 
 maxCurrent:
+  Long notes {}: {<C|D|E|F|G|A|B|c|d|e|f|g|a|b|ċ|ḋ|ė|ḟ|ġ>}
   MdA Technique in Ch 3. {}: {<23|24|25|26>}
 
 maxRevise:
