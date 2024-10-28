@@ -40,7 +40,7 @@ earTraining:
 
 maxCurrent:
   Long notes today's permutation in {}-major: major
-  MdA Ch 3. {}: {<23|24|25|*26|*27|28|*29>}
+  MdA Ch 3. {}: {<23|24|25|*26|+27|28|*29>}
 
 maxRevise:
   MdA 3.19: NONE
