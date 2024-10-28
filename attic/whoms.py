@@ -78,7 +78,8 @@ def main() -> None:
         starness = stars.total.max()
         star = stars[stars.total == starness].sample(1).index[0]
         print(f"Maybe one of the {starness} albums with {star}")
-        row = unheard[unheard.Whom.str.contains(star)].sample(1).iloc[0]
+        works_with = unheard[unheard.Whom.str.contains(star, regex=False)]
+        row = works_with.sample(1).iloc[0]
         print(f" - e.g., {row_desc(row)}")
 
 
