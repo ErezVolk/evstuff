@@ -39,7 +39,7 @@ earTraining:
 #######
 
 maxCurrent:
-  Long notes today's permutation in {}-major: major
+  Long notes in today's permutation and key: NONE
   MdA Ch 3. {}: {<23|24|25|*26|+27|28|*29>}
 
 maxRevise:
