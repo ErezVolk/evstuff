@@ -26,7 +26,7 @@ seed:
 #######
 
 current:
-  Bob DeBoo's today-directed triads from {} [BLIND!]: {majMin}  # TODO: 7th {to C/E/G/C^/G^} {whole|half|N/4}
+  Bob DeBoo's today-directed triads from {} [BLIND!]: @majMin  # TODO: {7th} {to C/E/G/C^/G^} {whole|half|N/4}
   Stricker 2b: NONE
   1@earTraining
 
