@@ -125,12 +125,12 @@ I=G, i.e., E-min
 (Real Book 6ed)
 
 ```
-A: |: II-7   | V7      | IM7      | 4M7       |
-   | VII-7b5 | *III7   | VI-      | %        :|
-B: | VII-7b5 | *III7b9 | VI-      | %         |
+A: |: II-7   | V7      | IM7      | IVM7      |
+   | VII-7b5 | ☑III7   | VI-      | %        :|
+B: | VII-7b5 | ☑III7b9 | VI-      | %         |
    | II-7    | V7      | IM7      | %         |
-   | VII-7b5 | *III7b9 | VI- *II7 | *V-7 *IV7 |
-   | VII-7b5 | *III7b9 | VI-      | %         |
+   | VII-7b5 | ☑III7b9 | VI- *II7 | *V-7 *IV7 |
+   | VII-7b5 | ☑III7b9 | VI-      | %         |
 ```
 
 (Real Jazz Standards -- Original)
@@ -143,6 +143,24 @@ B: | *III7         | %       | VI-      | %         |
    | *III7b9/VII   | *III7   | VI-      | %         |
    | *II/IV II-/IV | *III7   | VI-      | %         |
 ```
+
+
+# Mercy Mercy
+
+I=Bb (Real Book Vol. 2)
+
+```
+A: | I7           | IV7          | I7            | IV7          |
+   | I7           | IV7          | I7            | IV7          |
+B: | I7 . IV7/I . | I7 . IV7/I . | I7 . IV7/I .  | I7 . IV7/I . |
+   | I7 . . IV7   | IV7 IV7 . .  | I7 . . IV7    | IV7          |
+   | II-7         | II-7         | IV-7 V IV-7 V | IV-7         |
+```
+
+
+# Killer Joe
+
+TODO! New Real Book 2, Real Book 2
 
 
 # To Do
