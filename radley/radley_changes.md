@@ -145,7 +145,7 @@ B: | *III7         | %       | VI-      | %         |
 ```
 
 
-# Mercy Mercy
+# Mercy, Mercy, Mercy
 
 I=Bb (Real Book Vol. 2)
 
@@ -155,6 +155,25 @@ A: | I7           | IV7          | I7            | IV7          |
 B: | I7 . IV7/I . | I7 . IV7/I . | I7 . IV7/I .  | I7 . IV7/I . |
    | I7 . . IV7   | IV7 IV7 . .  | I7 . . IV7    | IV7          |
    | II-7         | II-7         | IV-7 V IV-7 V | IV-7         |
+```
+
+
+# Lucky Southern
+
+I=D (Real Book Vol. 1)
+
+```
+I: |: IM7  | IM7#5           | IM7add6       | IM7#5    :|
+
+A: | IM7   | %               | *II7          | %         |
+   | IVM7  | *IVb7 / V7 /    | IM7           | *IIbM7#11 |
+   | IM7   | %               | *II7          | %         |
+   | IVM7  | *IVb7 / V7 /    | IM7           | %         |
+B: | III-7 | %               | II-7          | %         |
+   | III-7 | %               | *V-7          | *I7       |
+   | IVM7  | *IV-7 / / I/III | / / / *IIIb07 | *IIIb07   |
+   | II-7  | *IVb7 / V7 IM7  | IM7           | *IIbM7#11 |
+ 
 ```
 
 
