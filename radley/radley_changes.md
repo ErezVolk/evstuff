@@ -125,23 +125,23 @@ I=G, i.e., E-min
 (Real Book 6ed)
 
 ```
-A: |: II-7   | V7      | IM7      | IVM7      |
-   | VII-7b5 | ☑III7   | VI-      | %        :|
-B: | VII-7b5 | ☑III7b9 | VI-      | %         |
-   | II-7    | V7      | IM7      | %         |
-   | VII-7b5 | ☑III7b9 | VI- *II7 | *V-7 *IV7 |
-   | VII-7b5 | ☑III7b9 | VI-      | %         |
+A: |: 2m⁷  | 5⁷    | 1Δ⁷     | 4M⁷      |
+   | 7m⁷ᵇ⁵ | 3⁷    | 6m      | %       :|
+B: | 7m⁷ᵇ⁵ | 3⁷ᵇ⁹  | 6m      | %        |
+   | 2m⁷   | 5⁷    | 1Δ⁷     | %        |
+   | 7m⁷ᵇ⁵ | 3⁷ᵇ⁹  | 6m *2⁷  | *5m⁷ *4⁷ |
+   | 7m⁷ᵇ⁵ | 3⁷ᵇ⁹  | 6m      | %        |
 ```
 
-(Real Jazz Standards -- Original)
+(Real Jazz Standards mm Original)
 
 ```
-A: |: II-7         | V7      | I                    |
-   | VII-7b5       | *III7   | VI-      | %        :|
-B: | *III7         | %       | VI-      | %         |
-   | V7            | %       | I        | %         |
-   | *III7b9/VII   | *III7   | VI-      | %         |
-   | *II/IV II-/IV | *III7   | VI-      | %         |
+A: |: 2m⁷      | 5⁷    | 1       |
+   | 7m⁷ᵇ⁵     | *3⁷   | 6m      | %        :|
+B: | *3⁷       | %     | 6m      | %         |
+   | 5⁷        | %     | 1       | %         |
+   | *3⁷ᵇ⁹/7   | *3⁷   | 6m      | %         |
+   | *2/4 2m/4 | *3⁷   | 6m      | %         |
 ```
 
 
@@ -174,6 +174,18 @@ B: | III-7 | %               | II-7          | %         |
    | IVM7  | *IV-7 / / I/III | / / / *IIIb07 | *IIIb07   |
    | II-7  | *IVb7 / V7 IM7  | IM7           | *IIbM7#11 |
  
+```
+
+
+# Summertime
+
+I=C (A-minor, Real Book Vol. 4)
+
+```
+| 6m⁷         | 7m⁷ᵇ⁵ . 3̣⁷ᵇ⁹ . | 6m⁷   | . . 6̣⁷ᵇ⁹ . |
+| 2m⁷         | %              | 7m⁷ᵇ⁵ | 3̣⁷ᵇ⁹       |
+| 6m⁷         | 7m⁷ᵇ⁵ . 3̣⁷ᵇ⁹ . | 6m⁷   | 2m⁷ . 5⁷ . |
+| 1Δ⁷ . 6m⁷ . | 7m⁷ᵇ⁵ . 3̣+⁷ .  | 6m⁷   | . . 3̣⁷ᵇ⁹ . |
 ```
 
 
