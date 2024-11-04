@@ -133,7 +133,7 @@ B: | 7m⁷ᵇ⁵ | 3⁷ᵇ⁹  | 6m      | %        |
    | 7m⁷ᵇ⁵ | 3⁷ᵇ⁹  | 6m      | %        |
 ```
 
-(Real Jazz Standards mm Original)
+(Real Jazz Standards -- Original)
 
 ```
 A: |: 2m⁷      | 5⁷    | 1       |
