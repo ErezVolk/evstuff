@@ -71,7 +71,12 @@ def main() -> None:
     for _, row in offer.iterrows():
         print(f"- {row_desc(row)}")
 
-    print(f"Oldest unheard:\n - {row_desc(unheard.sort_values('n').iloc[0])}")
+    print("Oldest unheard:")
+    oldest_added = unheard.sort_values("n").iloc[0]
+    print(f" - {row_desc(oldest_added)}")
+    oldest_released = unheard.sort_values("t").iloc[0]
+    if oldest_released.What != oldest_added.What:
+        print(f" - {row_desc(oldest_released)}")
 
     stars = whoms.query("heard == 0 and total > 1")
     if len(stars) > 0:
