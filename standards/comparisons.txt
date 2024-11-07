@@ -1,0 +1,57 @@
+Have You Met Miss Jones
+-----------------------
+
+(intro)
+JSS:	| FM7 Abo7 | GM7 C7     | A-7 Abo7     | G-7 C7 | FM7 Abo7     | G-7 C7     | G-7 C13(b9)  | F F7     | BbM9 Eb9   | A-7 D7(b9) | Bb G13 | G-7 C7   |
+RJS:	| F Bo7    | C7 . . Bo7 | A-7 . . Bo7  | G-7 C7 | F . . Bo7    | C7 . . Bo7 | F Bo7 G-7 C7 | F . . F7 | Bb . . Eo7 | F . . F9   | Bb G7  | C7sus C7 |
+
+(A1)
+557*:	| FM7        | F#o7       | G-7           | C7             | A-7        | D-7            | G-7      | C7        |
+CCB:	| FM7 Bb9    | A-7 D7(b9) | G-7           | C7             | A-         | D-             | Ab-7 Db7 | G-7 C7    |
+JFB:	| F          | F#o7       | G-7           | C7             | A-7        | D-7            | G-7      | C7        |
+JSS:	| FM7 Bb9    | A-7 D7(b9) | G-7           | C7sus C9       | A-7        | D-7 G9         | G-7      | C7(b9)    |
+RB6:	| FM7        | F#o7       | G-7           | C7             | A-7        | D-7            | G-7      | C7        |
+RJS:	| F          | F#o7       | G-7 C7 G-7 C7 | G-7 . C7sus C7 | F          | D-7 G7         | G- C7    | G-7 C7 C+ |
+SJB:	| FM7        | F#o7       | G-7           | C7             | A-7        | D-7            | G-7      | C7        |
+
+(A2)
+557*:	| FM7        | F#o7       | G-7           | C7             | A-7        | D-7            | C-7      | F13(b9)   |
+CCB:	| FM7 Bb9    | A-7 D7(b9) | G-7           | C7             | A-         | D-             | C-7      | F7        |
+JFB:	| F          | F#o7       | G-7           | C7             | A-7        | D-7            | C-7      | C7        |
+JSS:	| FM7        | A-7 D7(b9) | G-7           | C7sus C7       | A-7        | D-7 G9         | C-7      | F7(b9)    |
+NBB:	| FM7        | D7b9       | G-7           | C7             | A-7        | D-7            | C-7      | F7        |
+RB6:	| FM7        | F#o7       | G-7           | C7             | A-7        | D-7            | C-7      | F7        |
+RJS:	| F          | F#o7       | G-7 C7 G-7 C7 | G-7 . C7sus C7 | F/A        | D-7 G7         | G- C7    | F7        |
+SJB	| FM7        | F#o7       | G-7           | C7             | A-7        | D-7            | G-7      | C7        |
+
+(B)
+557*:	| BbM7       | Ab-7 Db7   | GbM7          | E-7 A7         | DM7        | Ab-7 Db7       | GbM7     | G-7 C7    |
+CCB:	| BbM7 A7alt | Ab-7 Db7   | GbM7 F7alt    | E-7 A7         | DM7        | Ab-7 Db7       | GbM7     | G-7 C7    |
+JFB:	| Bb         | Ab-7 Db7   | GbM7          | E-7 A7         | DM7        | Ab-7 Db7       | GbM7     | G-7 C7    |
+JSS:	| BbM7       | Ab-7 Db7   | GbM7          | E-7 A7         | DM7        | Ab-9 Db7       | GbM9     | G-7 C7    |
+RB6:	| BbM7       | Ab-7 Db7   | GbM7          | E-7 A7         | DM7        | Ab-7 Db-7      | GbM7     | G-7 C7    |
+RJS:	| Bb         | Db7        | Gb            | A7             | D          | Db7sus/Ab Db7  | Gb       | C7        |
+SJB:	| BbM7       | Ab-7 Db7   | GbM7          | E-7 A7         | DM7        | Ab-7 Db-7      | GbM7     | G-7 C7    |
+
+(A)
+557*:	| FM7        | F#o7       | G-7           | C7 Bb7         | A-7 D9     | G-7 C7         | F6 (D-7  | G-7 C7)   |
+CCB:	| FM7 Bb7    | A-7 D7(b9) | G-7           | Bo7 Bb7        | A-7 D7     | G-7 C7         | FM7      | G-7 C7    |
+JFB:	| F          | F#o7       | G-7           | C7 Bb7         | A-7 D7b9   | G-7 C7         | F        |           |
+JSS:	| FM7 Bb9    | A-7 D7(b9) | G-7           | C7sus C9       | A-7 D7     | G-7 C7(b9)     | F        |           |
+RB6:	| FM7        | F#o7       | G-7           | C7 Bb7         | A-7 D7     | G-7 C7         | FM7      |           |
+RJS:	| F          | F#o7       | G-7 C7 G-7 C7 | G-7 C7         | FM7/A Abo7 | G-7 . G-7/C C7 | F Bb7    | F         |
+SJB:	| FM7        | F#o7       | G-7           | C7             | A-7 D7     | G-7 C7         | F6       |           |
+
+NBB = RB6
+
+
+Sources
+-------
+
+557: 557 Standards
+CCB: Colorado Cookbook
+JFB: Jazz Fakebook
+NBB: New Bob Book
+RB6: Hal Leonard's Real Book, 6th Edition
+RJS: Hal Leonard's Real Jazz Standards
+SJB: Swing Jam Book
