@@ -1,3 +1,32 @@
+Rhythm Changes
+--------------
+
+(A1)
+50O:	| B♭M⁷  Gm⁷ | Cm⁷ F⁷   | B♭M⁷ D♭⁰⁷ | Cm⁷ F⁷ | B♭M⁷ B♭⁷  | E♭M⁷ A♭⁷  | B♭M⁷ F⁷ | B♭M⁷ (F⁷) |
+50M:	| B♭M⁷  Bo⁷ | Cm⁷ C#⁰⁷ | Dm⁷  G⁷   | Cm⁷ F⁷ | Fm⁷  B♭⁷  | E♭M⁷ E⁰⁷  | Dm⁷  G⁷ | Cm⁷   F⁷  |
+Ellis:	| B♭⁶   Gm⁷ | Cm⁷ F9   | B♭⁶  Gm⁷  | Cm⁷ F9 | Fm   B♭13 | E♭   E♭m⁷ | B♭⁶  F9 | B♭⁶       |
+MDRB:	| B♭M⁷  G⁷  | Cm⁷ F⁷   | Dm⁷  G⁷   | Cm⁷ F⁷ | Fm⁷  B♭⁷  | E♭M⁷ E⁰⁷  | B♭/F G⁷ | Cm⁷   F⁷  |
+
+(A2)
+50O:	| B♭M⁷  Gm⁷ | Cm⁷ F⁷   | B♭M⁷ D♭⁰⁷ | Cm⁷ F⁷ | B♭M⁷ B♭⁷  | E♭M⁷ A♭⁷  | B♭M⁷ F⁷ | B♭M⁷      |
+50M:	| B♭M⁷  Bo⁷ | Cm⁷ C#⁰⁷ | Dm⁷  G⁷   | Cm⁷ F⁷ | Fm⁷  B♭⁷  | E♭M⁷ E⁰⁷  | Dm⁷  G⁷ | B♭M⁷      |
+Ellis:	| B♭⁶   Gm⁷ | Cm⁷ F9   | B♭⁶  Gm⁷  | Cm⁷ F9 | Fm   B♭13 | E♭   E♭m⁷ | B♭⁶  F9 | B♭⁶       |
+MDRB:	| B♭M⁷  G⁷  | Cm⁷ F⁷   | Dm⁷  G⁷   | Cm⁷ F⁷ | Fm⁷  B♭⁷  | E♭M⁷ E⁰⁷  | B♭/F F⁷ | B♭        |
+
+(B)
+	| D⁷        | %        | G⁷        | %      | C⁷        | %         | F⁷      | %         |
+MDRB:	| Am⁷       | D⁷       | Dm⁷       | G⁷     | C⁷        | %         | F⁷      | %         |
+
+(A3)
+50O:	| B♭M⁷  Gm⁷ | Cm⁷ F⁷   | B♭M⁷ D♭⁰⁷ | Cm⁷ F⁷ | B♭M⁷ B♭⁷  | E♭M⁷ A♭⁷  | B♭M⁷ F⁷ | B♭M⁷      |
+50M:	| B♭M⁷  Bo⁷ | Cm⁷ C#⁰⁷ | Dm⁷  G⁷   | Cm⁷ F⁷ | Fm⁷  B♭⁷  | E♭M⁷ E⁰⁷  | Dm⁷  G⁷ | B♭M⁷      |
+Ellis:	| B♭⁶   Gm⁷ | Cm⁷ F9   | B♭⁶  Gm⁷  | Cm⁷ F9 | Fm   B♭13 | E♭   E♭m⁷ | B♭⁶  F9 | B♭⁶       |
+MDRB:	| B♭M⁷  G⁷  | Cm⁷ F⁷   | Dm⁷  G⁷   | Cm⁷ F⁷ | B♭   B♭⁷  | E♭M⁷ E⁰⁷  | B♭/F    | Cm⁷   F⁷  |
+
+
+
+
+
 Have You Met Miss Jones
 -----------------------
 
