@@ -47,7 +47,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA Ch. 4 {}: {<7|9|10|(11)|12|*13|14|15|16|*17|*18>}
+  MdA Ch. 4 {}: {<*7|9|10|(11)|12|*13|14|15|16|*17|*18>}
 
 maxRevise:
   MdA 3.19: NONE
@@ -55,6 +55,10 @@ maxRevise:
   MdA 3.26: NONE
   MdA 3.27: NONE
   MdA 3.29: NONE
+  MdA 4.7: NONE
+  MdA 4.13 [N.B last line]: NONE
+  MdA 4.17: NONE
+  MdA 4.18: NONE
 
 
 #######
