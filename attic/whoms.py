@@ -78,11 +78,11 @@ def main() -> None:
     if oldest_released.What != oldest_added.What:
         print(f" - {row_desc(oldest_released)}")
 
-    stars = whoms.query("heard == 0 and total > 1")
+    stars = whoms.query("heard == 0")
     if len(stars) > 0:
         starness = stars.total.max()
         star = stars[stars.total == starness].sample(1).index[0]
-        print(f"Maybe one of the {starness} albums with {star}")
+        print(f"Maybe one of the {starness} album(s) with {star}")
         works_with = unheard[unheard.Whom.str.contains(star, regex=False)]
         row = works_with.sample(1).iloc[0]
         print(f" - e.g., {row_desc(row)}")
