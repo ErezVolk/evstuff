@@ -14,13 +14,13 @@ header-includes: |
 
 ```
 
-(intro)                  | I | % | VIm | % | IV | V | I   | % |
-"Every breath..."        | I | % | VIm | % | IV | V | VIm | % |
-                         | I | % | VIm | % | IV | V |  I  | % |
-"Oh, can't you see..."   | IV | IIIb | I | % | IImaj(!) | % | V | % |
-"Every move..."          | I | % | VIm | % | IV | V | VIm | % |
-"Since you gone..."      |: VIb | % | VIIb | % :|
-                         |  VIb | % | I  | %  |
+(intro)                  | 1 | % | 6m | % | 4 | 5 | 1   | % |
+"Every breath..."        | 1 | % | 6m | % | 4 | 5 | 6m | % |
+                         | 1 | % | 6m | % | 4 | 5 |  1  | % |
+"Oh, can't you see..."   | 4 | 3b | 1 | % | 2maj(!) | % | 5 | % |
+"Every move..."          | 1 | % | 6m | % | 4 | 5 | 6m | % |
+"Since you gone..."      |: 6b | % | 7b | % :|
+                         |  6b | % | 1  | %  |
 ```
 
 
@@ -32,7 +32,7 @@ header-includes: |
 ```
 | Em | G | Am | Em | Bm | Am C | G F | C | D D E C | D |
 
-Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
+Trasncribed: | 1m | 3 | 4m | 1 | 5m 5b | 4m 6 | 3b 2b | 6b 7b | ... |
 ```
 
 
@@ -43,11 +43,11 @@ Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
 - Memorized 2023-12-02
 
 ```
-(intro)             | I | IV | V | I |
-"Daniel is..."      | I | IV | V | IIImaj(!) VIm | IV V | VIm | IV | V | I |
-(instrumental)      | V |
+(intro)             | 1 | 4 | 5 | 1 |
+"Daniel is..."      | 1 | 4 | 5 | 3maj(!) 6m | 4 5 | 6m | 4 | 5 | 1 |
+(instrumental)      | 5 |
 "They say Spain..." (same as verse)
-"D my brother..."   | IV | I | IV | I | VIm7 | IV VIb | I | IIm V |
+"D my brother..."   | 4 | 1 | 4 | 1 | 6m| 4 6b | 1 | 2m 5 |
 (instrumental)      (same as verse)
 ```
 
@@ -58,11 +58,11 @@ Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
 - Transcribed 2023-11-22
 
 ```
-(intro)             ||: I | % | IV6 | % | V6 | % :||
-"Willy is..."       | I | % | V | % | I | % | IV IIIm | IIm7 |
-"he'd love to..."   | II7/IV# | V | I | IV IIIm | IIm | % | V | % |
-                    | VIm | % | V | % | VIm | % | IV IIIm | IIm | % |
-                    | IV IIm | V | % | IV | % |
+(intro)             ||: 1 | % | 46 | % | 56 | % :||
+"Willy is..."       | 1 | % | 5 | % | 1 | % | 4 3m | 2m|
+"he'd love to..."   | 2⁷/4# | 5 | 1 | 4 3m | 2m | % | 5 | % |
+                    | 6m | % | 5 | % | 6m | % | 4 3m | 2m | % |
+                    | 4 2m | 5 | % | 4 | % |
 ```
 
 
@@ -71,30 +71,30 @@ Trasncribed: | Im | III | IVm | I | Vm Vb | IVm VI | IIIb IIb | VIb VIIb | ... |
 - Transcribed 2023-11-24
 
 ```
-(C)      ||: I | IV | % | V :||
-         | V |
-(A)      ||: I | IIIm | IV | V I :||
-(B)      | VIm | IIIm | IV | IV#dim7 |
-(chorus) | I | VIm | IIm | V | I | VIm | IIm | V |
+(C)      ||: 1 | 4 | % | 5 :||
+         | 5 |
+(A)      ||: 1 | 3m | 4 | 5 1 :||
+(B)      | 6m | 3m | 4 | 4#dim|
+(chorus) | 1 | 6m | 2m | 5 | 1 | 6m | 2m | 5 |
   -> (C) -> (A) -> (B) -> (chorus) -> (C) -> (C) -> (B) -> (chorus)...
 ```
 
 
 # Fly Me to the Moon
 ```
-First version (I=C):
+First version (1=C):
 A: (Fly me...)
-| VIm7 | IIm7  | V7    | IM7        |
-| IVM7 | VIIo7 | III7  | VIm7       |
+| 6m | 2m⁷ | 5⁷  | 1M⁷    |
+| 4M | 7o⁷ | 3⁷  | 6m⁷    |
 B: (In other words, hold my hand...)
-| IIm7 | V7    | IM7   | VI7        |
-| IIm7 | V7    | VIIo7 | III7       |
+| 2m | 5⁷  | 1M⁷ | 6⁷     |
+| 2m | 5⁷  | 7o⁷ | 3⁷     |
 A: (Fill my heart...)
-| VIm7 | IIm7  | V7    | IM7        |
-| IVM7 | VIIo7 | III7  | VIm7       |
+| 6m | 2m⁷ | 5⁷  | 1M⁷    |
+| 4M | 7o⁷ | 3⁷  | 6m⁷    |
 C: (In other words, please be true...)
-| IIm7 | V7    | IIIo7 | VI7        |
-| IIm7 | V7    | IM7   | VIIo7 III7 |
+| 2m | 5⁷  | 3o⁷ | 6⁷     |
+| 2m | 5⁷  | 1M⁷ | 7o⁷ 3⁷ |
 
 A: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ       |  "Fly me to the moon..."
    | 4Δ  | 7ᴼ⁷ | 3⁷     | 6m⁷      |
@@ -105,7 +105,7 @@ A: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ       |  "Fill my heart..."
 C: | 2m⁷ | 5⁷  | 3ᴼ⁷    | 6⁷       |  "[in] other words, please be true..."
    | 2m⁷ | 5⁷  | 1Δ     | 7ᴼ⁷ 3⁷   |
 
-Tomer's second version (I=F):
+Tomer's second version (1=F):
 A: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ⁷      |  "Fly me to the moon..."
    | 4Δ⁷ | 7ᴼ⁷ | 3⁷ᵇ⁹   | 6m⁷ 6⁷   |
    | 2m⁷ | 5⁷  | 1Δ⁷ 4⁷ | 3m⁷ 6⁷   |  "[in] other words, hold my hand..."
@@ -120,7 +120,7 @@ B: | 6m⁷ | 2m⁷ | 5⁷     | 1Δ⁷      |  "Fill my heart..."
 # Autumn Leaves
 
 
-I=G, i.e., E-min
+1=G, i.e., E-min
 
 (Real Book 6ed)
 
@@ -136,50 +136,50 @@ B: | 7m⁷ᵇ⁵ | 3̣⁷ᵇ⁹  | 6m     | %      |
 (Real Jazz Standards -- Original)
 
 ```
-A: |: 2m⁷      | 5⁷    | 1       |
-   | 7m⁷ᵇ⁵     | *3⁷   | 6m      | %        :|
-B: | *3⁷       | %     | 6m      | %         |
-   | 5⁷        | %     | 1       | %         |
-   | *3⁷ᵇ⁹/7   | *3⁷   | 6m      | %         |
-   | *2/4 2m/4 | *3⁷   | 6m      | %         |
+A: |: 2m⁷     | 5⁷    | 1       |
+   | 7m⁷ᵇ⁵    | 3̣⁷    | 6m      | %        :|
+B: | 3̣⁷       | %     | 6m      | %         |
+   | 5⁷       | %     | 1       | %         |
+   | 3̣⁷ᵇ⁹/    | 3̣⁷    | 6m      | %         |
+   | 2̣/4 2m/4 | 3̣⁷    | 6m      | %         |
 ```
 
 
 # Mercy, Mercy, Mercy
 
-I=Bb (Real Book Vol. 2)
+1=Bb (Real Book 5ol. 2)
 
 ```
-A: | I7           | IV7          | I7            | IV7          |
-   | I7           | IV7          | I7            | IV7          |
-B: | I7 . IV7/I . | I7 . IV7/I . | I7 . IV7/I .  | I7 . IV7/I . |
-   | I7 . . IV7   | IV7 IV7 . .  | I7 . . IV7    | IV7          |
-   | II-7         | II-7         | IV-7 V IV-7 V | IV-7         |
+A: | 1         | 4⁷          | 1⁷          | 4⁷          |
+   | 1         | 4⁷          | 1⁷          | 4⁷          |
+B: | 1. 4⁷/1 . | 1⁷ . 4⁷/1 . | 1⁷ . 4⁷/1 . | 1⁷ . 4⁷/1 . |
+   | 1. . 4⁷   | 4⁷ 4⁷ . .   | 1⁷ . . 4⁷   | 4⁷          |
+   | 2-        | 2-⁷         | 4-⁷ 5 4-⁷ 5 | 4-⁷         |
 ```
 
 
 # Lucky Southern
 
-I=D (Real Book Vol. 1)
+1=D (Real Book Vol. 1)
 
 ```
-I: |: IM7  | IM7#5           | IM7add6       | IM7#5    :|
+1: |: 1M | 1M⁷#5           | 1M⁷add6       | 1M⁷#5  :|
 
-A: | IM7   | %               | *II7          | %         |
-   | IVM7  | *IVb7 / V7 /    | IM7           | *IIbM7#11 |
-   | IM7   | %               | *II7          | %         |
-   | IVM7  | *IVb7 / V7 /    | IM7           | %         |
-B: | III-7 | %               | II-7          | %         |
-   | III-7 | %               | *V-7          | *I7       |
-   | IVM7  | *IV-7 / / I/III | / / / *IIIb07 | *IIIb07   |
-   | II-7  | *IVb7 / V7 IM7  | IM7           | *IIbM7#11 |
+A: | 1M  | %               | 2̣⁷            | %       |
+   | 4M  | 4̣b⁷ . 5⁷ .      | 1M⁷           | 2̣bM⁷#11 |
+   | 1M  | %               | 2̣⁷            | %       |
+   | 4M  | 4̣b⁷ . 5⁷ .      | 1M⁷           | %       |
+B: | 3-  | %               | 2-⁷           | %       |
+   | 3-  | %               | 5̣-⁷           | 1̣⁷      |
+   | 4M  | 4̣-⁷ . . 1/3     | . . . 3̣b0⁷    | 3̣b0⁷    |
+   | 2-  | 4̣b⁷ . 5⁷ 1M⁷    | 1M⁷           | 2̣bM⁷#11 |
  
 ```
 
 
 # Summertime
 
-I=C (A-minor, Real Book Vol. 4)
+1=C (A-minor, Real Book Vol. 4)
 
 ```
 | 6m⁷         | 7m⁷ᵇ⁵ . 3̣⁷ᵇ⁹ . | 6m⁷   | . . 6̣⁷ᵇ⁹ . |
@@ -189,12 +189,10 @@ I=C (A-minor, Real Book Vol. 4)
 ```
 
 
-# Killer Joe
-
-TODO! New Real Book 2, Real Book 2
-
-
 # To Do
+- Killer Joe (New Real Book2 / Real Book 2)
+- Stella (can it be done?)
+- Miss Jones
 - You Send Me
 - You Are the Sunshine of My Life
 - Lately
