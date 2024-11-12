@@ -63,28 +63,34 @@ def main() -> None:
     unheard = albums.loc[albums.When.isna()]
     if len(unheard) == 0:
         print("Time to find more music.")
-        return
+    else:
+        n_shortest = max(len(unheard) // args.shortest_nth, 1)
+        shorts = unheard.sort_values("dt").iloc[:n_shortest]
+        offer = shorts.sample(n=args.count).sort_values("n")
+        print(f"Suggestions ({len(offer)} / {len(shorts)} / {len(unheard)}):")
+        for _, row in offer.iterrows():
+            print(f"- {row_desc(row)}")
 
-    shorts = unheard.sort_values("dt").iloc[:len(unheard) // args.shortest_nth]
-    offer = shorts.sample(n=args.count).sort_values("n")
-    print(f"Suggestions ({len(offer)} of {len(shorts)} of {len(unheard)}):")
-    for _, row in offer.iterrows():
-        print(f"- {row_desc(row)}")
+        print("Oldest unheard:")
+        oldest_added = unheard.sort_values("n").iloc[0]
+        print(f" - {row_desc(oldest_added)}")
+        oldest_released = unheard.sort_values("t").iloc[0]
+        if oldest_released.What != oldest_added.What:
+            print(f" - {row_desc(oldest_released)}")
 
-    print("Oldest unheard:")
-    oldest_added = unheard.sort_values("n").iloc[0]
-    print(f" - {row_desc(oldest_added)}")
-    oldest_released = unheard.sort_values("t").iloc[0]
-    if oldest_released.What != oldest_added.What:
-        print(f" - {row_desc(oldest_released)}")
+        stars = whoms.query("heard == 0")
+        if len(stars) > 0:
+            starness = stars.total.max()
+            star = stars[stars.total == starness].sample(1).index[0]
+            print(f"Maybe one of the {starness} album(s) with {star}")
+            works_with = unheard[unheard.Whom.str.contains(star, regex=False)]
+            row = works_with.sample(1).iloc[0]
+            print(f" - e.g., {row_desc(row)}")
 
-    stars = whoms.query("heard == 0")
-    if len(stars) > 0:
-        starness = stars.total.max()
-        star = stars[stars.total == starness].sample(1).index[0]
-        print(f"Maybe one of the {starness} album(s) with {star}")
-        works_with = unheard[unheard.Whom.str.contains(star, regex=False)]
-        row = works_with.sample(1).iloc[0]
+    relisten = albums[albums.How.astype("string").str.contains("relisten")]
+    if len(relisten) > 0:
+        print("Maybe relisten:")
+        row = relisten.sample(1).iloc[0]
         print(f" - e.g., {row_desc(row)}")
 
 
