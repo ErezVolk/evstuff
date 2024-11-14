@@ -42,7 +42,6 @@ def main() -> None:
 
     albums = pd.read_excel(args.input)
     albums["heard"] = albums.When.notna()
-    print(f"Heard {k_of_n(albums.heard)} albums")
     albums["Whom"] = albums.Whom.fillna("N/A")
     albums["Whoms"] = albums.Whom.str.replace(
         r"\s*[,&]\s*", "|", regex=True,
@@ -52,9 +51,16 @@ def main() -> None:
     whoms = whalbums.Whoms.value_counts().to_frame("total")
     whoms["heard"] = whalbums[whalbums.heard].Whoms.value_counts()
     whoms["heard"] = whoms.heard.fillna(0).astype(int)
-    print(f"Heard {k_of_n(whoms.heard)} players")
+
+    hours = albums["dt"].apply(lambda dt: dt.hour + dt.minute / 60)
+    heards = [
+        f"{k_of_n(albums.heard)} albums",
+        f"{k_of_n(whoms.heard)} players",
+        f"{x_of_y(int(hours[albums.heard].sum()), int(hours.sum()))} hours",
+    ]
+    print("Heard", ", ".join(heards))
+
     whoms["cov"] = whoms.heard / whoms.total
-    print(f"Writing {len(whoms)} whoms to {args.output}")
     whoms.to_excel(args.output)
     if args.verbose:
         print(whoms.iloc[:10])
@@ -105,7 +111,12 @@ def row_desc(row: pd.Series) -> str:
 def k_of_n(heard: pd.Series) -> str:
     """Format "K of N (X%)"."""
     flags = heard > 0
-    return f"{flags.sum()} of {len(flags)} ({flags.mean() * 100:.0f}%)"
+    return x_of_y(flags.sum(), len(flags))
+
+
+def x_of_y(x: int, y: int) -> str:
+    """Format "X of Y (Z%)"."""
+    return f"{x:,} of {y:,} ({(x * 100) // (y)}%)"
 
 
 def one_of(names: str) -> str:
