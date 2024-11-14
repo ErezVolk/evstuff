@@ -24,7 +24,7 @@ bdb:
   maj: major
   min: minor
   ⁷: major
-  m⁷: minor
+  # m⁷: minor
   # +: major
   # m⁷ᵇ⁵: minor
 
