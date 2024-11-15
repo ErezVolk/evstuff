@@ -83,13 +83,19 @@ def main() -> None:
         if oldest_released.What != oldest_added.What:
             print(f"- (oldest released) {row_desc(oldest_released)}")
 
-        stars = whoms.query("heard == 0")
-        if len(stars) > 0:
+        guys = whoms.query("heard == 0")
+        if len(stars := guys.query("total > 1")) > 0:
             starness = stars.total.max()
             star = stars[stars.total == starness].sample(1).index[0]
             works_with = unheard[unheard.Whom.str.contains(star, regex=False)]
             row = works_with.sample(1).iloc[0]
             print(f"- (popular new guy) {row_desc(row)}")
+        elif len(names := set(guys.index)) > 0:
+            works_with = albums[
+                albums.Whoms.apply(lambda ppl: len(set(ppl) & names) > 0)
+            ]
+            row = works_with.sort_values("dt").iloc[0]
+            print(f"- (shortest new guy) {row_desc(row)}")
 
     relisten = albums[albums.How.astype("string").str.contains("relisten")]
     if len(relisten) > 0:
