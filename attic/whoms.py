@@ -77,27 +77,24 @@ def main() -> None:
         for _, row in offer.iterrows():
             print(f"- {row_desc(row)}")
 
-        print("Oldest unheard:")
         oldest_added = unheard.sort_values("n").iloc[0]
-        print(f" - {row_desc(oldest_added)}")
+        print(f"- (oldest added) {row_desc(oldest_added)}")
         oldest_released = unheard.sort_values("t").iloc[0]
         if oldest_released.What != oldest_added.What:
-            print(f" - {row_desc(oldest_released)}")
+            print(f"- (oldest released) {row_desc(oldest_released)}")
 
         stars = whoms.query("heard == 0")
         if len(stars) > 0:
             starness = stars.total.max()
             star = stars[stars.total == starness].sample(1).index[0]
-            print(f"Maybe one of the {starness} album(s) with {star}")
             works_with = unheard[unheard.Whom.str.contains(star, regex=False)]
             row = works_with.sample(1).iloc[0]
-            print(f" - e.g., {row_desc(row)}")
+            print(f"- (popular new guy) {row_desc(row)}")
 
     relisten = albums[albums.How.astype("string").str.contains("relisten")]
     if len(relisten) > 0:
-        print("Maybe relisten:")
         row = relisten.sample(1).iloc[0]
-        print(f" - e.g., {row_desc(row)}")
+        print(f"- (relisten) {row_desc(row)}")
 
 
 def row_desc(row: pd.Series) -> str:
