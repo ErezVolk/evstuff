@@ -35,7 +35,7 @@ seed:
 
 current:
   Today-directed Bob DeBoo/{} [BLIND!]: {@bdb}  # TODO: {to C/E/G/C^/G^} {whole|half|N/4}
-  Magnusson: NONE
+  Magnusson Blues sequences on pp. 14-17 [Do interesting sequences]: NONE
 
 earTraining:
   Transcribe something: NONE
@@ -147,7 +147,7 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Blues (II) (p.102), starting from {}: rayBrownBluesKeys
   Ray Brown's Blues (III) (p.103), starting from {}: rayBrownBluesKeys
 
-  Ray Brown's Exercise in 10ths (p.{}): {36|37|39-40|41-42}
+  Ray Brown's Exercise in 10ths (p.{}): {36|37|39|40|41|42}
   Ray Brown's 10ths with a 5th, {}: rayBrown10thKeys
   Ray Brown's minor 10ths with a 5th, {}: rayBrown10thKeys
   Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
