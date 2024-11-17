@@ -35,7 +35,7 @@ seed:
 
 current:
   Today-directed Bob DeBoo/{} [BLIND!]: {@bdb}  # TODO: {to C/E/G/C^/G^} {whole|half|N/4}
-  Magnusson Blues sequences on pp. 14-17 [Do interesting sequences]: NONE
+  Magnusson Blues sequences on pp. 14-17 [⍻ Do interesting sequences]: NONE
 
 earTraining:
   Transcribe something: NONE
@@ -315,6 +315,9 @@ _books:
 
 _future:
   Dean's Fig 36-38 [Maybe someday]: NONE
+
+  Magnusson II-V-I Ex 5/6 pp. 17-19: NONE
+  Magnusson II-V-I pp. 19-20: NONE
 
   Fuqua-up Forest Flower [Harvey]: NONE
   Fuqua-up Footprints [Harvey]: NONE
