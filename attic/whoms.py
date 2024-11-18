@@ -89,7 +89,7 @@ def main() -> None:
             star = stars[stars.total == starness].sample(1).index[0]
             works_with = unheard[unheard.Whom.str.contains(star, regex=False)]
             row = works_with.sample(1).iloc[0]
-            print(f"- (popular new guy) {row_desc(row)}")
+            print(f"- ({starness}-popular new guy) {row_desc(row)}")
         elif len(names := set(guys.index)) > 0:
             works_with = albums[
                 albums.Whoms.apply(lambda ppl: len(set(ppl) & names) > 0)
