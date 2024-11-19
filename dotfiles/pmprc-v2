@@ -35,7 +35,7 @@ seed:
 
 current:
   Today-directed Bob DeBoo/{} [BLIND!]: {@bdb}  # TODO: {to C/E/G/C^/G^} {whole|half|N/4}
-  Magnusson Blues sequences on pp. 14-17 [⍻ Do interesting sequences]: NONE
+  Bob Magnusson's II-V-I pp. 17-20: NONE
 
 earTraining:
   Transcribe something: NONE
@@ -198,7 +198,7 @@ theory:
   Ray Brown's Major Triads (p.29), starting from {}: rayBrownDrillKeys
   Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major: {rayBrownDrillKeys}
   Ray Brown's Arpeggios for Endings (p.134, 1567 3̇5̇6̇7̇ 7̇6̇5̇3̇ 7651) (blind!): NONE
-
+  Bob Magnusson's Blues sequences on pp. 14-17 [Do interesting sequences]: NONE
 
 music:
   Play "Fly Me To The Moon" (1={}, MM ♩={}): {major} {[80-200]}
