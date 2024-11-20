@@ -46,7 +46,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA Ch. 5 {} {}: {<1|4*|5|6|7*|8|9*>} {10ff}
+  MdA Ch. 5 {} {}: {<1|4*|5|6|7*|8*+8ᵛᵃ|9*+8ᵛᵃ>} {10ff}
   1@maxRevise
 
 maxRevise:
