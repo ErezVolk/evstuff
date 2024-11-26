@@ -74,6 +74,17 @@ SJB:	| FM7        | F#o7       | G-7           | C7             | A-7 D7     | G
 NBB = RB6
 
 
+
+Stella By Starlight
+-------------------
+
+My chord line:  | E-7b5 | A7b9       | C-7   | F7       | F-7    | Bb7        | EbM7  | Ab7  |
+                | BbM7  | E-7b5 A7b9 | D-7   | Bb-7 Eb7 | FM7    | E-7b5 A7b9 | A-7b5 | D7b9 |
+                | G7#5  | %          | C-7   | %        | Ab7#11 | %          | BbM7  | %    |
+                | E-7b5 | A7b9       | D-7b5 | G7b9     | C-7b5  | F7b9       | BbM7  | %    |
+
+
+
 Sources
 -------
 
