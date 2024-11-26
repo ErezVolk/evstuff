@@ -109,7 +109,7 @@ intonation:  # TODO: split into boring and non-boring?
   -melodic minor linear slides of a second in fifth double stops (Ex 5A on p.19): minor
   -dorian zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): minor
   Slides in 3rds (Ex. {} on page 21/22) on the {} strings: {3|4A|4B|4C} {twoAdjacentStrings}
-  1-2-3-2-3-4... slides (Ex. 4D on page 22) on the {} string: oneString
+  Minor 1-2-3-2-3-4... slides (Ex. 4D on page 22) on the {} string: oneString
   {}-major Diatonic Slides of 4th half notes (1↗4 4↘1 2↗5 5↘2 ...): major
   {}-major Diatonic Slides in 4ths 143₇-2541-3652-... (Ex. 2A on page 23): major
   {}-major Diatonic Slides of 5th half notes (1↗5 5↘1 2↗6 ..) (Ex. 1 on page 25): major
