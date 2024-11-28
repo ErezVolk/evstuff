@@ -35,7 +35,7 @@ seed:
 
 current:
   Today-directed Bob DeBoo/{} [BLIND!]: {@bdb}  # TODO: {to C/E/G/C^/G^} {whole|half|N/4}
-  Bob Magnusson's II-V-I pp. 17-20: NONE
+  Bob Magnusson's II-V-I pp. 17-20 [⍻]: NONE
   Stricker-2b: NONE
 
 earTraining:
@@ -47,7 +47,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA Ch. 5 {}: {<1|4*|5|6|7|8♫+8ᵛᵃ|10*|11|12♫|13♫|14♫|15*|16-swing*|17♫>}
+  MdA Ch. 5 {}: {<1|4|5|6|7|8♫+8ᵛᵃ|10*|11|12♫|13♫|14♫|15*|16-swing*|17♫>}
   1@maxRevise
 
 maxRevise:
@@ -312,7 +312,9 @@ _books:
   Latin bass book? (supposed to be definitive, but is this my focus now): NONE
   Improviser's Bass Method? Concepts for Bass soloing? (don't I want to play proper walking bass first?): NONE
   Tapping? Clayton? CB's Tapping course on scottsbasslessons.com ? That Brazilian guy? (cool but basically for show): NONE
-
+  One of the other improv/ books: NONE
+  Weiskopf - The Augmented Scale looks serious: NONE
+  Eddie Harris after all?: NONE
 
 _future:
   Dean's Fig 36-38 [Maybe someday]: NONE
