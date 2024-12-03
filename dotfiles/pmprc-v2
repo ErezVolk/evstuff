@@ -47,7 +47,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 5 {}: {<1 (play at 90 BPM)|4|5 (I can do the down part almost cleanly at 42 BPM)|6 (50 BPM)|8♫+8ᵛᵃ|10 (* about 52 BPM, be very careful)|11 (60 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (*)|16 (swing, last played at 65 BPM, NB bars 7-8)>}
+  MdA 5 {}: {<1 (play at 90 BPM)|4|5+6 (*42 BPM)|8♫+8ᵛᵃ|10 (* about 52 BPM, be very careful)|11 (*60 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (*)|16 (*swing, last played at 65 BPM, NB bars 7-8)>}
   1@maxRevise
 
 maxRevise:
