@@ -47,7 +47,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 5 {}: {<1 (play at 90 BPM)|4|5+6 (*42 BPM)|8♫+8ᵛᵃ|10 (* about 52 BPM, be very careful)|11 (*60 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (*)|16 (*swing, last played at 65 BPM, NB bars 7-8)>}
+  MdA 5 {}: {<1 (play at 90 BPM)|4|5+6 (*42 BPM)|8♫+8ᵛᵃ|10 (* about 52 BPM, be very careful)|11 (*70 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (*)|16 (*swing, last played at 65 BPM, NB bars 7-8,10)>}
   1@maxRevise
 
 maxRevise:
@@ -302,7 +302,7 @@ sightReading:
 
 _books:
   The Bob Magnusson book is looking better now: NONE
-  The Rufus Reid book is looking better now: NONE
+  The Rufus Reid book is looking better now, see eg. Ch. 4, 5: NONE
   JP's Melodic Arpeggios book is looking better now: NONE
   Just go on the JP's video course?: NONE
   JP's Walking Book ($9.99 kindle, 100 pages)? there's no self-study: NONE
