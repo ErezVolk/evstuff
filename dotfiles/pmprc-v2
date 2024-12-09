@@ -49,6 +49,7 @@ maxCurrent:
   Long notes in today's permutation and key: NONE
   MdA 5 {}: {<1 (play at 90 BPM)|4|5+6 (*42 BPM)|8♫+8ᵛᵃ|10 (* about 52 BPM, be very careful)|11 (*70 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (*)|16 (*swing, last played at 65 BPM, NB bars 7-8,10)>}
   1@maxRevise
+  1@maxStandard
 
 maxRevise:
   MdA 3.19: NONE
@@ -59,6 +60,36 @@ maxRevise:
   MdA 4.13 [N.B last line]: NONE
   MdA 4.17: NONE
   MdA 4.18: NONE
+
+maxStandard:
+  A Ghost of a chance (C) – The New Real Book 3 [MdA Ch. 5]: NONE
+  But beautiful (G) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Darn that dream (G) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Don’t blame me (C) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Emily (G) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Everything I have is yours (C) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Exactly like you (C) – The New Real Book 2 [MdA Ch. 5]: NONE
+  Fly me to the moon (Am) – The New Real Book 2 [MdA Ch. 5]: NONE
+  Here’s that rainy day (G) – The New Real Book 1 [MdA Ch. 5]: NONE
+  I got it bad (G) – The New Real Book 3 [MdA Ch. 5]: NONE
+  I should care (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  It’s only a paper moon (G) – The New Real Book 2 [MdA Ch. 5]: NONE
+  Just friends (G) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Just you, just me (C) – The New Real Book 3 [MdA Ch. 5]: NONE
+  The lamp is low (G) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Laura (G) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Like someone in love (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Line for lyons (G) – The New Real Book 1 [MdA Ch. 5]: NONE
+  My romance (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Moonglow (C) – The New Real Book 3 [MdA Ch. 5]: NONE
+  On the sunny side of the street (C) – The New Real Book 2 [MdA Ch. 5]: NONE
+  Satin doll (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  The lamp is low (Am) – The New Real Book 3 [MdA Ch. 5]: NONE
+  The shadow of your smile (3) – The New Real Book 3 [MdA Ch. 5]: NONE
+  The song is you (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  St. Thomas (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Take the “A” train (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Unforgettable (G) – The New Real Book 2 [MdA Ch. 5]: NONE
 
 
 #######
@@ -201,6 +232,7 @@ theory:
   Ray Brown's Arpeggios for Endings (p.134, 1567 3̇5̇6̇7̇ 7̇6̇5̇3̇ 7651) (blind!): NONE
   Bob Magnusson's Blues sequences on pp. 14-17 [Do interesting sequences]: NONE
   Bob Magnusson's II-V-I pp. 17-20: NONE
+  Walk on Blues in {}: {major}
 
 music:
   Play "Fly Me To The Moon" (1={}, MM ♩={}): {major} {[80-200]}
