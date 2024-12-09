@@ -105,10 +105,12 @@ def main() -> None:
 
 def row_desc(row: pd.Series) -> str:
     """Nicely format a "to listen" row."""
-    return (
-        f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)} '
-        f'(with {one_of(row.Whom)}, {row["dt"]})'
-    )
+    who = one_of(row.Who)
+    whom = one_of(row.Whom)
+    what = f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
+    if who == whom and not who.endswith(" et al."):
+        return f'{what} ({row["dt"]})'
+    return f'{what} (with {one_of(row.Whom)}, {row["dt"]})'
 
 
 def k_of_n(heard: pd.Series) -> str:
