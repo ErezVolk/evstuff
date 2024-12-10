@@ -85,6 +85,33 @@ My chord line:  | E-7b5 | A7b9       | C-7   | F7       | F-7    | Bb7        | 
 
 
 
+It Could Happen to You
+----------------------
+
+
+(A)
+557:	| I^7   | III-7b5 VI7   | II-7        | #IV-7b5 VII7  | I^7          | IV^7         | bVIIb9#11  | VI9         |
+RB2:	| I^7   | III0    VI7   | II-7        | #II0          | III0 VI7     | II-7 V7      | IIIdim     | VI7         |
+NBB:	| I^7   | III-7b5 VI7   | II-7        | #IV-7b5 VII7  | III^7        | IV^7         | III7       | VI7         |
+RJS:	| I     | #I07          | II-7        | bIII07        | I/III        | IV7          | III7       | III-7b5 VI7 |
+RJS():	| I     | #I07          | II-7        | bIII07        | I^7          | IV7          | III-7b5    | VI7         |
+
+(B)
+557:	| II-9  | IV-(+7) bVII9 | I^7         | VII-7b5 III7  | VI-7         | II7          | II-7       | Vb9         |
+RB2:	| II-7  | bVII7         | I^7         | VII0    III7  | VI-7 VI-(+7) | VI-7 II7     | II-7       | V7          |
+NBB:	| II-7  | IV-(+7)       | I^7         | VII-7b5 III7  | VI-7         | II7          | II-7       | V7          |
+RJS:	| II-7  | IV-           | I           | VII-7b5 III7  | VI-  IV7/III | II7          | II-7       | II-6 bII9   |
+RJS():	| II-7  | bVII7         | I^7         | VII-7b5 III7  | VI-7         | II7          | II-7       | V7          |
+
+(C)
+557:	| II-9  | IV-(+7) bVII9 | I^7 VII+7#9 | bVIIb9#11 VI7 | II-11/V V7   | II-7   V13     | I6   (VI-7 | IV/V V13)   |
+RB2:	| II-7  | bVII7         | I^7 IV7     | III0      VI7 | II-7         | II-7   V7      | I^7  (VI-7 | II-7 V7)    |
+NBB:	| II-7  | IV-(+7)       | I^7 (IV7)   | III-7b5   VI7 | II-7         | V7             | I6/9 (VI7) | II-7 V7     |
+RJS:	| II-7  | IV-           | I/V         | III-7b5   VI7 | II-7         | II-7 . V9 V7b9 | I     VI-  | II-7 V7b5#9 |
+RJS():	| II-7  | bVII7         | I^7 IV7     | III-7b5   VI7 | II-7         | V7   . V9 V7b9 | I^7        | II-7 V7     |
+
+
+
 Sources
 -------
 
@@ -92,6 +119,6 @@ Sources
 CCB: Colorado Cookbook
 JFB: Jazz Fakebook
 NBB: New Bob Book
-RB6: Hal Leonard's Real Book, 6th Edition
-RJS: Hal Leonard's Real Jazz Standards
-SJB: Swing Jam Book
+RB6: Hal Leonard's Real Book I, 6th Edition
+RJS: Hal Leonard's Real Jazz Standards SJB: Swing Jam Book
+TVG: TV Guide
