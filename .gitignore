@@ -16,3 +16,5 @@ htmlcov
 *.xcuserstate
 *.xcuserdatad
 standards/real-books
+*.mscz
+.mscbackup
