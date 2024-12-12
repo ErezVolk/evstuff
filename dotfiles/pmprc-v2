@@ -47,7 +47,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 5 {}: {<1 (play at 90 BPM)|4|5+6 (*42 BPM)|8♫+8ᵛᵃ|10 (* about 52 BPM, be very careful, NB 5-8)|11 (*70 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (* NB 7-10)|16 (*swing, last played at 65 BPM, NB bars 7-8,10)>}
+  MdA 5 {}: {<1 (play at 90 BPM)|4|5+6 (*50 BPM)|8♫+8ᵛᵃ|10 (* about 52 BPM, be very careful, NB 5-12)|11 (*78 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (* NB 7-10)|16 (*swing, last played at 65 BPM, NB bars 7-9)>}
   1@maxRevise
   1@maxStandard
 
@@ -65,15 +65,15 @@ maxStandard:
   A Ghost of a chance (C) – The New Real Book 3 [MdA Ch. 5]: NONE
   But beautiful (G) – The New Real Book 1 [MdA Ch. 5]: NONE
   Darn that dream (G) – The New Real Book 1 [MdA Ch. 5]: NONE
-  Don’t blame me (C) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Don't blame me (C) – The New Real Book 3 [MdA Ch. 5, see Toots version]: NONE
   Emily (G) – The New Real Book 3 [MdA Ch. 5]: NONE
   Everything I have is yours (C) – The New Real Book 3 [MdA Ch. 5]: NONE
   Exactly like you (C) – The New Real Book 2 [MdA Ch. 5]: NONE
   Fly me to the moon (Am) – The New Real Book 2 [MdA Ch. 5]: NONE
-  Here’s that rainy day (G) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Here's that rainy day (G) – The New Real Book 1 [MdA Ch. 5]: NONE
   I got it bad (G) – The New Real Book 3 [MdA Ch. 5]: NONE
   I should care (C) – The New Real Book 1 [MdA Ch. 5]: NONE
-  It’s only a paper moon (G) – The New Real Book 2 [MdA Ch. 5]: NONE
+  It's only a paper moon (G) – The New Real Book 2 [MdA Ch. 5]: NONE
   Just friends (G) – The New Real Book 3 [MdA Ch. 5]: NONE
   Just you, just me (C) – The New Real Book 3 [MdA Ch. 5]: NONE
   The lamp is low (G) – The New Real Book 3 [MdA Ch. 5]: NONE
@@ -396,7 +396,7 @@ _future:
   All of Me: NONE
   All The Things You Are [note Goldsby's pdf-213; Also some guy on talkbass.com sez]: NONE
   Alone Together: NONE
-  Billie’s Bounce: NONE
+  Billie's Bounce: NONE
   Black Orpheus (Manhã de Carnaval): NONE
   Blue Bossa: NONE
   Body and Soul [Jimmy Blanton transcription in Coolman]: NONE
@@ -414,8 +414,8 @@ _future:
   I Hear a Rhapsody: NONE
   I Love You: NONE
   I Remember You: NONE
-  I’ll Remember April: NONE
-  I’m Old Fashioned: NONE
+  I'll Remember April: NONE
+  I'm Old Fashioned: NONE
   If I Should Lose You: NONE
   If I Were A Bell [* Blossom's version with Ray Brown on the bass]: NONE
   In A Mellow Tone: NONE
