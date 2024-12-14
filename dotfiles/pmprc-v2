@@ -47,7 +47,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 5 {}: {<1 (play at 90 BPM)|4|5+6 (*50 BPM)|8♫+8ᵛᵃ|10 (* about 52 BPM, be very careful, NB 5-12)|11 (*78 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (* NB 7-10)|16 (*swing, last played at 65 BPM, NB bars 7-9)>}
+  MdA 5 {}: {<1 (play at 90 BPM)|4|5+6 (*50 BPM)|8♫+8ᵛᵃ|10 (* 52 BPM, be very careful, NB 5-8, 10-12)|11 (*78 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (* NB 7-10)|16 (*swing, last played at 65 BPM, NB bars 7-9)>}
   1@maxRevise
   1@maxStandard
 
@@ -61,7 +61,9 @@ maxRevise:
   MdA 4.17: NONE
   MdA 4.18: NONE
 
-maxStandard:
+maxStandard = [ 1@maxStandard5 ]
+
+maxStandard5:
   A Ghost of a chance (C) – The New Real Book 3 [MdA Ch. 5]: NONE
   But beautiful (G) – The New Real Book 1 [MdA Ch. 5]: NONE
   Darn that dream (G) – The New Real Book 1 [MdA Ch. 5]: NONE
