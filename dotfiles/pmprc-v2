@@ -49,7 +49,7 @@ maxCurrent:
   Long notes in today's permutation and key: NONE
   MdA 6 {} et al.: {<1|2⍻|3⍻>}
   1@maxRevise
-  1@maxStandard
+  1@maxStandard6
 
 maxRevise = [ 1@maxRevise3 1@maxRevise4 maxRevise5 ]
 
@@ -103,6 +103,33 @@ maxStandard5:
   St. Thomas (C) – The New Real Book 1/340=334 [MdA Ch. 5]: NONE
   Take the “A” train (C) – The New Real Book 1 [MdA Ch. 5]: NONE
   Unforgettable (G) – The New Real Book 2 [MdA Ch. 5]: NONE
+
+maxStandard6:
+  Beautiful love (Dm) – The New real Book 1 [MdA Ch. 6]: NONE
+  Bernie’s tune (Dm) – The New Real Book 1 [MdA Ch. 6]: NONE
+  Blues for Alice (F) – The New Real Book 2 [MdA Ch. 6]: NONE
+  Bye bye blackbird (F) – The New Real Book 2 [MdA Ch. 6]: NONE
+  Chega de saudade (Dm) – The New Real Book 1 [MdA Ch. 6]: NONE
+  Darn that dream (G) – The New Real Book 1 [MdA Ch. 6]: NONE
+  Desafinado (F) – The New Real Book 1 [MdA Ch. 6]: NONE
+  Flamingo (F) – The New Real Book 2 [MdA Ch. 6]: NONE
+  Honeysuckle Rose (F) – The New Real Book 2 [MdA Ch. 6]: NONE
+  I’m glad there is you (F) – The New Real Book 2 [MdA Ch. 6]: NONE
+  I’m gettinng sentimental over you (F) – The New Real Book 3 [MdA Ch. 6]: NONE
+  I’m through with love (F) – The New Real Book 3 [MdA Ch. 6]: NONE
+  In a sentimental mood (Dm) – The New Real Book 3 [MdA Ch. 6]: NONE
+  I thought about you (F) – The New Real Book 1 [MdA Ch. 6]: NONE
+  I’m old fashioned (F) – The New Real Book 1 [MdA Ch. 6]: NONE
+  Just Squeeze me (F) – The New Real Book 3 [MdA Ch. 6]: NONE
+  Mean to me (F) – The New Real Book 2 [MdA Ch. 6]: NONE
+  Moon and sand (F) – The New Real Book 3 [MdA Ch. 6]: NONE
+  Moonlight serenade (F) – The New Real Book 3 [MdA Ch. 6]: NONE
+  Nature boy (Dm) – The New Real Book 1 [MdA Ch. 6]: NONE
+  Polkadots & Moonbeams (F) – The New Real Book 1 [MdA Ch. 6]: NONE
+  The way you look tonight (F) – The New Real Book 1 [MdA Ch. 6]: NONE
+  Waltz for Debby (F) – The New Real Book 1 [MdA Ch. 6]: NONE
+  Witchcraﬅ (F) – The New Real Book 1 [MdA Ch. 6]: NONE
+  Yesterdays (Dm) – The New Real Book 1 [MdA Ch. 6]: NONE
 
 
 #######
@@ -474,4 +501,3 @@ _future:
   Song for My Father [*, Real Easy Book]: NONE
 
   Learn "Ornithology": NONE
-
