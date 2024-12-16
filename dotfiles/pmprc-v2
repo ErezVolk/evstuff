@@ -47,19 +47,30 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 5 {}: {<1 (play at 90 BPM)|4|5+6 (*6top+5bot 50 BPM)|8♫+8ᵛᵃ|10 (* 52 BPM, be very careful, NB 5-7,10-12)|11 (*78 BPM, boring but let's play it cleanly first, NB bars 21-22)|12♫|13♫|14♫|15 (* NB 7-10)|16 (*swing, last played at 65 BPM, NB bars 7-9)>}
+  MdA 6 {}: {start}
   1@maxRevise
   1@maxStandard
 
-maxRevise:
+maxRevise = [ 1@maxRevise3 1@maxRevise4 maxRevise5 ]
+
+maxRevise3:
   MdA 3.19: NONE
   MdA 3.22: NONE
   MdA 3.26: NONE
   MdA 3.27: NONE
   MdA 3.29: NONE
+
+maxRevise4:
   MdA 4.13 [N.B last line]: NONE
   MdA 4.17: NONE
   MdA 4.18: NONE
+
+maxRevise5:
+  MdA 5.(5+6): NONE
+  MdA 5.10: NONE
+  MdA 5.11: NONE
+  MdA 5.15: NONE
+  MdA 5.16: NONE
 
 maxStandard = [ 1@maxStandard5 ]
 
@@ -335,9 +346,9 @@ sightReading:
 
 
 _nextStepOptions:  # i.e., what should I add 15 minutes of to daily practice
-  daily transcription [pros? cons?]: NONE
-  daily playing with recording, and recording that [pros? cons?]: NONE
-  daily memorizing [pros? cons?]: NONE
+  transcription [pros? cons?]: NONE
+  playing with recording, and recording that [pros? cons?]: NONE
+  memorizing standards [pros? cons?]: NONE
   ear training book/course X: NONE
   Sher's Improviser/Solo book: NONE
   Bob Magnusson [isn't that trumped by transcription?]: NONE
