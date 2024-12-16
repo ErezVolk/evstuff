@@ -47,7 +47,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 6 {}: {start}
+  MdA 6 {} et al.: {<1|2⍻|3⍻>}
   1@maxRevise
   1@maxStandard
 
