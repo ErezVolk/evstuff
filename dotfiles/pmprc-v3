@@ -39,7 +39,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 6 {} et al.: {<1|2⍻|3⍻|4*|5*>}
+  MdA 6 {} et al.: {<1|2⍻|3⍻|4*|5*|6|7|9♫>}
   1@maxRevise
   1@maxStandard6
 
@@ -109,7 +109,7 @@ maxStandard6:
   I'm glad there is you (F) – The New Real Book 2 [MdA Ch. 6]: NONE
   I'm gettinng sentimental over you (F) – The New Real Book 3 [MdA Ch. 6]: NONE
   I'm through with love (F) – The New Real Book 3 [MdA Ch. 6]: NONE
-  In a sentimental mood (Dm) – The New Real Book 3 [MdA Ch. 6]: NONE
+  In a sentimental mood (Dm) – The New Real Book 3 [171=162 MdA Ch. 6]: NONE
   I thought about you (F) – The New Real Book 1 [MdA Ch. 6]: NONE
   I'm old fashioned (F) – The New Real Book 1 [MdA Ch. 6]: NONE
   Just Squeeze me (F) – The New Real Book 3 [MdA Ch. 6]: NONE
@@ -122,6 +122,7 @@ maxStandard6:
   Waltz for Debby (F) – The New Real Book 1 [MdA Ch. 6]: NONE
   Witchcraft (F) – The New Real Book 1 [MdA Ch. 6]: NONE
   Yesterdays (Dm) – The New Real Book 1 [MdA Ch. 6]: NONE
+  The Days of Wine and Roses -- The Real Standards Book [105=111 MdA Ch. 6]: NONE
 
 
 #######
