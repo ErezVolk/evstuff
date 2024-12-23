@@ -219,13 +219,13 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's 10ths with a 7th, {}: rayBrown10thKeys
   Ray Brown's minor 10ths with a 7th, {}: rayBrown10thKeys
 
-  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), start on {}: rayBrownDrillKeys
-  Ray Brown's Rhythm Patterns with Drops (Phase II), start on {} (p.65): rayBrownDrillKeys
-  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), start on {}: rayBrownDrillKeys
-  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), start on {}: rayBrownDrillKeys
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), Today-based: NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase II), Today-based (p.65): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), Today-based: NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), Today-based: NONE
 
   Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
-  Ray Brown's Diminished Exercise (p.79) from {}: rayBrownDrillKeys
+  Ray Brown's Diminished Exercise (p.79) Today-based: NONE
   Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
   Ray Brown's Diminished Exercise (p.82): NONE
   Ray Brown's Diminished Exercise (p.83) [across the fingerboard]: NONE
@@ -243,7 +243,7 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Exercise in Fourths (p.120) {}: {chromatically|circle of 4ths}
   Ray Brown's Exercise in Fourths (p.121): NONE
   Ray Brown's Exercise in Fourths (p.122): NONE
-  Ray Brown's Exercise in Fourths (Solo) (p.123), from {}: {rayBrownDrillKeys}
+  Ray Brown's Exercise in Fourths (Solo) (p.123), Today-based: NONE
   Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
   Ray Brown's Exercise (Solo) (p.125-126): NONE
   Ray Brown's Exercise (Solo) (p.127-128): NONE
@@ -256,10 +256,9 @@ intonation:  # TODO: split into boring and non-boring?
 
 theory:
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
-  Today-{} Scale: {Major|Minor}
-  {} Scale from {}: {Whole Tone|Diminished} {ANY}
-  Ray Brown's Major Triads (p.29), starting from {}: rayBrownDrillKeys
-  Ray Brown's Minor Triads (p.30) starting on the relative minor of {}-major: {rayBrownDrillKeys}
+  Today-{} Scale: {Major|Minor|Whole Tone|Diminished}
+  Ray Brown's Major Triads (p.29), Today-based: NONE
+  Ray Brown's Minor Triads (p.30), Today-based: NONE
   Ray Brown's Arpeggios for Endings (p.134, 1567 3̇5̇6̇7̇ 7̇6̇5̇3̇ 7651) (blind!): NONE
   Bob Magnusson's sequences on pp. 14-17: NONE
   Bob Magnusson's Blues sequences on pp. 21-25: NONE
