@@ -256,7 +256,9 @@ intonation:  # TODO: split into boring and non-boring?
 
 theory:
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
-  Today-{} Scale: {Major|Minor|Whole Tone|Diminished}
+  Today-Major Scale: NONE
+  Today-Minor Scale: NONE
+  Today-{} Scale: {Whole Tone|Diminished}
   Ray Brown's Major Triads (p.29), Today-based: NONE
   Ray Brown's Minor Triads (p.30), Today-based: NONE
   Ray Brown's Arpeggios for Endings (p.134, 1567 3̇5̇6̇7̇ 7̇6̇5̇3̇ 7651) (blind!): NONE
