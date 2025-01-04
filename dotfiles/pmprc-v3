@@ -1,7 +1,7 @@
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³₇Δː≅⚠
 
 *morn = [ seed warmup 2@intonation 2@theory 2@current maxCurrent ]
-eve = [ @warmup _eve ]
+eve = [ seed @warmup _eve ]
 day = [ seed warmup 2@intonation _eve ]
 _eve = [ 2@theory 1@digression 2@current 2@maxRevise ]
 fuq = [ 3@fuqua ]
