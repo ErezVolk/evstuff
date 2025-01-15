@@ -26,7 +26,7 @@ Function loadConfig() as Object
     Title: "Channel 14"
     streamFormat: "hls"
     Logo: "https://erezvolk.github.io/iltv/images/posters/now14.png"
-    Stream: "https://now14.g-mana.live/media/91517161-44ab-4e46-af70-e9fe26117d2e/mainManifest-archive.m3u8"
+    Stream: "https://ch14-channel14-content.akamaized.net/hls/live/2104807-b/CH14_CHANNEL14/master.m3u8"
 }
 '{
 '    Title: "Channel 24"
@@ -43,7 +43,7 @@ Function loadConfig() as Object
     Title: "Knesset"
     streamFormat: "hls"
     Logo: "https://erezvolk.github.io/iltv/images/posters/knesset.png"
-    Stream: "https://contactgbs.mmdlive.lldns.net/contactgbs/a40693c59c714fecbcba2cee6e5ab957/chunklist_b1128000.m3u8"
+    Stream: "https://kneset.gostreaming.tv/p2-kneset/_definst_/myStream/playlist.m3u8"
 }
 {
     Title: "NHK World"
