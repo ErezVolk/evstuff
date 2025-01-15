@@ -1,2 +1,4 @@
-open ${FIND-ROKU-IP}
-Username: rokudev
+- Don't forget to check with VLC
+- md5sum *.zip
+- open ${FIND-ROKU-IP}
+- Username: rokudev
