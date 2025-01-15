@@ -2,12 +2,12 @@
 |----+------------------------------+--------------------------------|
 | m2 | Jack's Obsession             | Vegetables                     |
 | M2 | Honky Cat                    | Last Train                     |
-| m3 | Rocket Man                   | Come Together                  |
+| m3 | Rocket Man                   | Hey Jude                       |
 | M3 | major triad                  | Oh, What A Night               |
 | 4  | Summer Nights (bass)         | Under Pressure (bass)          |
 | #4 | The Simpsons                 | Don't Stop 'Til You Get Enough |
 | 5  | My Favorite Things           | Dulaman                        |
-| m6 | Superheroes                  | Chega de saudade               |
+| m6 | Superheroes                  | Love Story                     |
 | M6 | Take The "A" Train           | Neverending Story              |
-| m7 | Winner Takes It All (chorus) | Watermelon Man                 |
+| m7 | Star Trek                    | Watermelon Man                 |
 | M7 | Zappa; Take On Me            | Zappa; Baba Yaga               |
