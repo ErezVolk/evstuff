@@ -252,18 +252,18 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Exercise (p.133): NONE
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
 
-theory:
-  JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
-  Today-Major Scale: NONE
-  Today-Minor Scale: NONE
-  Today-{} Scale: {Whole Tone|Diminished}
-  Ray Brown's Major Triads (p.29), Today-based: NONE
-  Ray Brown's Minor Triads (p.30), Today-based: NONE
-  Ray Brown's Arpeggios for Endings (p.134, 1567 3̇5̇6̇7̇ 7̇6̇5̇3̇ 7651) (blind!): NONE
   Bob Magnusson's sequences on pp. 14-17 [Blind, with fingerboard mobility]: NONE
   Bob Magnusson's Blues sequences on pp. 21-25 [Blind, with fingerboard mobility]: NONE
   Bob Magnusson's II-V-I pp. 17-20 [Blind, with fingerboard mobility]: NONE
   Bob Magnusson's 27-29 [Blind, with fingerboard mobility]: NONE
+
+theory:
+  Today-Major (Ionian) Scale: NONE
+  Today-Minor (Aeolian) Scale: NONE
+  Today-{} Scale: {Dorian (II)|Phrygian (III)|Lydian (IV)|Mixolydian (V)|Locrian (VII)}
+  Today-{} Scale: {Whole Tone|Diminished}
+  Ray Brown's {} Triads, Today-based: {Major (p.29)|Minor (p.30)}
+  JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
   Walk on Today-Blues: NONE
 
 ###
