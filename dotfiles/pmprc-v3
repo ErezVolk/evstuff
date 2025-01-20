@@ -258,10 +258,8 @@ intonation:  # TODO: split into boring and non-boring?
   Bob Magnusson's 27-29 [Blind, with fingerboard mobility]: NONE
 
 theory:
-  Today-Major (Ionian) Scale: NONE
-  Today-Minor (Aeolian) Scale: NONE
-  Today-{} Scale: {Dorian (II)|Phrygian (III)|Lydian (IV)|Mixolydian (V)|Locrian (VII)}
-  Today-{} Scale: {Whole Tone|Diminished}
+  Today-{} Scale: {Ionian (I, Major)|Dorian (II)|Phrygian (III)|Lydian (IV)|Mixolydian (V)|Aeolian (VI, Minor)|Locrian (VII)}
+  Today-{} Scale: {Whole Tone|Diminished|Harmonic Minor|Melodic Minor}  # TODO: Jewish
   Ray Brown's {} Triads, Today-based: {Major (p.29)|Minor (p.30)}
   JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees]: NONE
   Walk on Today-Blues: NONE
