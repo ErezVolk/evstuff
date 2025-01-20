@@ -1,13 +1,13 @@
-|    | Ascending                    | Descending                     |
-|----+------------------------------+--------------------------------|
-| m2 | Jack's Obsession             | Vegetables; Stella             |
-| M2 | Honky Cat                    | Yesterday                      |
-| m3 | Rocket Man                   | Hey Jude                       |
-| M3 | major triad                  | What A Night; Ma Nishtana      |
-| 4  | Amazing Grace                | Under Pressure; Maoz Tzur      |
-| #4 | The Simpsons                 | Don't Stop 'Til You Get Enough |
-| 5  | My Favorite Things           | Dulaman                        |
-| m6 | Superheroes; Shalom Aleichem | Love Story                     |
-| M6 | Take The "A" Train           | Neverending Story              |
-| m7 | Star Trek                    | Watermelon Man                 |
-| M7 | Zappa; Take On Me            | Zappa; Baba Yaga               |
+|    | Ascending                    | Descending                      |
+|----+------------------------------+---------------------------------|
+| m2 | Jack's Obsession             | Vegetables; Stella              |
+| M2 | Honky Cat                    | Yesterday                       |
+| m3 | Rocket Man                   | Hey Jude                        |
+| M3 | major triad                  | What A Night; Ma Nishtana       |
+| 4  | Amazing Grace                | Under Pressure; Maoz Tzur       |
+| #4 | The Simpsons                 | *Don't Stop 'Til You Get Enough |
+| 5  | My Favorite Things           | *Dulaman                        |
+| m6 | Superheroes; Shalom Aleichem | *Love Story                     |
+| M6 | My Way; "A" Train            | *Neverending Story              |
+| m7 | Star Trek                    | *Watermelon Man                 |
+| M7 | Zappa; Take On Me            | Zappa; Baba Yaga                |
