@@ -1,12 +1,12 @@
 |    | Ascending                    | Descending                      |
 |----+------------------------------+---------------------------------|
 | m2 | Jack's Obsession             | Vegetables; Stella              |
-| M2 | Honky Cat                    | Yesterday                       |
+| M2 | Honky Cat                    | Yesterday; Sunny Side           |
 | m3 | Rocket Man                   | Hey Jude                        |
 | M3 | major triad                  | What A Night; Ma Nishtana       |
 | 4  | Amazing Grace                | Under Pressure; Maoz Tzur       |
 | #4 | The Simpsons                 | *Don't Stop 'Til You Get Enough |
-| 5  | My Favorite Things           | *Dulaman                        |
+| 5  | My Favorite Things           | *Dulaman; Flintstones           |
 | m6 | Superheroes; Shalom Aleichem | *Love Story                     |
 | M6 | My Way; "A" Train            | *Neverending Story              |
 | m7 | Star Trek                    | *Watermelon Man                 |
