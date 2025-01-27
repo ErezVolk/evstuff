@@ -39,7 +39,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 6 {}: {<4⍻|5*|6⍻|7|⍻10 bars 7-9,13-15|11|14⍻|15 (bar 13 cleanly)>}
+  MdA 6 {}: {<4⍻|5⍻|6⍻|7|⍻10 bars 7-9,13-15|11|14⍻|15 (bar 13 cleanly)>}
   1@maxRevise
   1@maxStandard6
 
@@ -109,8 +109,8 @@ maxStandard6:
   *In a sentimental mood (Dm) – The New Real Book 3 [171=162 MdA Ch. 6]: NONE
   I thought about you (F) – The New Real Book 1 [146=161 MdA Ch. 6]: NONE
   I'm old fashioned (F) – The New Real Book 1 [HL Real Book 3 133=138 MdA Ch. 6]: NONE
-  Just Squeeze me (F) – The New Real Book 3 [MdA Ch. 6]: NONE
-  Mean to me (F) – The New Real Book 2 [MdA Ch. 6]: NONE
+  ⍻Just Squeeze me (F) – The New Real Book 3 [194=184 MdA Ch. 6]: NONE
+  ⍻Mean to me (F) – The New Real Book 2 [201 MdA Ch. 6]: NONE
   Moon and sand (F) – The New Real Book 3 [249=211 MdA Ch. 6]: NONE
   Moonlight serenade (F) – The New Real Book 3 [MdA Ch. 6]: NONE
   Nature boy (Dm) – The New Real Book 1 [231=225 MdA Ch. 6]: NONE
