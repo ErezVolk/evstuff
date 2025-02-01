@@ -28,7 +28,8 @@ seed:
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
   Stricker-2b: NONE
-  Bob Magnusson's 34: NONE
+  Bob Magnusson's 36-7: NONE
+  Two-handed tapping on Stolen Moments?: NONE
 
 earTraining:
   Transcribe something: NONE
@@ -39,9 +40,9 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 6 {}: {<4⍻|5⍻|6⍻|7|⍻10|14⍻>}
+  MdA 6 {}: {<4|5|7|10|14>}
   1@maxRevise
-  1@maxStandard6
+  1@maxStandardCurrent
 
 maxRevise = [ 1@maxRevise3 1@maxRevise4 maxRevise5 ]
 
@@ -68,7 +69,7 @@ maxStandard:
   *A Ghost of a chance (C) – The New Real Book 3 [MdA Ch. 5]: NONE
   *But beautiful (G) – The New Real Book 1 [MdA Ch. 5]: NONE
   Darn that dream (G) – The New Real Book 1 [61=76 MdA Ch. 5]: NONE
-  Don't blame me (C) – The New Real Book 3 [MdA Ch. 5, see Toots version, not great but the recordings improved it for me]: NONE
+  Don't blame me (C) – The New Real Book 3 [111=110 MdA Ch. 5, see Toots version, not great but the recordings improved it for me]: NONE
   Emily (G) – The New Real Book 3 [117=115 MdA Ch. 5]: NONE
   Everything I have is yours (C) – The New Real Book 3 [MdA Ch. 5]: NONE
   Exactly like you (C) – The New Real Book 2 [MdA Ch. 5]: NONE
@@ -93,7 +94,7 @@ maxStandard:
   Take the “A” train (C) – The New Real Book 1 [MdA Ch. 5]: NONE
   Unforgettable (G) – The New Real Book 2 [MdA Ch. 5]: NONE
 
-maxStandard6:
+maxStandardCurrent:
   Beautiful love (Dm) – The New real Book 1 [16=29 MdA Ch. 6]: NONE
   Bernie's tune (Dm) – The New Real Book 1 [17=30 MdA Ch. 6]: NONE
   Blues for Alice (F) – The New Real Book 2 [26 MdA Ch. 6]: NONE
@@ -257,6 +258,7 @@ intonation:  # TODO: split into boring and non-boring?
   Bob Magnusson's II-V-I pp. 17-20 [Blind, with fingerboard mobility]: NONE
   Bob Magnusson's 27-29 [Blind, with fingerboard mobility]: NONE
   Bob Magnusson's 31-32 [Blind, with fingerboard mobility]: NONE
+  Bob Magnusson's 34 [Blind, with fingerboard mobility]: NONE
 
 theory:
   Today-{} Scale: {Ionian (I, Major)|Dorian (II)|Phrygian (III)|Lydian (IV)|Mixolydian (V)|Aeolian (VI, Minor)|Locrian (VII)}
