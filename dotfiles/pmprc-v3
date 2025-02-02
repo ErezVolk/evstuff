@@ -39,11 +39,11 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 6 {}: {<4|5|7|10|14>}
+  MdA 7 {}: {<1|2|3|4|5|*6>}
   1@maxRevise
   1@maxStandardCurrent
 
-maxRevise = [ 1@maxRevise3 1@maxRevise4 maxRevise5 ]
+maxRevise = [ 1@maxRevise3 1@maxRevise4 1@maxRevise5 1@maxRevise6 ]
 
 maxRevise3:
   MdA 3.19: NONE
@@ -63,6 +63,13 @@ maxRevise5:
   MdA 5.11: NONE
   MdA 5.15: NONE
   MdA 5.16: NONE
+
+maxRevise6:
+  MdA 6.4: NONE
+  MdA 6.5: NONE
+  MdA 6.7: NONE
+  MdA 6.10: NONE
+  MdA 6.14: NONE
 
 maxStandard:
   *A Ghost of a chance (C) – The New Real Book 3 [MdA Ch. 5]: NONE
@@ -92,8 +99,6 @@ maxStandard:
   St. Thomas (C) – The New Real Book 1 [p340=334 MdA Ch. 5]: NONE
   Take the “A” train (C) – The New Real Book 1 [MdA Ch. 5]: NONE
   Unforgettable (G) – The New Real Book 2 [MdA Ch. 5]: NONE
-
-maxStandardCurrent:
   Beautiful love (Dm) – The New real Book 1 [16=29 MdA Ch. 6]: NONE
   Bernie's tune (Dm) – The New Real Book 1 [17=30 MdA Ch. 6]: NONE
   Blues for Alice (F) – The New Real Book 2 [26 MdA Ch. 6]: NONE
@@ -121,10 +126,10 @@ maxStandardCurrent:
   Yesterdays (Dm) – The New Real Book 1 [409=403 MdA Ch. 6]: NONE
   The Days of Wine and Roses -- The Real Standards Book [105=111 MdA Ch. 6]: NONE
 
-maxStandardNext:
+maxStandardCurrent:
   A child is born (Bb) – The New Real Book 2 [MdA Ch. 7]: NONE
   Almost like being in love (Bb) – The New Real Book 3 [MdA Ch. 7]: NONE
-  Autumn leaves (Gm) – The New Real Book 1 [MdA Ch. 7]: NONE
+  *Autumn leaves (Gm) – The New Real Book 1 [MdA Ch. 7]: NONE
   Basin Street Blues (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
   Come Sunday (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
   Don’t go to strangers (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
