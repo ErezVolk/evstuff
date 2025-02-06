@@ -14,12 +14,14 @@ import pandas as pd
 JCPC = Path("Jazz-Chord-Progressions-Corpus")
 DB_ROOT = JCPC / "SongDB"
 
+Fields: t.TypeAlias = dict[str, str]
+
 
 class Feedable(abc.ABC):
     """Something which can take chords."""
 
     @abc.abstractmethod
-    def start(self, path: Path) -> None:
+    def start(self, fields: Fields) -> None:
         """Start a new song."""
 
     @abc.abstractmethod
@@ -41,19 +43,19 @@ class Ngrammifier(Feedable):
 
     path: Path
     window: list[Chord]
-    name: str
+    fields: Fields
     offset: int
 
     def __init__(self, n: int) -> None:
         self.n = n
         self.counts = collections.Counter()
         self.firsts: dict[str, str] = {}
-        self.records: list[dict] = []
+        self.records: list[Fields] = []
 
-    def start(self, path: Path) -> None:
+    def start(self, fields: Fields) -> None:
         """Reset the window."""
         self.window = []
-        self.name = path.stem
+        self.fields = fields
         self.offset = 0
 
     def feed(self, symb: str, root: int, quad: str) -> None:
@@ -78,11 +80,11 @@ class Ngrammifier(Feedable):
         seq = "\t".join(parts)
         self.counts[seq] += 1
         symbs = [chord.symb for chord in self.window]
-        self.firsts.setdefault(seq, f"{' '.join(symbs)} ({self.name})")
+        name = self.fields.get("name", "???")
+        self.firsts.setdefault(seq, f"{' '.join(symbs)} ({name})")
 
         self.offset += 1
-        record = {
-            "name": self.name,
+        record = self.fields | {
             "offset": self.offset,
             "rels": " ".join(parts),
             "abss": " ".join(symbs),
@@ -110,10 +112,10 @@ class MultiGrammifier(Feedable):
         """Wrap `self.fields.items()`."""
         return self.fiers.items()
 
-    def start(self, path: Path) -> None:
+    def start(self, fields: Fields) -> None:
         """Reset the window."""
         for fier in self.fiers.values():
-            fier.start(path)
+            fier.start(fields)
 
     def feed(self, symb: str, root: int, quad: str) -> None:
         """Add another quad."""
@@ -149,26 +151,40 @@ class AnalyzeChordProgressions:
         self.mgram = MultiGrammifier(range(2, 6))
         paths = list(DB_ROOT.rglob("*.txt"))
         random.shuffle(paths)
-        for song_path in paths:
-            with song_path.open(encoding="utf-8") as song_fo:
-                self.mgram.start(song_path)
-                prev_symb = None
-                for nline, line in enumerate(song_fo, 1):
-                    sline = line.rstrip()
-                    if not sline.startswith(" "):
-                        continue
-                    for mobj in re.finditer(r"([A-G][b#]?)(\S*)", sline):
-                        if (symb := mobj.group(0)) == prev_symb:
-                            continue
-                        (root, quality) = mobj.groups()
-                        try:
-                            quad = self.get_quad(quality)
-                        except KeyError:
-                            print(f"{song_path}:{nline} {root!r} {quality!r}?")
-                            raise
+        for path in paths:
+            self.parse_song(path)
 
-                        self.mgram.feed(symb, let2num(root), quad)
-                        prev_symb = symb
+    def parse_song(self, path: Path) -> None:
+        """Parse one song."""
+        with path.open(encoding="utf-8") as song_fo:
+            fields: Fields = {"name": path.stem}
+            self.mgram.start(fields)
+            prev_symb = None
+            for nline, line in enumerate(song_fo, 1):
+                if not line.startswith(" "):
+                    if mobj := re.fullmatch(r"(\S+) = (\S.*)\n?", line):
+                        field, value = mobj.groups()
+                        if field == "DBKeySig":
+                            fields["key"] = value
+                    continue
+                for mobj in re.finditer(r"([A-G][b#]?)(\S*)", line):
+                    if (symb := mobj.group(0)) == prev_symb:
+                        continue
+
+                    (root_str, quality) = mobj.groups()
+                    try:
+                        quad = self.get_quad(quality)
+                    except KeyError:
+                        print(f"{path}:{nline} {root_str!r} {quality!r}?")
+                        raise
+
+                    root = let2num(root_str)
+                    with contextlib.suppress(IndexError, ValueError, KeyError):
+                        fields["start"] = num2let(
+                            root - let2num(fields["key"]),
+                        )
+                    self.mgram.feed(symb, root, quad)
+                    prev_symb = symb
 
     def report(self) -> None:
         """Print interesting findings."""
@@ -341,6 +357,8 @@ LETTERS = [
 
 def num2let(num: int) -> str:
     """Convert, e.g., 3 to 'Eb'."""
+    while num < 0:
+        num += 12
     return LETTERS[num % 12]
 
 
