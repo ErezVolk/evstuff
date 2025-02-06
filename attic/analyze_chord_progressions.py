@@ -81,7 +81,8 @@ class Ngrammifier(Feedable):
         self.counts[seq] += 1
         symbs = [chord.symb for chord in self.window]
         name = self.fields.get("name", "???")
-        self.firsts.setdefault(seq, f"{' '.join(symbs)} ({name})")
+        key = self.fields.get("key", "?")
+        self.firsts.setdefault(seq, f"[in {key}] {' '.join(symbs)} ({name})")
 
         self.offset += 1
         record = self.fields | {
