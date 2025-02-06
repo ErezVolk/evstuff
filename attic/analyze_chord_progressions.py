@@ -3,12 +3,16 @@
 import abc
 import collections
 import contextlib
+import random
 import re
 import typing as t
 from pathlib import Path
 
 JCPC = Path("Jazz-Chord-Progressions-Corpus")
 DB_ROOT = JCPC / "SongDB"
+
+# TODO: Save to some sort of DB
+# TODO: most common quads, and for each the most common next (this is pandas)
 
 
 class Feedable(abc.ABC):
@@ -131,7 +135,9 @@ class AnalyzeChordProgressions:
     def parse(self) -> None:
         """Read songs and stuff."""
         self.mgram = MultiGrammifier(range(2, 6))
-        for song_path in DB_ROOT.rglob("*.txt"):
+        paths = list(DB_ROOT.rglob("*.txt"))
+        random.shuffle(paths)
+        for song_path in paths:
             with song_path.open(encoding="utf-8") as song_fo:
                 self.mgram.start(song_path)
                 prev_symb = None
@@ -157,7 +163,8 @@ class AnalyzeChordProgressions:
         for n, fier in self.mgram.items():
             print(f"Top {n}-grams:")
             for seq, count in fier.counts.most_common(12):
-                print(f"\t{seq}\t{count}\te.g., {fier.firsts[seq]}")
+                sample = fier.firsts[seq]
+                print(f"\t{seq}\t{count}\te.g., {sample}")
 
     _SAMES = frozenset([
         "",
