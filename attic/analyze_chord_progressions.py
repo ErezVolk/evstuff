@@ -8,11 +8,10 @@ import re
 import typing as t
 from pathlib import Path
 
+import pandas as pd
+
 JCPC = Path("Jazz-Chord-Progressions-Corpus")
 DB_ROOT = JCPC / "SongDB"
-
-# TODO: Save to some sort of DB
-# TODO: most common quads, and for each the most common next (this is pandas)
 
 
 class Feedable(abc.ABC):
@@ -29,6 +28,7 @@ class Feedable(abc.ABC):
 
 class Chord(t.NamedTuple):
     """A chord in a song."""
+
     symb: str
     root: int
     steps: int
@@ -40,18 +40,20 @@ class Ngrammifier(Feedable):
 
     path: Path
     window: list[Chord]
-    firsts: dict[str, Path]
     name: str
+    offset: int
 
     def __init__(self, n: int) -> None:
         self.n = n
         self.counts = collections.Counter()
         self.firsts: dict[str, str] = {}
+        self.records: list[dict] = []
 
     def start(self, path: Path) -> None:
         """Reset the window."""
         self.window = []
         self.name = path.stem
+        self.offset = 0
 
     def feed(self, symb: str, root: int, quad: str) -> None:
         """Add another quad."""
@@ -74,8 +76,22 @@ class Ngrammifier(Feedable):
             parts.append(f"{num2let(cumu)}{chord.quad}")
         seq = "\t".join(parts)
         self.counts[seq] += 1
-        symbs = " ".join(chord.symb for chord in self.window)
-        self.firsts.setdefault(seq, f"{symbs} ({self.name})")
+        symbs = [chord.symb for chord in self.window]
+        self.firsts.setdefault(seq, f"{' '.join(symbs)} ({self.name})")
+
+        self.offset += 1
+        record = {"name": self.name, "offset": self.offset} | {
+            f"abs_{n}": symb
+            for n, symb in enumerate(symbs, 1)
+        } | {
+            f"rel_{n}": part
+            for n, part in enumerate(parts, 1)
+        }
+        self.records.append(record)
+
+    def to_frame(self) -> pd.DataFrame:
+        """Dump the whole thing."""
+        return pd.DataFrame.from_records(self.records)
 
 
 class MultiGrammifier(Feedable):
@@ -151,6 +167,10 @@ class AnalyzeChordProgressions:
     def report(self) -> None:
         """Print interesting findings."""
         for n, fier in self.mgram.items():
+            path = f"chord_{n}_grams.csv"
+            frame = fier.to_frame()
+            print(f"Writing {path} {frame.shape}")
+            frame.to_csv(path, index=False)
             print(f"Top {n}-grams:")
             for seq, count in fier.counts.most_common(12):
                 sample = fier.firsts[seq]
