@@ -167,8 +167,6 @@ class AnalyzeChordProgressions:
                         field, value = mobj.groups()
                         if field == "DBKeySig":
                             fields["key"] = value
-                        elif field == "Title":
-                            fields["name"] = value
                     continue
                 for mobj in re.finditer(r"([A-G][b#]?)(\S*)", line):
                     if (symb := mobj.group(0)) == prev_symb:
