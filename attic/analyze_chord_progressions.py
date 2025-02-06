@@ -15,46 +15,60 @@ class Feedable(abc.ABC):
     """Something which can take chords."""
 
     @abc.abstractmethod
-    def start(self) -> None:
+    def start(self, path: Path) -> None:
         """Start a new song."""
 
     @abc.abstractmethod
-    def feed(self, root: str, quad: str) -> None:
+    def feed(self, symb: str, root: str, quad: str) -> None:
         """Add another quad."""
+
+
+class Chord(t.NamedTuple):
+    """A chord in a song."""
+    symb: str
+    steps: int
+    quad: str
 
 
 class Ngrammifier(Feedable):
     """Counts chord N-grams."""
 
-    window: list[tuple[int, str]]
+    path: Path
+    window: list[Chord]
+    firsts: dict[str, Path]
 
     def __init__(self, n: int) -> None:
         self.n = n
         self.counts = collections.Counter()
+        self.firsts: dict[str, str] = {}
 
-    def start(self) -> None:
+    def start(self, path: Path) -> None:
         """Reset the window."""
         self.window = []
+        self.path = path
 
-    def feed(self, root: str, quad: str) -> None:
+    def feed(self, symb: str, root: str, quad: str) -> None:
         """Add another quad."""
         steps = self.to_num(root)
         if self.window:
-            steps = ((steps - self.window[-1][0]) + 12) % 12
+            steps = ((steps - self.window[-1].steps) + 12) % 12
 
-        self.window.append((steps, quad))
+        self.window.append(Chord(symb, steps, quad))
         if len(self.window) >= self.n:
             self.window = self.window[-self.n:]
             self._count()
 
     def _count(self) -> None:
         """Count a full ngram."""
-        parts = [f"C{self.window[0][1]}"]
+        parts = [f"C{self.window[0].quad}"]
         cumu = 0
-        for steps, quad in self.window[1:]:
-            cumu += steps
-            parts.append(f"{num2let(cumu)}{quad}")
-        self.counts["\t".join(parts)] += 1
+        for chord in self.window[1:]:
+            cumu += chord.steps
+            parts.append(f"{num2let(cumu)}{chord.quad}")
+        seq = "\t".join(parts)
+        self.counts[seq] += 1
+        symbs = " ".join(chord.symb for chord in self.window)
+        self.firsts.setdefault(seq, f"{symbs} ({self.path.stem})")
 
     @classmethod
     def to_num(cls, root: str) -> int:
@@ -77,15 +91,15 @@ class MultiGrammifier(Feedable):
         """Wrap `self.fields.items()`."""
         return self.fiers.items()
 
-    def start(self) -> None:
+    def start(self, path: Path) -> None:
         """Reset the window."""
         for fier in self.fiers.values():
-            fier.start()
+            fier.start(path)
 
-    def feed(self, root: str, quad: str) -> None:
+    def feed(self, symb: str, root: str, quad: str) -> None:
         """Add another quad."""
         for fier in self.fiers.values():
-            fier.feed(root, quad)
+            fier.feed(symb, root, quad)
 
 
 class AnalyzeChordProgressions:
@@ -116,7 +130,7 @@ class AnalyzeChordProgressions:
         self.mgram = MultiGrammifier(range(2, 6))
         for song_path in DB_ROOT.rglob("*.txt"):
             with song_path.open(encoding="utf-8") as song_fo:
-                self.mgram.start()
+                self.mgram.start(song_path)
                 prev_symb = None
                 for nline, line in enumerate(song_fo, 1):
                     sline = line.rstrip()
@@ -132,7 +146,7 @@ class AnalyzeChordProgressions:
                             print(f"{song_path}:{nline} {root!r} {quality!r}?")
                             raise
 
-                        self.mgram.feed(root, quad)
+                        self.mgram.feed(symb, root, quad)
                         prev_symb = symb
 
     def report(self) -> None:
@@ -140,7 +154,7 @@ class AnalyzeChordProgressions:
         for n, fier in self.mgram.items():
             print(f"Top {n}-grams:")
             for seq, count in fier.counts.most_common(12):
-                print(f"\t{seq}\t{count}")
+                print(f"\t{seq}\t{count}\te.g., {fier.firsts[seq]}")
 
     _SAMES = frozenset([
         "",
