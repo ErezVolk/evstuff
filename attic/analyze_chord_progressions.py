@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Analyze chord progressions."""
+import abc
 import collections
 import contextlib
 import re
@@ -10,7 +11,19 @@ JCPC = Path("Jazz-Chord-Progressions-Corpus")
 DB_ROOT = JCPC / "SongDB"
 
 
-class Ngrammifier:
+class Feedable(abc.ABC):
+    """Something which can take chords."""
+
+    @abc.abstractmethod
+    def start(self) -> None:
+        """Start a new song."""
+
+    @abc.abstractmethod
+    def feed(self, root: str, quad: str) -> None:
+        """Add another quad."""
+
+
+class Ngrammifier(Feedable):
     """Counts chord N-grams."""
 
     window: list[tuple[int, str]]
@@ -54,8 +67,31 @@ class Ngrammifier:
         return base + 1
 
 
+class MultiGrammifier(Feedable):
+    """A collection of `Ngrammifier`s."""
+
+    def __init__(self, ns: t.Iterable[int]) -> None:
+        self.fiers = {n: Ngrammifier(n) for n in ns}
+
+    def items(self) -> t.Iterable[tuple[int, Ngrammifier]]:
+        """Wrap `self.fields.items()`."""
+        return self.fiers.items()
+
+    def start(self) -> None:
+        """Reset the window."""
+        for fier in self.fiers.values():
+            fier.start()
+
+    def feed(self, root: str, quad: str) -> None:
+        """Add another quad."""
+        for fier in self.fiers.values():
+            fier.feed(root, quad)
+
+
 class AnalyzeChordProgressions:
     """Analyze chord progressions."""
+
+    mgram: MultiGrammifier
 
     @classmethod
     def sanity(cls) -> None:
@@ -72,11 +108,15 @@ class AnalyzeChordProgressions:
     def run(self) -> None:
         """Analyze chord progressions."""
         self.sanity()
-        fiers = {n: Ngrammifier(n) for n in range(1, 6)}
+        self.parse()
+        self.report()
+
+    def parse(self) -> None:
+        """Read songs and stuff."""
+        self.mgram = MultiGrammifier(range(2, 6))
         for song_path in DB_ROOT.rglob("*.txt"):
             with song_path.open(encoding="utf-8") as song_fo:
-                for fier in fiers.values():
-                    fier.start()
+                self.mgram.start()
                 prev_symb = None
                 for nline, line in enumerate(song_fo, 1):
                     sline = line.rstrip()
@@ -92,14 +132,14 @@ class AnalyzeChordProgressions:
                             print(f"{song_path}:{nline} {root!r} {quality!r}?")
                             raise
 
-                        for fier in fiers.values():
-                            fier.feed(root, quad)
-
+                        self.mgram.feed(root, quad)
                         prev_symb = symb
 
-        for n, fier in fiers.items():
+    def report(self) -> None:
+        """Print interesting findings."""
+        for n, fier in self.mgram.items():
             print(f"Top {n}-grams:")
-            for seq, count in fier.counts.most_common(10):
+            for seq, count in fier.counts.most_common(12):
                 print(f"\t{seq}\t{count}")
 
     _SAMES = frozenset([
