@@ -23,14 +23,14 @@ class Feedable(abc.ABC):
         """Start a new song."""
 
     @abc.abstractmethod
-    def feed(self, symb: str, root: str, quad: str) -> None:
+    def feed(self, symb: str, root: int, quad: str) -> None:
         """Add another quad."""
 
 
 class Chord(t.NamedTuple):
     """A chord in a song."""
     symb: str
-    num: int
+    root: int
     steps: int
     quad: str
 
@@ -41,6 +41,7 @@ class Ngrammifier(Feedable):
     path: Path
     window: list[Chord]
     firsts: dict[str, Path]
+    name: str
 
     def __init__(self, n: int) -> None:
         self.n = n
@@ -50,17 +51,16 @@ class Ngrammifier(Feedable):
     def start(self, path: Path) -> None:
         """Reset the window."""
         self.window = []
-        self.path = path
+        self.name = path.stem
 
-    def feed(self, symb: str, root: str, quad: str) -> None:
+    def feed(self, symb: str, root: int, quad: str) -> None:
         """Add another quad."""
-        num = self.to_num(root)
         if self.window:
-            steps = (num + 12 - self.window[-1].num) % 12
+            steps = (root + 12 - self.window[-1].root) % 12
         else:
-            steps = num
+            steps = root
 
-        self.window.append(Chord(symb, num, steps, quad))
+        self.window.append(Chord(symb, root, steps, quad))
         if len(self.window) >= self.n:
             self.window = self.window[-self.n:]
             self._count()
@@ -75,17 +75,7 @@ class Ngrammifier(Feedable):
         seq = "\t".join(parts)
         self.counts[seq] += 1
         symbs = " ".join(chord.symb for chord in self.window)
-        self.firsts.setdefault(seq, f"{symbs} ({self.path.stem})")
-
-    @classmethod
-    def to_num(cls, root: str) -> int:
-        """Convert things like A# to a number in base-12."""
-        base = "CCDDEFFGGAAB".index(root[0])
-        if len(root) == 1:
-            return base
-        if root[1] == "b":
-            return base - 1
-        return base + 1
+        self.firsts.setdefault(seq, f"{symbs} ({self.name})")
 
 
 class MultiGrammifier(Feedable):
@@ -103,7 +93,7 @@ class MultiGrammifier(Feedable):
         for fier in self.fiers.values():
             fier.start(path)
 
-    def feed(self, symb: str, root: str, quad: str) -> None:
+    def feed(self, symb: str, root: int, quad: str) -> None:
         """Add another quad."""
         for fier in self.fiers.values():
             fier.feed(symb, root, quad)
@@ -155,7 +145,7 @@ class AnalyzeChordProgressions:
                             print(f"{song_path}:{nline} {root!r} {quality!r}?")
                             raise
 
-                        self.mgram.feed(symb, root, quad)
+                        self.mgram.feed(symb, let2num(root), quad)
                         prev_symb = symb
 
     def report(self) -> None:
@@ -326,6 +316,16 @@ LETTERS = [
 def num2let(num: int) -> str:
     """Convert, e.g., 3 to 'Eb'."""
     return LETTERS[num % 12]
+
+
+def let2num(letter: str) -> int:
+    """Convert things like A# to a number in base-12."""
+    base = "CCDDEFFGGAAB".index(letter[0])
+    if len(letter) == 1:
+        return base
+    if letter[1] == "b":
+        return base - 1
+    return base + 1
 
 
 if __name__ == "__main__":
