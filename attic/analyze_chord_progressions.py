@@ -148,7 +148,7 @@ class AnalyzeChordProgressions:
 
     def parse(self) -> None:
         """Read songs and stuff."""
-        self.mgram = MultiGrammifier(range(2, 6))
+        self.mgram = MultiGrammifier(range(1, 6))
         paths = list(DB_ROOT.rglob("*.txt"))
         random.shuffle(paths)
         for path in paths:
@@ -193,10 +193,11 @@ class AnalyzeChordProgressions:
             frame = fier.to_frame()
             print(f"Writing {path} {frame.shape}")
             frame.to_csv(path, index=False)
-            print(f"Top {n}-grams:")
+            print(f"Top {n}-grams (of {fier.counts.total():,}):")
             for seq, count in fier.counts.most_common(12):
                 sample = fier.firsts[seq]
                 print(f"\t{seq}\t{count}\te.g., {sample}")
+            print("\n")
 
     _SAMES = frozenset([
         "",
