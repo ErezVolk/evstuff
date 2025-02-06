@@ -26,6 +26,7 @@ class Feedable(abc.ABC):
 class Chord(t.NamedTuple):
     """A chord in a song."""
     symb: str
+    num: int
     steps: int
     quad: str
 
@@ -49,11 +50,13 @@ class Ngrammifier(Feedable):
 
     def feed(self, symb: str, root: str, quad: str) -> None:
         """Add another quad."""
-        steps = self.to_num(root)
+        num = self.to_num(root)
         if self.window:
-            steps = ((steps - self.window[-1].steps) + 12) % 12
+            steps = (num + 12 - self.window[-1].num) % 12
+        else:
+            steps = num
 
-        self.window.append(Chord(symb, steps, quad))
+        self.window.append(Chord(symb, num, steps, quad))
         if len(self.window) >= self.n:
             self.window = self.window[-self.n:]
             self._count()
