@@ -39,32 +39,26 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<1|2|3|4|5|*6|7|8|9|10ff>}
+  MdA 7 {}: {<1|2|3|4|5|*6|7|8|9|10⍻|*11ff>}
   1@maxRevise
   1@maxStandardCurrent
 
-maxRevise = [ 1@maxRevise3 1@maxRevise4 1@maxRevise5 1@maxRevise6 ]
-
-maxRevise3:
+maxRevise:
   MdA 3.19: NONE
   MdA 3.22: NONE
   MdA 3.26: NONE
   MdA 3.27: NONE
   MdA 3.29: NONE
 
-maxRevise4:
   MdA 4.13 [N.B last line]: NONE
-  MdA 4.17: NONE
   MdA 4.18: NONE
 
-maxRevise5:
   MdA 5.(5+6): NONE
   MdA 5.10: NONE
   MdA 5.11: NONE
   MdA 5.15: NONE
   MdA 5.16: NONE
 
-maxRevise6:
   MdA 6.4: NONE
   MdA 6.5: NONE
   MdA 6.7: NONE
