@@ -1,10 +1,57 @@
 #!/usr/bin/env python3
 """Analyze chord progressions."""
 import collections
+import contextlib
 import re
+import typing as t
 from pathlib import Path
 
-DB_ROOT = Path("Jazz-Chord-Progressions-Corpus") / "SongDB"
+JCPC = Path("Jazz-Chord-Progressions-Corpus")
+DB_ROOT = JCPC / "SongDB"
+
+
+class Ngrammifier:
+    """Counts chord N-grams."""
+
+    window: list[tuple[int, str]]
+
+    def __init__(self, n: int) -> None:
+        self.n = n
+        self.counts = collections.Counter()
+
+    def start(self) -> None:
+        """Reset the window."""
+        self.window = []
+
+    def feed(self, root: str, quad: str) -> None:
+        """Add another quad."""
+        steps = self.to_num(root)
+        if self.window:
+            steps = ((steps - self.window[-1][0]) + 12) % 12
+
+        self.window.append((steps, quad))
+        if len(self.window) >= self.n:
+            self.window = self.window[-self.n:]
+            self._count()
+
+    def _count(self) -> None:
+        """Count a full ngram."""
+        parts = [f"C{self.window[0][1]}"]
+        cumu = 0
+        for steps, quad in self.window[1:]:
+            cumu += steps
+            parts.append(f"{num2let(cumu)}{quad}")
+        self.counts["\t".join(parts)] += 1
+
+    @classmethod
+    def to_num(cls, root: str) -> int:
+        """Convert things like A# to a number in base-12."""
+        base = "CCDDEFFGGAAB".index(root[0])
+        if len(root) == 1:
+            return base
+        if root[1] == "b":
+            return base - 1
+        return base + 1
 
 
 class AnalyzeChordProgressions:
@@ -13,6 +60,11 @@ class AnalyzeChordProgressions:
     @classmethod
     def sanity(cls) -> None:
         """Perform some sanity checks."""
+        if not JCPC.is_dir():
+            raise RuntimeError(
+                "git clone https://github.com/carey-bunks/"
+                "Jazz-Chord-Progressions-Corpus.git",
+            )
         for src, dst in cls._DIFFS.items():
             if dst not in cls._SAMES:
                 print(f"WARNING: {src!r} -> {dst!r} -> ?")
@@ -20,15 +72,17 @@ class AnalyzeChordProgressions:
     def run(self) -> None:
         """Analyze chord progressions."""
         self.sanity()
-        counts = collections.Counter()
+        fiers = {n: Ngrammifier(n) for n in range(1, 6)}
         for song_path in DB_ROOT.rglob("*.txt"):
             with song_path.open(encoding="utf-8") as song_fo:
-                prev_symb = prev_root = prev_quad = None
+                for fier in fiers.values():
+                    fier.start()
+                prev_symb = None
                 for nline, line in enumerate(song_fo, 1):
-                    line = line.rstrip()
-                    if not line.startswith(" "):
+                    sline = line.rstrip()
+                    if not sline.startswith(" "):
                         continue
-                    for mobj in re.finditer(r"([A-G][b#]?)(\S*)", line):
+                    for mobj in re.finditer(r"([A-G][b#]?)(\S*)", sline):
                         if (symb := mobj.group(0)) == prev_symb:
                             continue
                         (root, quality) = mobj.groups()
@@ -38,17 +92,17 @@ class AnalyzeChordProgressions:
                             print(f"{song_path}:{nline} {root!r} {quality!r}?")
                             raise
 
-                        if prev_root:
-                            steps = self.get_steps(prev_root, root)
-                            counts[(prev_quad, steps, quad)] += 1
+                        for fier in fiers.values():
+                            fier.feed(root, quad)
 
-                        prev_root = root
-                        prev_quad = quad
                         prev_symb = symb
-        for (prev, steps, curr), count in counts.most_common(20):
-            print(f"C{prev}\t{num2let(steps)}{curr}\t{count}")
 
-    _SAMES = {
+        for n, fier in fiers.items():
+            print(f"Top {n}-grams:")
+            for seq, count in fier.counts.most_common(10):
+                print(f"\t{seq}\t{count}")
+
+    _SAMES = frozenset([
         "",
         "+",
         "2",
@@ -89,8 +143,8 @@ class AnalyzeChordProgressions:
         "sus2",
         "sus24",
         "sus4",
-    }
-    _DIFFS = {
+    ])
+    _DIFFS: t.Mapping[str, str] = {
         "+7": "7+",
         "+add#9": "+",
         "+add9": "+",
@@ -182,30 +236,11 @@ class AnalyzeChordProgressions:
     @classmethod
     def get_quad(cls, quality: str) -> str:
         """Get just the stuff for the chord line."""
-        try:
+        with contextlib.suppress(ValueError):
             quality = quality[:quality.index("/")]
-        except ValueError:
-            pass  # No alternative root
         if (quad := cls.QUADS.get(quality)) is not None:
             return quad
         raise KeyError(quality)
-
-    @classmethod
-    def get_steps(cls, from_root: str, to_root: str) -> int:
-        """Root motion in half tones."""
-        return ((cls.to_num(to_root) - cls.to_num(from_root)) + 12) % 12
-
-    ABC = "AABCCDDEFFGG"
-
-    @classmethod
-    def to_num(cls, root: str) -> int:
-        """Convert things like A# to a number in base-12."""
-        base = "CCDDEFFGGAAB".index(root[0])
-        if len(root) == 1:
-            return base
-        if root[1] == "b":
-            return base - 1
-        return base + 1
 
 
 LETTERS = [
