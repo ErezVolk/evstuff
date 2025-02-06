@@ -166,6 +166,8 @@ class AnalyzeChordProgressions:
                         field, value = mobj.groups()
                         if field == "DBKeySig":
                             fields["key"] = value
+                        elif field == "Title":
+                            fields["name"] = value
                     continue
                 for mobj in re.finditer(r"([A-G][b#]?)(\S*)", line):
                     if (symb := mobj.group(0)) == prev_symb:
@@ -193,10 +195,12 @@ class AnalyzeChordProgressions:
             frame = fier.to_frame()
             print(f"Writing {path} {frame.shape}")
             frame.to_csv(path, index=False)
-            print(f"Top {n}-grams (of {fier.counts.total():,}):")
+            total = fier.counts.total()
+            print(f"Top {n}-grams (of {total:,}):")
             for seq, count in fier.counts.most_common(12):
                 sample = fier.firsts[seq]
-                print(f"\t{seq}\t{count}\te.g., {sample}")
+                percent = (count * 100) / total
+                print(f"\t{seq}\t{count} ({percent:.01f}%)\te.g., {sample}")
             print("\n")
 
     _SAMES = frozenset([
