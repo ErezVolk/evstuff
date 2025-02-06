@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Analyze chord progressions."""
+# pyright: reportMissingImports=false
 import abc
 import collections
 import contextlib
@@ -80,7 +81,12 @@ class Ngrammifier(Feedable):
         self.firsts.setdefault(seq, f"{' '.join(symbs)} ({self.name})")
 
         self.offset += 1
-        record = {"name": self.name, "offset": self.offset} | {
+        record = {
+            "name": self.name,
+            "offset": self.offset,
+            "rels": " ".join(parts),
+            "abss": " ".join(symbs),
+        } | {
             f"abs_{n}": symb
             for n, symb in enumerate(symbs, 1)
         } | {
