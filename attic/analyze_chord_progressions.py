@@ -181,9 +181,10 @@ class AnalyzeChordProgressions:
 
                     root = let2num(root_str)
                     with contextlib.suppress(IndexError, ValueError, KeyError):
-                        fields["start"] = num2let(
-                            root - let2num(fields["key"]),
-                        )
+                        if prev_symb is None:
+                            fields["start"] = num2let(
+                                root - let2num(fields["key"]),
+                            )
                     self.mgram.feed(symb, root, quad)
                     prev_symb = symb
 
@@ -194,9 +195,20 @@ class AnalyzeChordProgressions:
             frame = fier.to_frame()
             print(f"Writing {path} {frame.shape}")
             frame.to_csv(path, index=False)
-            total = fier.counts.total()
-            print(f"Top {n}-grams (of {total:,}):")
-            for seq, count in fier.counts.most_common(12):
+            counts = fier.counts
+            total = counts.total()
+            mul = collections.Counter({
+                gram: count
+                for gram, count in counts.items()
+                if count > 1
+            })
+            print(
+                f"Top {n}-grams"
+                f" (of {len(counts):,} / {total:,})"
+                f" (non-unique {len(mul):,} / {mul.total():,})"
+                f":",
+            )
+            for seq, count in counts.most_common(12):
                 sample = fier.firsts[seq]
                 percent = (count * 100) / total
                 print(f"\t{seq}\t{count} ({percent:.01f}%)\te.g., {sample}")
