@@ -91,8 +91,7 @@ class LikeIt:
             ltw = row.LTW
             tmap = ltw == wishlist.LTW
 
-            with contextlib.suppress(ValueError, AttributeError):
-                ltw = ltw[ltw.rindex("/") + 1:]
+            ltw = re.sub(r"^.*librarything.com/work/(\d+)(/.*)?$", r"\1", ltw)
 
             try:
                 ltw = int(ltw)
