@@ -39,7 +39,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<1|2|3|4|5|*6|7|8|9|10⍻|*11ff>}
+  MdA 7 {}: {<1|2|3|4|5|*6|7|8|9|10⍻|*11|12ff>}
   1@maxRevise
   1@maxStandardCurrent
 
@@ -121,7 +121,7 @@ maxStandard:
   The Days of Wine and Roses -- The Real Standards Book [105=111 MdA Ch. 6]: NONE
 
 maxStandardCurrent:
-  A child is born (Bb) – The New Real Book 2 [MdA Ch. 7]: NONE
+  A child is born (Bb) – The New Real Book 2 [48 MdA Ch. 7]: NONE
   Almost like being in love (Bb) – The New Real Book 3 [MdA Ch. 7]: NONE
   *Autumn leaves (Gm) – The New Real Book 1 [MdA Ch. 7]: NONE
   Basin Street Blues (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
@@ -141,7 +141,7 @@ maxStandardCurrent:
   Tristeza (D) – The New Real Book 2 [MdA Ch. 7]: NONE
   Up jumped spring (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
   Wave (D) – The New Real Book 1 [MdA Ch. 7]: NONE
-  You must believe in spring (D) – The New Real Book 3 [MdA Ch. 7]: NONE
+  ⍻*You must believe in spring (D) – The New Real Book 3 [421=389 MdA Ch. 7]: NONE
 
 
 #######
