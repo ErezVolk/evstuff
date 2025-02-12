@@ -40,7 +40,7 @@ earTraining:
 
 maxCurrent:
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<1|2|3|4|5|*6|7|8|9|10⍻|*11|12ff>}
+  MdA 7 {}: {<2|3|4|5|6|7|8?|9|10⍻|*11|12ff>}
   1@maxRevise
   1@maxStandardCurrent
 
@@ -129,7 +129,7 @@ maxStandardCurrent:
   Come Sunday (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
   Don’t go to strangers (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
   Elm (Gm) – The New Real Book 1 [MdA Ch. 7]: NONE
-  Everything happens to me (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
+  ⍻Everything happens to me (Bb) – The New Real Book 1 [91=107 MdA Ch. 7]: NONE
   I’m all smiles (D) – The New Real Book 1 [MdA Ch. 7]: NONE
   In your own sweet Way (Bb) – The New Real Book 2 [MdA Ch. 7]: NONE
   It don’t mean a thing (Bb) – The New Real Book 2 [MdA Ch. 7]: NONE
@@ -137,7 +137,7 @@ maxStandardCurrent:
   Manha de carnival (Gm) – The New Real Book 2 [MdA Ch. 7]: NONE
   Mercy, Mercy, Mercy (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
   A quiet place (D) – The New Real Book 2 [MdA Ch. 7]: NONE
-  Someday my prince will come (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
+  Someday my prince will come (Bb) – The New Real Book 1 [326=320 MdA Ch. 7]: NONE
   There is no greater love (Bb) – The New Real Book 2 [MdA Ch. 7]: NONE
   Tristeza (D) – The New Real Book 2 [MdA Ch. 7]: NONE
   Up jumped spring (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
