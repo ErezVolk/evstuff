@@ -270,7 +270,7 @@ intonation:  # TODO: split into boring and non-boring?
   Ray Brown's Exercise (Solo) (p.127-128): NONE
   Ray Brown's Exercise (Solo) (p.129, i.e., 7 98 6 87 5 76 4 65 3 54 2 43 1): NONE
   Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
-  Ray Brown's Exercise (p.131) [-853 -742 -531 -42₇1]: NONE
+  Ray Brown's Exercise (p.131) [7853 5^642 4v531 42₇1]: NONE
   Ray Brown's Exercise (p.132): NONE
   Ray Brown's Exercise (p.133): NONE
   Ray Brown's Triplet Exercise for Solos (p.135): NONE
@@ -383,10 +383,10 @@ sightReading:
 
 
 _nextStepOptions:  # i.e., what should I add 15 minutes of to daily practice
-  transcription [pros? cons?]: NONE
-  playing with recording, and recording that [pros? cons?]: NONE
+  transcription [seems to be the real thing]: NONE
+  playing with recording, and recording that [maybe combine with Vitti]: NONE
   memorizing standards [pros? cons?]: NONE
-  ear training book/course X: NONE
+  ear training [book/course X/wouldn't Radley be for chord progressions?]: NONE
   Sher's Improviser/Solo book: NONE
   Bob Magnusson [isn't that trumped by transcription?]: NONE
 
