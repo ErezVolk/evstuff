@@ -28,8 +28,8 @@ seed:
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
   Stricker-2b: NONE
-  Bob Magnusson's 38-9: NONE
   Funk Ex. 1: NONE
+  Bob Magnusson's 41-3: NONE
 
 earTraining:
   Transcribe something: NONE
@@ -282,6 +282,7 @@ intonation:  # TODO: split into boring and non-boring?
   Bob Magnusson's 31-32 [Blind, with fingerboard mobility]: NONE
   Bob Magnusson's 34 [Blind, with fingerboard mobility]: NONE
   Bob Magnusson's 36-7: NONE
+  Bob Magnusson's 38-9: NONE
 
 theory:
   Today-{} Scale: {Ionian (I, Major)|Dorian (II)|Phrygian (III)|Lydian (IV)|Mixolydian (V)|Aeolian (VI, Minor)|Locrian (VII)}
