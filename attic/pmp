@@ -259,7 +259,9 @@ class SavableDeck(Deck):
             self.counts["flipped"] += 1
             self._set_queue(self.cards)
         card = self.queue.pop(0)
-        self._track("%d after drawing %r", len(self.queue), card)
+        self._track("%d after drawing %r", count := len(self.queue), card)
+        if count == 0:
+            self.counts["flipped"] += 1
         return card
 
     @property
