@@ -72,11 +72,13 @@ class Ngrammifier(Feedable):
 
     def _count(self) -> None:
         """Count a full ngram."""
+        roots = ["C"]
         parts = [f"C{self.window[0].quad}"]
         cumu = 0
         for chord in self.window[1:]:
             cumu += chord.steps
-            parts.append(f"{num2let(cumu)}{chord.quad}")
+            roots.append(root := num2let(cumu))
+            parts.append(f"{root}{chord.quad}")
         seq = "\t".join(parts)
         self.counts[seq] += 1
         symbs = [chord.symb for chord in self.window]
@@ -87,8 +89,12 @@ class Ngrammifier(Feedable):
         self.offset += 1
         record = self.fields | {
             "offset": self.offset,
+            "roots": " ".join(roots),
             "rels": " ".join(parts),
             "abss": " ".join(symbs),
+        } | {
+            f"roo_{n}": part
+            for n, part in enumerate(roots, 1)
         } | {
             f"abs_{n}": symb
             for n, symb in enumerate(symbs, 1)
@@ -399,7 +405,3 @@ def let2num(letter: str) -> int:
 
 if __name__ == "__main__":
     AnalyzeChordProgressions().run()
-
-
-# TODO: Top root motions
-# TODO: Include originals in csv
