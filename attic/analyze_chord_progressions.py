@@ -2,6 +2,7 @@
 """Analyze chord progressions."""
 # pyright: reportMissingImports=false
 import abc
+import argparse
 import collections
 import contextlib
 import random
@@ -12,7 +13,6 @@ from pathlib import Path
 import pandas as pd
 
 JCPC = Path("Jazz-Chord-Progressions-Corpus")
-DB_ROOT = JCPC / "SongDB"
 
 Fields: t.TypeAlias = dict[str, str]
 
@@ -127,6 +127,7 @@ class MultiGrammifier(Feedable):
 class AnalyzeChordProgressions:
     """Analyze chord progressions."""
 
+    args: argparse.Namespace
     mgram: MultiGrammifier
 
     @classmethod
@@ -144,16 +145,24 @@ class AnalyzeChordProgressions:
     def run(self) -> None:
         """Analyze chord progressions."""
         self.sanity()
+        self.parse_args()
         self.parse()
         self.report()
 
     def parse(self) -> None:
         """Read songs and stuff."""
         self.mgram = MultiGrammifier(range(1, 6))
-        paths = list(DB_ROOT.rglob("*.txt"))
+        paths = list(self.args.root.rglob("*.txt"))
         random.shuffle(paths)
         for path in paths:
             self.parse_song(path)
+
+    def parse_args(self) -> None:
+        """Parse command-line arguments."""
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-r", "--root", type=Path, default=JCPC / "SongDB")
+        parser.add_argument("--top-n", type=int, default=16)
+        self.args = parser.parse_args()
 
     def parse_song(self, path: Path) -> None:
         """Parse one song."""
@@ -208,7 +217,7 @@ class AnalyzeChordProgressions:
                 f" (non-unique {len(mul):,} / {mul.total():,})"
                 f":",
             )
-            for seq, count in counts.most_common(12):
+            for seq, count in counts.most_common(self.args.top_n):
                 sample = fier.firsts[seq]
                 percent = (count * 100) / total
                 print(f"\t{seq}\t{count} ({percent:.01f}%)\te.g., {sample}")
@@ -390,3 +399,7 @@ def let2num(letter: str) -> int:
 
 if __name__ == "__main__":
     AnalyzeChordProgressions().run()
+
+
+# TODO: Top root motions
+# TODO: Include originals in csv
