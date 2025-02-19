@@ -125,14 +125,14 @@ maxStandardCurrent:
   A child is born (Bb) – The New Real Book 2 [48 MdA Ch. 7]: NONE
   Almost like being in love (Bb) – The New Real Book 3 [MdA Ch. 7]: NONE
   *Autumn leaves (Gm) – The New Real Book 1 [12=25 MdA Ch. 7]: NONE
-  Basin Street Blues (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
+  *Basin Street Blues (Bb) – The New Real Book 1 [15=28 MdA Ch. 7]: NONE
   Come Sunday (Bb) – The New Real Book 1 [52=67 MdA Ch. 7]: NONE
   Don’t go to strangers (Bb) – The New Real Book 1 [MdA Ch. 7]: NONE
   Elm (Gm) – The New Real Book 1 [81=96 MdA Ch. 7]: NONE
   ⍻Everything happens to me (Bb) – The New Real Book 1 [91=107 MdA Ch. 7]: NONE
   I’m all smiles (D) – The New Real Book 1 [old 216=224 MdA Ch. 7]: NONE
   In your own sweet Way (Bb) – The New Real Book 2 [MdA Ch. 7]: NONE
-  It don’t mean a thing (Bb) – The New Real Book 2 [MdA Ch. 7]: NONE
+  It don’t mean a thing (Bb) – The New Real Book 2 [161=173 MdA Ch. 7]: NONE
   Laurie (Bb) – The New Real Book 1 [182=175 MdA Ch. 7]: NONE
   Manha de carnival (Gm) – The New Real Book 2 [MdA Ch. 7]: NONE
   Mercy, Mercy, Mercy (Bb) – The New Real Book 1 [205=199 MdA Ch. 7]: NONE
@@ -386,6 +386,7 @@ sightReading:
 _nextStepOptions:  # i.e., what should I add 15 minutes of to daily practice
   transcription [seems to be the real thing]: NONE
   playing with recording, and recording that [maybe combine with Vitti]: NONE
+  how about Ed's Bass Grooves, Josquin's Classic Grooves (at least the muting section): NONE
   memorizing standards [pros? cons?]: NONE
   ear training [book/course X/wouldn't Radley be for chord progressions?]: NONE
   Sher's Improviser/Solo book: NONE
