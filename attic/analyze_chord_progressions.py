@@ -93,7 +93,7 @@ class Ngrammifier(Feedable):
             "rels": " ".join(parts),
             "abss": " ".join(symbs),
         } | {
-            f"roo_{n}": part
+            f"root_{n}": part
             for n, part in enumerate(roots, 1)
         } | {
             f"abs_{n}": symb
