@@ -249,20 +249,25 @@ class SavableDeck(Deck):
             lineup = list(set(self.cards) - set(self.queue))
             random.shuffle(lineup)
             self._track("Adding %s to %s", lineup, self.queue)
-            self.counts["flipped"] += 1
+            self._count_flip()
             self.queue = list(self.queue + lineup)
 
     def _draw(self) -> str:
         """Get the next card."""
         self.ping()
         if not self.queue:
-            self.counts["flipped"] += 1
+            self._count_flip()
             self._set_queue(self.cards)
         card = self.queue.pop(0)
         self._track("%d after drawing %r", count := len(self.queue), card)
         if count == 0:
-            self.counts["flipped"] += 1
+            self._count_flip()
         return card
+
+    def _count_flip(self) -> None:
+        """Add 1 to the "flipped" counter, if this is not a trivial deck."""
+        if len(self.cards) > 1:
+            self.counts["flipped"] += 1
 
     @property
     def qidxs(self) -> str:
