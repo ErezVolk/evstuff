@@ -478,10 +478,7 @@ class PracticeMakesPerfect:
             metavar="BOOK",
             type=Label,
             nargs="*",
-            help=(
-                "Choose books from this list; specify 'default-config' to "
-                "print out the default configuration file"
-            ),
+            help="Choose books from this list",
         )
 
         group = parser.add_mutually_exclusive_group()
@@ -539,11 +536,25 @@ class PracticeMakesPerfect:
             type=Path,
             help="Annals file",
         )
-        parser.add_argument(
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
             "-S",
             "--saveless",
             action="store_true",
             help="Don't save state/report files",
+        )
+        group.add_argument(
+            "--default-config",
+            action="store_true",
+            help="Just print out the default configuration file",
+        )
+        group.add_argument(
+            "--last",
+            type=str,
+            nargs="?",
+            const="",
+            metavar="BOOK",
+            help="Print the output of last run",
         )
         self.args = args = parser.parse_args()
         args.config = args.config or args.home / ".pmprc"
@@ -582,10 +593,15 @@ class PracticeMakesPerfect:
         self.parse_command_line()
         self._configure_logging()
 
-        if self.args.books == ["default-config"]:
+        if self.args.default_config:
             print(DEFAULT_CONFIG)
-            return
+        elif self.args.last is not None:
+            self._print_last(self.args.last)
+        else:
+            self._normal_run()
 
+    def _normal_run(self) -> None:
+        """Run normally."""
         self._make_basic_decks()
         self._configure()
         self._finalize_books()
@@ -843,6 +859,22 @@ class PracticeMakesPerfect:
     def _start_reporter(self) -> None:
         """Create reporter object."""
         self.reporter = Reporter(self.args.report_file)
+
+    ENTRY_REGEX = r"\n\d\d\d\d-\d\d-\d\d (.*)\n={10,}\n"
+
+    def _print_last(self, book: str) -> None:
+        """Read the annals file and print the last entry."""
+        with self.args.annals_file.open("r", encoding="utf-8") as fobj:
+            annals = fobj.read()
+        suffix = f" {book}" if book else ""
+        start = end = unk = len(annals)
+        for mobj in re.finditer(self.ENTRY_REGEX, annals):
+            if mobj.group(1).endswith(suffix):
+                start = mobj.start()
+                end = unk
+            elif end == unk:
+                end = mobj.start()
+        print(annals[start:end])
 
     def _fail(self, message: str) -> t.NoReturn:
         """Handy wrapper around `ArgumentParser.error()`."""
