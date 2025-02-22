@@ -821,7 +821,15 @@ class PracticeMakesPerfect:
             event: [deck.blurb for deck in decks if deck.counts[event]]
             for event in SavableDeck.EVENTS
         }
-        self.state["deck"] = {deck.layout: self._save(deck) for deck in decks}
+
+        prevs = self.state["deck"]
+        self.state["deck"] = {}
+        self.state["prev"] = {}
+        for deck in decks:
+            curr = self.state["deck"][deck.layout] = self._save(deck)
+            prev = prevs.get(deck.layout)
+            if prev is not None and prev != curr:
+                self.state["prev"][deck.layout] = prev
 
         with self.args.state_file.open("wb") as fobj:
             plistlib.dump({self.STATE_VER: self.state}, fobj, sort_keys=False)
@@ -834,8 +842,7 @@ class PracticeMakesPerfect:
             return deck.serialize()
         except SerializationError as exc:
             log.debug("Not serializing %s: %s", deck.blurb, exc)
-            self.state["deck"][deck.layout] = reason = str(exc)
-            return reason
+            return str(exc)
 
     def _restore_state(self) -> None:
         """Restore queues for any eligible deck."""
