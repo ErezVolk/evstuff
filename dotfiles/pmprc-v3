@@ -41,7 +41,7 @@ earTraining:
 maxCurrent:
   For chapter 7, use key of {}: {B♭|D}
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<3|5|6|7|9|10|11|12|*15-19 (see)|20|22|**23|24>}
+  MdA 7 {}: {<3|5|6|7|9|10|11|12 (tempo)|*15-19 (see)|⍻20|22|*23 (tempo)|24>}
   For MdA 7.15-19, use the order {}: {<15|16|17|18|19>}
   1@maxRevise
   1@maxStandardCurrent
@@ -137,7 +137,7 @@ maxStandardCurrent:
   I’m all smiles (D) – The New Real Book 1 [old 216=224 MdA Ch. 7]: NONE
   In your own sweet Way (Bb) – The New Real Book 2 [157(=169) MdA Ch. 7]: NONE
   It don’t mean a thing (Bb) – The New Real Book 2 [161=173 MdA Ch. 7]: NONE
-  Laurie (Bb) – The New Real Book 1 [182=175 MdA Ch. 7]: NONE
+  Laurie (Bb) – The New Real Book 1 [182=176 MdA Ch. 7]: NONE
   Manha de carnival (Gm) – The New Real Book 2 [197(=209) MdA Ch. 7]: NONE
   Mercy, Mercy, Mercy (Bb) – The New Real Book 1 [205=199 MdA Ch. 7]: NONE
   A quiet place (D) – The New Real Book 2 [301=313, not in iReal MdA Ch. 7]: NONE
