@@ -1,6 +1,7 @@
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³₇Δː≅⚠
 
-*morn = [ seed warmup 2@intonation 2@theory 2@current maxCurrent ]
+*jazz = [ ram maxCurrent ]
+morn = [ seed warmup 2@intonation 2@theory 2@current maxCurrent ]
 eve = [ seed @warmup _eve ]
 day = [ seed warmup 2@intonation _eve ]
 _eve = [ 2@theory 1@digression 2@current 2@maxRevise ]
@@ -24,6 +25,12 @@ seed:
   ** Try MM ♩={} {}{} {} on beat {} today **: {[60-100]} {ANY} {↗|↘} {<1̤|2̤|3̤|4̣|5̇|6̇|7̇|8̇>} {1|2|3|4|2+4|1+3}
 
 #######
+
+ram:
+  2-octave scale in quarters, eigths, triplets, sixteenths, thirds, sequences, arpeggios [NB positions, keep fingers down]: NONE
+  Jazz blues: NONE
+  Transcribe and memorize Blue Spring Shuffle: NONE
+
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
