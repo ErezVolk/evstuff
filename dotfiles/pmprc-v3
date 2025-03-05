@@ -1,7 +1,6 @@
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³₇Δː≅⚠
 
-*jazz = [ ram maxCurrent ]
-morn = [ seed warmup 2@intonation 2@theory 2@current maxCurrent ]
+*morn = [ seed warmup 2@intonation 2@theory 2@current maxCurrent ]
 eve = [ seed @warmup _eve ]
 day = [ seed warmup 2@intonation _eve ]
 _eve = [ 2@theory 1@digression 2@current 2@maxRevise ]
@@ -27,9 +26,9 @@ seed:
 #######
 
 ram:
-  2-octave scale in quarters, eigths, triplets, sixteenths, thirds, sequences, arpeggios [NB positions, keep fingers down]: NONE
-  Jazz blues: NONE
-  Transcribe and memorize Blue Spring Shuffle: NONE
+  A. 2-octave scale in quarters, etc.; thirds; sequences; diatonic 7-chords [NB positions, keep fingers down]: NONE
+  B. Jazz blues (patterns 1155, 1535, 1353, and then with leading tones): NONE
+  C. Transcribe and memorize Blue Spring Shuffle: NONE
 
 
 current:
