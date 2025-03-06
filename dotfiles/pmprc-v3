@@ -47,7 +47,7 @@ earTraining:
 maxCurrent:
   For chapter 7, use key of {}: {B♭|D}
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<3|⍻5|⍻6|7|9|11|*15-19 (see)|⍻20|*23 (tempo)|*24>}
+  MdA 7 {}: {<3|⍻5|7|9|⍻11|*15-19 (see)|⍻20|*23 (tempo)|*24>}
   For MdA 7.15-19, use the order {}: {<15|16|17|18|19>}
   1@maxRevise
   1@maxStandardCurrent
@@ -74,6 +74,7 @@ maxRevise:
   MdA 6.10: NONE
   MdA 6.14: NONE
 
+  MdA 7.6: NONE
   MdA 7.12: NONE
   MdA 7.21: NONE
   MdA 7.22: NONE
@@ -134,7 +135,7 @@ maxStandard:
   The Days of Wine and Roses -- The Real Standards Book [105=111 MdA Ch. 6]: NONE
 
 maxStandardCurrent:
-  A child is born (Bb) – The New Real Book 2 [48 MdA Ch. 7]: NONE
+  A child is born (Bb) – The New Real Book 2 [48(=60) MdA Ch. 7]: NONE
   Almost like being in love (Bb) – The New Real Book 3 [12(=20) MdA Ch. 7]: NONE
   *Autumn leaves (Gm) – The New Real Book 1 [12=25 MdA Ch. 7]: NONE
   *Basin Street Blues (Bb) – The New Real Book 1 [15=28 MdA Ch. 7]: NONE
