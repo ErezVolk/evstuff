@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+"""Encode as ASCII."""
+import sys
+
+
+def asciify() -> None:
+    """Encode standard input as ASCII, write to standard output."""
+    for line in sys.stdin:
+        print(line.rstrip().encode("ascii", "ignore").decode())
+
+
+if __name__ == "__main__":
+    asciify()
