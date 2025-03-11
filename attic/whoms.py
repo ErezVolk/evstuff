@@ -79,9 +79,14 @@ def main() -> None:
 
         oldest_added = unheard.sort_values("n").iloc[0]
         print(f"- (oldest added) {row_desc(oldest_added)}")
-        oldest_released = unheard.sort_values("t").iloc[0]
-        if oldest_released.What != oldest_added.What:
-            print(f"- (oldest released) {row_desc(oldest_released)}")
+        earliest_t = unheard.t.min()
+        oldest_released = unheard[
+            (unheard.t == earliest_t) & (unheard.What != oldest_added.What)
+        ]
+        if (n_rows := len(oldest_released)) > 0:
+            row = oldest_released.sample(1).iloc[0]
+            comment = f"one of {n_rows} " if n_rows > 1 else ""
+            print(f"- ({comment}oldest released) {row_desc(row)}")
 
         guys = whoms.query("heard == 0")
         if len(stars := guys.query("total > 1")) > 0:
