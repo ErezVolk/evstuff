@@ -99,8 +99,11 @@ def main() -> None:
             works_with = albums[
                 albums.Whoms.apply(lambda ppl: len(set(ppl) & names) > 0)
             ]
-            row = works_with.sort_values("dt").iloc[0]
-            print(f"- (shortest new guy) {row_desc(row)}")
+            rows = works_with[works_with.dt == works_with.dt.min()]
+            n_rows = len(rows)
+            row = rows.sample(1).iloc[0]
+            comment = f"one of {n_rows} " if n_rows > 1 else ""
+            print(f"- ({comment}shortest new guy) {row_desc(row)}")
 
     relisten = albums[albums.How.astype("string").str.contains("relisten")]
     if len(relisten) > 0:
