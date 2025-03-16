@@ -1,6 +1,6 @@
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³₇Δː≅⚠
 
-*morn = [ seed warmup 2@intonation 2@theory 2@current maxCurrent ]
+*morn = [ seed warmup 2@intonation 2@theory 2@current max ]
 eve = [ seed @warmup _eve ]
 day = [ seed warmup 2@intonation _eve ]
 _eve = [ 2@theory 1@digression 2@current 2@maxRevise ]
@@ -47,10 +47,10 @@ earTraining:
 
 #######
 
-maxCurrent:
+max:
   For chapter 7, use key of {}: {B♭|D}
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<3|5|7@80/100|9|⍻11|*15-19 (see)|*23 (tempo)|**24>}
+  MdA 7 {}: {<3|⍻5|7@85/100|9 (bar 9 smoothly)|*15-19 (see)|*23 (tempo)|**24>}
   For MdA 7.15-19, use the order {}: {<15|16|17|18|19>}
   1@maxRevise
   1@maxStandardCurrent
@@ -78,6 +78,7 @@ maxRevise:
   MdA 6.14: NONE
 
   MdA 7.6: NONE
+  MdA 7.11: NONE
   MdA 7.12: NONE
   MdA 7.21: NONE
   MdA 7.22: NONE
@@ -139,7 +140,7 @@ maxStandard:
 
 maxStandardCurrent:
   A child is born (Bb) – The New Real Book 2 [48(=60) MdA Ch. 7]: NONE
-  Almost like being in love (Bb) – The New Real Book 3 [12(=20) MdA Ch. 7]: NONE
+  Almost like being in love (Bb) – The New Real Book 3 [12=20 MdA Ch. 7]: NONE
   *Autumn leaves (Gm) – The New Real Book 1 [12=25 MdA Ch. 7]: NONE
   *Basin Street Blues (Bb) – The New Real Book 1 [15=28 MdA Ch. 7]: NONE
   Come Sunday (Bb) – The New Real Book 1 [52=67 MdA Ch. 7]: NONE
