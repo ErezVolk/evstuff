@@ -50,7 +50,7 @@ earTraining:
 max:
   For chapter 7, use key of {}: {B♭|D}
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<3|⍻5|7@85/100|9 (bar 9 smoothly)|*15-19 (see)|*23 (tempo)|**24>}
+  MdA 7 {}: {<3|5@80|7@90/100|9 (bar 13 smoothly)|*15-19 (see)|*23 (tempo)|*24>}
   For MdA 7.15-19, use the order {}: {<15|16|17|18|19>}
   1@maxRevise
   1@maxStandardCurrent
@@ -119,7 +119,7 @@ maxStandard:
   Darn that dream (G) – The New Real Book 1 [61=76 MdA Ch. 6]: NONE
   Desafinado (F) – The New Real Book 1 [p65=80 MdA Ch. 6]: NONE
   Flamingo (F) – The New Real Book 2 [105 MdA Ch. 6]: NONE
-  Honeysuckle Rose (F) – The New Real Book 2 [134=134 MdA Ch. 6]: NONE
+  Honeysuckle Rose (F) – The New Real Book 2 [134(=146) MdA Ch. 6]: NONE
   I'm glad there is you (F) – The New Real Book 2 [153 MdA Ch. 6]: NONE
   I'm getting sentimental over you (F) – The New Real Book 3 [162=154 MdA Ch. 6]: NONE
   *I'm through with love (F) – The New Real Book 3 [165=157 MdA Ch. 6]: NONE
@@ -149,7 +149,7 @@ maxStandardCurrent:
   ⍻Everything happens to me (Bb) – The New Real Book 1 [91=106 MdA Ch. 7]: NONE
   I’m all smiles (D) – The New Real Book 1 [old 216=224 MdA Ch. 7]: NONE
   In your own sweet Way (Bb) – The New Real Book 2 [157(=169) MdA Ch. 7]: NONE
-  It don’t mean a thing (Bb) – The New Real Book 2 [161=173 MdA Ch. 7]: NONE
+  It don’t mean a thing (Bb) – The New Real Book 2 [161(=173) MdA Ch. 7]: NONE
   Laurie (Bb) – The New Real Book 1 [182=176 MdA Ch. 7]: NONE
   Manha de carnival (Gm) – The New Real Book 2 [197(=209) MdA Ch. 7]: NONE
   Mercy, Mercy, Mercy (Bb) – The New Real Book 1 [205=199 MdA Ch. 7]: NONE
@@ -159,7 +159,7 @@ maxStandardCurrent:
   ⍻Tristeza (D) – The New Real Book 2 [386(=398) MdA Ch. 7]: NONE
   Up jumped spring (Bb) – The New Real Book 1 [old 440=448 MdA Ch. 7]: NONE
   *Wave (D) – The New Real Book 1 [old-452 MdA Ch. 7]: NONE
-  ⍻*You must believe in spring (D) – The New Real Book 3 [421=389 MdA Ch. 7]: NONE
+  ⍻*You must believe in spring (D) – The New Real Book 3 [421=388 MdA Ch. 7]: NONE
 
 
 #######
