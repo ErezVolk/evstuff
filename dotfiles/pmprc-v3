@@ -50,10 +50,10 @@ earTraining:
 max:
   For chapter 7, use key of {}: {B♭|D}
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<3|5@80|7@90/100|9 (bar 13 smoothly)|*15-19 (see)|*23 (tempo)|*24>}
+  MdA 7 {}: {<7@90/100|9 (bar 13 smoothly)|*15-19 (see)|*23 (tempo)|*24@65/112>}
   For MdA 7.15-19, use the order {}: {<15|16|17|18|19>}
   1@maxRevise
-  1@maxStandardCurrent
+  1@maxStandard  # Current when we move to chapter 8
 
 maxRevise:
   MdA 3.19: NONE
@@ -77,6 +77,8 @@ maxRevise:
   MdA 6.10: NONE
   MdA 6.14: NONE
 
+  MdA 7.3: NONE
+  MdA 7.5: NONE
   MdA 7.6: NONE
   MdA 7.11: NONE
   MdA 7.12: NONE
@@ -138,7 +140,6 @@ maxStandard:
   Yesterdays (Dm) – The New Real Book 1 [409=403 MdA Ch. 6]: NONE
   The Days of Wine and Roses -- The Real Standards Book [105=111 MdA Ch. 6]: NONE
 
-maxStandardCurrent:
   A child is born (Bb) – The New Real Book 2 [48(=60) MdA Ch. 7]: NONE
   Almost like being in love (Bb) – The New Real Book 3 [12=20 MdA Ch. 7]: NONE
   *Autumn leaves (Gm) – The New Real Book 1 [12=25 MdA Ch. 7]: NONE
