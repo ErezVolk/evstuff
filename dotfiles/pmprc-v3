@@ -50,7 +50,7 @@ earTraining:
 max:
   For chapter 7, use key of {}: {B♭|D}
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<7@90/100|9 (bar 13 smoothly)|*15-19 (see)|*23 (tempo)|*24@65/112>}
+  MdA 7 {}: {<7@90/100|9 (bar 13 smoothly)|*15-19 (see)|*23 (tempo)|*24@70/112>}
   For MdA 7.15-19, use the order {}: {<15|16|17|18|19>}
   1@maxRevise
   1@maxStandard  # Current when we move to chapter 8
@@ -108,7 +108,7 @@ maxStandard:
   *Moonglow (C) – The New Real Book 3 [p252=235 MdA Ch. 5]: NONE
   On the sunny side of the street (C) – The New Real Book 2 [MdA Ch. 5]: NONE
   Satin doll (C) – The New Real Book 1 [p308=302 MdA Ch. 5]: NONE
-  The shadow of your smile (3) – The New Real Book 3 [MdA Ch. 5]: NONE
+  The shadow of your smile (3) – The New Real Book 3 [336=311 MdA Ch. 5]: NONE
   The song is you (C) – The New Real Book 1 [MdA Ch. 5]: NONE
   St. Thomas (C) – The New Real Book 1 [p340=334 MdA Ch. 5]: NONE
   Take the “A” train (C) – The New Real Book 1 [MdA Ch. 5]: NONE
@@ -158,7 +158,7 @@ maxStandard:
   Someday my prince will come (Bb) – The New Real Book 1 [326=320 MdA Ch. 7]: NONE
   There is no greater love (Bb) – The New Real Book 2 [366 MdA Ch. 7]: NONE
   ⍻Tristeza (D) – The New Real Book 2 [386(=398) MdA Ch. 7]: NONE
-  Up jumped spring (Bb) – The New Real Book 1 [old 440=448 MdA Ch. 7]: NONE
+  Up jumped spring (Bb) – The New Real Book 1 [old 440(=448) MdA Ch. 7]: NONE
   *Wave (D) – The New Real Book 1 [old-452 MdA Ch. 7]: NONE
   ⍻*You must believe in spring (D) – The New Real Book 3 [421=388 MdA Ch. 7]: NONE
 
