@@ -94,7 +94,7 @@ maxStandard:
   Everything I have is yours (C) – The New Real Book 3 [MdA Ch. 5]: NONE
   Exactly like you (C) – The New Real Book 2 [MdA Ch. 5]: NONE
   Fly me to the moon (Am) – The New Real Book 2 [MdA Ch. 5]: NONE
-  Here's that rainy day (G) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Here's that rainy day (G) – The New Real Book 1 [138=153 MdA Ch. 5]: NONE
   I got it bad (G) – The New Real Book 3 [MdA Ch. 5]: NONE
   I should care (C) – The New Real Book 1 [MdA Ch. 5]: NONE
   It's only a paper moon (G) – The New Real Book 2 [MdA Ch. 5]: NONE
@@ -146,7 +146,6 @@ maxStandard:
   *Basin Street Blues (Bb) – The New Real Book 1 [15=28 MdA Ch. 7]: NONE
   Come Sunday (Bb) – The New Real Book 1 [52=67 MdA Ch. 7]: NONE
   Don’t go to strangers (Bb) – The New Real Book 1 [74=89 MdA Ch. 7]: NONE
-  Elm (Gm) – The New Real Book 1 [81=96, not in iReal MdA Ch. 7]: NONE
   ⍻Everything happens to me (Bb) – The New Real Book 1 [91=106 MdA Ch. 7]: NONE
   I’m all smiles (D) – The New Real Book 1 [old 216=224 MdA Ch. 7]: NONE
   In your own sweet Way (Bb) – The New Real Book 2 [157(=169) MdA Ch. 7]: NONE
@@ -154,7 +153,6 @@ maxStandard:
   Laurie (Bb) – The New Real Book 1 [182=176 MdA Ch. 7]: NONE
   Manha de carnival (Gm) – The New Real Book 2 [197(=209) MdA Ch. 7]: NONE
   Mercy, Mercy, Mercy (Bb) – The New Real Book 1 [205=199 MdA Ch. 7]: NONE
-  A quiet place (D) – The New Real Book 2 [301(=313), not in iReal MdA Ch. 7]: NONE
   Someday my prince will come (Bb) – The New Real Book 1 [326=320 MdA Ch. 7]: NONE
   There is no greater love (Bb) – The New Real Book 2 [366 MdA Ch. 7]: NONE
   ⍻Tristeza (D) – The New Real Book 2 [386(=398) MdA Ch. 7]: NONE
@@ -301,6 +299,7 @@ intonation:  # TODO: split into boring and non-boring?
   Bob Magnusson's 34 [Blind, with fingerboard mobility]: NONE
   Bob Magnusson's 36-7: NONE
   Bob Magnusson's 38-9: NONE
+  Bob Magnusson's Ex. 20-22 pp. 42-43 (Minor Blues): NONE
 
 theory:
   Today-{} Scale: {Ionian (I, Major)|Dorian (II)|Phrygian (III)|Lydian (IV)|Mixolydian (V)|Aeolian (VI, Minor)|Locrian (VII)}
