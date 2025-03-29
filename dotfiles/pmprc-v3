@@ -50,7 +50,7 @@ earTraining:
 max:
   For chapter 7, use key of {}: {B♭|D}
   Long notes in today's permutation and key: NONE
-  MdA 7 {}: {<7@90/100|9 (bar 13 smoothly)|*15-19 (see)|*23 (tempo)|*24@70/112>}
+  MdA 7 {}: {<7@90/100|9 (bar 13 smoothly)|*15-19 (see)|*23 (tempo)|*24@75/112>}
   For MdA 7.15-19, use the order {}: {<15|16|17|18|19>}
   1@maxRevise
   1@maxStandard  # Current when we move to chapter 8
@@ -86,7 +86,7 @@ maxRevise:
   MdA 7.22: NONE
 
 maxStandard:
-  *A Ghost of a chance (C) – The New Real Book 3 [MdA Ch. 5]: NONE
+  *A Ghost of a chance (C) – The New Real Book 3 [132=127 MdA Ch. 5]: NONE
   *But beautiful (G) – The New Real Book 1 [MdA Ch. 5]: NONE
   Darn that dream (G) – The New Real Book 1 [61=76 MdA Ch. 5]: NONE
   Don't blame me (C) – The New Real Book 3 [111=110 MdA Ch. 5, see Toots version, not great but the recordings improved it for me]: NONE
@@ -138,7 +138,7 @@ maxStandard:
   Waltz for Debby (F) – The New Real Book 1 [387=381 MdA Ch. 6]: NONE
   ⍻Witchcraft (F) – The New Real Book 1 [407=401 MdA Ch. 6]: NONE
   Yesterdays (Dm) – The New Real Book 1 [409=403 MdA Ch. 6]: NONE
-  The Days of Wine and Roses -- The Real Standards Book [105=111 MdA Ch. 6]: NONE
+  The Days of Wine and Roses - Chuck Sher's The Real Standards Book [105=111 MdA Ch. 6]: NONE
 
   A child is born (Bb) – The New Real Book 2 [48(=60) MdA Ch. 7]: NONE
   Almost like being in love (Bb) – The New Real Book 3 [12=20 MdA Ch. 7]: NONE
