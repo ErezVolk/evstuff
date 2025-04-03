@@ -91,7 +91,12 @@ class LikeIt:
             ltw = row.LTW
             tmap = ltw == wishlist.LTW
 
-            ltw = re.sub(r"^.*librarything.com/work/(\d+)(/.*)?$", r"\1", ltw)
+            if isinstance(ltw, str):
+                ltw = re.sub(
+                    r"^.*librarything.com/work/(\d+)(/.*)?$",
+                    r"\1",
+                    ltw,
+                )
 
             try:
                 ltw = int(ltw)
