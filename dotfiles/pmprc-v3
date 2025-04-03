@@ -34,7 +34,7 @@ _ram:
   Barry Harris' scales of chords for the Blues in F: NONE
   Bob Magnusson [Ex 23]: NONE
   Memorize [Rhythm Changes]: NONE
-  's Bob DeBoo/{}: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
+  Bob DeBoo/{}: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
