@@ -29,15 +29,14 @@ ram = [ 1@intonation _ram current ]
 
 _ram:
   Metronome on third triplet: NONE
-  2-octave scale in quarters, etc.; thirds; sequences; diatonic 7-chords [NB positions, keep fingers down]: NONE
+  2-octave scale in quarters, etc.; thirds; sequences; diatonic 7-chords [NB positions, keep fingers down], chords with prefix: NONE
   Jazz blues (patterns 1155, 1535, 1353, and then with leading tones): NONE
   Barry Harris' scales of chords for the Blues: NONE
-  Memorize [Rhythm Changes]: NONE
+  Memorize [There Will Never Be Another You]: NONE
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
   Bob Magnusson's Ex 23: NONE
-  Write the PingPongeroo: NONE
   # Stricker-3: NONE  (On hiatus)
 
 earTraining:
