@@ -204,6 +204,58 @@ A1: | 1⁶ 2-⁷   | 3-⁷ 4M⁷        | 1M⁷ 3-⁷   | 4M⁷ . 3-⁷ 6-⁷ |
 ```
 
 
+# There Will Never Be Another You
+1=Eb (New Real Book 6ed)
+
+```
+A: | IM7     | %          | VII-7b5  | III7*         |
+   | VI-7    | %          | V-9*     | I13*          |
+   | IVM7    | bVII9*     | IM7      | VI-7          |
+   | II9*    | %          | II-7     | V7            |
+B: | IM7     | %          | VII-7b5  | III7*         |
+   | VI-7    | %          | V-9*     | I13*          |
+   | IVM7    | bVII9*     | IM7      | #4-7b5* VII7* |
+   | I6 IV9* | III-7 IV7* | II-7 V13 | I6 (V7)      |
+```
+
+
+(Real Jazz Standards)
+```
+A: | I        | %             | VII-7*       | III7*              |
+   | VI-      | %             | V-7*         | I7*                |
+   | IV       | II-7v5*       | I/III        | VI-                |
+   | II7*     | %             | V11          | V7                 |
+B: | I        | %             | VII-7*       | III7*              |
+   | VI-      | I7*           | V-7*         | I7*                |
+   | IV       | II-7b5*       | I . V7* III- | II7sus* . II7* Io* |
+   | I VII7*  | V I7* II-7* . | V11 V7       | I                  |
+```
+
+"The harmony of this composition is functional and very much in line with other
+standards of its day. The main theme begins on IMaj7 before a minor II - V to the
+relative minor; it is not uncommon to hear it approached as Major instead. The A
+sections then continue with VImi before a II - V of IV sets up the following section.
+The B sections begin on IVMaj7 and continue with bVII7 - IMaj7. B1 proceeds in a
+predictable fashion, momentarily staying on II7 before a final II - V back to the tonic.
+B2 instead uses a II - V of III which deceptively resolves to the final turnaround of
+IMaj7 - IV7 - IIImi7 - VI7. The changes have proved to be immensely popular amongst
+soloists and have also been used as the basis for compositions such as "Split Kick" by
+Horace Silver and "Not You Again" by John Scofield."
+
+
+There will be many other nights like this
+And I'll be standing here with someone new
+There will be other songs to sing
+Another fall, another spring
+But there will never be another you
+
+There will be other lips that I may kiss
+But they won't thrill me like yours used to do
+Yes, I may dream a million dreams
+But how can they come true
+If there will never ever be another you?
+
+
 # To Do
 - Killer Joe (New Real Book2 / Real Book 2)
 - Stella (can it be done?)
