@@ -32,11 +32,12 @@
 - Walking exc: go up then down
 - There Will Never Be Another You
   - EbM7 D-7b5 G7 C-7 Bb-9 Eb13   AbM7 Db9 EbM7 C-7 F9 F-7 Bb7
-    !!!! +---min----+ +-----maj------+ b.d !!!! +---maj+-----?
+    ==== <---min----> <-----maj------> b.d ==== <---maj+----->
 
 
-  - EbM7 D-7b5 G7 C-7 Bb-9 Eb13   AbM7 Db9 EbM7 A-7b5 D7 Eb6 Ab9 G-7 C7 F-7 Bb13 Eb6
-    !!!! +---min----+ +-----maj------+ b.d !!!!
+  - EbM7 D-7b5 G7 C-7 Bb-9 Eb13   AbM7 Db9 EbM7 A-7b5 D7  Eb6 Ab9 G-7 C7 F-7 Bb13 Eb6
+    ==== <---min----> <-----maj------> b.d ==== <--min-- {detour} --> <--VI-ii-V-I-->
+                                                                  <--iii-VI-ii-V-I-->
 
 
 
