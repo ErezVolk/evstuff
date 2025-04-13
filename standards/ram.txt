@@ -45,4 +45,5 @@ Questions:
 - What exactly is the position thing? E.g., when playing a G-major on the G string:
   - Is 0-1-1-2-4-1-3-4 better than 0-1-3-4-1-1-3-4? Isn't the second more symmetric?
   - When going G-A-B-C-D-E-D-C-B-A-C -- which fingering?
+  - G-A♭-B♭-C-D
   - Never shift on a central finger?
