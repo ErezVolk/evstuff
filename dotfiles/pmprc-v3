@@ -51,10 +51,9 @@ earTraining:
 max:
   For chapter 7, use key of {}: {B♭|D}
   Long notes in today's permutation and key: NONE
-  MdA 7 -- {}: {<*15-19 (see)|*23 (80/100)|*24@75/112>}
-  For MdA 7.15-19, use the order {}: {<15|16|17|18|19>}
-  1@maxRevise  # Add current when we move to next chapter
-  1@maxStandard  # Current when we move to chapter 8
+  MdA 7 -- {}: {<15|17|18|19|*24@75/112>}
+  1@maxRevise  # Merge maxReviseCurr when we move to next chapter
+  1@maxStandard  # Merge maxStandardCurr when we move to next chapter
 
 maxRevise:
   MdA 3.19: NONE
@@ -78,7 +77,7 @@ maxRevise:
   MdA 6.10: NONE
   MdA 6.14: NONE
 
-maxRevise7:
+maxReviseCurr:
   MdA 7.3: NONE
   MdA 7.5: NONE
   MdA 7.6: NONE
@@ -88,6 +87,7 @@ maxRevise7:
   MdA 7.12: NONE
   MdA 7.21: NONE
   MdA 7.22: NONE
+  MdA 7.23 [85/100 BPM]: NONE
 
 maxStandard:
   *A Ghost of a chance (C) – The New Real Book 3 [132=127 MdA Ch. 5]: NONE
@@ -96,7 +96,7 @@ maxStandard:
   Don't blame me (C) – The New Real Book 3 [111=110 MdA Ch. 5, see Toots version, not great but the recordings improved it for me]: NONE
   Emily (G) – The New Real Book 3 [117=115 MdA Ch. 5]: NONE
   Everything I have is yours (C) – The New Real Book 3 [MdA Ch. 5]: NONE
-  Exactly like you (C) – The New Real Book 2 [MdA Ch. 5]: NONE
+  Exactly like you (C) – The New Real Book 2 [98(=110) MdA Ch. 5]: NONE
   Fly me to the moon (Am) – The New Real Book 2 [MdA Ch. 5]: NONE
   Here's that rainy day (G) – The New Real Book 1 [138=153 MdA Ch. 5]: NONE
   I got it bad (G) – The New Real Book 3 [153=146 MdA Ch. 5]: NONE
