@@ -34,6 +34,10 @@ def main() -> None:
         default=4,
     )
     parser.add_argument(
+        "-q",
+        "--query",
+    )
+    parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
@@ -67,6 +71,8 @@ def main() -> None:
         print()
 
     unheard = albums.loc[albums.When.isna()]
+    if args.query:
+        unheard = unheard.query(args.query)
     if len(unheard) == 0:
         print("Time to find more music.")
     else:
@@ -115,7 +121,7 @@ def row_desc(row: pd.Series) -> str:
     """Nicely format a "to listen" row."""
     who = one_of(row.Who)
     whom = one_of(row.Whom)
-    what = f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
+    what = f'[{int(row.n)}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
     if who == whom and not who.endswith(" et al."):
         return f'{what} ({row["dt"]})'
     return f'{what} (with {one_of(row.Whom)}, {row["dt"]})'
