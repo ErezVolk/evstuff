@@ -121,7 +121,7 @@ def row_desc(row: pd.Series) -> str:
     """Nicely format a "to listen" row."""
     who = one_of(row.Who)
     whom = one_of(row.Whom)
-    what = f'[{int(row.n)}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
+    what = f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
     if who == whom and not who.endswith(" et al."):
         return f'{what} ({row["dt"]})'
     return f'{what} (with {one_of(row.Whom)}, {row["dt"]})'
