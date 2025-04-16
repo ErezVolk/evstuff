@@ -25,9 +25,12 @@ seed:
 
 #######
 
+ramKeysDone := G
+
 ram = [ 1@intonation _ram current ]
 
 _ram:
+  Do this week's {}, and also revisit {}: {C} {ramKeysDone}
   Metronome on third triplet: NONE
   2-octave scale in quarters, etc.; thirds; sequences; diatonic 7-chords [NB positions, keep fingers down], chords with prefix: NONE
   Jazz blues (patterns 1155, 1535, 1353, and then with leading tones): NONE
