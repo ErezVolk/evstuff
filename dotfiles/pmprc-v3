@@ -54,7 +54,7 @@ earTraining:
 max:
   For chapter 7, use key of {}: {B♭|D}
   Long notes in today's permutation and key: NONE
-  MdA 7 -- {}: {<15|*17|18|19|*24@80/112>}
+  MdA 7 -- {}: {<15|17|18|19|⍻24@80/112>}
   1@maxRevise  # Merge maxReviseCurr when we move to next chapter
   1@maxStandard  # Merge maxStandardCurr when we move to next chapter
 
