@@ -52,11 +52,10 @@ earTraining:
 #######
 
 max:
-  For chapter 7, use key of {}: {B♭|D}
-  Long notes in today's permutation and key: NONE
-  MdA 7 -- {}: {<15|17|18|19|⍻24@80/112>}
-  1@maxRevise  # Merge maxReviseCurr when we move to next chapter
-  1@maxStandard  # Merge maxStandardCurr when we move to next chapter
+  For chapter 7, use key of {}: {C|G|F|B♭|D}
+  MdA 8 -- {}: {<1ff>}
+  1@maxRevise  # Start maxReviseCurr when there's something to put there
+  1@maxStandardCurr
 
 maxRevise:
   MdA 3.19: NONE
@@ -80,7 +79,6 @@ maxRevise:
   MdA 6.10: NONE
   MdA 6.14: NONE
 
-maxReviseCurr:
   MdA 7.3: NONE
   MdA 7.5: NONE
   MdA 7.6: NONE
@@ -91,6 +89,14 @@ maxReviseCurr:
   MdA 7.21: NONE
   MdA 7.22: NONE
   MdA 7.23 [85/100 BPM]: NONE
+  MdA 7.15 [In today's key]: NONE
+  MdA 7.16 [In today's key]: NONE
+  MdA 7.17 [In today's key]: NONE
+  MdA 7.18 [In today's key]: NONE
+  MdA 7.19 [In today's key]: NONE
+  MdA 7.24 [80/112 BPM]: NONE
+
+# maxReviseCurr:  # When we get anything
 
 maxStandard:
   *A Ghost of a chance (C) – The New Real Book 3 [132=127 MdA Ch. 5]: NONE
@@ -146,7 +152,6 @@ maxStandard:
   ⍻Witchcraft (F) – The New Real Book 1 [407=401 MdA Ch. 6]: NONE
   Yesterdays (Dm) – The New Real Book 1 [409=403 MdA Ch. 6]: NONE
   The Days of Wine and Roses - Chuck Sher's The Real Standards Book [105=111 MdA Ch. 6]: NONE
-
   A child is born (Bb) – The New Real Book 2 [48(=60) MdA Ch. 7]: NONE
   Almost like being in love (Bb) – The New Real Book 3 [12=20 MdA Ch. 7]: NONE
   *Autumn leaves (Gm) – The New Real Book 1 [12=25 MdA Ch. 7]: NONE
@@ -166,6 +171,20 @@ maxStandard:
   Up jumped spring (Bb) – The New Real Book 1 [old 440(=448) MdA Ch. 7]: NONE
   *Wave (D) – The New Real Book 1 [old-452 MdA Ch. 7]: NONE
   ⍻*You must believe in spring (D) – The New Real Book 3 [421=388 MdA Ch. 7]: NONE
+
+maxStandardCurr:
+  Now’s the Time [Real Book 3]: NONE
+  Billie’s Bounce [Real Book 2]: NONE
+  Blue Monk [Real Book 1]: NONE
+  Straight, no chaser [Real Book 1 5ed.]: NONE
+  Freddie freeloader [Real Book 1]: NONE
+  Sonnymoon for two [Separate file]: NONE
+  Tenor Madness [Real Book 2]: NONE
+  C Jam Blues [Real Book 2]: NONE
+  Blue Trane [Real Book 1]: NONE
+  Sandu [Real Book 2, New Real Book 1, 557]: NONE
+  Bag’s Groove [Real Book 2, 557]: NONE
+  Blues in the closet [Real Book 2, 557]: NONE
 
 
 #######
