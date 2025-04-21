@@ -52,7 +52,7 @@ earTraining:
 #######
 
 max:
-  For chapter 7, use key of {}: {C|G|F|B♭|D}
+  When in need, use key of {}: {C|G|F|B♭|D}
   MdA 8 -- {}: {<1ff>}
   1@maxRevise  # Start maxReviseCurr when there's something to put there
   1@maxStandardCurr
@@ -176,7 +176,7 @@ maxStandardCurr:
   Now’s the Time [Real Book 3]: NONE
   Billie’s Bounce [Real Book 2]: NONE
   Blue Monk [Real Book 1]: NONE
-  Straight, no chaser [Real Book 1 5ed.]: NONE
+  *Straight, no chaser [Real Book 1 386=385]: NONE
   Freddie freeloader [Real Book 1]: NONE
   Sonnymoon for two [Separate file]: NONE
   Tenor Madness [Real Book 2]: NONE
