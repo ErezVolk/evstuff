@@ -30,8 +30,7 @@ ramKeysDone := G|C
 ram = [ 1@intonation _ram ]
 
 _ram:
-  Do this week's {}, and also revisit {}: {F} {ramKeysDone}
-  Scale: NONE
+  Key of {}, and also revisit {}: {F} {ramKeysDone}
   Standard [There Will Never Be Another You]: NONE
   Memorize walking [which?]: NONE
   Memorize solo [which?]: NONE
