@@ -25,19 +25,18 @@ seed:
 
 #######
 
-ramKeysDone := G
+ramKeysDone := G|C
 
-ram = [ 1@intonation _ram current ]
+ram = [ 1@intonation _ram ]
 
 _ram:
-  Do this week's {}, and also revisit {}: {C} {ramKeysDone}
-  Metronome on third triplet: NONE
-  2-octave scale in quarters, etc.; thirds; sequences; diatonic 7-chords [NB positions, keep fingers down], chords with prefix: NONE
-  Jazz blues (patterns 1155, 1535, 1353, and then with leading tones): NONE
-  Barry Harris' scales of chords for the Blues: NONE
-  Memorize [There Will Never Be Another You]: NONE
-  "Linear" up/down bass line: NONE
-  Record myself!: NONE
+  Do this week's {}, and also revisit {}: {F} {ramKeysDone}
+  Scale: NONE
+  Standard [There Will Never Be Another You]: NONE
+  Memorize walking [which?]: NONE
+  Memorize solo [which?]: NONE
+  Bebop head [Billie's Bounce]: NONE
+  Keep in mind -- Linear bassline; Recording, Play fully; Scales of Chords: NONE
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
