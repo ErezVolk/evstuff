@@ -35,7 +35,7 @@ _ram:
   Memorize walking [which?]: NONE
   Memorize solo [which?]: NONE
   Bebop head [Billie's Bounce]: NONE
-  Keep in mind -- Linear bassline; Recording, Play fully; Scales of Chords: NONE
+  Keep in mind -- Linear bassline; Recording, Play fully; Scales of Chords; Play a song: NONE
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
@@ -51,7 +51,7 @@ earTraining:
 
 max:
   When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 8 -- {}: {<1ff>}
+  MdA 8 -- {}: {<1|2ff>}
   1@maxRevise  # Start maxReviseCurr when there's something to put there
   1@maxStandardCurr
 
