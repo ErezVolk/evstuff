@@ -51,10 +51,10 @@
   - Work on playing bebop heads (e.g., Billie's Bounce)
 
 
-
-Questions:
-- What exactly is the position thing? E.g., when playing a G-major on the G string:
-  - Is 0-1-1-2-4-1-3-4 better than 0-1-3-4-1-1-3-4? Isn't the second more symmetric?
-  - When going G-A-B-C-D-E-D-C-B-A-C -- which fingering?
-  - G-A♭-B♭-C-D
-  - Never shift on a central finger?
+Recordings I Like
+-----------------
+- There Will Never Be Another You
+  - Roland Kirk, "The Return of the 5000lb. Man" version (b: Buster Williams)
+  - Cy Coleman, "Comin' Home" (Ben Tucker, in F)
+  - Louis Smith, "Smithville" (Paul Chambers, with bowed solo)
+  - ? Lee Konitz with Warne Marsh (Oscar Pettiford, incl. very nice solo)
