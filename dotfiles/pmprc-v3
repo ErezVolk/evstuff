@@ -31,6 +31,7 @@ ram = [ 1@intonation _ram ]
 
 _ram:
   Key of {}, and also revisit {}: {F} {ramKeysDone}
+  Scale ({}) Linear·{}: {↗|↘} {<Thirds|Sequences|Triads|Quadrads>}
   Standard [There Will Never Be Another You]: NONE
   Memorize walking [which?]: NONE
   Memorize solo [which?]: NONE
