@@ -55,7 +55,7 @@ earTraining:
 
 max:
   When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 8 -- {}: {<1|2ff>}
+  MdA 8 -- {}ff: {<1|2|3>}
   1@maxRevise  # Start maxReviseCurr when there's something to put there
   1@maxStandardCurr
 
@@ -184,7 +184,7 @@ maxStandardCurr:
   Tenor Madness [Real Book 2 376(=383)]: NONE
   C Jam Blues [Real Book 2]: NONE
   Blue Trane [Real Book 1]: NONE
-  Sandu [Real Book 2, New Real Book 1, 557]: NONE
+  *Sandu [New Real Book 1 307=301]: NONE
   Bag’s Groove [Real Book 2, 557]: NONE
   Blues in the closet [Real Book 2, 557]: NONE
 
