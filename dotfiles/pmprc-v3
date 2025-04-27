@@ -33,10 +33,13 @@ _ram:
   Key of {}, and also revisit {}: {F} {ramKeysDone}
   Scale ({}) Linear·{}: {↗|↘} {<Thirds|Sequences|Triads|Arpeggios>}
   Standard [There Will Never Be Another You]: NONE
-  Memorize walking [which?]: NONE
+  Memorize walking [Buster Williams on "Never Be Another You"]: NONE
   Memorize solo [which?]: NONE
   Bebop head [Billie's Bounce]: NONE
   Keep in mind -- Linear bassline; Recording, Play fully; Scales of Chords; Play a song: NONE
+
+ramRevise:
+  Paul Chambers on "Blue Spring Shuffle": NONE
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
