@@ -31,7 +31,7 @@ ram = [ 1@intonation _ram ]
 
 _ram:
   Key of {}, and also revisit {}: {F} {ramKeysDone}
-  Scale ({}) Linear·{}: {↗|↘} {<Thirds|Sequences|Triads|Quadrads>}
+  Scale ({}) Linear·{}: {↗|↘} {<Thirds|Sequences|Triads|Arpeggios>}
   Standard [There Will Never Be Another You]: NONE
   Memorize walking [which?]: NONE
   Memorize solo [which?]: NONE
@@ -178,7 +178,7 @@ maxStandardCurr:
   *Straight, no chaser [Real Book 1 386=385]: NONE
   Freddie freeloader [Real Book 1]: NONE
   Sonnymoon for two [Separate file]: NONE
-  Tenor Madness [Real Book 2]: NONE
+  Tenor Madness [Real Book 2 376(=383)]: NONE
   C Jam Blues [Real Book 2]: NONE
   Blue Trane [Real Book 1]: NONE
   Sandu [Real Book 2, New Real Book 1, 557]: NONE
