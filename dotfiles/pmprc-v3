@@ -25,16 +25,15 @@ seed:
 
 #######
 
-ramKeysDone := G|C
-
 ram = [ 1@intonation _ram ]
 
 _ram:
-  Key of {}, and also revisit {}: {F} {ramKeysDone}
+  Key of {}, and also revisit {}: {B♭} {G|C|F}
   Scale ({}) Linear·{}: {↗|↘} {<Thirds|Sequences|Triads|Arpeggios>}
   Standard [There Will Never Be Another You]: NONE
-  Memorize walking [Buster Williams on "Never Be Another You"]: NONE
-  Memorize solo [which?]: NONE
+  Memorize walking [Israel Crosby on "But Not For Me"]: NONE
+  Memorize solo [Paul Chambers on "But Not For Me"]: NONE
+  Play with recording [Blues; There Will Never Be Another You]: NONE
   Bebop head [Billie's Bounce]: NONE
   Keep in mind -- Linear bassline; Recording, Play fully; Scales of Chords; Play a song: NONE
 
