@@ -25,20 +25,25 @@ seed:
 
 #######
 
-ram = [ 1@intonation _ram ]
+ram = [ 1@intonation ramScale ramLearn ramPlay 1@ramRevise ]
 
-_ram:
-  Key of {}, and also revisit {}: {B♭} {G|C|F}
-  Scale ({}) Linear·{}: {↗|↘} {<Thirds|Sequences|Triads|Arpeggios>}
-  Standard [There Will Never Be Another You]: NONE
+ramScale:
+  Key of {}{} Linear·{}: {B♭} {↗|↘} {<Thirds|Sequences|Triads|Arpeggios>}
+  Revisit {}: {G|C|F}
+
+ramLearn:
+  Learn a standard [But Not For Me]: NONE
   Memorize walking [Israel Crosby on "But Not For Me"]: NONE
   Memorize solo [Paul Chambers on "But Not For Me"]: NONE
+  Lean a bebop head [Billie's Bounce]: NONE
+
+ramPlay:
   Play with recording [Blues; There Will Never Be Another You]: NONE
-  Bebop head [Billie's Bounce]: NONE
-  Keep in mind -- Linear bassline; Recording, Play fully; Scales of Chords; Play a song: NONE
+  Keep in mind -- Linear bassline; Record, Play fully; Scales of Chords; Play a song: NONE
 
 ramRevise:
   Paul Chambers on "Blue Spring Shuffle": NONE
+  Buster Williams on "There Will Never Be Another You": NONE
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
@@ -54,7 +59,7 @@ earTraining:
 
 max:
   When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 8 -- {} &c: {<1|2|3>}
+  MdA 8 -- {}·&c: {<1|2|3|4|5|6>}
   1@maxRevise  # Start maxReviseCurr when there's something to put there
   1@maxStandardCurr
 
@@ -81,7 +86,7 @@ maxRevise:
   MdA 6.14: NONE
 
   MdA 7.3: NONE
-  MdA 7.5: NONE
+  MdA 7.5 [In today's key]: NONE
   MdA 7.6: NONE
   MdA 7.7 [90/100 BPM]: NONE
   MdA 7.9: NONE
@@ -185,7 +190,7 @@ maxStandardCurr:
   Blue Trane [Real Book 1]: NONE
   *Sandu [New Real Book 1 307=301]: NONE
   Bag’s Groove [Real Book 2, 557]: NONE
-  Blues in the closet [Real Book 2, 557]: NONE
+  Blues in the closet [Real Book 2, 36(=43)]: NONE
 
 
 #######
