@@ -28,14 +28,51 @@ seed:
 ram = [ 1@intonation ramScale ramLearn ramPlay 1@ramRevise ]
 
 ramScale:
-  Key of {}{} Linear·{}: {B♭} {↗|↘} {<Thirds|Sequences|Triads|Arpeggios>}
-  Revisit {}: {G|C|F}
+  Key of {}{} {}: {E♭} {↗|↘} {<Linear|Thirds|Sequences|Triads|Arpeggios>}
+  Revisit {}: {G|C|F|B♭}
 
 ramLearn:
   Learn a standard [But Not For Me]: NONE
   Memorize walking [Israel Crosby on "But Not For Me"]: NONE
   Memorize solo [Paul Chambers on "But Not For Me"]: NONE
-  Lean a bebop head [Billie's Bounce]: NONE
+  Learn a bebop head [Ornithology]: NONE
+
+# Bebop heads:
+# https://www.jazzguitar.be/forum/ear-training-transcribing-reading/96246-essential-bebop-heads.html
+# - Anthropology
+# - Au Privave
+# - Blues for Alice
+# - Donna Lee
+# - Half Nelson
+# - Ornithology
+# - Oleo
+# - Scrapple from the Apple
+# Added on https://playjazzpianonyc.com/resources/repertoire/32-must-know-bebop-heads/
+# - Anthropology (3 versions)
+# - Bill For Bennie
+# - Birdlike
+# - Celia
+# - Confirmation
+# - Dance of the Infidels
+# - Dexterity 
+# - Four
+# - Four Brothers
+# - Good Bait
+# - Groovin’ High
+# - In Walked Bud
+# - Joy Spring
+# - Little Willie Leaps 
+# - Milestones
+# - Move
+# - Sandu
+# - Straight no Chaser
+# - Strollin’
+# - The Sidewinder
+# - Walkin’
+# - Walkin’ Shoes
+# - Well, You Needn’t
+# - Yardbird Suite
+# - Yeah
 
 ramPlay:
   Play with recording [Blues; There Will Never Be Another You; But Not For Me]: NONE
@@ -44,6 +81,7 @@ ramPlay:
 ramRevise:
   Paul Chambers on "Blue Spring Shuffle": NONE
   Buster Williams on "There Will Never Be Another You": NONE
+  Billie's Bounce: NONE
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
