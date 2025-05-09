@@ -116,7 +116,7 @@ earTraining:
 
 max:
   When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 8 -- {}·&c: {<1|2|3|4|5|6>}
+  MdA 8 -- {}·&c: {<1|2|3|👍4|5|6|👍7|8|👍9|10|11|12|👍13>}
   1@maxRevise  # Start maxReviseCurr when there's something to put there
   1@maxStandardCurr
 
@@ -243,8 +243,8 @@ maxStandardCurr:
   Freddie freeloader [Real Book 1]: NONE
   Sonnymoon for two [Separate file]: NONE
   Tenor Madness [Real Book 2 376(=383)]: NONE
-  C Jam Blues [Real Book 2]: NONE
-  Blue Trane [Real Book 1]: NONE
+  C Jam Blues [Real Book 2 55(=62)]: NONE
+  Blue Trane [Real Book 1 54=53]: NONE
   *Sandu [New Real Book 1 307=301]: NONE
   Bag’s Groove [Real Book 2, 557]: NONE
   Blues in the closet [Real Book 2, 36(=43)]: NONE
