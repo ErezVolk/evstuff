@@ -25,6 +25,21 @@ seed:
 
 #######
 
+songsPlayed:
+  Play "But Not For Me": NONE
+  Play "Equinox": NONE
+  Play "It Could Happen to You": NONE
+  Play "Out of Nowhere": NONE
+  Play "There Will Never Be Another You": NONE
+  Memorize "Black Narcissus": NONE
+  Memorize "Fly Me to the Moon": NONE
+  Memorize "How Deep is the Ocean": NONE
+  Memorize "How Insensitive": NONE
+  Memorize "Skylark": NONE
+  Memorize "Someday My Prince Will Come": NONE
+
+#######
+
 ram = [ 1@intonation ramScale ramLearn ramPlay 1@ramRevise ]
 
 ramScale:
@@ -33,7 +48,7 @@ ramScale:
 
 ramLearn:
   Learn a standard [But Not For Me]: NONE
-  Memorize walking [Israel Crosby on "But Not For Me"]: NONE
+  Memorize walking [???]: NONE
   Memorize solo [Paul Chambers on "But Not For Me"]: NONE
   Learn a bebop head [Ornithology]: NONE
 
@@ -49,7 +64,7 @@ ramLearn:
 # - Scrapple from the Apple
 # Added on https://playjazzpianonyc.com/resources/repertoire/32-must-know-bebop-heads/
 # - Anthropology (3 versions)
-# - Bill For Bennie
+# - Blues For Bennie
 # - Birdlike
 # - Celia
 # - Confirmation
@@ -81,7 +96,11 @@ ramPlay:
 ramRevise:
   Paul Chambers on "Blue Spring Shuffle": NONE
   Buster Williams on "There Will Never Be Another You": NONE
-  Billie's Bounce: NONE
+  Israel Crosby on "But Not For Me": NONE
+  Head of "Billie's Bounce": NONE
+  Play "There Will Never Be Another You": NONE
+  Play "But Not For Me": NONE
+  Play "Out of Nowhere": NONE
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
