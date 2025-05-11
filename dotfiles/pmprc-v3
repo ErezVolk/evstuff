@@ -116,7 +116,7 @@ earTraining:
 
 max:
   When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 8 -- {}·&c: {<1|2|3|👍⍻4|5|6|👍⍻7|8|👍9|⍻10|11|⍻12|👍13>}
+  MdA 8 -- {}·&c: {<1|2|3|👍⍻4|5|⍻6|👍⍻7|8|👍9|⍻10|⍻11|⍻12|👍⍻13>}
   1@maxRevise  # Start maxReviseCurr when there's something to put there
   1@maxStandardCurr
 
