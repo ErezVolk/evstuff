@@ -43,14 +43,14 @@ songsPlayed:
 ram = [ 1@intonation ramScale ramLearn ramPlay 1@ramRevise ]
 
 ramScale:
-  Key of {}{} {}: {E♭} {↗|↘} {<Linear|Thirds|Sequences|Triads|Arpeggios>}
-  Revisit {}: {G|C|F|B♭}
+  Key of {}{} {}: {A♭} {↗|↘} {<Linear|Thirds|Sequences|Triads|Arpeggios>}
+  Revisit {}: {G|C|F|E♭|B♭}
 
 ramLearn:
   Learn a standard ["But Not For Me", ⍻]: NONE
   Memorize walking [Israel Chambers on "But Not For Me", ⍻]: NONE
   Memorize solo, transposing nice phrases to all keys [Paul Chambers on "But Not For Me"]: NONE
-  Learn a bebop head [Ornithology, ⍻]: NONE
+  Learn a bebop head [Ornithology, with the extra passage ⍻]: NONE
 
 # Bebop heads:
 # https://www.jazzguitar.be/forum/ear-training-transcribing-reading/96246-essential-bebop-heads.html
