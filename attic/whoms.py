@@ -57,6 +57,8 @@ def main() -> None:
     whoms["heard"] = whoms.heard.fillna(0).astype(int)
 
     hours = albums["dt"].apply(lambda dt: dt.hour + dt.minute / 60)
+    albums["minutes"] = hours * 60
+    albums["hours"] = hours
     heards = [
         f"{k_of_n(albums.heard)} albums",
         f"{k_of_n(whoms.heard)} players",
@@ -76,8 +78,11 @@ def main() -> None:
     if len(unheard) == 0:
         print("Time to find more music.")
     else:
-        n_shortest = max(len(unheard) // args.shortest_nth, 1)
-        shorts = unheard.sort_values("dt").iloc[:n_shortest]
+        if args.shortest_nth:
+            n_shortest = max(len(unheard) // args.shortest_nth, 1)
+            shorts = unheard.sort_values("dt").iloc[:n_shortest]
+        else:
+            shorts = unheard
         offer = shorts.sample(n=args.count).sort_values("n")
         print(f"Suggestions ({len(offer)} / {len(shorts)} / {len(unheard)}):")
         for _, row in offer.iterrows():
