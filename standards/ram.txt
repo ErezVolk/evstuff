@@ -87,5 +87,8 @@ Notes:
   - How to connect song title to structure? Maybe via melody?
   - In a sense, the listening part is key
   - Finding the KEY points of a progression (or aren't these the joins?)
+    - A key might be comparing different versions of the same song, like I started doing
+    - What about substitutions etc.? Shouldn't those be stripped out?
+  - Also should not forget durations
 - Take a short line and play over many songs
 - Hey, Israel Crosby reuses that Ab7-G7 line from "But Not for Me" on "Stompin' at the Savoy"
