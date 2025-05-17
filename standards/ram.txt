@@ -81,6 +81,11 @@
 
 Notes:
 ------
-- Maybe a "collection of songs with specific lego block"?
+- On the lego thing:
+  - Maybe a "collection of songs with specific lego block"?
+  - Recognizing blocks (anki?) and joins vs. memorizing (another anki?)
+  - How to connect song title to structure? Maybe via melody?
+  - In a sense, the listening part is key
+  - Finding the KEY points of a progression (or aren't these the joins?)
 - Take a short line and play over many songs
 - Hey, Israel Crosby reuses that Ab7-G7 line from "But Not for Me" on "Stompin' at the Savoy"
