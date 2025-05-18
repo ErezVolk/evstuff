@@ -83,7 +83,7 @@ def main() -> None:
             shorts = unheard.sort_values("dt").iloc[:n_shortest]
         else:
             shorts = unheard
-        offer = shorts.sample(n=args.count).sort_values("n")
+        offer = shorts.sample(n=min(args.count, len(shorts))).sort_values("n")
         print(f"Suggestions ({len(offer)} / {len(shorts)} / {len(unheard)}):")
         for _, row in offer.iterrows():
             print(f"- {row_desc(row)}")
