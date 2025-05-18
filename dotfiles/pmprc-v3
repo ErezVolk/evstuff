@@ -48,7 +48,7 @@ ramScale:
 
 ramLearn:
   Learn a standard ["How High the Moon"]: NONE
-  Memorize walking [Israel Crossby on "But Not For Me", ⍻]: NONE
+  Memorize walking [Milt Hinton on "Flyin' Home"]: NONE
   Memorize solo, transposing nice phrases to all keys, starting {} [Paul Chambers on "But Not For Me"]: ANY
   Learn a bebop head ["Ornithology", with the extras ⍻]: NONE
 
@@ -90,7 +90,7 @@ ramLearn:
 # - Yeah
 
 ramPlay:
-  Play with recording [Blues; There Will Never Be Another You; But Not For Me]: NONE
+  Play with recording -- {}: {<Blues|There Will Never Be Another You|But Not For Me|Out of Nowhere>}
   Keep in mind -- Linear bassline; Record, Play fully; Scales of Chords; Play a song: NONE
 
 ramRevise:
@@ -116,7 +116,7 @@ earTraining:
 
 max:
   When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 8 -- {}·&c: {<1+solo|2+solo|⍻5|8|👍⍻9|⍻11|⍻12|14|15|16>}
+  MdA 8 -- {}·&c: {<1+solo|2+solo|⍻5|⍻8|👍⍻9|⍻11|14@70BPM|15@75BPM>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
@@ -161,7 +161,7 @@ maxRevise:
 
 # maxReviseCurr:
   MdA 8.{}, head and solo: {1|2}
-  MdA 8 -- some of {}: {<4|6|7|10|13>}
+  MdA 8 -- some of {}: {<4|6|7|10|12|13>}
 
 maxStandard:
   *A Ghost of a chance (C) – The New Real Book 3 [132=127 MdA Ch. 5]: NONE
