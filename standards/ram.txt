@@ -90,5 +90,12 @@ Notes:
     - A key might be comparing different versions of the same song, like I started doing
     - What about substitutions etc.? Shouldn't those be stripped out?
   - Also should not forget durations
+  - Once again, root movement is not enough; maybe the keyboard (/uke) is the key
+  - On writing:
+    - What about the Korean alphabet thing? Or shorthand (consonant=root, vowel=quality...?)
+    - Some kind of hand-solfege-for-chord thing
+    - Roots: 12(7), want to see circle in there; Chord types: Let's say (major 7, minor 7, dominant 7, half-dim, dim, maj-min, 6, m6, aug)
+    - So basically the phonology of chord progressions
+  - This is too much emphasis on graphic compactness, where's memorizing and hearing.
 - Take a short line and play over many songs
 - Hey, Israel Crosby reuses that Ab7-G7 line from "But Not for Me" on "Stompin' at the Savoy"
