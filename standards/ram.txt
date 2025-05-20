@@ -81,6 +81,9 @@
 
 Notes:
 ------
+- How to get over confusion between "There Will Never Be Another You" and "But Not For Me" (the B parts)
+  - And memorize actual chords, not roots
+  - And effectively memorize relative
 - On the lego thing:
   - Maybe a "collection of songs with specific lego block"?
   - Recognizing blocks (anki?) and joins vs. memorizing (another anki?)
