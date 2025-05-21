@@ -44,12 +44,12 @@ songsLearned:
 ram = [ 1@intonation ramScale ramLearn 2@songsLearned 2@ramRevise ]
 
 ramScale:
-  Key of {}{} {}: {A♭} {↗|↘} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
-  Revisit {}: {G|C|F|E♭|B♭}
+  Key of {}{} {}: {D♭} {↗|↘} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+  Revisit {}: {G|C|F|E♭|B♭|A♭}
 
 ramLearn:
   Learn a standard ["How High the Moon/Ornithology"]: NONE
-  Memorize walking [Milt Hinton on "Flyin' Home"]: NONE
+  Memorize walking [Percy Heath on "But not For Me"]: NONE
   Memorize solo, transposing nice phrases to all keys, starting {} [Paul Chambers on "But Not For Me"]: ANY
   Learn a bebop head ["Ornithology", with the extras ⍻]: NONE
 
@@ -64,7 +64,6 @@ ramLearn:
 # - Oleo
 # - Scrapple from the Apple
 # Added on https://playjazzpianonyc.com/resources/repertoire/32-must-know-bebop-heads/
-# - Anthropology (3 versions)
 # - Blues For Bennie
 # - Birdlike
 # - Celia
