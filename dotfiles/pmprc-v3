@@ -112,7 +112,7 @@ earTraining:
 
 max:
   When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 8 -- {}·&c: {<1+solo|2+solo|⍻8|⍻11|14@90BPM|15@75BPM>}
+  MdA 8 -- {}·&c: {<1+solo|2+solo|⍻8|14@90BPM|15@80BPM|16@80BPM>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
@@ -157,7 +157,7 @@ maxRevise:
 
 # maxReviseCurr:
   MdA 8.{}, head and solo: {1|2}
-  MdA 8 -- some of {}, in today's key: {<4|5|6|7|9|10|12|13>}
+  MdA 8 -- some of {}, in today's key: {<4|5|6|7|9|10|11|12|13>}
 
 maxStandard:
   *A Ghost of a chance (C) – The New Real Book 3 [132=127 MdA Ch. 5]: NONE
