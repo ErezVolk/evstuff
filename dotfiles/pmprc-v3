@@ -132,7 +132,7 @@ maxRevise:
   MdA 5.15: NONE
   MdA 5.16: NONE
 
-  MdA 6.4: NONE
+  MdA 6.4 [In today's key]: NONE
   MdA 6.5: NONE
   MdA 6.7: NONE
   MdA 6.10: NONE
@@ -236,7 +236,7 @@ maxStandard:
 maxStandardCurr:
   Now’s the Time [Real Book 3]: NONE
   Billie’s Bounce [Real Book 2]: NONE
-  Blue Monk [Real Book 1]: NONE
+  Blue Monk [Real Book 1 52=51]: NONE
   *Straight, no chaser [Real Book 1 386=385]: NONE
   Freddie freeloader [Real Book 1]: NONE
   Sonnymoon for two [Separate file]: NONE
