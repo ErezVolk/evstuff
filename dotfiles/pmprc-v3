@@ -49,7 +49,7 @@ ramScale:
 
 ramLearn:
   Learn a standard ["Wave", "Central Park West"]: NONE
-  Memorize walking [George Duvivier on on "Out of Nowhere"]: NONE
+  Memorize walking [George Duvivier? Ray Brown? on on "Out of Nowhere"]: NONE
   Memorize solo, transposing nice phrases to all keys, starting {} [Fats Navarro on "Nostalgia"]: ANY
   Learn a bebop head ["Ornithology", with the extras ⍻]: NONE
 
@@ -113,7 +113,7 @@ earTraining:
 
 max:
   When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 8 -- {}·&c: {<⍻14@90BPM|⍻15@90BPM|16@80BPM|17>}
+  MdA 8 -- {}·&c: {<⍻14@90BPM|⍻15@90BPM|16@80BPM|17@80|23@70>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
@@ -239,7 +239,7 @@ maxStandardCurr:
   Billie’s Bounce [Real Book 2]: NONE
   Blue Monk [Real Book 1 52=51]: NONE
   *Straight, no chaser [Real Book 1 386=385]: NONE
-  Freddie freeloader [Real Book 1]: NONE
+  Freddie freeloader [Real Book 1 151=151]: NONE
   Sonnymoon for two [Separate file]: NONE
   Tenor Madness [Real Book 2 376(=383)]: NONE
   C Jam Blues [Real Book 2 55(=62)]: NONE
