@@ -50,8 +50,8 @@ ramScale:
 ramLearn:
   Learn a standard ["Wave", "Central Park West"]: NONE
   Memorize walking [Ray Brown on on "Out of Nowhere"]: NONE
-  Memorize solo, transposing nice phrases to all keys, starting {} [Fats Navarro on "Nostalgia"]: ANY
-  Learn a bebop head ["Ornithology", with the extras ⍻]: NONE
+  Memorize solo, transposing nice phrases to all keys, starting {} [Fats Navarro on "Nostalgia", bars 31-33]: ANY
+  Work on 6-dim [play all inversions of 6, all of dim, both directiong, then alternating]: ANY
 
 # Bebop heads:
 # https://www.jazzguitar.be/forum/ear-training-transcribing-reading/96246-essential-bebop-heads.html
@@ -112,8 +112,8 @@ earTraining:
 #######
 
 max:
-  When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 9 -- {}·&c: {<1|2>}
+  # When in need, use key of {}: {C|G|F|B♭|D}
+  MdA 9 -- {}·&c: {<1|2|3>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
@@ -122,7 +122,7 @@ maxRevise:
   MdA 3.22: NONE
   MdA 3.26: NONE
   MdA 3.27: NONE
-  MdA 3.29: NONE
+  MdA 3.29 [In today's key]: NONE
 
   MdA 4.13 [N.B last line]: NONE
   MdA 4.18: NONE
@@ -216,6 +216,7 @@ maxStandard:
   ⍻Witchcraft (F) – The New Real Book 1 [407=401 MdA Ch. 6]: NONE
   Yesterdays (Dm) – The New Real Book 1 [409=403 MdA Ch. 6]: NONE
   The Days of Wine and Roses - Chuck Sher's The Real Standards Book [105=111 MdA Ch. 6]: NONE
+
   A child is born (Bb) – The New Real Book 2 [48(=60) MdA Ch. 7]: NONE
   Almost like being in love (Bb) – The New Real Book 3 [12=20 MdA Ch. 7]: NONE
   *Autumn leaves (Gm) – The New Real Book 1 [12=25 MdA Ch. 7]: NONE
@@ -236,19 +237,45 @@ maxStandard:
   *Wave (D) – The New Real Book 1 [old-452 MdA Ch. 7]: NONE
   ⍻*You must believe in spring (D) – The New Real Book 3 [421=388 MdA Ch. 7]: NONE
 
+  Now’s the Time [Real Book 3 MdA Ch. 8]: NONE
+  Billie’s Bounce [Real Book 2 MdA Ch. 8]: NONE
+  Blue Monk [Real Book 1 52=51 MdA Ch. 8]: NONE
+  *Straight, no chaser [Real Book 1 386=385 MdA Ch. 8]: NONE
+  Freddie freeloader [Real Book 1 151=151 MdA Ch. 8]: NONE
+  Sonnymoon for two [Separate file MdA Ch. 8]: NONE
+  Tenor Madness [Real Book 2 376(=383) MdA Ch. 8]: NONE
+  C Jam Blues [Real Book 2 55(=62) MdA Ch. 8]: NONE
+  Blue Trane [Real Book 1 54=53 MdA Ch. 8]: NONE
+  *Sandu [New Real Book 1 307=301 MdA Ch. 8]: NONE
+  Bag’s Groove [Real Book 2, 557 MdA Ch. 8]: NONE
+  Blues in the closet [Real Book 2, 36(=43) MdA Ch. 8]: NONE
+
 maxStandardCurr:
-  Now’s the Time [Real Book 3]: NONE
-  Billie’s Bounce [Real Book 2]: NONE
-  Blue Monk [Real Book 1 52=51]: NONE
-  *Straight, no chaser [Real Book 1 386=385]: NONE
-  Freddie freeloader [Real Book 1 151=151]: NONE
-  Sonnymoon for two [Separate file]: NONE
-  Tenor Madness [Real Book 2 376(=383)]: NONE
-  C Jam Blues [Real Book 2 55(=62)]: NONE
-  Blue Trane [Real Book 1 54=53]: NONE
-  *Sandu [New Real Book 1 307=301]: NONE
-  Bag’s Groove [Real Book 2, 557]: NONE
-  Blues in the closet [Real Book 2, 36(=43)]: NONE
+  Baby, It’s cold outside (Eb) – The New Real Book 2 [MdA Ch. 9]: NONE
+  Blue Bossa (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Blue Moon (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
+  Dindi (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  For all we know (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
+  The gentle rain (Cm) – The New Real Book 3 [MdA Ch. 9]: NONE
+  Gush (F♯m) – The New Real Book 3 [MdA Ch. 9]: NONE
+  I fall in love too easily (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
+  Imagination (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Moonlight in Vermont (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  *Misty (Eb) – The New Real Book 1 [(old) 296(=304) MdA Ch. 9]: NONE
+  Once I loved (A) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Out of this world (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Over the rainbow (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
+  Reincarnation of a lovebird (F♯m) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Sing me soﬅly of the blues (A) – The New Real Book 2 [MdA Ch. 9]: NONE
+  Skylark (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Someone to light up my life (A) – The New Real Book 2 [MdA Ch. 9]: NONE
+  Solar (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Solitude (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
+  Speak no evil (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Tenderly (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  There will never be another you (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  These foolish heart (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Triste (A) – The New Real Book 1 [MdA Ch. 9]: NONE
 
 
 #######
