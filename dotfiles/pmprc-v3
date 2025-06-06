@@ -51,7 +51,7 @@ ramLearn:
   Learn a standard [Scales and improvise over "Wave", "Central Park West"]: NONE
   Memorize walking [Ray Brown on on "Out of Nowhere"]: NONE
   Memorize solo, transposing nice phrases to all keys, starting {} [Fats Navarro on "Nostalgia", bars 31-33]: ANY
-  Work on 6-dim [play all inversions of 6, all of dim, both directiong, then alternating]: ANY
+  Work on 6-dim in today's key and {} [play all inversions of 6, all of dim, both directions, then alternating]: ANY
 
 # Bebop heads:
 # https://www.jazzguitar.be/forum/ear-training-transcribing-reading/96246-essential-bebop-heads.html
@@ -113,7 +113,7 @@ earTraining:
 
 max:
   # When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 9 -- {}·&c: {<1|2|3>}
+  MdA 9 -- {}·&c: {<1|2|3|4>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
@@ -263,7 +263,7 @@ maxStandardCurr:
   Moonlight in Vermont (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
   *Misty (Eb) – The New Real Book 1 [(old) 296(=304) MdA Ch. 9]: NONE
   Once I loved (A) – The New Real Book 1 [MdA Ch. 9]: NONE
-  Out of this world (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Out of this world (Eb) – The New Real Book 1 [255=249 MdA Ch. 9]: NONE
   Over the rainbow (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
   Reincarnation of a lovebird (F♯m) – The New Real Book 1 [MdA Ch. 9]: NONE
   Sing me soﬅly of the blues (A) – The New Real Book 2 [MdA Ch. 9]: NONE
