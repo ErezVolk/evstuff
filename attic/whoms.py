@@ -42,6 +42,11 @@ def main() -> None:
         "--verbose",
         action="store_true",
     )
+    parser.add_argument(
+        "-w",
+        "--write",
+        action="store_true",
+    )
     args = parser.parse_args()
 
     albums = pd.read_excel(args.input)
@@ -67,7 +72,8 @@ def main() -> None:
     print("Heard", ", ".join(heards))
 
     whoms["cov"] = whoms.heard / whoms.total
-    whoms.to_excel(args.output)
+    if args.write:
+        whoms.to_excel(args.output)
     if args.verbose:
         print(whoms.iloc[:10])
         print()
