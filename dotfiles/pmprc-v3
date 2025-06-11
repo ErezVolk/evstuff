@@ -113,7 +113,7 @@ earTraining:
 
 max:
   # When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 9 -- {}·&c: {<1|2|3|4>}
+  MdA 9 -- {}·&c: {<2|3|4@66/90>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
@@ -251,7 +251,7 @@ maxStandard:
   Blues in the closet [Real Book 2, 36(=43) MdA Ch. 8]: NONE
 
 maxStandardCurr:
-  Baby, It’s cold outside (Eb) – The New Real Book 2 [MdA Ch. 9]: NONE
+  Baby, It’s cold outside (Eb) – The New Real Book 2 [13(=25) MdA Ch. 9]: NONE
   Blue Bossa (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
   Blue Moon (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
   Dindi (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
@@ -271,7 +271,7 @@ maxStandardCurr:
   Someone to light up my life (A) – The New Real Book 2 [MdA Ch. 9]: NONE
   Solar (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
   *Solitude (Eb) – The New Real Book 3 [346=319 MdA Ch. 9]: NONE
-  Speak no evil (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
+  *Speak no evil (Cm) – The New Real Book 1 [336=330 MdA Ch. 9]: NONE
   Tenderly (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
   There will never be another you (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
   These foolish heart (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
