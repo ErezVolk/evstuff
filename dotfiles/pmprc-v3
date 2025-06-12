@@ -113,14 +113,14 @@ earTraining:
 
 max:
   # When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 9 -- {}·&c: {<2|3|4@66/90>}
+  MdA 9 -- {}·&c: {<2|3|4|5@66/90>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
 maxRevise:
   MdA 3.19: NONE
   MdA 3.22: NONE
-  MdA 3.26: NONE
+  MdA 3.26 [In today's key: NONE
   MdA 3.27: NONE
   MdA 3.29 [In today's key]: NONE
 
@@ -255,7 +255,7 @@ maxStandardCurr:
   Blue Bossa (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
   Blue Moon (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
   Dindi (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
-  For all we know (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
+  *For all we know (Eb) – The New Real Book 3 [122=119 MdA Ch. 9]: NONE
   The gentle rain (Cm) – The New Real Book 3 [MdA Ch. 9]: NONE
   Gush (F♯m) – The New Real Book 3 [MdA Ch. 9]: NONE
   I fall in love too easily (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
