@@ -48,11 +48,11 @@ ramScale:
   Revisit {}: {G|C|F|E♭|B♭|A♭|D♭|G♭|B}
 
 ramLearn:
-  Learn a standard [Scales and improvise over "Wave", "Central Park West"]: NONE
+  Learn a standard [Linear chorus; Mid-jump chorus; Scales and improvise over "Wave", "Central Park West"]: NONE
   Memorize walking [Ray Brown on on "Out of Nowhere"]: NONE
   Memorize solo, transposing nice phrases to all keys, starting {} [Fats Navarro on "Nostalgia", bars 31-33, maybe also walking from RB's "Out of Nowhere"]: ANY
   Work on 6-dim in today's key and {} [play all inversions of 6, all of dim, both directions, then alternating]: ANY
-  Bebop Hear ["Tricotism"]: NONE
+  Bebop Head ["Tricotism"]: NONE
 
 # Bebop heads:
 # https://www.jazzguitar.be/forum/ear-training-transcribing-reading/96246-essential-bebop-heads.html
@@ -115,7 +115,7 @@ earTraining:
 
 max:
   # When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 9 -- {}·&c: {<2|3|4|5@66/90>}
+  MdA 9 -- A-major·{}·&c: {<3|4|5@78/90|6>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
@@ -276,7 +276,7 @@ maxStandardCurr:
   *Speak no evil (Cm) – The New Real Book 1 [336=330 MdA Ch. 9]: NONE
   Tenderly (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
   There will never be another you (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
-  These foolish heart (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  These foolish things (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
   *Triste (A) – The New Real Book 1 [370=364 MdA Ch. 9]: NONE
 
 
