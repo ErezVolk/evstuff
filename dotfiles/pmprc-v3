@@ -25,34 +25,22 @@ seed:
 
 #######
 
-songsLearned:
-  Play a Blues: NONE
-  Play "But Not For Me": NONE
-  Play "It Could Happen to You": NONE
-  Play "Out of Nowhere": NONE
-  Play "There Will Never Be Another You": NONE
-  # Memorize "Equinox": NONE
-  # Memorize "Black Narcissus": NONE
-  # Memorize "Fly Me to the Moon": NONE
-  # Memorize "How Deep is the Ocean": NONE
-  # Memorize "How Insensitive": NONE
-  # Memorize "Skylark": NONE
-  # Memorize "Someday My Prince Will Come": NONE
-
 #######
 
-ram = [ 1@intonation ramScale ramLearn 2@songsLearned 2@ramRevise ]
+ram = [ 1@intonation ramScale ramLearn 2@ramRevise ]
 
 ramScale:
   Key of {}{} {}: {A} {↗|↘} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
   Revisit {}: {G|C|F|E♭|B♭|A♭|D♭|G♭|B|E}
 
 ramLearn:
-  Learn a standard [Linear chorus; Mid-jump chorus; Scales and improvise over "Wave", "Central Park West"]: NONE
+  Learn a standard ["They Say It's Wonderful" (transcribe Sonny Stitt)]: NONE
+  Scales and improvise over "Wave", "Central Park West": NONE
   Memorize walking [Ray Brown on on "Out of Nowhere"]: NONE
   Memorize solo, transposing nice phrases to all keys, starting {} [Fats Navarro on "Nostalgia", bars 31-33, maybe also walking from RB's "Out of Nowhere"]: ANY
   Work on 6-dim in today's keys [play all inversions of 6, all of dim, both directions, then alternating]: NONE
   Bebop Head ["Tricotism"]: NONE
+  When playing, remember Linear Chorus, Mid-jump Chorus: NONE
 
 # Bebop heads:
 # https://www.jazzguitar.be/forum/ear-training-transcribing-reading/96246-essential-bebop-heads.html
@@ -92,14 +80,16 @@ ramLearn:
 # - Tricotism?
 
 ramRevise:
-  Percy Heath on "But not For Me": NONE
-  Paul Chambers on "Blue Spring Shuffle": NONE
   Buster Williams on "There Will Never Be Another You": NONE
-  Israel Crosby on "But Not For Me": NONE
   Head of "Billie's Bounce": NONE
-  Play "There Will Never Be Another You": NONE
+  Israel Crosby on "But Not For Me": NONE
+  Paul Chambers on "Blue Spring Shuffle": NONE
+  Percy Heath on "But not For Me": NONE
   Play "But Not For Me": NONE
+  Play "It Could Happen to You": NONE
   Play "Out of Nowhere": NONE
+  Play "There Will Never Be Another You": NONE
+  Play a Blues: NONE
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
