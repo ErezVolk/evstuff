@@ -94,6 +94,8 @@
 
 Notes:
 ------
+- Tricks from bass lines:
+  - linear up/down but change octave down/up after first note (e.g., C ^Bb A G, Bb ↓C D F)
 - How to get over confusion between "There Will Never Be Another You" and "But Not For Me" (the B/C parts)
   - And memorize actual chords, not roots
   - And effectively memorize relative
