@@ -105,7 +105,7 @@ earTraining:
 
 max:
   # When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 9 -- A-major·{}·&c: {<3|4|5@78/90|6>}
+  MdA 9 -- A-major·{}·&c: {<3|4|5@82/90|6@45|7 with mp3>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
@@ -117,7 +117,6 @@ maxRevise:
   MdA 3.29 [In today's key]: NONE
 
   MdA 4.13 [N.B last line]: NONE
-  MdA 4.18: NONE
 
   MdA 5.(5+6): NONE
   MdA 5.10: NONE
@@ -259,7 +258,7 @@ maxStandardCurr:
   Over the rainbow (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
   Reincarnation of a lovebird (F♯m) – The New Real Book 1 [MdA Ch. 9]: NONE
   Sing me softly of the blues (A) – The New Real Book 2 [326(=338) MdA Ch. 9]: NONE
-  Skylark (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Skylark (Eb) – The New Real Book 1 [321=315 MdA Ch. 9]: NONE
   Someone to light up my life (A) – The New Real Book 2 [MdA Ch. 9]: NONE
   Solar (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
   *Solitude (Eb) – The New Real Book 3 [346=319 MdA Ch. 9]: NONE
