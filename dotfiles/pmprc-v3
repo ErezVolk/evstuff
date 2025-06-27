@@ -105,7 +105,7 @@ earTraining:
 
 max:
   # When in need, use key of {}: {C|G|F|B♭|D}
-  MdA 9 -- A-major·{}·&c: {<3|4|5@82/90|6@45|7 with mp3>}
+  MdA 9 -- A-major·{}·&c: {<3|4|5@82/90|6@40|7 with mp3>}
   1@maxRevise  # Curr
   1@maxStandardCurr
 
@@ -263,7 +263,7 @@ maxStandardCurr:
   Solar (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
   *Solitude (Eb) – The New Real Book 3 [346=319 MdA Ch. 9]: NONE
   *Speak no evil (Cm) – The New Real Book 1 [336=330 MdA Ch. 9]: NONE
-  Tenderly (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Tenderly (Eb) – The New Real Book 1 [353=347 MdA Ch. 9]: NONE
   There will never be another you (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
   These foolish things (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
   *Triste (A) – The New Real Book 1 [370=364 MdA Ch. 9]: NONE
