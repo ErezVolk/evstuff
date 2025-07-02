@@ -30,8 +30,8 @@ seed:
 ram = [ seed 1@intonation ramScale ramLearn 2@ramRevise ]
 
 ramScale:
-  Key of {}{} {}: {D} {↗|↘} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
-  Revisit {}: {G|C|F|E♭|B♭|A♭|D♭|G♭|B|E|A}
+  Key of {}{} {}: {G} {↗|↘} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+  Revisit {}: {G|C|F|E♭|B♭|A♭|D♭|G♭|B|E|A|D}
 
 ramLearn:
   Learn a standard ["They Say It's Wonderful" (transcribe Sonny Stitt)]: NONE
