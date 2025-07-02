@@ -64,8 +64,12 @@ class Pdchuffle:
             action="store_true",
             help="Undo shuffling using footer (implies --page)",
         )
-        group.add_argument("-r", "--reverse", action="store_true", help="Reverse order")
-        group.add_argument("-s", "--seed", type=int, help="Set random seed")
+        group.add_argument(
+            "-r", "--reverse", action="store_true", help="Reverse order",
+        )
+        group.add_argument(
+            "-s", "--seed", type=int, help="Set random seed",
+        )
         group.add_argument(
             "-S",
             "--seed-file",
@@ -75,13 +79,17 @@ class Pdchuffle:
             const=True,
             help="Load or generate and save random seed",
         )
-        group.add_argument("--no-shuffle", action="store_true", help="No shuffling")
+        group.add_argument(
+            "--no-shuffle", action="store_true", help="No shuffling",
+        )
         self.args = parser.parse_args()
 
     def guess_input(self, suffix: str) -> None:
         """If input file not specified, look for it."""
         pdfs = [
-            pdf for pdf in Path.cwd().glob("*.pdf") if not pdf.stem.endswith(suffix)
+            pdf
+            for pdf in Path.cwd().glob("*.pdf")
+            if not pdf.stem.endswith(suffix)
         ]
         if len(pdfs) != 1:
             print("Please specify input file")
@@ -93,10 +101,7 @@ class Pdchuffle:
         """Shuffle chapters in a PDF file."""
         self.parse_command_line()
 
-        if self.args.unshuffle:
-            suffix = "-unshuffled"
-        else:
-            suffix = "-shuffled"
+        suffix = "-unshuffled" if self.args.unshuffle else "-shuffled"
 
         if self.args.input is None:
             self.guess_input(suffix)
@@ -181,7 +186,12 @@ class Pdchuffle:
 
         for _, chap in chaps.iterrows():
             outtoc.append((1, chap.title, outdoc.page_count + 1))
-            outdoc.insert_pdf(indoc, chap.first_0, chap.last_0, final=False)
+            outdoc.insert_pdf(
+                indoc,
+                from_page=chap.first_0,
+                to_page=chap.last_0,
+                final=False,
+            )
         if not self.args.unshuffle:
             outdoc.set_toc(outtoc)
 
