@@ -31,12 +31,10 @@ ram = [ seed 1@intonation ramScale ramLearn 2@ramRevise ]
 
 ramScale:
   Key of {}{} {}: {G} {↗|↘} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
-  Revisit {}: {G|C|F|E♭|B♭|A♭|D♭|G♭|B|E|A|D}
 
 ramLearn:
   Learn a standard ["They Say It's Wonderful" (transcribe Sonny Stitt)]: NONE
-  Scales and improvise over "Wave", "Central Park West": NONE
-  Memorize walking [Ray Brown on on "Out of Nowhere", Ray Brown on "It Could Happen to You"]: NONE
+  Memorize walking [Ray Brown on "It Could Happen to You"]: NONE
   Memorize solo, transposing nice phrases to all keys, starting {} [Fats Navarro on "Nostalgia", bars 31-33, maybe also walking from RB's "Out of Nowhere"]: ANY
   Work on 6-dim in today's keys [play all inversions of 6, all of dim, both directions, then alternating]: NONE
   Bebop Head ["Tricotism"]: NONE
@@ -85,10 +83,13 @@ ramRevise:
   Israel Crosby on "But Not For Me": NONE
   Paul Chambers on "Blue Spring Shuffle": NONE
   Percy Heath on "But not For Me": NONE
+  Ray Brown on "Out of Nowhere": NONE
   Play "But Not For Me": NONE
   Play "It Could Happen to You": NONE
   Play "Out of Nowhere": NONE
   Play "There Will Never Be Another You": NONE
+  Play "Central Park West": NONE
+  Play "Wave": NONE
   Play a Blues: NONE
 
 current:
