@@ -1,0 +1,286 @@
+#!/usr/bin/env python3
+"""Randomize app languages."""
+import argparse
+import itertools
+import random
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+DOMAINS = {
+    "com.apple.FontBook",
+    "com.apple.iCal",
+    "com.apple.iTunes",
+    "com.apple.Dictionary",
+    "com.apple.Preview",
+    "com.apple.QuickTimePlayerX",
+    "com.apple.Safari",
+    "com.apple.garageband10",
+    "com.apple.mail",
+    "com.apple.reminders",
+    "com.google.GoogleEarthPro",
+    "com.microsoft.Excel",
+    # 'com.microsoft.Outlook',
+    "com.microsoft.Word",
+    # 'com.richie.YACReader',
+    # 'com.richie.YACReaderLibrary',
+    "com.skype.skype",
+    # 'com.yacreader.YACReader',
+    "net.sourceforge.skim-app.skim",
+    "net.tagaini.Tagaini Jisho",
+    "org.libreoffice.script",
+    "us.zoom.xos",
+}
+
+DOMAIN_CULTURE_KEY = {
+    "com.google.GoogleEarthPro": "locale",
+}
+
+BETTER_NOT = [
+    "com.googlecode.iterm2",  # Has its own thing
+    "org.vim.MacVim",  # Has its own thing
+    "net.ichi2.anki",  # Has its own thing
+]
+
+LANGS = [
+    "de",
+    "es",
+    "fr",
+    "it",
+    "ja",
+    "pt",
+    "ca",
+]
+
+SHAKY_LANGS = [
+    "ja",
+    "ca",
+]
+
+CORE_DOMAINS = [
+    "com.microsoft.Word",
+    "org.libreoffice.script",
+]
+
+BAD_PAIRINGS = {
+    "com.microsoft.word": ["ja"],
+    "org.libreoffice.script": ["ja", "es"],
+    "com.richie.YACReader": ["it", "ca", "ja"],
+    "com.richie.YACReaderLibrary": ["it", "ca", "ja"],
+    "com.yacreader.YACReader": ["it", "ca", "ja"],
+}
+
+LANG_TO_CULTURE = {
+    "de": "de-DE",
+    "es": "es-ES",
+    "fr": "fr-FR",
+    "it": "it-IT",
+    "ja": "ja-JA",
+    "pt": "pt-BR",
+    "ca": "ca-ES",
+}
+
+MSWORD_TEMPLATE = (
+    Path.home() / "Library" / "Group Containers" /
+    "UBF8T346G9.Office" /
+    "User Content.localized" /
+    "Templates.localized" /
+    "Normal.dotm"
+)
+
+
+class AppLangs:
+    """Randomize app languages."""
+
+    def run(self) -> None:
+        """Run it."""
+        self.parse_args()
+
+        known = set(self.all_domains())
+        if self.args.list:
+            print(f"{len(known)} domains:")
+            for domain in sorted(known):
+                print(f" - {domain}")
+            self.parser.exit()
+
+        langs = self.args.langs or list(LANGS + SHAKY_LANGS)
+
+        if self.args.domains:
+            domains = [d for d in self.args.domains if d in self.all_domains()]
+        elif self.args.substrings:
+            domains = [
+                d
+                for d in known
+                if any(s.lower() in d.lower() for s in self.args.substrings)
+            ]
+        else:
+            domains = list(DOMAINS & known)
+
+        random.shuffle(domains)
+
+        ilangs = list(langs)
+        random.shuffle(ilangs)
+        ilang = itertools.cycle(ilangs)
+        jlangs = [lg for lg in langs if lg not in SHAKY_LANGS]
+
+        for domain in domains:
+            domain_langs = [next(ilang), random.choice(jlangs)]
+
+            old_lang = self.get_curr(domain)
+            first_must_not_be = [old_lang]
+            first_must_not_be.extend(BAD_PAIRINGS.get(domain, []))
+            if domain in CORE_DOMAINS:
+                first_must_not_be.extend(SHAKY_LANGS)
+
+            while domain_langs[0] in first_must_not_be:
+                domain_langs[0] = next(ilang)
+
+            while domain_langs[1] == domain_langs[0]:
+                domain_langs[1] = random.choice(jlangs)
+
+            if domain == "com.microsoft.Word":
+                domain_langs = domain_langs[:1]
+
+            print(f"{domain} -> {domain_langs}")
+            if self.args.dry_run:
+                continue
+
+            new_lang = domain_langs[0]
+            if domain in DOMAIN_CULTURE_KEY:
+                self.write(
+                    domain,
+                    DOMAIN_CULTURE_KEY[domain],
+                    self.lang_to_culture(new_lang),
+                )
+            else:
+                self.write(
+                    domain,
+                    "AppleLanguages",
+                    f"({','.join(domain_langs)})",
+                )
+
+            if domain == "com.microsoft.Word":
+                if old_lang and MSWORD_TEMPLATE.is_file():
+                    old_localized = MSWORD_TEMPLATE.with_name(
+                        f"{MSWORD_TEMPLATE.name}-{old_lang}",
+                    )
+                    print(f" - {MSWORD_TEMPLATE} -> {old_localized}")
+                    shutil.copyfile(MSWORD_TEMPLATE, old_localized)
+
+                new_localized = MSWORD_TEMPLATE.with_name(
+                    f"{MSWORD_TEMPLATE.name}-{new_lang}",
+                )
+                if new_localized.is_file():
+                    print(f" - {new_localized} -> {MSWORD_TEMPLATE}")
+                    shutil.copyfile(new_localized, MSWORD_TEMPLATE)
+                elif MSWORD_TEMPLATE.is_file():
+                    print(f" - Deleting {MSWORD_TEMPLATE}")
+                    MSWORD_TEMPLATE.unlink()
+
+                culture = self.lang_to_culture(new_lang)
+
+                self.write(
+                    domain,
+                    "CulturePreviousPreferredEditing",
+                    culture,
+                )
+
+                self.write(
+                    domain,
+                    "OCModelLanguage",
+                    culture,
+                )
+
+                self.write(
+                    domain,
+                    "OSLocale",
+                    f"{new_lang}_IL",
+                )
+
+    parser: argparse.ArgumentParser
+    args: argparse.Namespace
+
+    def parse_args(self) -> None:
+        """Parse command-line arguments."""
+        parser = argparse.ArgumentParser(description="Play with localizations")
+        parser.add_argument(
+            "-L",
+            "--list",
+            action="store_true",
+            help='Print a list of all "domains" in the system and exit.',
+        )
+        parser.add_argument(
+            "-l",
+            "--langs",
+            metavar="LANG",
+            nargs="+",
+            help="Set the list of languages to choose from",
+        )
+        parser.add_argument(
+            "-s",
+            "--substrings",
+            metavar="SUBSTRING",
+            nargs="+",
+            help=(
+                "Work on all domains containing any of the "
+                "SUBSTRINGs (case-insensitive)."
+            ),
+        )
+        parser.add_argument(
+            "-d",
+            "--domains",
+            metavar="DOMAIN",
+            nargs="+",
+            help="Work on these specific domains.",
+        )
+        parser.add_argument(
+            "-n",
+            "--dry-run",
+            action="store_true",
+            help="Only print what would have been done.",
+        )
+        self.parser = parser
+        self.args = parser.parse_args()
+
+    def defs(self, *args: str) -> str:
+        """Run /usr/bin/defaults."""
+        output = subprocess.run(
+            ["/usr/bin/defaults", *args],
+            check=True,
+            capture_output=True,
+        )
+        return output.stdout.decode("utf-8")
+
+    def write(self, domain: str, *args: str) -> None:
+        """Run /usr/bin/defaults write."""
+        self.defs("write", domain, *args)
+
+    def all_domains(self) -> list[str]:
+        """Return all domains available in the system."""
+        return self.defs("domains").split(", ")
+
+    def get_curr(self, domain: str) -> str:
+        """Get currentt language for a domain."""
+        try:
+            output = self.defs("read", domain, "AppleLanguages")
+        except subprocess.CalledProcessError:
+            return ""
+
+        for lang in re.split(r"[() \s,]", output):
+            if lang:
+                return lang
+        return ""
+
+    def lang_to_culture(self, lang: str) -> str:
+        """Return, e.g. "ca-ES" for "ca"."""
+        try:
+            culture = LANG_TO_CULTURE[lang]
+        except KeyError:
+            culture = f"{lang}-{lang.upper()}"
+            print(f"I hope {culture!r} means something")
+        return culture
+
+
+if __name__ == "__main__":
+    AppLangs().run()

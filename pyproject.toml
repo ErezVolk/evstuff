@@ -5,8 +5,6 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-   "ANN101",  # Missing type annotation for "self"
-   "ANN102",  # Missing type annotation for "cls"
    "D105",  # Missing docstring in magic method
    "D107",  # Missing docstring in "__init__"
    "D203",  # Blank line *before* class docstring (?!)
@@ -15,6 +13,7 @@ ignore = [
    "EM102",  # No `raise Error(f"hello {who}")`; makes the code ugly IMHO
    "S101",  # Use of `assert`; I only do it when it's a real assert
    "S311",  # RNG not crypto-quality
+   "S603",  # subprocess-without-shell-equals-true
    "SIM102",  # Collapse nested `if`s; sometimes it's more readable the other way
    "T201",  # `print()`
    "TRY003",  # Don't raise with messages
