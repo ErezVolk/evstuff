@@ -6,6 +6,7 @@ import random
 import re
 import shutil
 import subprocess
+import typing as t
 from pathlib import Path
 
 DOMAINS = {
@@ -105,99 +106,17 @@ class AppLangs:
             self.parser.exit()
 
         langs = self.args.langs or list(LANGS + SHAKY_LANGS)
-
-        if self.args.domains:
-            domains = [d for d in self.args.domains if d in self.all_domains()]
-        elif self.args.substrings:
-            domains = [
-                d
-                for d in known
-                if any(s.lower() in d.lower() for s in self.args.substrings)
-            ]
-        else:
-            domains = list(DOMAINS & known)
-
-        random.shuffle(domains)
-
         ilangs = list(langs)
         random.shuffle(ilangs)
-        ilang = itertools.cycle(ilangs)
-        jlangs = [lg for lg in langs if lg not in SHAKY_LANGS]
+        self.ilang = itertools.cycle(ilangs)
+        self.jlangs = [lg for lg in langs if lg not in SHAKY_LANGS]
 
+        domains = self.get_domains()
         for domain in domains:
-            domain_langs = [next(ilang), random.choice(jlangs)]
+            self.do_domain(domain)
 
-            old_lang = self.get_curr(domain)
-            first_must_not_be = [old_lang]
-            first_must_not_be.extend(BAD_PAIRINGS.get(domain, []))
-            if domain in CORE_DOMAINS:
-                first_must_not_be.extend(SHAKY_LANGS)
-
-            while domain_langs[0] in first_must_not_be:
-                domain_langs[0] = next(ilang)
-
-            while domain_langs[1] == domain_langs[0]:
-                domain_langs[1] = random.choice(jlangs)
-
-            if domain == "com.microsoft.Word":
-                domain_langs = domain_langs[:1]
-
-            print(f"{domain} -> {domain_langs}")
-            if self.args.dry_run:
-                continue
-
-            new_lang = domain_langs[0]
-            if domain in DOMAIN_CULTURE_KEY:
-                self.write(
-                    domain,
-                    DOMAIN_CULTURE_KEY[domain],
-                    self.lang_to_culture(new_lang),
-                )
-            else:
-                self.write(
-                    domain,
-                    "AppleLanguages",
-                    f"({','.join(domain_langs)})",
-                )
-
-            if domain == "com.microsoft.Word":
-                if old_lang and MSWORD_TEMPLATE.is_file():
-                    old_localized = MSWORD_TEMPLATE.with_name(
-                        f"{MSWORD_TEMPLATE.name}-{old_lang}",
-                    )
-                    print(f" - {MSWORD_TEMPLATE} -> {old_localized}")
-                    shutil.copyfile(MSWORD_TEMPLATE, old_localized)
-
-                new_localized = MSWORD_TEMPLATE.with_name(
-                    f"{MSWORD_TEMPLATE.name}-{new_lang}",
-                )
-                if new_localized.is_file():
-                    print(f" - {new_localized} -> {MSWORD_TEMPLATE}")
-                    shutil.copyfile(new_localized, MSWORD_TEMPLATE)
-                elif MSWORD_TEMPLATE.is_file():
-                    print(f" - Deleting {MSWORD_TEMPLATE}")
-                    MSWORD_TEMPLATE.unlink()
-
-                culture = self.lang_to_culture(new_lang)
-
-                self.write(
-                    domain,
-                    "CulturePreviousPreferredEditing",
-                    culture,
-                )
-
-                self.write(
-                    domain,
-                    "OCModelLanguage",
-                    culture,
-                )
-
-                self.write(
-                    domain,
-                    "OSLocale",
-                    f"{new_lang}_IL",
-                )
-
+    ilang: t.Iterator[str]
+    jlangs: list[str]
     parser: argparse.ArgumentParser
     args: argparse.Namespace
 
@@ -280,6 +199,105 @@ class AppLangs:
             culture = f"{lang}-{lang.upper()}"
             print(f"I hope {culture!r} means something")
         return culture
+
+    def get_domains(self) -> list[str]:
+        """Figure out which domains to work on."""
+        known = set(self.all_domains())
+        if self.args.domains:
+            domains = [d for d in self.args.domains if d in known]
+        elif self.args.substrings:
+            domains = [
+                d
+                for d in known
+                if any(s.lower() in d.lower() for s in self.args.substrings)
+            ]
+        else:
+            domains = list(DOMAINS & known)
+
+        random.shuffle(domains)
+        return domains
+
+    def do_domain(self, domain: str) -> None:
+        """Set language for one domain."""
+        domain_langs = [next(self.ilang), random.choice(self.jlangs)]
+
+        old_lang = self.get_curr(domain)
+        first_must_not_be = [old_lang]
+        first_must_not_be.extend(BAD_PAIRINGS.get(domain, []))
+        if domain in CORE_DOMAINS:
+            first_must_not_be.extend(SHAKY_LANGS)
+
+        while domain_langs[0] in first_must_not_be:
+            domain_langs[0] = next(self.ilang)
+
+        while domain_langs[1] == domain_langs[0]:
+            domain_langs[1] = random.choice(self.jlangs)
+
+        if domain == "com.microsoft.Word":
+            domain_langs = domain_langs[:1]
+
+        print(f"{domain} -> {domain_langs}")
+        if self.args.dry_run:
+            self.really_do_domain(domain, old_lang, domain_langs)
+
+    def really_do_domain(
+        self,
+        domain: str,
+        old_lang: str,
+        new_langs: list[str],
+    ) -> None:
+        """Actually set the language for a domain."""
+        new_lang = new_langs[0]
+        if domain in DOMAIN_CULTURE_KEY:
+            self.write(
+                domain,
+                DOMAIN_CULTURE_KEY[domain],
+                self.lang_to_culture(new_lang),
+            )
+        else:
+            self.write(
+                domain,
+                "AppleLanguages",
+                f"({','.join(new_langs)})",
+            )
+
+        if domain == "com.microsoft.Word":
+            if old_lang and MSWORD_TEMPLATE.is_file():
+                old_localized = MSWORD_TEMPLATE.with_name(
+                    f"{MSWORD_TEMPLATE.name}-{old_lang}",
+                )
+                print(f" - {MSWORD_TEMPLATE} -> {old_localized}")
+                shutil.copyfile(MSWORD_TEMPLATE, old_localized)
+
+            new_localized = MSWORD_TEMPLATE.with_name(
+                f"{MSWORD_TEMPLATE.name}-{new_lang}",
+            )
+            if new_localized.is_file():
+                print(f" - {new_localized} -> {MSWORD_TEMPLATE}")
+                shutil.copyfile(new_localized, MSWORD_TEMPLATE)
+            elif MSWORD_TEMPLATE.is_file():
+                print(f" - Deleting {MSWORD_TEMPLATE}")
+                MSWORD_TEMPLATE.unlink()
+
+            culture = self.lang_to_culture(new_lang)
+
+            self.write(
+                domain,
+                "CulturePreviousPreferredEditing",
+                culture,
+            )
+
+            self.write(
+                domain,
+                "OCModelLanguage",
+                culture,
+            )
+
+            self.write(
+                domain,
+                "OSLocale",
+                f"{new_lang}_IL",
+            )
 
 
 if __name__ == "__main__":
