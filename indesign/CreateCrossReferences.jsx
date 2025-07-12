@@ -12,8 +12,11 @@ function cr_run(cr) {
   cr_start_counter(cr);
   try {
     cr_get_docs(cr);
+
     cr_do_destinations(cr);
     cr_do_sources(cr);
+
+    cr_do_continuations(cr);
   } catch(err) {
     cr_log(cr, "Line " + err.line + ": " + err.name + ": " + err.message);
   }
@@ -160,7 +163,7 @@ function cr_doc_style_redo_sources(cr, style) {
       continue;
     }
 
-    cr_log(cr, "Creating source \"" + name+ "\"");
+    cr_log(cr, "Creating source \"" + name + "\"");
     source = cr.doc.crossReferenceSources.add(text, cr.source_style, {label: "cxr:" + contents})
     cr.doc.hyperlinks.add(source, cr.destinations[name], {label: "cxr"});
     cr_unlog(cr);
@@ -168,6 +171,49 @@ function cr_doc_style_redo_sources(cr, style) {
   }
   app.findGrepPreferences = NothingEnum.nothing;
   return added;
+}
+
+function cr_do_continuations(cr) {
+  for (var i = 0; i < cr.docs.length; ++ i) {
+    cr.doc = cr.docs[i];
+    for (var j = 0; j < cr.doc.paragraphStyles.length; ++ j) {
+      var style = cr.doc.paragraphStyles[j];
+      if (style.name.indexOf("@Continuation@") < 0) {
+        continue;
+      }
+
+      app.findGrepPreferences = NothingEnum.nothing;
+      app.findGrepPreferences.findWhat = "^";
+      app.findGrepPreferences.appliedParagraphStyle = style.name;
+      var hits = cr.doc.findGrep();
+      app.findGrepPreferences = NothingEnum.nothing;
+
+      var prefs = cr.doc.viewPreferences;
+      var oldUnits = prefs.horizontalMeasurementUnits;
+      prefs.horizontalMeasurementUnits = MeasurementUnits.points;
+
+      app.findGrepPreferences = NothingEnum.nothing;
+      app.findGrepPreferences.findWhat = "^\\s*";
+      app.changeGrepPreferences = NothingEnum.nothing;
+      app.changeGrepPreferences.changeTo = "";
+
+      for (var i = 0; i < hits.length; ++ i) {
+        var hit = hits[i];
+        var currPara = hit.paragraphs[0];
+        var prevChar = hit.parent.characters.item(currPara.index - 2);
+
+        currPara.changeGrep();
+
+        currPara.firstLineIndent = 0;
+        currPara.firstLineIndent = Math.abs(prevChar.endHorizontalOffset - currPara.horizontalOffset);
+      }
+
+      app.findGrepPreferences = NothingEnum.nothing;
+      app.changeGrepPreferences = NothingEnum.nothing;
+
+      prefs.horizontalMeasurementUnits = oldUnits;
+    }
+  }
 }
 
 function cr_start_counter(cr) {
