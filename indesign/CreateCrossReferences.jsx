@@ -1,5 +1,6 @@
 // ex: set et sw=2:
 // TODO: Fix unfixing Source
+// TODO: Mirror (insert anchored object with same width, require frame style???)
 
 function cr_main() {
   cr = {
