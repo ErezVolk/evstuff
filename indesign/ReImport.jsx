@@ -881,7 +881,8 @@ function ri_page_is_chapter(ri, page) {
   var frame = ri_main_frame(ri, page);
   var paragraph = frame.paragraphs[0];
   if (paragraph.startParagraph == StartParagraph.NEXT_PAGE ||
-    paragraph.startParagraph == StartParagraph.NEXT_ODD_PAGE) {
+    paragraph.startParagraph == StartParagraph.NEXT_ODD_PAGE ||
+    paragraph.startParagraph == StartParagraph.NEXT_EVEN_PAGE) {
     return true;
   }
   if (paragraph.appliedParagraphStyle.name.toLowerCase().indexOf("title") != -1) {
