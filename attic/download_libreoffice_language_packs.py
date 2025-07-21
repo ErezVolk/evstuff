@@ -22,7 +22,7 @@ def download_libreoffice_language_packs() -> None:
         "--langs",
         type=str,
         nargs="+",
-        default=["de", "es", "fr", "it", "ja", "pt-BR", "ca"],
+        default=["de", "es", "fr", "it", "ja", "pt", "ca"],
         help="Language codes",
     )
     parser.add_argument(
