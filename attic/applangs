@@ -164,11 +164,8 @@ class AppLangs:
 
     def defs(self, *args: str) -> str:
         """Run /usr/bin/defaults."""
-        output = subprocess.run(
-            ["/usr/bin/defaults", *args],
-            check=True,
-            capture_output=True,
-        )
+        cmd = ["/usr/bin/defaults", *args]
+        output = subprocess.run(cmd, check=True, capture_output=True)
         return output.stdout.decode("utf-8")
 
     def write(self, domain: str, *args: str) -> None:
@@ -237,7 +234,7 @@ class AppLangs:
             domain_langs = domain_langs[:1]
 
         print(f"{domain} -> {domain_langs}")
-        if self.args.dry_run:
+        if not self.args.dry_run:
             self.really_do_domain(domain, old_lang, domain_langs)
 
     def really_do_domain(
