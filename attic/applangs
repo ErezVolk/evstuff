@@ -20,6 +20,7 @@ DOMAINS = {
     "com.apple.garageband10",
     "com.apple.mail",
     "com.apple.reminders",
+    "com.google.chrome",
     "com.google.GoogleEarthPro",
     "com.microsoft.Excel",
     # 'com.microsoft.Outlook',
