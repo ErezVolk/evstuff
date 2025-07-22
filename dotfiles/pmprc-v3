@@ -30,10 +30,10 @@ seed:
 ram = [ seed 1@intonation ramScale ramLearn 2@ramRevise ]
 
 ramScale:
-  Key of {} {}: {F} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+  Key of {} {}: {B♭} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
 
 ramLearn:
-  Learn a standard ["They Say It's Wonderful" (transcribe Sonny Stitt)]: NONE
+  Learn a standard ["Blues March", "It Don't Mean A Thing", "Orpheu Negro", "Caravan"]: NONE
   Memorize walking [Ray Brown on "It Could Happen to You"]: NONE
   Memorize solo, transposing nice phrases to all keys, starting {} [Fats Navarro on "Nostalgia", bars 31-33, maybe also walking from RB's "Out of Nowhere"]: ANY
   Work on 6-dim in today's keys [play all inversions of 6, all of dim, both directions, then alternating]: NONE
