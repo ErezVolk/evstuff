@@ -470,8 +470,8 @@ function ri_post_fix_specific_fonts(ri) {
   ri_change_grep(ri, "([^~m~>~f~|~S~s~<~/~.~3~4~% ~k])(\\x{FB4B})", "$1~j$2");
   ri_change_grep(ri, "(\\x{FB4B})([^~m~>~f~|~S~s~<~/~.~3~4~% ~k])", "$1~j$2");
 
-  // Em-dash in MF_FrankRuhl
-  ri_en_to_em_dash_in_font(ri, "MF_FrankRuhl")
+  // Em-dash in MF_FrankRuhl (but Hebrew kav mafrid is officialy en-dash :(
+  // ri_en_to_em_dash_in_font(ri, "MF_FrankRuhl")
 }
 
 function ri_fix_vav_in_font(ri, fontname) {
@@ -481,11 +481,12 @@ function ri_fix_vav_in_font(ri, fontname) {
   app.findGrepPreferences = NothingEnum.nothing;
 }
 
-function ri_en_to_em_dash_in_font(ri, fontname) {
-  app.findGrepPreferences.appliedFont = fontname;
-  ri_change_grep(ri, "([~m~>~f~|~S~s~<~/~.~3~4~% ~k])(~=)", "$1~_");
-  app.findGrepPreferences = NothingEnum.nothing;
-}
+//function ri_en_to_em_dash_in_font(ri, fontname) {
+//  app.findGrepPreferences.appliedFont = fontname;
+//  ri_change_grep(ri, "(?<!\S)~=", "~_");
+//  ri_change_grep(ri, "~=(?!\S)", "~_");
+//  app.findGrepPreferences = NothingEnum.nothing;
+//}
 
 function ri_post_remove_footnote_whitespace(ri) {
   if (!ri.ui_post_remove_footnote_whitespace.checkedState)
