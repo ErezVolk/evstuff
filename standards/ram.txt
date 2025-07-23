@@ -92,6 +92,12 @@
   - Walking by George Duvivier from Sonny Stitt's "The Last Sessions"
 
 
+2025-07-22
+----------
+- DrumGenius app
+- Phrases over iReal/recordings
+
+
 Notes:
 ------
 - Tricks from bass lines:
@@ -117,3 +123,5 @@ Notes:
   - This is too much emphasis on graphic compactness, where's memorizing and hearing.
 - Take a short line and play over many songs
 - Hey, Israel Crosby reuses that Ab7-G7 line from "But Not for Me" on "Stompin' at the Savoy"
+
+
