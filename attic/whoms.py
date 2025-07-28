@@ -11,9 +11,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-i",
-        "--input",
+        "--inputs",
         type=Path,
-        default=Path.home() / "Dropbox" / "Private" / "albums.ods",
+        nargs="+",
+        default=[
+            Path.home() / ".whoms.ods",
+            Path.home() / "Dropbox" / "Private" / "albums.ods",
+        ]
     )
     parser.add_argument(
         "-o",
@@ -49,7 +53,13 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    albums = pd.read_excel(args.input)
+    for path in args.inputs:
+        if path.is_file():
+            albums = pd.read_excel(path)
+            break
+    else:
+        parser.fail("Please specify --inputs")
+
     albums["heard"] = albums.When.notna()
     albums["Whom"] = albums.Whom.fillna("N/A")
     albums["Whoms"] = albums.Whom.str.replace(
