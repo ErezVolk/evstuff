@@ -30,7 +30,7 @@ seed:
 ram = [ seed 1@intonation ramScale ramLearn 2@ramRevise ]
 
 ramScale:
-  Key of {} {}: {B♭} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+  Key of {} {}: {E♭} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
 
 ramLearn:
   Learn a standard ["Blues March", "It Don't Mean A Thing", "Orpheu Negro", "Caravan"]: NONE
