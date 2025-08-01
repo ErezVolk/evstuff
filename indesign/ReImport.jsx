@@ -447,10 +447,13 @@ function ri_post_fix_spaces(ri) {
     return;
 
   // Multiple Space to Single Space (ships with InDesign)
-  ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ]{2,}", " ");
+  //ri_change_grep(ri, "[~m~>~f~|~S~s~<~/~.~3~4~% ]{2,}", " ");
 
   // Multiple Return to Single Return (ships with InDesign)
-  ri_change_grep(ri, "~b~b+", "\\r");
+  //ri_change_grep(ri, "~b~b+", "\\r");
+
+  // Only care about space-space, and combine the two searches
+  ri_change_grep(ri, "([ ~b])\\1+", "$1");
 }
 
 function ri_post_fix_dashes(ri) {
