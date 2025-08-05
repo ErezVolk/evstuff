@@ -30,7 +30,7 @@ seed:
 ram = [ seed 1@intonation ramScale ramLearn 2@ramRevise ]
 
 ramScale:
-  Key of {} {}: {B♭} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+  Key of {} {}: {A♭} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
 
 ramLearn:
   Learn a standard ["Blues March", "It Don't Mean A Thing", "Orpheu Negro", "Caravan"]: NONE
@@ -128,6 +128,7 @@ ramRevise:
   Play "It Could Happen to You": NONE
   Play "Out of Nowhere": NONE
   Play "There Will Never Be Another You": NONE
+  Play "They Say It's Wonderful": NONE
   Play "Central Park West": NONE
   Play "Wave": NONE
   Play a Blues: NONE
@@ -596,10 +597,7 @@ _future:
   Fuqua-up Pork Pie Hat [Harvey]: NONE
 
   # The Girl from Ipanema [what key?]: NONE
-  # I Got Rhythm [what key?]: NONE
-  # up Dream a Little Dream [what key?]: NONE
-
-  # Mercy, Mercy, Mercy [Yonatan]: NONE
+  # Dream a Little Dream [what key?]: NONE
 
   # Rhythm Changes:
   # - chart in "1950s Jazz Fake Book":8
@@ -608,6 +606,7 @@ _future:
   # - Squatty Roo (Ray Brown transcription on Downes)
 
   # For repertoire:
+  # - The "12 key tunes" in "Insights in Jazz"
   # - Data-driven approach in "Watkins - Improvization - 07 Repertoire"
   # - Downes' list
   # - Baker - How to Learn Tunes
@@ -623,7 +622,6 @@ _future:
   Learn "Suru meni": NONE
   Learn "Oh What a Night": NONE
 
-  Oleo [Rhythm Changes, Weigert, etude in Goldsby pdf-212]: NONE
   Lester Leaps In [Rhythm Changes]: NONE
 
   All of Me: NONE

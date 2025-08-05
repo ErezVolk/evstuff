@@ -18,6 +18,8 @@ function cr_run(cr) {
     cr_do_sources(cr);
 
     cr_do_continuations(cr);
+
+    cr_do_export(cr);
   } catch(err) {
     cr_log(cr, "Line " + err.line + ": " + err.name + ": " + err.message);
   }
@@ -214,6 +216,15 @@ function cr_do_continuations(cr) {
 
       prefs.horizontalMeasurementUnits = oldUnits;
     }
+  }
+}
+
+function cr_do_export(cr) {
+  for (var i = 0; i < cr.docs.length; ++ i) {
+    var doc = cr.docs[i];
+    var path = File(doc.fullName + ".idml")
+    cr_log(cr, "Writing \"" + path.name + "\"");
+    doc.exportFile(ExportFormat.INDESIGN_MARKUP, path)
   }
 }
 
