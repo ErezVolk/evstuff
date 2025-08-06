@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+"""Erez Volk's Rsync Backup."""
+import argparse
+import datetime
+import shlex
+import subprocess
+import typing as t
+from pathlib import Path
+
+
+class EvRb:
+    """Erez Volk's Rsync Backup."""
+
+    def parse_args(self) -> None:
+        """Parse command-line arguments."""
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "-v",
+            "--volume",
+            type=Path,
+            help="Volume for backups",
+        )
+        parser.add_argument(
+            "-x",
+            "--exclude",
+            type=str,
+            nargs="*",
+            help=(
+                "Exclude list; if not given and --exclude-file not specified, "
+                "use a default list"
+            ),
+        )
+        parser.add_argument(
+            "-X",
+            "--exclude-from",
+            type=Path,
+            default=Path.home() / ".evrb.filter",
+            help="Exclude file (see rsync manpage)",
+        )
+        parser.add_argument(
+            "-n",
+            "--dry-run",
+            action="store_true",
+            help="List the files instead of copying them",
+        )
+        parser.add_argument(
+            "-y",
+            "--yes",
+            action="store_true",
+            help="Don't wait",
+        )
+        args = parser.parse_args()
+        self.parser = parser
+        self.args = args
+
+    args: argparse.Namespace
+    parser: argparse.ArgumentParser
+    target: Path
+    model: Path | None
+    exclude_from: Path | None = None
+    exclude: list[str]
+
+    def run(self) -> None:
+        """Incremental backup to external volume."""
+        self.parse_args()
+        self.find_target()
+        self.find_exclude()
+        self.backup()
+
+    def fail(self, message: str) -> t.Never:
+        """Fail and exit."""
+        self.parser.error(message)
+
+    def find_target(self) -> None:
+        """Figure out where to backup to."""
+        if self.args.volume:
+            if not self.args.volume.is_dir():
+                self.fail("Invalid volume")
+            root = self.args.volume / "evrb"
+            if not root.is_dir():
+                print(f"Creating {root}/")
+                root.mkdir(exist_ok=True)
+        else:
+            for volume in Path("/Volumes").glob("*"):
+                if (root := volume / "evrb").is_dir():
+                    break
+            else:
+                self.fail("Please specify target or volume")
+
+        try:
+            self.model = max(
+                (path for path in root.glob("*") if path.is_dir()),
+                key=lambda path: path.name,
+            )
+            print(f"Model: {self.model}")
+        except ValueError:
+            self.model = None
+            print(f"No previous backup under {root}")
+
+        now = datetime.datetime.now(datetime.UTC)
+        self.target = root / f"{now:%Y%m%d-%H%M%S}"
+        if self.target.is_dir():
+            self.target = root / f"{now:%Y%m%d-%H%M%S.%f}"
+            if self.target.is_dir():
+                self.fail("Cannot create unique target")
+
+        print(f"Target: {self.target}")
+
+    def find_exclude(self) -> None:
+        """Figure out exclude list."""
+        if self.args.exclude_from and self.args.exclude_from.is_file():
+            self.exclude_from = self.args.exclude_from
+
+        if self.args.exclude is not None:
+            self.exclude = self.args.exclude
+        elif self.exclude_from:
+            self.exclude = []  # Let the file handle it
+        else:
+            self.exclude = [
+                "/Library",
+                "/.Trash",
+                "/.local",
+                "/.pub-cache",
+                "/Music/Music",
+                "cache/",
+            ]
+
+    def backup(self) -> None:
+        """Run rsync."""
+        args = [
+            "rsync",
+            "-rlptgoDAXUNH",
+            "--progress",
+        ]
+        if self.model:
+            args.append(f"--link-dest={self.model}")
+        if self.exclude_from:
+            args.append(f"--exclude-from={self.args.exclude_from}")
+        args.extend(f"--exclude={exclude}" for exclude in self.exclude)
+        if self.args.dry_run:
+            args.append("--list-only")
+        args.append(f"{Path.home()}/")
+        args.append(f"{self.target}/")
+        print(" ".join(shlex.quote(arg) for arg in args))
+        input("Press Enter to run...")
+        subprocess.run(args, check=True)
+
+
+if __name__ == "__main__":
+    EvRb().run()
