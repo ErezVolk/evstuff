@@ -153,7 +153,7 @@ class EvRb:
             if self.read(there, len(this) + 1) == this:
                 return
 
-            back = self.target.with_name("evrb-{self.target.name}.bak")
+            back = self.target.with_name(f"evrb-{self.target.name}.bak")
             print(f"{there} -> {back}")
             there.rename(back)
 
@@ -166,7 +166,7 @@ class EvRb:
 
     def write(self, path: Path, data: bytes) -> None:
         """Write a file and make it executable."""
-        print("Writing {path}")
+        print(f"Writing {path}")
         with path.open("wb") as fobj:
             fobj.write(data)
 
