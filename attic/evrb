@@ -11,6 +11,7 @@ __TODO__ = """
 - "Continue broken run" (<target>.wip)
 - A restore option
 - Write default exclude file
+- Sync?
 """
 
 
@@ -70,6 +71,7 @@ class EvRb:
     args: argparse.Namespace
     parser: argparse.ArgumentParser
     root: Path
+    wip: Path
     target: Path
     model: Path | None
     exclude_from: Path | None = None
@@ -104,23 +106,41 @@ class EvRb:
                 self.fail("Please specify --volume")
 
         self.root = root
-        try:
-            self.model = max(
-                (path for path in root.glob("*") if path.is_dir()),
-                key=lambda path: path.name,
-            )
+
+        # Look for model or stuck job
+        latest: Path | None = None
+        for path in root.glob("*"):
+            if path.is_dir():
+                if latest is None or path.name > latest.name:
+                    latest = path
+        if latest and (wip := latest.with_suffix(".wip")).is_file():
+            self.resume_target(latest, wip)
+        else:
+            self.make_target(latest)
+
+    def resume_target(self, target: Path, wip: Path) -> None:
+        """Prepare to resume an old run."""
+        self.fail("EREZ EREZ")
+        self.target = target
+        self.wip = wip
+        self.model = read_wip().get("model")
+
+    def make_target(self, model: Path | None) -> None:
+        """Configure target when we have no interrupted backup."""
+        self.model = model
+        if model:
             print(f"Model: {self.model}")
-        except ValueError:
-            self.model = None
-            print(f"No previous backup under {root}")
+        else:
+            print(f"No previous backup under {self.root}")
 
         now = datetime.datetime.now(datetime.UTC)
-        self.target = root / f"{now:%Y%m%d-%H%M%S}"
+        self.target = self.root / f"{now:%Y%m%d-%H%M%S}"
         if self.target.is_dir():
-            self.target = root / f"{now:%Y%m%d-%H%M%S.%f}"
+            self.target = self.root / f"{now:%Y%m%d-%H%M%S.%f}"
             if self.target.is_dir():
                 self.fail("Cannot create unique target")
 
+        self.wip = self.target.with_suffix(".wip")
         print(f"Target: {self.target}")
 
     def find_exclude(self) -> None:
