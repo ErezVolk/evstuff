@@ -140,15 +140,15 @@ class EvRb:
         this = self.read(here)
         there = self.root / here.name
 
-        if not there.is_file():
-            self.write(there, this)
-            return
+        if there.is_file:
+            if self.read(there, len(this) + 1) == this:
+                return
 
-        that = self.read(there, len(this) + 1)
-        if this == that:
-            return
+            back = self.target.with_name("evrb-{self.target.name}.bak")
+            print(f"{there} -> {back}")
+            there.rename(back)
 
-        self.write(self.target.with_name("evrb-{self.target.name}"), this)
+        self.write(there, this)
 
     def read(self, path: Path, size: int = -1) -> bytes:
         """Read a script. Shouldn't be too big."""
