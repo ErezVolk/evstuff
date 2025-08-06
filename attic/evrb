@@ -18,7 +18,9 @@ class EvRb:
 
     def parse_args(self) -> None:
         """Parse command-line arguments."""
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            description="Backup home (using rsync) to an external volume",
+        )
         parser.add_argument(
             "-v",
             "--volume",
@@ -92,7 +94,7 @@ class EvRb:
                 if (root := volume / "evrb").is_dir():
                     break
             else:
-                self.fail("Please specify target or volume")
+                self.fail("Please specify --volume")
 
         self.root = root
         try:
