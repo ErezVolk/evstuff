@@ -8,9 +8,9 @@ import typing as t
 from pathlib import Path
 
 __TODO__ = """
-- Some ignore/break interrupted runs
+- "Continue broken run" (<target>.wip)
 - A restore option
-- Create default exclude file
+- Write default exclude file
 """
 
 
@@ -50,6 +50,12 @@ class EvRb:
             "--dry-run",
             action="store_true",
             help="List the files instead of copying them",
+        )
+        parser.add_argument(
+            "-s",
+            "--sleepy",
+            action="store_true",
+            help="Do not run rsync with caffeinate",
         )
         parser.add_argument(
             "-y",
@@ -143,7 +149,7 @@ class EvRb:
         this = self.read(here)
         there = self.root / here.name
 
-        if there.is_file:
+        if there.is_file():
             if self.read(there, len(this) + 1) == this:
                 return
 
@@ -171,6 +177,9 @@ class EvRb:
             "-rlptgoDAXUNH",
             "--progress",
         ]
+
+        if not self.args.sleepy:
+            args.insert(0, "/usr/bin/caffeinate")
         if self.model:
             args.append(f"--link-dest={self.model}")
         if self.exclude_from:
