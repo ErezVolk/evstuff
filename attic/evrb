@@ -2,16 +2,17 @@
 """Erez Volk's Rsync Backup."""
 import argparse
 import datetime
+import json
 import shlex
 import subprocess
 import typing as t
 from pathlib import Path
 
 __TODO__ = """
-- "Continue broken run" (<target>.wip)
 - A restore option
 - Write default exclude file
 - Sync?
+- Backup multiple machines
 """
 
 
@@ -113,17 +114,23 @@ class EvRb:
             if path.is_dir():
                 if latest is None or path.name > latest.name:
                     latest = path
-        if latest and (wip := latest.with_suffix(".wip")).is_file():
+        if latest and (wip := self.wip_of(latest)).is_file():
             self.resume_target(latest, wip)
         else:
             self.make_target(latest)
 
+    def wip_of(self, target: Path) -> Path:
+        """Create wip filename."""
+        return target.with_suffix(".wip")
+
     def resume_target(self, target: Path, wip: Path) -> None:
         """Prepare to resume an old run."""
-        self.fail("EREZ EREZ")
         self.target = target
         self.wip = wip
-        self.model = read_wip().get("model")
+        self.model = None
+        if isinstance(name := self.read_wip().get("model"), str):
+            if (model := self.root / name).is_dir():
+                self.model = model
 
     def make_target(self, model: Path | None) -> None:
         """Configure target when we have no interrupted backup."""
@@ -140,7 +147,7 @@ class EvRb:
             if self.target.is_dir():
                 self.fail("Cannot create unique target")
 
-        self.wip = self.target.with_suffix(".wip")
+        self.wip = self.wip_of(self.target)
         print(f"Target: {self.target}")
 
     def find_exclude(self) -> None:
@@ -190,6 +197,22 @@ class EvRb:
         with path.open("wb") as fobj:
             fobj.write(data)
 
+    def read_wip(self) -> dict:
+        """Parse wip file, guaranteed to exist."""
+        with self.wip.open("rb") as fobj:
+            context = json.load(fobj)
+        if isinstance(context, dict):
+            return context
+        return {}
+
+    def write_wip(self) -> None:
+        """Write WIP file."""
+        context = {}
+        if self.model:
+            context["model"] = self.model.name
+        with self.wip.open("w", encoding="utf-8") as fobj:
+            json.dump(context, fobj, ensure_ascii=False, indent=2)
+
     def backup(self) -> None:
         """Run rsync."""
         args = [
@@ -212,7 +235,9 @@ class EvRb:
         args.append(f"{self.target}/")
         print(" ".join(shlex.quote(arg) for arg in args))
         input("Press Enter to run...")
+        self.write_wip()
         subprocess.run(args, check=True)
+        self.wip.unlink()
 
 
 if __name__ == "__main__":
