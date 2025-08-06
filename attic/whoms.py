@@ -57,8 +57,10 @@ def main() -> None:
         if path.is_file():
             albums = pd.read_excel(path)
             break
+        else:
+            print(f"No {path}...")
     else:
-        parser.fail("Please specify --inputs")
+        parser.error("Please specify --inputs")
 
     albums["heard"] = albums.When.notna()
     albums["Whom"] = albums.Whom.fillna("N/A")
