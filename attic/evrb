@@ -7,6 +7,11 @@ import subprocess
 import typing as t
 from pathlib import Path
 
+__TODO__ = """
+- Some ignore/break interrupted runs
+- A restore option
+"""
+
 
 class EvRb:
     """Erez Volk's Rsync Backup."""
@@ -55,6 +60,7 @@ class EvRb:
 
     args: argparse.Namespace
     parser: argparse.ArgumentParser
+    root: Path
     target: Path
     model: Path | None
     exclude_from: Path | None = None
@@ -65,6 +71,7 @@ class EvRb:
         self.parse_args()
         self.find_target()
         self.find_exclude()
+        self.copy_me()
         self.backup()
 
     def fail(self, message: str) -> t.Never:
@@ -87,6 +94,7 @@ class EvRb:
             else:
                 self.fail("Please specify target or volume")
 
+        self.root = root
         try:
             self.model = max(
                 (path for path in root.glob("*") if path.is_dir()),
@@ -123,7 +131,35 @@ class EvRb:
                 "/.pub-cache",
                 "/Music/Music",
                 "cache/",
+                ".cache/",
             ]
+
+    def copy_me(self) -> None:
+        """Copy this script to the target."""
+        here = Path(__file__)
+        this = self.read(here)
+        there = self.root / here.name
+
+        if not there.is_file():
+            self.write(there, this)
+            return
+
+        that = self.read(there, len(this) + 1)
+        if this == that:
+            return
+
+        self.write(self.target.with_name("evrb-{self.target.name}"), this)
+
+    def read(self, path: Path, size: int = -1) -> bytes:
+        """Read a script. Shouldn't be too big."""
+        with path.open("rb") as fobj:
+            return fobj.read(size)
+
+    def write(self, path: Path, data: bytes) -> None:
+        """Write a file and make it executable."""
+        print("Writing {path}")
+        with path.open("wb") as fobj:
+            fobj.write(data)
 
     def backup(self) -> None:
         """Run rsync."""
