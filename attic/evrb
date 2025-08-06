@@ -176,6 +176,7 @@ class EvRb:
             "rsync",
             "-rlptgoDAXUNH",
             "--progress",
+            "--delete",
         ]
 
         if not self.args.sleepy:
