@@ -117,23 +117,36 @@ class EvRb:
             if path.is_dir():
                 if latest is None or path.name > latest.name:
                     latest = path
-        if latest and (wip := self.wip_of(latest)).is_file():
-            self.resume_target(latest, wip)
-        else:
+        if not self.resume_target(latest):
             self.make_target(latest)
 
     def wip_of(self, target: Path) -> Path:
         """Create wip filename."""
         return target.with_suffix(".wip")
 
-    def resume_target(self, target: Path, wip: Path) -> None:
-        """Prepare to resume an old run."""
+    def resume_target(self, target: Path | None) -> bool:
+        """Try to resume an old run."""
+        if target is None:
+            return False  # No previous run
+
+        if not (wip := self.wip_of(target)).is_file():
+            return False  # Wasn't aborted
+
+        try:
+            saved = self.read_wip(wip)
+        except json.decoder.JSONDecodeError:
+            print(f"Malformed {wip}, cannot resume")
+            return False  # Invalid JSON
+
         self.target = target
         self.wip = wip
         self.model = None
-        if isinstance(name := self.read_wip().get("model"), str):
+
+        if isinstance(name := saved.get("model"), str):
             if (model := self.root / name).is_dir():
                 self.model = model
+
+        return True
 
     def make_target(self, model: Path | None) -> None:
         """Configure target when we have no interrupted backup."""
@@ -200,9 +213,9 @@ class EvRb:
         with path.open("wb") as fobj:
             fobj.write(data)
 
-    def read_wip(self) -> dict:
+    def read_wip(self, wip: Path) -> dict:
         """Parse wip file, guaranteed to exist."""
-        with self.wip.open("rb") as fobj:
+        with wip.open("rb") as fobj:
             context = json.load(fobj)
         if isinstance(context, dict):
             return context
