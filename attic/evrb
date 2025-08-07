@@ -9,6 +9,7 @@ import typing as t
 from pathlib import Path
 
 __TODO__ = """
+- Case where there's more than one disk attached
 - A restore option
 - Write default exclude file
 - Sync?
