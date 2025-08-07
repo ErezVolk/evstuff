@@ -13,6 +13,8 @@ __TODO__ = """
 - Write default exclude file
 - Sync?
 - Backup multiple machines
+- Maybe json->plistlib, because it's more restrictive
+  - And/or a limit on the JSON file size
 """
 
 
