@@ -30,7 +30,7 @@ seed:
 ram = [ seed 1@intonation ramScale ramLearn 2@ramRevise ]
 
 ramScale:
-  Key of {} {}: {A♭} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+  Key of {} {}: {D♭} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
 
 ramLearn:
   Learn a standard ["Blues March", "It Don't Mean A Thing", "Orpheu Negro", "Caravan"]: NONE
@@ -41,6 +41,41 @@ ramLearn:
   When playing, remember Linear Chorus, Mid-jump Chorus: NONE
 
 # Bebop heads:
+# David Baker’s Vol 3 Ch. 3 "34 tunes"
+# 1. "Anthropology'' (Dizzy Gillespie)
+# 2. "Bebop" (Dizzy Gillespie)
+# 3. "Confirmation" (Charlie Parker)
+# 4. "Dance of the Infidels" (Bud Powell)
+# 5. "Dewey Square" (Charlie Parker)
+# 6. "Dexterity" (Charlie Parker)
+# 7. "Donna" (Jackie McLean)
+# 8. "Donna Lee" (Charlie Parker)
+# 9. "Eternal Triangle" (Sonny Stitt)
+# 10. "Good Bait" (Tadd Dameron)
+# 11. "Groovin' High" (Dizzy Gillespie)
+# 12. "Half Nelson" (Miles Davis)
+# 13. "Hot House" (Tadd Dameron)
+# 14. "Joy Spring" (Clifford Brown)
+# 15. "Little Willie Leaps" (Charlie Parker)
+# 16. "Mayreh" (Horace Silver)
+# 17. "Milestones" (old) (Miles Davis)
+# 18. "Moose the Mooch" (Charlie Parker)
+# 19. "A Night in Tunisia" (Dizzy Gillespie)
+# 20. "Ornithology" (Benny Harris)
+# 21. "Passport" (Charlie Parker)
+# 22. "Quicksilver" (Horace Silver)
+# 23. "Relaxin' at Camarillo" (Charlie Parker)
+# 24. "Room 608" (Horace Silver)
+# 25. "Salt Peanuts" (Dizzy Gillespie)
+# 26. "Scrapple from the Apple" (Charlie Parker)
+# 27. "The Serpent's Tooth" (Miles Davis)
+# 28. "Sippin' at Bells" (Miles Davis)
+# 29. "Split Kick'' (Horace Silver)
+# 30. "Steeplechase" (Charlie Parker)
+# 31. "That's Earl, Brother" (Gil Fuller)
+# 32. "Wail" (Bud Powell)
+# 33. "Woody 'n' You" (Dizzy Gillespie)
+# 34. "Yardbird Suite" (Charlie Parker)
 # David Baker’s Vol 3 "List of Essential Tunes"
 # - AFTERNOON IN PARIS
 # - BACK HOME BLUES
