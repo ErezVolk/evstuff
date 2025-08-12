@@ -1,19 +1,2 @@
-#!/bin/bash
-
-# if [ -d .git ]; then
-# 	git depull
-# fi
-# 
-# for dd in */.git; do
-# 	if [ -d "$dd" ]; then
-# 		d=`dirname "$dd"`
-# 		cd "$d"
-# 		git depull |sed -e "s/^/[$d] /"
-# 		cd ..
-# 	fi
-# done
-
-# parallel git depull-in {//} ::: */.git
-find . -name .git -a -type d |parallel git depull-in {//}
-# find . -name .svn -a -type d |parallel svn update {//}
-
+#!/bin/sh
+find `pwd` -type d -a -name .git -prune -exec dirname "{}" \; -exec git -C "{}"/.. o ";"

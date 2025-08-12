@@ -1,16 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
-if [ -d .git ]; then
-	echo "git fetch -p --all"
-	git fetch -p --all
+git fetch -p
+
+if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
+	git pull --ff-only
 fi
-
-for dd in */.git; do
-	if [ -d $dd ]; then
-		d=`dirname $dd`
-		echo "[$d] git fetch -p --all"
-		cd $d
-		git fetch -p --all
-		cd ..
-	fi
-done
