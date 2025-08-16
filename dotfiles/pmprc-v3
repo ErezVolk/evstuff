@@ -4,7 +4,6 @@
 eve = [ seed @warmup _eve ]
 day = [ seed warmup 2@intonation _eve ]
 _eve = [ 2@theory 1@digression 2@current 2@maxRevise ]
-fuq = [ 3@fuqua ]
 suggest = [ 2@_future ]
 
 #
@@ -40,114 +39,82 @@ ramLearn:
   Bebop Head ["Oleo"]: NONE
   When playing, remember Linear Chorus, Mid-jump Chorus: NONE
 
-# Bebop heads:
-# David Baker’s Vol 3 Ch. 3 "34 tunes"
-# 1. "Anthropology'' (Dizzy Gillespie)
-# 2. "Bebop" (Dizzy Gillespie)
-# 3. "Confirmation" (Charlie Parker)
-# 4. "Dance of the Infidels" (Bud Powell)
-# 5. "Dewey Square" (Charlie Parker)
-# 6. "Dexterity" (Charlie Parker)
-# 7. "Donna" (Jackie McLean)
-# 8. "Donna Lee" (Charlie Parker)
-# 9. "Eternal Triangle" (Sonny Stitt)
-# 10. "Good Bait" (Tadd Dameron)
-# 11. "Groovin' High" (Dizzy Gillespie)
-# 12. "Half Nelson" (Miles Davis)
-# 13. "Hot House" (Tadd Dameron)
-# 14. "Joy Spring" (Clifford Brown)
-# 15. "Little Willie Leaps" (Charlie Parker)
-# 16. "Mayreh" (Horace Silver)
-# 17. "Milestones" (old) (Miles Davis)
-# 18. "Moose the Mooch" (Charlie Parker)
-# 19. "A Night in Tunisia" (Dizzy Gillespie)
-# 20. "Ornithology" (Benny Harris)
-# 21. "Passport" (Charlie Parker)
-# 22. "Quicksilver" (Horace Silver)
-# 23. "Relaxin' at Camarillo" (Charlie Parker)
-# 24. "Room 608" (Horace Silver)
-# 25. "Salt Peanuts" (Dizzy Gillespie)
-# 26. "Scrapple from the Apple" (Charlie Parker)
-# 27. "The Serpent's Tooth" (Miles Davis)
-# 28. "Sippin' at Bells" (Miles Davis)
-# 29. "Split Kick'' (Horace Silver)
-# 30. "Steeplechase" (Charlie Parker)
-# 31. "That's Earl, Brother" (Gil Fuller)
-# 32. "Wail" (Bud Powell)
-# 33. "Woody 'n' You" (Dizzy Gillespie)
-# 34. "Yardbird Suite" (Charlie Parker)
-# David Baker’s Vol 3 "List of Essential Tunes"
-# - AFTERNOON IN PARIS
-# - BACK HOME BLUES
-# - BARBADOS
-# - BEBOP
-# - BEBOP REVISITED
-# - BIRDLIKE
-# - BLOOMDIDO
-# - BOUNCIN' WITH BUD
-# - BROWNIE SPEAKS
-# - CALCUTTA CUTIE
-# - CHERYL
-# - CHI-CHI
-# - CONFIRMATION
-# - COOKIN' AT THE CONTINENTAL
-# - DANCE OF THE INFIDELS
-# - DEWEY SQUARE
-# - DEXTERITY
-# - DONNA
-# - DONNALEE
-# - DON'T ARGUE
-# - ETERNAL TRIANGLE
-# - FOUR BROTHERS
-# - GOOD BAIT
-# - GROOVIN' HIGH
-# - HALF NELSON
-# - HOT HOUSE
-# - JORDU
-# - JOY SPRING
-# - LITTLE WILLIE LEAPS
-# - MAYREH
-# - MILESTONES (old)
-# - MOHAWK
-# - MOOSE THE MOOCH
-# - A NIGHT IN TUNISIA
-# - OPUS V
-# - PASSPORT
-# - RELAXIN' AT CAMARILLO
-# - QUICKSILVER
-# - ROOM 608
-# - SALT PEANUTS (entire tune)
-# - SCRAPPLE FROM THE APPLE
-# - THE SERPENT'S TOOTH
-# - SHAW NUFF
-# - SIPPIN' AT BELLS
-# - SPLIT KICK
-# - STEEPLECHASE
-# - THAT'S EARL, BROTHER
-# - THINGS TO COME
-# - WAIL
-# - WHERE YOU AT?
-# - WOODY 'N' YOU
-# https://www.jazzguitar.be/forum/ear-training-transcribing-reading/96246-essential-bebop-heads.html
-# - Au Privave
-# - Blues for Alice
-# Added on https://playjazzpianonyc.com/resources/repertoire/32-must-know-bebop-heads/
-# - Blues For Bennie
-# - Celia
-# - Four
-# - Four Brothers
-# - In Walked Bud
-# - Milestones
-# - Move
-# - Sandu
-# - Straight no Chaser
-# - Strollin’
-# - The Sidewinder
-# - Walkin’
-# - Walkin’ Shoes
-# - Well, You Needn’t
-# - Yardbird Suite
-# - Yeah
+_nextBebopHeads:
+# David Baker’s Vol 3 Ch. 3 "34 tunes", merged with "List of Essential Tunes"
+  A NIGHT IN TUNISIA: NONE
+  AFTERNOON IN PARIS: NONE
+  BACK HOME BLUES: NONE
+  BARBADOS: NONE
+  BEBOP REVISITED: NONE
+  BEBOP: NONE
+  BIRDLIKE: NONE
+  BLOOMDIDO: NONE
+  BOUNCIN' WITH BUD: NONE
+  BROWNIE SPEAKS: NONE
+  CALCUTTA CUTIE: NONE
+  CHERYL: NONE
+  CHI-CHI: NONE
+  CONFIRMATION: NONE
+  COOKIN' AT THE CONTINENTAL: NONE
+  DANCE OF THE INFIDELS: NONE
+  DEWEY SQUARE: NONE
+  DEXTERITY: NONE
+  DON'T ARGUE: NONE
+  DONNA LEE: NONE
+  DONNA: NONE
+  DONNALEE: NONE
+  ETERNAL TRIANGLE: NONE
+  FOUR BROTHERS: NONE
+  GOOD BAIT: NONE
+  GROOVIN' HIGH: NONE
+  HALF NELSON: NONE
+  HOT HOUSE: NONE
+  JORDU: NONE
+  JOY SPRING: NONE
+  LITTLE WILLIE LEAPS: NONE
+  MAYREH: NONE
+  MILESTONES (old): NONE
+  MILESTONES: NONE
+  MOHAWK: NONE
+  MOOSE THE MOOCH: NONE
+  OPUS V: NONE
+  ORNITHOLOGY: NONE
+  PASSPORT: NONE
+  QUICKSILVER: NONE
+  RELAXIN' AT CAMARILLO: NONE
+  ROOM 608: NONE
+  SALT PEANUTS (entire tune): NONE
+  SALT PEANUTS: NONE
+  SCRAPPLE FROM THE APPLE: NONE
+  SHAW NUFF: NONE
+  SIPPIN' AT BELLS: NONE
+  Split Kick: NONE
+  SPLIT KICK: NONE
+  STEEPLECHASE: NONE
+  THAT'S EARL, BROTHER: NONE
+  THE SERPENT'S TOOTH: NONE
+  THINGS TO COME: NONE
+  WAIL: NONE
+  WHERE YOU AT?: NONE
+  WOODY 'N' YOU: NONE
+  YARDBIRD SUITE: NONE
+# More from https://www.jazzguitar.be/forum/ear-training-transcribing-reading/96246-essential-bebop-heads.html
+  Au Privave: NONE
+  Blues for Alice: NONE
+# More from https://playjazzpianonyc.com/resources/repertoire/32-must-know-bebop-heads/
+  Blues For Bennie: NONE
+  Celia: NONE
+  Four: NONE
+  In Walked Bud: NONE
+  Move: NONE
+  Sandu: NONE
+  Straight no Chaser: NONE
+  Strollin’: NONE
+  The Sidewinder: NONE
+  Walkin’: NONE
+  Walkin’ Shoes: NONE
+  Well, You Needn’t: NONE
+  Yeah: NONE
 
 ramRevise:
   Head of "Billie's Bounce": NONE
@@ -345,15 +312,6 @@ maxStandardCurr:
   These foolish things (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
   *Triste (A) – The New Real Book 1 [370=364 MdA Ch. 9]: NONE
 
-
-#######
-
-fuqua:
-  Fuqua-up Stella: NONE
-  Fuqua-up Autumn Leaves: NONE
-  Fuqua-up Billie's Bounce: NONE
-  Fuqua-up Lucky Southern: NONE
-  Fuqua-up Some Day My Prince Will Come: NONE
 
 #######
 
