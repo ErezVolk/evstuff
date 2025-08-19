@@ -1,0 +1,9 @@
+#!/bin/sh
+brew upgrade
+if [ -f ~/.oooroots ]; then
+	while read r; do
+		git -C $HOME/"$r" oo
+	done < ~/.oooroots
+fi
+bing-wallpaper
+ggev

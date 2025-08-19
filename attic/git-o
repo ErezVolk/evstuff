@@ -1,7 +1,24 @@
 #!/bin/sh
 
-git fetch -p
+# Update Git repo and pull if safe, and watch the traffic
+# Based on https://stackoverflow.com/a/3278427
+
+git remote update --prune
+
+UPSTREAM=${1:-'@{u}'}
+LOCAL=`git rev-parse @`
+REMOTE=`git rev-parse "$UPSTREAM"`
+BASE=`git merge-base @ "$UPSTREAM"`
 
 if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
-	git pull --ff-only
+    if [ $LOCAL = $REMOTE ]; then
+        # echo "Up-to-date."
+        exit 0
+    elif [ $LOCAL = $BASE ]; then
+        git merge --ff-only $REMOTE
+    elif [ $REMOTE = $BASE ]; then
+        echo "Need to push."
+    else
+        echo "Diverged."
+    fi
 fi
