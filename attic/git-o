@@ -5,10 +5,13 @@
 
 git remote update --prune
 
-UPSTREAM=${1:-'@{u}'}
+REMOTE=`git rev-parse @{u}`
+if [ $? -ne 0 ]; then
+    exit
+fi
+
 LOCAL=`git rev-parse @`
-REMOTE=`git rev-parse "$UPSTREAM"`
-BASE=`git merge-base @ "$UPSTREAM"`
+BASE=`git merge-base $LOCAL $REMOTE`
 
 if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
     if [ $LOCAL = $REMOTE ]; then
@@ -21,4 +24,6 @@ if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
     else
         echo "Diverged."
     fi
+else
+    echo "Uncommitted changes."
 fi
