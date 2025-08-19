@@ -1,5 +1,9 @@
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³₇Δː≅⚠
 
+# New outline: SCALES (type?); WORK on song using Downes' outline; PLAY with recording
+# SET time for: Transcribing; Chords (BDB?); Recording
+# Maybe: SB? Funk? Sight reading? Non-standard songs?
+
 *morn = [ seed warmup 2@intonation 2@theory 2@current max ]
 eve = [ seed @warmup _eve ]
 day = [ seed warmup 2@intonation _eve ]
@@ -29,7 +33,7 @@ seed:
 ram = [ seed 1@intonation ramScale ramLearn 2@ramRevise ]
 
 ramScale:
-  Key of {} {}: {D♭} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+  Key of {} {}: {G♭} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
 
 ramLearn:
   Learn a standard ["Blues March", "It Don't Mean A Thing", "Orpheu Negro", "Caravan"]: NONE
@@ -556,7 +560,7 @@ _nextStepOptions:  # i.e., what should I add 15 minutes of to daily practice
 
 _walkingBooks:
   Bob Magnusson -- if done thoroughly, where would I be: NONE
-  Friedland after all? -- if done thoroughly, where would I be: NONE
+  Friedland after all? Has Mystery Tunes and pairings (p42=43): NONE
   Patitucci's Walking Bass: NONE
   Patitucci's video course: NONE
   Rufus Reid: NONE
