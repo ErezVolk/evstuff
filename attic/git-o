@@ -16,16 +16,16 @@ BASE=`git merge-base $LOCAL $REMOTE`
 
 if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
     if [ $LOCAL = $REMOTE ]; then
-        echo "Good: $ROOT"
+        echo "✔ $ROOT"
         exit 0
     elif [ $LOCAL = $BASE ]; then
         echo $ROOT
         git merge --ff-only $REMOTE
     elif [ $REMOTE = $BASE ]; then
-        echo "*Ahead: $ROOT"
+        echo "↑ $ROOT"
     else
-        echo "*Diverged: $ROOT"
+        echo "⇅ $ROOT"
     fi
 else
-    echo "*Dirty: $ROOT"
+    echo "! $ROOT"
 fi
