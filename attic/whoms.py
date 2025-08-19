@@ -57,6 +57,10 @@ def main() -> None:
         if path.is_file():
             albums = pd.read_excel(path)
             break
+        elif path.is_symlink():
+            print(f"Broken link: {path}...")
+        elif path.exists(follow_symlinks=False):
+            print(f"Not a file: {path}...")
         else:
             print(f"No {path}...")
     else:
