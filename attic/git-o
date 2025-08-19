@@ -3,27 +3,29 @@
 # Update Git repo and pull if safe, and watch the traffic
 # Based on https://stackoverflow.com/a/3278427
 
-git remote update --prune
+git remote update --prune || exit
 
 REMOTE=`git rev-parse @{u}`
 if [ $? -ne 0 ]; then
     exit
 fi
 
+ROOT=`git rev-parse --show-toplevel`
 LOCAL=`git rev-parse @`
 BASE=`git merge-base $LOCAL $REMOTE`
 
 if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
     if [ $LOCAL = $REMOTE ]; then
-        # echo "Up-to-date."
+        echo "Good: $ROOT"
         exit 0
     elif [ $LOCAL = $BASE ]; then
+        echo $ROOT
         git merge --ff-only $REMOTE
     elif [ $REMOTE = $BASE ]; then
-        echo "Need to push."
+        echo "*Ahead: $ROOT"
     else
-        echo "Diverged."
+        echo "*Diverged: $ROOT"
     fi
 else
-    echo "Uncommitted changes."
+    echo "*Dirty: $ROOT"
 fi

@@ -1,2 +1,2 @@
 #!/bin/sh
-find `pwd` -type d -a -name .git -prune -exec dirname "{}" \; -exec git -C "{}"/.. o ";"
+find `pwd` -type d -a -name .git -prune -exec git -C "{}"/.. o ";"
