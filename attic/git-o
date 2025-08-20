@@ -3,22 +3,24 @@
 # Update Git repo and pull if safe, without excessive traffic.
 
 ROOT=`git rev-parse --show-toplevel` || exit  # Fails if not a Git repo
-[ -z "$DEBUG" ] || echo "… $ROOT"
+printf "… %s " "$ROOT"
 git fetch --prune --all || exit   # Fails if no remote; this is the only server communication
+printf "\b\r"
+
 REMOTE=`git rev-parse @{u}` || exit  # Fails if not a remote-tracking branch
 LOCAL=`git rev-parse @`
 BASE=`git merge-base $LOCAL $REMOTE`
 
 STATUS=`git status --porcelain --untracked-files=no`
 if [ -n "$STATUS" ]; then
-    echo "! $ROOT"  # Local uncommitted changes
-elif [ $LOCAL = $REMOTE ]; then  # Up to date
-    echo "✔ $ROOT"
-elif [ $LOCAL = $BASE ]; then  # What we can here for
-    echo "⇣ $ROOT"
+    echo "!"  # Local uncommitted changes
+elif [ $LOCAL = $REMOTE ]; then
+    echo "✔"  # Up to date
+elif [ $LOCAL = $BASE ]; then
+    echo "⇣"  # What we can here for
     git merge --ff-only $REMOTE
-elif [ $REMOTE = $BASE ]; then  # Need to push
-    echo "⇡ $ROOT"
-else  # Diverged
-    echo "⇅ $ROOT"
+elif [ $REMOTE = $BASE ]; then
+    echo "⇡"  # Need to push
+else
+    echo "⇅"  # Diverged
 fi
