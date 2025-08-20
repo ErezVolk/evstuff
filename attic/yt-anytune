@@ -1,0 +1,15 @@
+#!/bin/sh
+WORKDIR=`mktemp -d`
+cd "$WORKDIR"
+
+cleanup() {
+	cd
+	rm -Rfv "$WORKDIR"
+}
+trap cleanup EXIT
+
+for i in "$@"; do
+	yt-dlp --extract-audio --audio-format mp3 --embed-metadata "$i"
+done
+
+open -a Anytune -W -n *.mp3
