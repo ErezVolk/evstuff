@@ -1,10 +1,10 @@
 #!/bin/sh
 
-# Update Git repo and pull if safe, and watch the traffic
+# Update Git repo and pull if safe, without excessive traffic.
 
 ROOT=`git rev-parse --show-toplevel` || exit  # Fails if not a Git repo
 [ -z "$DEBUG" ] || echo "… $ROOT"
-git fetch --prune --all || exit   # Fails if no remote
+git fetch --prune --all || exit   # Fails if no remote; this is the only server communication
 REMOTE=`git rev-parse @{u}` || exit  # Fails if not a remote-tracking branch
 LOCAL=`git rev-parse @`
 BASE=`git merge-base $LOCAL $REMOTE`
@@ -15,10 +15,10 @@ if [ -n "$STATUS" ]; then
 elif [ $LOCAL = $REMOTE ]; then  # Up to date
     echo "✔ $ROOT"
 elif [ $LOCAL = $BASE ]; then  # What we can here for
-    echo $ROOT
+    echo "⇣ $ROOT"
     git merge --ff-only $REMOTE
 elif [ $REMOTE = $BASE ]; then  # Need to push
-    echo "↑ $ROOT"
+    echo "⇡ $ROOT"
 else  # Diverged
     echo "⇅ $ROOT"
 fi
