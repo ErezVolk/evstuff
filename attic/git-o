@@ -4,15 +4,10 @@
 # Based on https://stackoverflow.com/a/3278427
 
 git remote update --prune || exit
-
-REMOTE=`git rev-parse @{u}`
-if [ $? -ne 0 ]; then
-    exit
-fi
-
-ROOT=`git rev-parse --show-toplevel`
+REMOTE=`git rev-parse @{u}` || exit
 LOCAL=`git rev-parse @`
 BASE=`git merge-base $LOCAL $REMOTE`
+ROOT=`git rev-parse --show-toplevel`
 
 if [[ -z $(git status --porcelain --untracked-files=no) ]]; then
     if [ $LOCAL = $REMOTE ]; then
