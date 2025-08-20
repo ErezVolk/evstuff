@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""Zotero blamer."""
+
+import argparse
+import sqlite3
+import typing as t
+from pathlib import Path
+
+
+class ZoBlame:
+    """Zotero blamer."""
+
+    args: argparse.Namespace
+    zdb: sqlite3.Connection
+
+    def run(self) -> None:
+        """Find who to blame in Zotero."""
+        self.usage()
+        self.blame()
+
+    def usage(self) -> None:
+        """Parse command line."""
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "-z",
+            "--zotero",
+            type=Path,
+            default=Path.home() / "Zotero",
+            help="Zotero library root",
+        )
+        parser.add_argument(
+            "-n",
+            "--count",
+            type=int,
+            default=10,
+            help="Number of most recent items",
+        )
+        parser.add_argument(
+            "-l",
+            "--library",
+            type=str,
+            help="Only look at a specific library",
+        )
+        parser.add_argument(
+            "--clip",
+            type=int,
+            default=60,
+            help="Truncate titles to this length",
+        )
+        self.args = parser.parse_args()
+
+    def blame(self) -> None:
+        """Scan Zotero."""
+        path = self.args.zotero / "zotero.sqlite"
+        self.zdb = sqlite3.connect(f"file:{path}?mode=ro")
+
+        parameters = []
+
+        sql = [
+            "SELECT items.dateAdded,"
+            " items.key,"
+            " users.name,"
+            " itemDataValues.value "
+            "FROM items "
+            "JOIN groupItems ON groupItems.itemID=items.itemID "
+            "JOIN users ON users.userID=groupItems.createdByUserID "
+            "JOIN groups ON groups.libraryID=items.libraryID "
+            "JOIN itemData on itemData.itemID=items.itemID "
+            "JOIN itemTypes on itemTypes.itemTypeID=items.itemTypeID "
+            "JOIN itemDataValues on itemDataValues.valueID=itemData.valueID "
+            "JOIN fields ON fields.fieldID=itemData.fieldID "
+            "WHERE fields.fieldName='title' "
+            "AND itemTypes.typeName NOT IN ('attachment', 'note') "
+            "AND items.itemID NOT IN (SELECT itemID from deletedItems)",
+        ]
+
+        if self.args.library:
+            sql.append("AND groups.name=?")
+            parameters.append(self.args.library)
+
+        sql.append(
+            "ORDER BY items.dateAdded DESC"
+            " LIMIT ?",
+        )
+        parameters.append(self.args.count)
+
+        for key, when, user, title in self.execute("".join(sql), parameters):
+            if self.args.clip and len(title) > self.args.clip:
+                clipped = f"{title[: self.args.clip]}..."
+            else:
+                clipped = title
+            print(when, key, user, repr(clipped))
+
+    def execute(
+        self,
+        sql: str,
+        parameters: dict | t.Sequence,
+    ) -> t.Iterator[t.Sequence[str]]:
+        """Run a statement."""
+        yield from self.zdb.execute(sql, parameters)
+
+
+if __name__ == "__main__":
+    ZoBlame().run()
