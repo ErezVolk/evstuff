@@ -4,7 +4,7 @@
 
 ROOT=`git rev-parse --show-toplevel` || exit  # Fails if not a Git repo
 printf "… %s " "$ROOT"
-git fetch --prune --all || exit   # Fails if no remote; this is the only server communication
+git fetch --quiet --prune --all || exit   # Fails if no remote; this is the only server communication
 printf "\b\r"
 
 REMOTE=`git rev-parse @{u}` || exit  # Fails if not a remote-tracking branch
