@@ -7,3 +7,6 @@ if [ -f ~/.oooroots ]; then
 fi
 bing-wallpaper
 ggev
+if which ooo-extra > /dev/null; then
+	ooo-extra
+fi
