@@ -2,7 +2,9 @@
 """Zotero blamer."""
 
 import argparse
+import shutil
 import sqlite3
+import tempfile
 import typing as t
 from pathlib import Path
 
@@ -52,6 +54,15 @@ class ZoBlame:
     def blame(self) -> None:
         """Scan Zotero."""
         path = self.args.zotero / "zotero.sqlite"
+        try:
+            self.blame_from(path)
+        except sqlite3.OperationalError:
+            with tempfile.TemporaryDirectory() as tdir:
+                shutil.copyfile(path, copy := Path(tdir) / "zotero.sqlite")
+                self.blame_from(copy)
+
+    def blame_from(self, path: Path) -> None:
+        """Scan Zotero."""
         self.zdb = sqlite3.connect(f"file:{path}?mode=ro")
 
         parameters = []
