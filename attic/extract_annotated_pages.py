@@ -62,7 +62,12 @@ def extract_annotations() -> None:
     outdoc = pymupdf.Document()
     for inpage in indoc:
         if should_copy(inpage, modoc):
-            outdoc.insert_pdf(indoc, inpage.number, inpage.number, final=False)
+            outdoc.insert_pdf(
+                indoc,
+                from_page=inpage.number,
+                to_page=inpage.number,
+                final=False,
+            )
 
     if (npages := len(outdoc)) == 0:
         print("No annotations found, doing nothing")
@@ -80,9 +85,7 @@ def should_copy(inpage: pymupdf.Page, modoc: pymupdf.Document) -> bool:
     mopage = modoc[inpage.number]
     inpix = inpage.get_pixmap(matrix=HALF)
     mopix = mopage.get_pixmap(matrix=HALF)
-    if inpix.digest != mopix.digest:
-        return True
-    return False
+    return inpix.digest != mopix.digest
 
 
 if __name__ == "__main__":
