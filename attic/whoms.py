@@ -17,7 +17,7 @@ def main() -> None:
         default=[
             Path.home() / ".whoms.ods",
             Path.home() / "Dropbox" / "Private" / "albums.ods",
-        ]
+        ],
     )
     parser.add_argument(
         "-o",
@@ -53,17 +53,20 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    errors: list[str] = []
     for path in args.inputs:
         if path.is_file():
             albums = pd.read_excel(path)
             break
-        elif path.is_symlink():
-            print(f"Broken link: {path}...")
+        if path.is_symlink():
+            errors.append(f"Broken link: {path}...")
         elif path.exists(follow_symlinks=False):
-            print(f"Not a file: {path}...")
+            errors.append(f"Not a file: {path}...")
         else:
-            print(f"No {path}...")
+            errors.append(f"No {path}...")
     else:
+        for error in errors:
+            print(error)
         parser.error("Please specify --inputs")
 
     albums["heard"] = albums.When.notna()
