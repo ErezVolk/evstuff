@@ -9,7 +9,7 @@
 bass = [ 1@intonation scale learn 2@play more ]
 
 scale:
-  Key of {}, {}, going {} -- {}: {G♭} {Ionian (I, Major)|Dorian (II)|Phrygian (III)|Lydian (IV)|Mixolydian (V)|Aeolian (VI, Minor)|Locrian (VII)} {UP|DOWN}  {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+  Key of {}, {}, going {} -- {}: {B} {Ionian (I, Major)|Dorian (II)|Phrygian (III)|Lydian (IV)|Mixolydian (V)|Aeolian (VI, Minor)|Locrian (VII)} {UP|DOWN}  {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
 
 learn:
   Downes ({}) [All the Things You Are]: {<1-5-pass|1-3-pass|triad-0|triad-1|triad-2|quad-0|quad-1|quad-2|quad-3>}
