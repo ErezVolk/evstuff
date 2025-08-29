@@ -57,10 +57,10 @@ class EvRb:
             help="List the files instead of copying them",
         )
         parser.add_argument(
-            "-s",
-            "--sleepy",
+            "-r",
+            "--raw",
             action="store_true",
-            help="Do not run rsync with caffeinate",
+            help="Do not run rsync with caffeinate/sudo",
         )
         parser.add_argument(
             "-y",
@@ -201,6 +201,7 @@ class EvRb:
             there.rename(back)
 
         self.write(there, this)
+        there.chmod(0o755)
 
     def read(self, path: Path, size: int = -1) -> bytes:
         """Read a script. Shouldn't be too big."""
@@ -238,8 +239,9 @@ class EvRb:
             "--delete",
         ]
 
-        if not self.args.sleepy:
+        if not self.args.raw:
             args.insert(0, "/usr/bin/caffeinate")
+            args.insert(0, "/usr/bin/sudo")
         if self.model:
             args.append(f"--link-dest={self.model}")
         if self.exclude_from:
