@@ -10,13 +10,15 @@ import subprocess
 import typing as t
 from pathlib import Path
 
-# TO DO: --exclude
+__TODO__ = """
+- Proper, rsync-like exclude
+"""
 
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("root", type=Path, default=Path.cwd())
+    parser.add_argument("roots", type=Path, nargs="+", default=Path.cwd())
     parser.add_argument("-e", "--exclude", type=Path, nargs="+")
     parser.add_argument("-s", "--min-size", type=int, default=1024 * 1024)
     parser.add_argument("-y", "--yes", action="store_true")
@@ -75,16 +77,17 @@ class Walker:
     """Walk a tree."""
 
     def __init__(self, args: argparse.Namespace) -> None:
-        self.root: Path = args.root
+        self.roots: list[Path] = args.roots
         self.min_size: int = args.min_size
         self.include_git: bool = args.include_git
         self.include_zotero: bool = args.include_zotero
 
     def walk(self) -> t.Iterable[File]:
         """Walk a tree."""
-        yield from self._walk(self.root)
+        for root in self.roots:
+            yield from self._walk(root, root)
 
-    def _walk(self, branch: Path) -> t.Iterable[File]:
+    def _walk(self, root: Path, branch: Path) -> t.Iterable[File]:
         if not self.include_git:
             if (branch / ".git").is_dir():
                 print(f"Skipping Git repo {branch}")
@@ -103,9 +106,9 @@ class Walker:
                 continue
             if stat.S_ISREG(mode):
                 if info.st_size >= self.min_size:
-                    yield File(self.root, path, info)
+                    yield File(root, path, info)
             elif stat.S_ISDIR(mode):
-                yield from self._walk(path)
+                yield from self._walk(root, path)
 
 
 class Dedupe:
