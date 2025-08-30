@@ -13,6 +13,22 @@ from pathlib import Path
 # TO DO: --exclude
 
 
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("root", type=Path, default=Path.cwd())
+    parser.add_argument("-e", "--exclude", type=Path, nargs="+")
+    parser.add_argument("-s", "--min-size", type=int, default=1024 * 1024)
+    parser.add_argument("-y", "--yes", action="store_true")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-c", "--csv", type=Path, default="dedupe.csv")
+    group.add_argument("-C", "--no-csv", action="store_true")
+
+    parser.add_argument("-o", "--open-csv", action="store_true")
+    parser.add_argument("-g", "--include-git", action="store_true")
+    return parser.parse_args()
+
+
 class File:
     """A found file."""
 
@@ -60,12 +76,18 @@ class Walker:
     def __init__(self, args: argparse.Namespace) -> None:
         self.root: Path = args.root
         self.min_size: int = args.min_size
+        self.include_git: bool = args.include_git
 
     def walk(self) -> t.Iterable[File]:
         """Walk a tree."""
         yield from self._walk(self.root)
 
     def _walk(self, branch: Path) -> t.Iterable[File]:
+        if not self.include_git:
+            if (branch / ".git").is_dir():
+                print(f"Skipping Git repo {branch}")
+                return
+
         for path in branch.iterdir():
             info = path.lstat()
             mode = info.st_mode
@@ -83,20 +105,9 @@ class Dedupe:
 
     args: argparse.Namespace
 
-    def parse_args(self) -> None:
-        """Parse command-line arguments."""
-        parser = argparse.ArgumentParser()
-        parser.add_argument("root", type=Path, default=Path.cwd())
-        parser.add_argument("-e", "--exclude", type=Path, nargs="+")
-        parser.add_argument("-s", "--min-size", type=int, default=1024 * 1024)
-        parser.add_argument("-y", "--yes", action="store_true")
-        parser.add_argument("-c", "--csv", type=Path, default="dedupe.csv")
-        parser.add_argument("-C", "--open-csv", action="store_true")
-        self.args = parser.parse_args()
-
     def run(self) -> None:
         """Dedupe."""
-        self.parse_args()
+        self.args = parse_args()
 
         inodes: dict[int, list[File]] = collections.defaultdict(list)
         sizes: dict[int, set[int]] = collections.defaultdict(set)
@@ -150,6 +161,18 @@ class Dedupe:
 
         print(f"Hard links would save {total_save:,} bytes")
 
+        if not self.args.yes:
+            input("Press Return to hard link...")
+
+        for files in to_merge:
+            for file in files[1:]:
+                file.hardlink_to(files[0])
+
+    def do_csv(self, report: list[list[int | File]]) -> None:
+        """Write and open the CSV report."""
+        if self.args.no_csv:
+            return
+
         with Path(self.args.csv).open("w") as csvfo:
             csvw = csv.writer(csvfo)
             csvw.writerow(["inodes", "files", "size", "save"])
@@ -159,12 +182,6 @@ class Dedupe:
         print("See also", self.args.csv)
         if self.args.open_csv:
             subprocess.run(["/usr/bin/open", str(self.args.csv)], check=False)
-        if not self.args.yes:
-            input("Press Return to hard link...")
-
-        for files in to_merge:
-            for file in files[1:]:
-                file.hardlink_to(files[0])
 
 
 if __name__ == "__main__":
