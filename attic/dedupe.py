@@ -73,32 +73,36 @@ class Dedupe:
                 sizes[file.size].add(file.inode)
 
         total_save = 0
-        with Path(args.csv).open("w") as csvfo:
-            csvw = csv.writer(csvfo)
-            csvw.writerow(["count", "size", "save"])
-            to_merge: list[list[File]] = []
-            for size, size_inodes in sizes.items():
-                if len(size_inodes) == 1:
-                    continue  # Only one file of this size
-                hashes = {inodes[inode][0].hash() for inode in size_inodes}
-                if len(hashes) > 1:
-                    continue  # Not all the same (TO DO: maybe subsets)
-                files = [
-                    file
-                    for inode in size_inodes
-                    for file in inodes[inode]
-                ]
-                to_merge.append(files)
-                print(f"[{len(to_merge)}]", f"({size:,} B)", files)
-                count = len(files)
-                save = size * (count - 1)
-                total_save += save
-                csvw.writerow(map(str, [count, size, save, *files]))
+        rows: list[list[int | File]] = []
+        to_merge: list[list[File]] = []
+        for size, size_inodes in sizes.items():
+            if len(size_inodes) == 1:
+                continue  # Only one file of this size
+            hashes = {inodes[inode][0].hash() for inode in size_inodes}
+            if len(hashes) > 1:
+                continue  # Not all the same (TO DO: maybe subsets)
+            files = [
+                file
+                for inode in size_inodes
+                for file in inodes[inode]
+            ]
+            to_merge.append(files)
+            print(f"[{len(to_merge)}]", f"({size:,} B)", files)
+            count = len(files)
+            save = size * (count - 1)
+            total_save += save
+            rows.append([count, size, save, *files])
 
         if not to_merge:
             return
-
         print(f"Hard links would save {total_save:,} bytes")
+
+        with Path(args.csv).open("w") as csvfo:
+            csvw = csv.writer(csvfo)
+            csvw.writerow(["count", "size", "save"])
+            for row in rows:
+                csvw.writerow(map(str, row))
+
         print("See also", args.csv)
         if args.open_csv:
             subprocess.run(["/usr/bin/open", str(args.csv)], check=False)
