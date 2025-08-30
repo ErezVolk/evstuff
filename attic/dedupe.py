@@ -26,6 +26,7 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("-o", "--open-csv", action="store_true")
     parser.add_argument("-g", "--include-git", action="store_true")
+    parser.add_argument("-z", "--include-zotero", action="store_true")
     return parser.parse_args()
 
 
@@ -77,6 +78,7 @@ class Walker:
         self.root: Path = args.root
         self.min_size: int = args.min_size
         self.include_git: bool = args.include_git
+        self.include_zotero: bool = args.include_zotero
 
     def walk(self) -> t.Iterable[File]:
         """Walk a tree."""
@@ -87,6 +89,12 @@ class Walker:
             if (branch / ".git").is_dir():
                 print(f"Skipping Git repo {branch}")
                 return
+
+        if not self.include_zotero:
+            if branch.name == "storage":
+                if (branch.parent / "zotero.sqlite").is_file():
+                    print(f"Skipping Zotero {branch}")
+                    return
 
         for path in branch.iterdir():
             info = path.lstat()
