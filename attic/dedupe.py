@@ -133,10 +133,14 @@ class Dedupe:
                     for head in snap_heads
                     for file in inodes[head.inode]
                 ]
-
-                to_merge.append(files)
-                print(f"[{len(to_merge)}] ({size:,} B) {files}")
                 num_files = len(files)
+                to_merge.append(files)
+
+                print(
+                    f"[{len(to_merge)}] ({size:,} B) "
+                    f"[{num_files}/{num_heads}] "
+                    f"{files}",
+                )
                 save = size * (num_heads - 1)
                 total_save += save
                 report.append([num_heads, num_files, size, save, *files])
