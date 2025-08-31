@@ -64,9 +64,10 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
+- "Repeat each card N times" (e.g., mode, key)
 - Annals: New decks
 - Template (what to do with a standard)
-- Make into an app (Kivy? No more pmprc parsing)
+- Make into an app (Kivy? Flutter? No more pmprc parsing)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Visitor pattern (on_etude=, on_ref=)
 - Build modes, e.g., "altered := minor+7", then we can only predefine major
@@ -308,6 +309,10 @@ class SavableDeck(Deck):
         return f":{hashlib.sha256(hashee).hexdigest()[:8]}:"
 
 
+class PlainDeck(SavableDeck):
+    """Shuffle a deck of cards, draw one by one."""
+
+
 class RangeDeck(SavableDeck):
     """Random choice from a range of numbers, e.g., "[1,3-4,15-50]"."""
 
@@ -419,7 +424,7 @@ class Book:
     def finalize(self) -> Deck:
         """Create the deck."""
         self.labels = [entry.label for entry in self.toc]
-        self.deck = SavableDeck(cards=self.labels, label=self.label)
+        self.deck = PlainDeck(cards=self.labels, label=self.label)
         return self.deck
 
     def draw_all(self) -> Iterable[Entry]:
@@ -768,7 +773,7 @@ class PracticeMakesPerfect:
         self.decks = {Layout(NoneDeck.NAME): NoneDeck()}
         for key, cardstr in self.SCALE_KEYS.items():
             cards = self._prep(cardstr)
-            self._have(SavableDeck(cards=cards, layout=key, label=key))
+            self._have(PlainDeck(cards=cards, layout=key, label=key))
         log.debug("Basic decks: %s", SEP.join(self.decks))
 
     def _prep(self, cardstr: str) -> list[str]:
@@ -908,7 +913,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
 
     def __init__(self, labeldecks: dict[Label, Deck]) -> None:
         self.labeldecks = dict(labeldecks)
-        self.whences = {label: -1 for label in labeldecks}
+        self.whences = dict.fromkeys(labeldecks, -1)
         self.books = {}
         self.starred = []
         self.deps = collections.defaultdict(set)
@@ -983,8 +988,12 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         if label in self.labeldecks:
             raise ConfigError(f"Duplicate deck: {label!r}")
 
+        self.labeldecks[Label(label)] = self._plain_deck(keys, label=label)
+
+    def _plain_deck(self, keys: str, label: str = "") -> PlainDeck:
+        """Parse a deck string (e.g., `C|F|G`) into a Deck object."""
         cards = [key.strip() for key in keys.split("|")]
-        self.labeldecks[Label(label)] = SavableDeck(label=label, cards=cards)
+        return PlainDeck(label=label, cards=cards)
 
     def do_etude(self, template: str, deckstr: str) -> None:
         """Found an etude line, e.g., "{}-maj: {major}" or "-min: minor}."""
@@ -1019,9 +1028,8 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             elif self.match(PartitionDeck.PARTITION_RE, desc := part.strip()):
                 decks.append(PartitionDeck(desc))
             else:
-                keys = [key.strip() for key in part.split("|")]
-                decks.append(SavableDeck(cards=keys))
-                for key in keys:
+                decks.append(deck := self._plain_deck(part))
+                for key in deck.cards:
                     if (target := key.removeprefix("@")) != key:
                         self.add_dep(self.curr.label, Label(target))
         self.curr.toc.append(Etude(template=template, decks=decks))
