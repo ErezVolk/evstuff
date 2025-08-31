@@ -11,7 +11,7 @@ import typing as t
 from pathlib import Path
 
 __TODO__ = """
-- Proper, rsync-like exclude
+- Proper, rsync/tar-like exclude
 """
 
 
@@ -19,7 +19,6 @@ def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument("roots", type=Path, nargs="+", default=Path.cwd())
-    parser.add_argument("-e", "--exclude", type=Path, nargs="+")
     parser.add_argument("-s", "--min-size", type=int, default=1024 * 1024)
     parser.add_argument("-y", "--yes", action="store_true")
     group = parser.add_mutually_exclusive_group()
@@ -128,7 +127,7 @@ class Dedupe:
             inodes[file.inode].append(file)
             sizes[file.size].add(file.inode)
 
-        total_save = 0
+        total_save = n_peek = n_snap = 0
         report: list[list[int | File]] = []
         to_merge: list[list[File]] = []
         for size, size_inodes in sizes.items():
@@ -139,12 +138,14 @@ class Dedupe:
             peeks: dict[str, list[File]] = collections.defaultdict(list)
             for head in size_heads:
                 peeks[head.peek()].append(head)
+                n_peek += 1
 
             snaps: dict[str, list[File]] = collections.defaultdict(list)
             for peek_heads in peeks.values():
                 if len(peek_heads) <= 1:
                     continue
                 for head in peek_heads:
+                    n_snap += 1
                     snaps[head.snap()].append(head)
 
             for snap_heads in snaps.values():
@@ -167,6 +168,7 @@ class Dedupe:
                 total_save += save
                 report.append([num_heads, num_files, size, save, *files])
 
+        print(f"Files peeked/read: {n_peek}/{n_snap}")
         if not to_merge:
             return
 
