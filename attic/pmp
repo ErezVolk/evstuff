@@ -319,7 +319,7 @@ class TimesDeck(SavableDeck):
     curr: str
 
     def __init__(self, times: int, target: str) -> None:
-        super().__init__(cards=[target])
+        super().__init__(cards=[f"@{target}"])
         self.target_label = Label(target)
         self.times = times
         self.curr = "N/A"
@@ -942,10 +942,10 @@ class PracticeMakesPerfect:
 class ConfigParser:  # pylint: disable=too-many-instance-attributes
     """Read configuration file."""
 
-    times_decks: list[TimesDeck]
     labeldecks: dict[Label, Deck]
     books: Books
     starred: list[Label]
+    times: list[TimesDeck]
     curr: Book | None = None
     line_num: int
     whences: dict[Label, int]
@@ -958,6 +958,7 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
         self.whences = dict.fromkeys(labeldecks, -1)
         self.books = {}
         self.starred = []
+        self.times = []
         self.deps = collections.defaultdict(set)
 
     def match(self, expr: str, line: str | None = None) -> bool:
@@ -1016,12 +1017,8 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
             msg = f"Cyclical config: {' -> '.join(exc.args[1])}"
             raise ConfigError(msg) from exc
 
-        for book in self.books.values():
-            for etude in book.toc:
-                if isinstance(etude, Etude):
-                    for deck in etude.decks:
-                        if isinstance(deck, TimesDeck):
-                            deck.target = self.labeldecks[deck.target_label]
+        for deck in self.times:
+            deck.target = self.labeldecks[deck.target_label]
 
     def do_book(self, label: str, *, star: bool, serial: bool = False) -> None:
         """Found a book line."""
@@ -1041,6 +1038,12 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
 
     def _plain_deck(self, keys: str, label: str = "") -> SavableDeck:
         """Parse a deck string (e.g., `C|F|G`) into a Deck object."""
+        if self.match(TimesDeck.TIMES_RE, keys.strip()):
+            times = int(self.group("times"))
+            target = Label(self.group("target").strip())
+            self.times.append(deck := TimesDeck(times, target))
+            return deck
+
         cards = [key.strip() for key in keys.split("|")]
         return SavableDeck(label=label, cards=cards)
 
@@ -1076,11 +1079,6 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
                 decks.append(PermutationDeck(itemstr))
             elif self.match(PartitionDeck.PARTITION_RE, desc := part.strip()):
                 decks.append(PartitionDeck(desc))
-            elif self.match(TimesDeck.TIMES_RE, part.strip()):
-                times = int(self.group("times"))
-                target = Label(self.group("target").strip())
-                decks.append(TimesDeck(times, target))
-                self.add_dep(self.curr.label, target)
             else:
                 decks.append(deck := self._plain_deck(part))
                 for key in deck.cards:
