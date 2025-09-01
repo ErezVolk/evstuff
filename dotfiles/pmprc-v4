@@ -14,7 +14,7 @@ scale:
   Key of {} {} -- {}: {5*ANY} {3*MODE} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
 
 learn:
-  Downes ({}) [All the Things You Are]: {<1-5-pass|1-3-pass|triad|quad|triadic walk>}
+  Downes ({}) [All the Things You Are]: {<sing bass|1-5-pass|1-3-pass|triad|quad|triadic walk>}
   # seventh walk|scalar w/passing|scalar w/appogiatura|scalar w/neighbor
   Memorize walking [Ray Brown on "It Could Happen to You"]: NONE
 
