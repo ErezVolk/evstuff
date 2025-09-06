@@ -14,8 +14,8 @@ scale:
   Key of {} {} -- {}: {5*ANY} {3*MODE} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
 
 learn:
-  Downes ({}) [All the Things You Are]: {<sing bass|1-5-pass|1-3-pass|triad|quad|triadic walk>}
-  # seventh walk|scalar w/passing|scalar w/appogiatura|scalar w/neighbor
+  Downes ({}) [All the Things You Are]: {<0)sing bass|3a)1-5-pass|3b)1-3-pass|4)triad|5)quad|6)triadic walk|7)Seventh walk with passing tones>}
+  # 0)sing bass|3a)1-5-pass|3b)1-3-pass|4)triad|5)quad|6)triadic walk|7)Seventh walk with passing tones|8a)Scalar+passing|8b)Scalar+apogg|8c)Scalar+neighbor
   Memorize walking [Ray Brown on "It Could Happen to You"]: NONE
 
 play:
@@ -23,15 +23,11 @@ play:
   Head of "Ornithology": NONE
   Head of "Tricotism": NONE
   Head of "Anthropology": NONE
-  Buster Williams on "There Will Never Be Another You": NONE
-  Israel Crosby on "But Not For Me": NONE
   Paul Chambers on "Blue Spring Shuffle": NONE
-  Percy Heath on "But not For Me": NONE
-  Ray Brown on "Out of Nowhere": NONE
-  Play "But Not For Me": NONE
+  Play "But Not For Me" [Remember Israel Crosby, Percy Heath]: NONE
   Play "It Could Happen to You": NONE
-  Play "Out of Nowhere": NONE
-  Play "There Will Never Be Another You": NONE
+  Play "Out of Nowhere" [Remember Ray Brown]: NONE
+  Play "There Will Never Be Another You" [Remember Buster Williams]: NONE
   Play "They Say It's Wonderful": NONE
   Play "Central Park West": NONE
   Play "Wave": NONE
@@ -616,6 +612,7 @@ _future:
   # For repertoire:
   # - The "12 key tunes" in "Insights in Jazz"
   # - Data-driven approach in "Watkins - Improvization - 07 Repertoire"
+  # - https://chrisfitzgeraldmusic.com/download/study-method-repertoire-and-improvisation/?wpdmdl=940&refresh=68bc5926ea2a91757174054
   # - Downes' list
   # - Baker - How to Learn Tunes
 
