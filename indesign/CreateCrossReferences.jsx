@@ -1,6 +1,7 @@
 // ex: set et sw=2:
 // TODO: Fix unfixing Source
 // TODO: Mirror (insert anchored object with same width, require frame style???)
+// TODO: Asterisk when spaced (but unruled) ends at top
 
 function cr_main() {
   cr = {
@@ -18,6 +19,7 @@ function cr_run(cr) {
     cr_do_sources(cr);
 
     cr_do_continuations(cr);
+    cr_do_continuations(cr); // Yes, twice
 
     cr_do_export(cr);
   } catch(err) {
