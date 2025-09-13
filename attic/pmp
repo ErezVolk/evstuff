@@ -64,9 +64,8 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
-- "Repeat each card N times" (e.g., mode, key)
 - Annals: New decks
-- Template (what to do with a standard)
+- Template/multilevel (what to do with a standard, Downes' steps, etc.)
 - Make into an app (Kivy? Flutter? No more pmprc parsing)
 - "ANY := C‖C#|Db‖D#|Eb‖...‖B" "major := C#|Db‖...‖B"
 - Visitor pattern (on_etude=, on_ref=)
