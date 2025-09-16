@@ -1,38 +1,43 @@
 #!/bin/sh
-
 # Update Git repo and pull if safe, without excessive traffic.
 
-scratch=`mktemp`
-trap "rm -f $scratch" EXIT
+outf=$(mktemp)
+errf=$(mktemp)
+trap "rm -f $outf $errf" EXIT
 
 do_git()
 {
-	git "$@" > $scratch
+	git "$@" >$outf 2>$errf
 	code=$?
-	cat $scratch | sed -e "s/^/$PREFIX/"
+	cat $outf
+	cat $errf | sed -e "s/^/$PREFIX/" >&2
 	return $code
 }
 
-ROOT=`git rev-parse --show-toplevel` || exit  # Fails if not a Git repo
-echo "… $ROOT"
+show_git()
+{
+	do_git "$@" | sed -e "s/^/$PREFIX/" >&2
+}
 
-NAME=`basename $ROOT`
+ROOT=$(git rev-parse --show-toplevel) || exit  # Fails if not a Git repo
+NAME=$(basename $ROOT)
 PREFIX="[$NAME] "
 
-do_git fetch --quiet --prune --all || exit   # Fails if no remote; this is the only server communication
+echo "… $ROOT"
+show_git fetch --quiet --prune --all || exit   # Fails if no remote; this is the only server communication
 
-REMOTE=`git rev-parse @{u}` || exit  # Fails if not a remote-tracking branch
-LOCAL=`git rev-parse @`
-BASE=`git merge-base $LOCAL $REMOTE`
+REMOTE=$(do_git rev-parse @{u}) || exit  # Fails if not a remote-tracking branch
+LOCAL=$(do_git rev-parse @)
+BASE=$(do_git merge-base $LOCAL $REMOTE)
 
-STATUS=`git status --porcelain --untracked-files=no`
+STATUS=$(do_git status --porcelain --untracked-files=no)
 if [ -n "$STATUS" ]; then
     echo "! $ROOT"  # Local uncommitted changes
 elif [ $LOCAL = $REMOTE ]; then
     echo "✔ $ROOT"  # Up to date
 elif [ $LOCAL = $BASE ]; then
     echo "⇣ $ROOT"  # What we can here for
-    do_git merge --ff-only $REMOTE
+    show_git merge --ff-only $REMOTE
     echo "↳ $ROOT"
 elif [ $REMOTE = $BASE ]; then
     echo "⇡ $ROOT"  # Need to push
