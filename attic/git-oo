@@ -1,2 +1,6 @@
 #!/bin/sh
-find . -type d -a -name .git -prune -exec git -C "{}"/.. o ";"
+PARALLEL_ARGS=-j4
+if [ -f ~/.gitoorc ]; then
+	. ~/.gitoorc
+fi
+find . -type d -a -name .git -prune |parallel $PARALLEL_ARGS git -C "{}"/.. o

@@ -2,10 +2,24 @@
 
 # Update Git repo and pull if safe, without excessive traffic.
 
+scratch=`mktemp`
+trap "rm -f $scratch" EXIT
+
+do_git()
+{
+	git "$@" > $scratch
+	code=$?
+	cat $scratch | sed -e "s/^/$PREFIX/"
+	return $code
+}
+
 ROOT=`git rev-parse --show-toplevel` || exit  # Fails if not a Git repo
-printf "… %s " "$ROOT"
-git fetch --quiet --prune --all || exit   # Fails if no remote; this is the only server communication
-printf "\b\r"
+echo "… $ROOT"
+
+NAME=`basename $ROOT`
+PREFIX="[$NAME] "
+
+do_git fetch --quiet --prune --all || exit   # Fails if no remote; this is the only server communication
 
 REMOTE=`git rev-parse @{u}` || exit  # Fails if not a remote-tracking branch
 LOCAL=`git rev-parse @`
@@ -13,15 +27,15 @@ BASE=`git merge-base $LOCAL $REMOTE`
 
 STATUS=`git status --porcelain --untracked-files=no`
 if [ -n "$STATUS" ]; then
-    echo "!"  # Local uncommitted changes
+    echo "! $ROOT"  # Local uncommitted changes
 elif [ $LOCAL = $REMOTE ]; then
-    echo "✔"  # Up to date
+    echo "✔ $ROOT"  # Up to date
 elif [ $LOCAL = $BASE ]; then
-    echo "⇣"  # What we can here for
-    git merge --ff-only $REMOTE
+    echo "⇣ $ROOT"  # What we can here for
+    do_git merge --ff-only $REMOTE
     echo "↳ $ROOT"
 elif [ $REMOTE = $BASE ]; then
-    echo "⇡"  # Need to push
+    echo "⇡ $ROOT"  # Need to push
 else
-    echo "⇅"  # Diverged
+    echo "⇅ $ROOT"  # Diverged
 fi
