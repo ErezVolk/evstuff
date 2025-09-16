@@ -1,6 +1,10 @@
 #!/bin/sh
-PARALLEL_ARGS=-j4
-if [ -f ~/.gitoorc ]; then
-	. ~/.gitoorc
+if which s parallel; then
+	PARALLEL_ARGS=-j4
+	if [ -f ~/.gitoorc ]; then
+		. ~/.gitoorc
+	fi
+	find . -type d -a -name .git -prune |parallel $PARALLEL_ARGS git -C "{}"/.. o
+else
+	find . -type d -a -name .git -prune -exec git -C "{}"/.. o ";"
 fi
-find . -type d -a -name .git -prune |parallel $PARALLEL_ARGS git -C "{}"/.. o
