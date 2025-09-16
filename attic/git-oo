@@ -1,5 +1,5 @@
 #!/bin/sh
-if which s parallel; then
+if which parallel > /dev/null; then
 	PARALLEL_ARGS=-j4
 	if [ -f ~/.gitoorc ]; then
 		. ~/.gitoorc
