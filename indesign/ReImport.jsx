@@ -101,6 +101,7 @@ function ri_analyze(ri) {
       try {
         ri.saved_settings = eval(value);
       } catch (e) {
+        ri.messages.push('Could not read settings: ' + e);
       }
     }
   }
@@ -344,12 +345,15 @@ function ri_do_import(ri) {
       rerunner = ri.importee + '.rerun';
       mtime = File(rerunner).modified;
       if (mtime) {
-        File(rerunner).execute();
+        cmd = 'do shell script "' + rerunner + '"';
+        ri.messages.push(cmd);
+        app.doScript(cmd, ScriptLanguage.APPLESCRIPT_LANGUAGE);
         for (var n = 0; n < 50 && File(rerunner).modified.getTime() == mtime.getTime(); ++ n)
           $.sleep(100);
       }
+      ri.messages.pop();
     } catch (e) {
-      // No harm done.
+      ri.messages.push('Could not rerun: ' + e);
     }
   }
 

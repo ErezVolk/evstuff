@@ -21,7 +21,7 @@ function cr_run(cr) {
     cr_do_continuations(cr);
     cr_do_continuations(cr); // Yes, twice
 
-    cr_do_export(cr);
+    //cr_do_export(cr);
   } catch(err) {
     cr_log(cr, "Line " + err.line + ": " + err.name + ": " + err.message);
   }
@@ -93,11 +93,11 @@ function cr_doc_style_do_destinations(cr, style) {
   hits = cr.doc.findGrep();
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
-    var name = text.contents;
+    var name = normalize_name(text.contents);
     if (cr.destinations.hasOwnProperty(name)) {
       cr_log(cr, "Ignoring duplicate: \"" + name + "\" is " + cr.destinations[name].toSource());
     } else {
-      cr_log(cr, "Creating destination \"" + name+ "\"");
+      cr_log(cr, "Creating destination \"" + name + "\"");
       cr.destinations[name] = cr.doc.hyperlinkTextDestinations.add(text, {label: "cxr"})
       cr_unlog(cr);
       added = added + 1;
@@ -158,13 +158,13 @@ function cr_doc_style_redo_sources(cr, style) {
     var text = hits[i];
     var contents = text.contents;
     if (contents[0] != "=") {
-      cr_log(cr, "Ignoring malformed source: " + contents);
+      cr_log(cr, "Ignoring malformed source: \"" + contents + "\"");
       continue;
     }
 
-    var name = contents.substr(1);
+    var name = normalize_name(contents.substring(1));
     if (!cr.destinations.hasOwnProperty(name)) {
-      cr_log(cr, "Ignoring unknown destination: " + contents);
+      cr_log(cr, "Ignoring unknown destination: \"" + name + "\"");
       continue;
     }
 
@@ -254,6 +254,10 @@ function cr_log(cr, msg) {
 
 function cr_unlog(cr) {
   cr.messages.pop();
+}
+
+function normalize_name(name) {
+  return name.replace(RegExp("\u200c*\uFB4B\u200c*", "g"), "\u05D5\u05B9");
 }
 
 cr_main();
