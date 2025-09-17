@@ -380,12 +380,12 @@ function ri_do_import(ri) {
     hide_import_options: !ri.ui_import_options.checkedState,
     keep_grep: !ri.ui_disable_grep.checkedState,
     keep_reflow: !ri.ui_disable_reflow.checkedState,
-    unconvert_post_its: !ri.ui_post_convert_post_its,
+    unconvert_post_its: !ri.ui_post_convert_post_its.checkedState,
     unfix_justification: !ri.ui_groom_fully_justify.checkedState,
-    unfix_masters: !ri.ui_groom_fix_masters,
-    unfix_specific_fonts: !ri.ui_post_fix_specific_fonts,
-    unkeep_masters: !ri.ui_groom_keep_masters,
-    unupdate_toc: !ri.ui_groom_update_toc,
+    unfix_masters: !ri.ui_groom_fix_masters.checkedState,
+    unfix_specific_fonts: !ri.ui_post_fix_specific_fonts.checkedState,
+    unkeep_masters: !ri.ui_groom_keep_masters.checkedState,
+    unupdate_toc: !ri.ui_groom_update_toc.checkedState,
   })
 }
 
