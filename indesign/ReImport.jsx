@@ -37,14 +37,19 @@ function ri_run(ri) {
   ri_disable_grep(ri);
   ri_disable_reflow(ri);
   if (ri.uig_pre.checkedState) {
+    ri_start_subcounter(ri);
     ri_pre_remaster(ri);
     ri_pre_clear(ri);
+    ri_stop_subcounter(ri, "Pre-Import");
   }
   if (ri.uig_import.checkedState) {
+    ri_start_subcounter(ri);
     ri_do_import(ri);
     ri_do_images(ri);
+    ri_stop_subcounter(ri, "Import");
   }
   if (ri.uig_post.checkedState) {
+    ri_start_subcounter(ri);
     ri_post_clear_overrides(ri);
     ri_reset_searches(ri);
     ri_post_fix_spaces(ri);
@@ -53,17 +58,17 @@ function ri_run(ri) {
     ri_post_remove_footnote_whitespace(ri);
     ri_post_convert_post_its(ri);
     ri_reset_searches(ri);
+    ri_stop_subcounter(ri, "Post-Import");
   }
-  if (ri.uig_groom.checkedState) {
-    ri_groom_fully_justify(ri);
-    ri_restore_reflow(ri);
-  }
-  ri_enable_grep(ri);
   ri_restore_reflow(ri);
   if (ri.uig_groom.checkedState) {
+    ri_start_subcounter(ri);
+    ri_groom_fully_justify(ri);
+    ri_restore_reflow(ri);
     ri_groom_resize_tables(ri);
     ri_groom_fix_masters(ri);
     ri_groom_update_toc(ri);
+    ri_stop_subcounter(ri, "Grooming");
   }
   ri_stop_counter(ri);
 }
@@ -78,6 +83,17 @@ function ri_stop_counter(ri) {
 
   ri.messages.unshift("Done in " + String(elapsed) + " Sec.");
   alert(ri.messages.join('\n'));
+}
+
+function ri_start_subcounter(ri) {
+  ri.substart_ms = new Date().valueOf();
+}
+
+function ri_stop_subcounter(ri, name) {
+  end_ms = new Date().valueOf();
+  elapsed = (end_ms - ri.substart_ms) / 1000.0;
+
+  ri.messages.push(name + ": took " + String(elapsed) + " Sec.");
 }
 
 function ri_analyze(ri) {
@@ -190,7 +206,7 @@ function ri_get_options(ri) {
           ri.ui_post_remove_footnote_whitespace =
             checkboxControls.add({
               staticLabel: "Remove leading whitespace in footnotes",
-              checkedState: true,
+              checkedState: !ri.saved_settings.unremove_footnote_whitespace,
             });
           ri.ui_post_convert_post_its =
             checkboxControls.add({
@@ -385,6 +401,7 @@ function ri_do_import(ri) {
     unfix_masters: !ri.ui_groom_fix_masters.checkedState,
     unfix_specific_fonts: !ri.ui_post_fix_specific_fonts.checkedState,
     unkeep_masters: !ri.ui_groom_keep_masters.checkedState,
+    unremove_footnote_whitespace: !ri.ui_post_remove_footnote_whitespace,
     unupdate_toc: !ri.ui_groom_update_toc.checkedState,
   })
 }
