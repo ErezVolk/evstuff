@@ -323,6 +323,10 @@ function ri_filter_files(ri, file) {
 function ri_pre_remaster(ri) {
   if (!ri.ui_pre_remaster.checkedState)
     return;
+  ri_reset_all_masters(ri);
+}
+
+function ri_reset_all_masters(ri) {
   ri.doc.pages.everyItem().appliedMaster = ri.a_master;
   ri.doc.pages[0].appliedMaster = ri.c_master;
 }
@@ -859,22 +863,47 @@ function ri_groom_fix_masters(ri) {
   if (!ri.ui_groom_fix_masters.checkedState)
     return;
 
-  // title page is B-Master
-  var title_page = ri.doc.pages[0];
-  ri_set_master(ri, title_page, ri.c_master);
+  if (!ri.uig_pre.checkedState || !ri.ui_pre_remaster.checkedState)
+    ri_reset_all_masters(ri)
 
-  for (var i = 1; i < ri.doc.pages.length; ++ i) {
-    var page = ri.doc.pages[i];
-    if (ri_page_is_empty(ri, page) || ri_page_is_chapter(ri, page)) {
-      page.appliedMaster = ri.b_master;
-    } else {
-      page.appliedMaster = ri.a_master;
+  ri_set_b_master(ri, StartParagraph.NEXT_PAGE, false);
+  ri_set_b_master(ri, StartParagraph.NEXT_ODD_PAGE, true);
+  ri_set_b_master(ri, StartParagraph.NEXT_EVEN_PAGE, true);
+  // TODO: NEXT_FRAME, NEXT_COLUMN
+}
+
+function ri_set_b_master(ri, start_paragraph, check_prev) {
+  app.findTextPreferences = NothingEnum.nothing;
+  app.findTextPreferences.startParagraph = start_paragraph;
+  var pars = ri.doc.findText();
+  for (var i = 0; i < pars.length; ++ i) {
+    var page = pars[i].parentTextFrames[0].parentPage;
+    var pageIndex = page.documentOffset;
+    if (pageIndex == 0) {
+      continue;
     }
+    ri_set_master(ri, page, ri.b_master);
+    if (check_prev) {
+      var prev = ri.doc.pages[pageIndex - 1];
+      if (ri_page_is_empty(ri, prev)) {
+        ri_set_master(ri, prev, ri.b_master);
+      }
+    }
+  }
+  app.findTextPreferences = NothingEnum.nothing;
+}
+
+function ri_page_is_empty(ri, page) {
+  if (page.pageItems.length == 0) {
+    return true;
+  }
+  if (ri_main_frame(ri, page).contents == "") {
+    return true;
   }
 }
 
 function ri_set_master(ri, page, master) {
-  if (ri.ui_groom_keep_masters)
+  if (ri.ui_groom_keep_masters.checkedState)
     if (page.appliedMaster.id == master.id)
       return;
   page.appliedMaster = master;
@@ -893,33 +922,11 @@ function ri_groom_update_toc(ri) {
   ri.doc.createTOC(style, true);
 }
 
-function ri_page_is_empty(ri, page) {
-  if (page.pageItems.length == 0) {
-    return true;
-  }
-  if (ri_main_frame(ri, page).contents == "") {
-    return true;
-  }
-}
-
-function ri_page_is_chapter(ri, page) {
-  var frame = ri_main_frame(ri, page);
-  var paragraph = frame.paragraphs[0];
-  if (paragraph.startParagraph == StartParagraph.NEXT_PAGE ||
-    paragraph.startParagraph == StartParagraph.NEXT_ODD_PAGE ||
-    paragraph.startParagraph == StartParagraph.NEXT_EVEN_PAGE) {
-    return true;
-  }
-  if (paragraph.appliedParagraphStyle.name.toLowerCase().indexOf("title") != -1) {
-    return true;
-  }
-  return false;
-}
-
 function ri_disable_grep(ri) {
   if (!ri.ui_disable_grep.checkedState)
     return;
 
+  ri_start_subcounter(ri);
   pstyles = ri.doc.allParagraphStyles;
   for (var i = 0; i < pstyles.length; ++ i) {
     pstyle = pstyles[i];
@@ -930,12 +937,14 @@ function ri_disable_grep(ri) {
         gstyle.grepExpression = '*' + gstyle.grepExpression;
     }
   }
+  ri_stop_subcounter(ri, "Disable GREP");
 }
 
 function ri_enable_grep(ri) {
   if (!ri.ui_disable_grep.checkedState)
     return;
 
+  ri_start_subcounter(ri);
   pstyles = ri.doc.allParagraphStyles;
   for (var i = 0; i < pstyles.length; ++ i) {
     pstyle = pstyles[i];
@@ -946,6 +955,7 @@ function ri_enable_grep(ri) {
         gstyle.grepExpression = gstyle.grepExpression.substr(1);
     }
   }
+  ri_stop_subcounter(ri, "Enable GREP");
 }
 
 function ri_disable_reflow(ri) {
@@ -955,9 +965,11 @@ function ri_disable_reflow(ri) {
   if (ri.reflow_changed)
     return;
 
+  ri_start_subcounter(ri);
   ri.saved_reflow = ri.doc.textPreferences.smartTextReflow;
   ri.doc.textPreferences.smartTextReflow = false;
   ri.reflow_changed = true;
+  ri_stop_subcounter(ri, "Disable reflow");
 }
 
 function ri_restore_reflow(ri) {
@@ -969,12 +981,13 @@ function ri_restore_reflow(ri) {
 
   var saved_preflight = ri.doc.preflightOptions.preflightOff;
 
+  ri_start_subcounter(ri);
   ri.doc.preflightOptions.preflightOff = false; 
   ri.doc.textPreferences.smartTextReflow = ri.saved_reflow;
   ri.doc.activeProcess.waitForProcess(30);
   ri.doc.preflightOptions.preflightOff = saved_preflight;
-
   ri.reflow_changed = false;
+  ri_stop_subcounter(ri, "Enable reflow");
 }
 
 function ri_main_frame(ri, page) {
