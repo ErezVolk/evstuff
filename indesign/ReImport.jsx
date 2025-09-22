@@ -38,9 +38,11 @@ function ri_run(ri) {
   ri_disable_reflow(ri);
   if (ri.uig_pre.checkedState) {
     ri_start_subcounter(ri);
-    ri_pre_remaster(ri);
     ri_pre_clear(ri);
-    ri_stop_subcounter(ri, "Pre-Import");
+    ri_stop_subcounter(ri, "Pre-Clear");
+    ri_start_subcounter(ri);
+    ri_pre_remaster(ri);
+    ri_stop_subcounter(ri, "Pre-Master");
   }
   if (ri.uig_import.checkedState) {
     ri_start_subcounter(ri);
@@ -144,12 +146,12 @@ function ri_get_options(ri) {
           ri.ui_pre_remaster =
             checkboxControls.add({
               staticLabel: "Reset all parent pages",
-              checkedState: true,
+              checkedState: !ri.saved_settings.not_pre_remaster,
             });
           ri.ui_pre_clear =
             checkboxControls.add({
               staticLabel: "Remove all text",
-              checkedState: true,
+              checkedState: !ri.saved_settings.not_pre_clear,
             });
         }
       }
@@ -327,8 +329,10 @@ function ri_pre_remaster(ri) {
 }
 
 function ri_reset_all_masters(ri) {
-  ri.doc.pages.everyItem().appliedMaster = ri.a_master;
-  ri.doc.pages[0].appliedMaster = ri.c_master;
+  var pages = ri.doc.pages;
+  ri_maybe_set_master(ri, pages[0], ri.c_master);
+  for (var i = 1; i < pages.length; ++ i)
+    ri_maybe_set_master(ri, pages[i], ri.a_master);
 }
 
 function ri_pre_clear(ri) {
@@ -400,6 +404,8 @@ function ri_do_import(ri) {
     hide_import_options: !ri.ui_import_options.checkedState,
     keep_grep: !ri.ui_disable_grep.checkedState,
     keep_reflow: !ri.ui_disable_reflow.checkedState,
+    not_pre_clear: !ri.ui_pre_clear.checkedState,
+    not_pre_remaster: !ri.ui_pre_remaster.checkedState,
     unconvert_post_its: !ri.ui_post_convert_post_its.checkedState,
     unfix_justification: !ri.ui_groom_fully_justify.checkedState,
     unfix_masters: !ri.ui_groom_fix_masters.checkedState,
@@ -904,8 +910,17 @@ function ri_page_is_empty(ri, page) {
 
 function ri_set_master(ri, page, master) {
   if (ri.ui_groom_keep_masters.checkedState)
-    if (page.appliedMaster.id == master.id)
-      return;
+    ri_maybe_set_master(ri, page, master);
+  else
+    ri_do_set_master(ri, page, master);
+}
+
+function ri_maybe_set_master(ri, page, master) {
+  if (page.appliedMaster.id != master.id)
+    ri_do_set_master(ri, page, master);
+}
+
+function ri_do_set_master(ri, page, master) {
   page.appliedMaster = master;
 }
 
