@@ -19,9 +19,10 @@ function cr_run(cr) {
     cr_do_sources(cr);
 
     cr_do_continuations(cr);
-    cr_do_continuations(cr); // Yes, twice
 
-    //cr_do_export(cr);
+    cr_start_subcounter(cr);
+    cr_do_export(cr);
+    cr_stop_subcounter(cr, "IDML export");
   } catch(err) {
     cr_log(cr, "Line " + err.line + ": " + err.name + ": " + err.message);
   }
@@ -179,45 +180,64 @@ function cr_doc_style_redo_sources(cr, style) {
 }
 
 function cr_do_continuations(cr) {
+  var count = 0;
+
   for (var i = 0; i < cr.docs.length; ++ i) {
     cr.doc = cr.docs[i];
+
+    // Get paragraphs for all styles combined
+    paras = [];
+    app.findGrepPreferences = NothingEnum.nothing;
+    app.findGrepPreferences.findWhat = "^";
     for (var j = 0; j < cr.doc.paragraphStyles.length; ++ j) {
       var style = cr.doc.paragraphStyles[j];
       if (style.name.indexOf("@Continuation@") < 0) {
         continue;
       }
 
-      app.findGrepPreferences = NothingEnum.nothing;
-      app.findGrepPreferences.findWhat = "^";
       app.findGrepPreferences.appliedParagraphStyle = style.name;
       var hits = cr.doc.findGrep();
-      app.findGrepPreferences = NothingEnum.nothing;
-
-      var prefs = cr.doc.viewPreferences;
-      var oldUnits = prefs.horizontalMeasurementUnits;
-      prefs.horizontalMeasurementUnits = MeasurementUnits.points;
-
-      app.findGrepPreferences = NothingEnum.nothing;
-      app.findGrepPreferences.findWhat = "^\\s*";
-      app.changeGrepPreferences = NothingEnum.nothing;
-      app.changeGrepPreferences.changeTo = "";
-
-      for (var i = 0; i < hits.length; ++ i) {
-        var hit = hits[i];
-        var currPara = hit.paragraphs[0];
-        var prevChar = hit.parent.characters.item(currPara.index - 2);
-
-        currPara.changeGrep();
-
-        currPara.firstLineIndent = 0;
-        currPara.firstLineIndent = Math.abs(prevChar.endHorizontalOffset - currPara.horizontalOffset);
+      var idxs = Array(hits.length);
+      for (var k = 0; k < hits.length; ++ k) {
+        paras.push(hits[k].paragraphs[0]);
       }
-
-      app.findGrepPreferences = NothingEnum.nothing;
-      app.changeGrepPreferences = NothingEnum.nothing;
-
-      prefs.horizontalMeasurementUnits = oldUnits;
     }
+
+    if (paras.length == 0)
+      continue;
+
+    paras.sort(function(px, py){ var x = px.index; var y = py.index; return x < y ? -1 : x == y ? 0 : 1 });
+
+    // Now fix them
+    var prefs = cr.doc.viewPreferences;
+    var oldUnits = prefs.horizontalMeasurementUnits;
+    prefs.horizontalMeasurementUnits = MeasurementUnits.points;
+
+    app.findGrepPreferences = NothingEnum.nothing;
+    app.findGrepPreferences.findWhat = "^\\s*";
+    app.changeGrepPreferences = NothingEnum.nothing;
+    app.changeGrepPreferences.changeTo = "";
+
+    for (var i = 0; i < paras.length; ++ i) {
+      var currPara = paras[i];
+      var prevChar = currPara.parent.characters.item(currPara.index - 2);
+
+      currPara.changeGrep();
+
+      currPara.firstLineIndent = 0;
+      currPara.firstLineIndent = Math.abs(prevChar.endHorizontalOffset - currPara.horizontalOffset);
+    }
+
+    app.findGrepPreferences = NothingEnum.nothing;
+    app.changeGrepPreferences = NothingEnum.nothing;
+
+    prefs.horizontalMeasurementUnits = oldUnits;
+
+    count += paras.length;
+  }
+
+  if (count > 0) {
+    cr_log(cr, "Fixed " + count + " continuation paragraph(s).");
   }
 }
 
@@ -240,6 +260,17 @@ function cr_stop_counter(cr) {
 
   cr.messages.unshift("Done in " + String(elapsed) + " Sec.");
   alert(cr.messages.join('\n'));
+}
+
+function cr_start_subcounter(cr) {
+  cr.substart_ms = new Date().valueOf();
+}
+
+function cr_stop_subcounter(cr, name) {
+  end_ms = new Date().valueOf();
+  elapsed = (end_ms - cr.substart_ms) / 1000.0;
+
+  cr.messages.push(name + ": took " + String(elapsed) + " Sec.");
 }
 
 function cr_doc_log(cr, msg) {
