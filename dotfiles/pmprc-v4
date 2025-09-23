@@ -1,5 +1,5 @@
 # ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³₇Δː≅⚠
-# ➀➁➂➃➄➅➆➇➈➉ ➊➋➌➍➎➏➐➑➒➓
+# ➀➁➂➃➄➅➆➇➈➉ ➊➋➌➍➎➏➐➑➒➓ ❶❷❸❹❺❻❼❽❾❿
 
 # New outline: SCALES (type?); WORK on song using Downes' outline; PLAY with recording
 # SET time for: Transcribing; Chords (BDB?); Recording
@@ -11,9 +11,13 @@ bass = [ seed 1@intonation scale learn 2@play more ]
 
 KEY := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 MODE := Ionian|Dorian|Phrygian|Lydian|Mixolydian|Aeolian|Locrian
+CHORD := Major|Minor|M7|m7|ø7|o7|M6|m6
+
+seed:
+  ** Try MM ♩={} {}{} {} on beat {} today **: {[60-100]} {ANY} {↗|↘} {<❶|➋|➌|➃|5|6|7|8>} {1|2|3|4|2+4|1+3}
 
 scale:
-  Key of {} {} -- {}: {5*KEY} {3*MODE} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+  Key of {} {} -- {} ATFB-{}: {5*KEY} {3*MODE} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>} {2*CHORD}
 
 learn:
   "All the Things You Are" {}: {<0)sing bass|4)triad|5)quad|6)triadic walk|7)Seventh walk with passing tones|8a)Scalar+passing|8b)Scalar+apogg>}
@@ -61,11 +65,6 @@ rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
 majMin:
   -major: major
   -minor: minor
-
-seed:
-  ** Try MM ♩={} {}{} {} on beat {} today **: {[60-100]} {ANY} {↗|↘} {<➊|➋|➌|➃|5|6|7|8>} {1|2|3|4|2+4|1+3}
-
-#######
 
 #######
 
