@@ -1,6 +1,5 @@
 // ex: set et sw=2:
 // TODO: Fix unfixing Source
-// TODO: Mirror (insert anchored object with same width, require frame style???)
 // TODO: Asterisk when spaced (but unruled) ends at top
 
 function cr_main() {
@@ -17,6 +16,8 @@ function cr_run(cr) {
 
     cr_do_destinations(cr);
     cr_do_sources(cr);
+
+    cr_do_mirrors(cr);
 
     cr_do_continuations(cr);
 
@@ -179,6 +180,32 @@ function cr_doc_style_redo_sources(cr, style) {
   return added;
 }
 
+function cr_do_mirrors(cr) {
+  var count = 0;
+
+  app.findTextPreferences = NothingEnum.nothing;
+  for (var i = 0; i < cr.docs.length; ++ i) {
+    cr.doc = cr.docs[i];
+    for (var j = 0; j < cr.doc.characterStyles.length; ++ j) {
+      var style = cr.doc.characterStyles[j];
+      if (style.name.indexOf("@Reversed@") < 0) {
+        continue;
+      }
+
+      app.findTextPreferences.appliedCharacterStyle = style.name;
+      var hits = app.findText();
+      for (var k = 0; k < hits.length; ++ k) {
+        hits[k].createOutlines()[0].flipItem(Flip.HORIZONTAL);
+      }
+    }
+  }
+  app.findTextPreferences = NothingEnum.nothing;
+
+  if (count > 0) {
+    cr_log(cr, "Flipped " + count + " spans.");
+  }
+}
+
 function cr_do_continuations(cr) {
   var count = 0;
 
@@ -291,7 +318,7 @@ function normalize_name(name) {
   return name.replace(RegExp("\u200c*\uFB4B\u200c*", "g"), "\u05D5\u05B9");
 }
 
-cr_main();
+app.doScript(cr_main, ScriptLanguage.JAVASCRIPT, undefined, UndoModes.ENTIRE_SCRIPT, 'Create Cross-References');
 
 // TODO: Collect sources by styles and covert
 // Old source format (note name/label)
