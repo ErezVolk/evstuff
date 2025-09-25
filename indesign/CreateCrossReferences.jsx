@@ -91,7 +91,7 @@ function cr_doc_style_do_destinations(cr, style) {
   var added = 0;
   app.findGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = ".+"; // i.e., no newlines
-  app.findGrepPreferences.appliedCharacterStyle = style.name;
+  app.findGrepPreferences.appliedCharacterStyle = style;
   hits = cr.doc.findGrep();
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
@@ -154,7 +154,7 @@ function cr_doc_style_redo_sources(cr, style) {
   var added = 0;
   app.findGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = ".+"; // i.e., no newlines
-  app.findGrepPreferences.appliedCharacterStyle = style.name;
+  app.findGrepPreferences.appliedCharacterStyle = style;
   hits = cr.doc.findGrep();
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
@@ -192,7 +192,7 @@ function cr_do_mirrors(cr) {
         continue;
       }
 
-      app.findTextPreferences.appliedCharacterStyle = style.name;
+      app.findTextPreferences.appliedCharacterStyle = style;
       var hits = app.findText();
       for (var k = 0; k < hits.length; ++ k) {
         hits[k].createOutlines()[0].flipItem(Flip.HORIZONTAL);
@@ -222,7 +222,7 @@ function cr_do_continuations(cr) {
         continue;
       }
 
-      app.findGrepPreferences.appliedParagraphStyle = style.name;
+      app.findGrepPreferences.appliedParagraphStyle = style;
       var hits = cr.doc.findGrep();
       var idxs = Array(hits.length);
       for (var k = 0; k < hits.length; ++ k) {
@@ -319,33 +319,3 @@ function normalize_name(name) {
 }
 
 app.doScript(cr_main, ScriptLanguage.JAVASCRIPT, undefined, UndoModes.ENTIRE_SCRIPT, 'Create Cross-References');
-
-// TODO: Collect sources by styles and covert
-// Old source format (note name/label)
-// appliedFormat:
-//     name: Bare Page Number
-//     appliedCharacterStyle: null
-//     id: 745387
-//     label: 
-//     isValid: true
-//     parent: [object Document]
-//     index: 9
-//     properties: [object Object]
-//     events: [object Events]
-//     eventListeners: [object EventListeners]
-//     buildingBlocks: [object BuildingBlocks]
-//     isValid: true
-// hidden: false
-// name: s-8-מפתח ד׳
-// sourceText: [object Character]
-// appliedCharacterStyle: null
-// id: 1027657
-// label: s-8-מפתח ד׳
-// isValid: true
-// parent: [object Document]
-// index: 0
-// properties: [object Object]
-// events: [object Events]
-// eventListeners: [object EventListeners]
-// isValid: true
-
