@@ -185,6 +185,7 @@ class EvRb:
                 "cache/",
                 ".cache/",
                 "_cacache/",
+                "Caches/",
             ]
 
     def copy_me(self) -> None:
