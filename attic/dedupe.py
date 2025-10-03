@@ -26,7 +26,21 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Include perms, modification time",
     )
-    parser.add_argument("-y", "--yes", action="store_true")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help="Do not wait for permission.",
+    )
+    group.add_argument(
+        "-Y",
+        "--dont-wait",
+        action="store_true",
+        help="Link files as they are found.",
+    )
+
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-c", "--csv", type=Path, default="dedupe.csv")
     group.add_argument("-C", "--no-csv", action="store_true")
@@ -175,18 +189,30 @@ class Dedupe:
                 total_save += save
                 report.append([num_heads, num_files, size, save, *files])
 
+                if self.args.dont_wait:
+                    self.merge(files)
+
         print(f"Files peeked/read: {n_peek}/{n_snap}")
         if not to_merge:
             return
 
-        print(f"Hard links would save {total_save:,} bytes")
+        print(f"Savings: {total_save:,} bytes")
+
+        if self.args.dont_wait:
+            return
 
         if not self.args.yes:
             input("Press Return to hard link...")
 
         for files in to_merge:
-            for file in files[1:]:
-                file.hardlink_to(files[0])
+            self.merge(files)
+
+    def merge(self, files: list[File]) -> None:
+        """Actually create the hard links."""
+        pivot = max(files, key=lambda file: file.info.st_mtime)
+        for file in files:
+            if file is not pivot:
+                file.hardlink_to(pivot)
 
     def gist(self, file: File) -> int:
         """Get the gist of the file."""
