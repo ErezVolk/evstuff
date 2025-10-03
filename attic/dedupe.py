@@ -88,8 +88,11 @@ class File:
     def hardlink_to(self, target: t.Self) -> None:
         """Make this path a hard link to the same file as `target`."""
         print(self, "->", target)
-        self.path.unlink()
-        self.path.hardlink_to(target.path)
+        try:
+            self.path.unlink()
+            self.path.hardlink_to(target.path)
+        except PermissionError as exc:
+            print(exc)
 
 
 class Walker:
@@ -147,13 +150,21 @@ class Dedupe:
             inode_to_files[file.inode].append(file)
             gist_to_inodes[self.gist(file)].add(file.inode)
 
+        scannees = [
+            gist_inodes
+            for gist_inodes in gist_to_inodes.values()
+            if len(gist_inodes) > 1
+        ]
+
+        print(
+            f"Checking out {len(scannees):,} of "
+            f"{len(gist_to_inodes):,} gists.",
+        )
+
         total_save = n_peek = n_snap = 0
         report: list[list[int | File]] = []
         to_merge: list[list[File]] = []
-        for gist_inodes in gist_to_inodes.values():
-            if len(gist_inodes) == 1:
-                continue  # Only one file of this size
-
+        for gist_inodes in scannees:
             gist_heads = [inode_to_files[inode][0] for inode in gist_inodes]
             peeks: dict[str, list[File]] = collections.defaultdict(list)
             for head in gist_heads:
