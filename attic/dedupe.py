@@ -112,20 +112,8 @@ class Walker:
             yield from self._walk(root, root)
 
     def _walk(self, root: Path, branch: Path) -> t.Iterable[File]:
-        if not self.include_git:
-            if (branch / ".git").is_dir():
-                print(f"Skipping Git repo {branch}")
-                return
-        if not self.include_svn:
-            if (branch / ".svn").is_dir():
-                print(f"Skipping Subversion {branch}")
-                return
-
-        if not self.include_zotero:
-            if branch.name == "storage":
-                if (branch.parent / "zotero.sqlite").is_file():
-                    print(f"Skipping Zotero {branch}")
-                    return
+        if self._should_skip(branch):
+            return
 
         for path in branch.iterdir():
             info = path.lstat()
@@ -138,52 +126,56 @@ class Walker:
             elif stat.S_ISDIR(mode):
                 yield from self._walk(root, path)
 
+    def _should_skip(self, path: Path) -> bool:
+        """Check if we're configured to skip a directory."""
+        if not self.include_git:
+            if (path / ".git").is_dir():
+                print(f"Skipping Git repo {path}")
+                return True
+
+        if not self.include_svn:
+            if (path / ".svn").is_dir():
+                print(f"Skipping Subversion {path}")
+                return True
+
+        if not self.include_zotero:
+            if path.name == "storage":
+                if (path.parent / "zotero.sqlite").is_file():
+                    print(f"Skipping Zotero storage {path}")
+                    return True
+
+        return False
+
 
 class Dedupe:
     """Make hard links where possible."""
 
     args: argparse.Namespace
+    inode_to_files: dict[int, list[File]]
+    gist_to_inodes: dict[int, set[int]]
+    counts: dict[str, int]
 
     def run(self) -> None:
         """Dedupe."""
         self.args = parse_args()
-
-        inode_to_files: dict[int, list[File]] = collections.defaultdict(list)
-        gist_to_inodes: dict[int, set[int]] = collections.defaultdict(set)
-
-        # Scan all large enough files
-        for file in Walker(self.args).walk():
-            inode_to_files[file.inode].append(file)
-            gist_to_inodes[self.gist(file)].add(file.inode)
+        self.counts = collections.defaultdict(int)
+        self.scan_files()
 
         scannees = [
             gist_inodes
-            for gist_inodes in gist_to_inodes.values()
+            for gist_inodes in self.gist_to_inodes.values()
             if len(gist_inodes) > 1
         ]
 
         print(
             f"Checking out {len(scannees):,} of "
-            f"{len(gist_to_inodes):,} gists.",
+            f"{len(self.gist_to_inodes):,} gists.",
         )
 
-        total_save = n_peek = n_snap = 0
         report: list[list[int | File]] = []
         to_merge: list[list[File]] = []
         for gist_inodes in scannees:
-            gist_heads = [inode_to_files[inode][0] for inode in gist_inodes]
-            peeks: dict[str, list[File]] = collections.defaultdict(list)
-            for head in gist_heads:
-                peeks[head.peek()].append(head)
-                n_peek += 1
-
-            snaps: dict[str, list[File]] = collections.defaultdict(list)
-            for peek_heads in peeks.values():
-                if len(peek_heads) <= 1:
-                    continue
-                for head in peek_heads:
-                    n_snap += 1
-                    snaps[head.snap()].append(head)
+            snaps = self.snap_inodes(gist_inodes)
 
             for snap_heads in snaps.values():
                 if (num_heads := len(snap_heads)) <= 1:
@@ -191,29 +183,31 @@ class Dedupe:
                 files = [
                     file
                     for head in snap_heads
-                    for file in inode_to_files[head.inode]
+                    for file in self.inode_to_files[head.inode]
                 ]
                 num_files = len(files)
                 to_merge.append(files)
 
                 size = files[0].size
                 print(
-                    f"[{len(to_merge)}] ({size:,} B) "
+                    f"[{len(to_merge)}] ({self.kbmbgb(size)}) "
                     f"[{num_files}/{num_heads}] "
                     f"{files}",
                 )
                 save = size * (num_heads - 1)
-                total_save += save
+                self.counts["total_save"] += save
                 report.append([num_heads, num_files, size, save, *files])
 
                 if self.args.dont_wait:
                     self.merge(files)
 
-        print(f"Files peeked/read: {n_peek}/{n_snap}")
+        print(
+            f"Files peeked/read: {self.counts['peek']}/{self.counts['snap']}",
+        )
         if not to_merge:
             return
 
-        print(f"Savings: {total_save:,} bytes")
+        print(f"Savings: {self.kbmbgb(self.counts['total_save'])}")
 
         if self.args.dont_wait:
             return
@@ -223,6 +217,33 @@ class Dedupe:
 
         for files in to_merge:
             self.merge(files)
+
+    def scan_files(self) -> None:
+        """Scan all large enough files."""
+        self.inode_to_files = collections.defaultdict(list)
+        self.gist_to_inodes = collections.defaultdict(set)
+
+        for file in Walker(self.args).walk():
+            self.inode_to_files[file.inode].append(file)
+            self.gist_to_inodes[self.gist(file)].add(file.inode)
+
+    def snap_inodes(self, inodes: set[int]) -> dict[str, list[File]]:
+        """Scan candidates, split them by hash of beginning."""
+        gist_heads = [self.inode_to_files[inode][0] for inode in inodes]
+        peeks: dict[str, list[File]] = collections.defaultdict(list)
+        for head in gist_heads:
+            peeks[head.peek()].append(head)
+            self.counts["peek"] += 1
+
+        snaps: dict[str, list[File]] = collections.defaultdict(list)
+        for peek_heads in peeks.values():
+            if len(peek_heads) <= 1:
+                continue
+            for head in peek_heads:
+                self.counts["snap"] += 1
+                snaps[head.snap()].append(head)
+
+        return peeks
 
     def merge(self, files: list[File]) -> None:
         """Actually create the hard links."""
@@ -253,6 +274,24 @@ class Dedupe:
         print("See also", self.args.csv)
         if self.args.open_csv:
             subprocess.run(["/usr/bin/open", str(self.args.csv)], check=False)
+
+    TENNISH = 9.995
+    HUNDREDISH = 99.95
+    THOUSANDISH = 999.5
+
+    @classmethod
+    def kbmbgb(cls, num: float) -> str:
+        """Format a number as "932K", etc."""
+        prefixes = ["", "KiB", "MiB", "GiB", "TiB"]
+        for prefix in prefixes:
+            if abs(num) < cls.TENNISH:
+                return f"{num:,.2f} {prefix}"
+            if abs(num) < cls.HUNDREDISH:
+                return f"{num:,.1f} {prefix}"
+            if abs(num) < cls.THOUSANDISH:
+                return f"{num:,.0f} {prefix}"
+            num = num / 1024
+        return f"{num:,.1f} {prefixes[-1]}"
 
 
 if __name__ == "__main__":
