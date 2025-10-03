@@ -236,7 +236,9 @@ class EvRb:
         """Run rsync."""
         args = [
             "rsync",
-            "-rlptgoDAXUNH",
+            "--archive",
+            "--no-times",
+            "--hard-links",
             "--progress",
             "--delete",
         ]

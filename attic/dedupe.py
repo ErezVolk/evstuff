@@ -20,6 +20,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("roots", type=Path, nargs="+", default=Path.cwd())
     parser.add_argument("-s", "--min-size", type=int, default=1024 * 1024)
+    parser.add_argument(
+        "-a",
+        "--archive",
+        action="store_true",
+        help="Include perms, modification time",
+    )
     parser.add_argument("-y", "--yes", action="store_true")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-c", "--csv", type=Path, default="dedupe.csv")
@@ -119,24 +125,24 @@ class Dedupe:
         """Dedupe."""
         self.args = parse_args()
 
-        inodes: dict[int, list[File]] = collections.defaultdict(list)
-        sizes: dict[int, set[int]] = collections.defaultdict(set)
+        inode_to_files: dict[int, list[File]] = collections.defaultdict(list)
+        gist_to_inodes: dict[int, set[int]] = collections.defaultdict(set)
 
         # Scan all large enough files
         for file in Walker(self.args).walk():
-            inodes[file.inode].append(file)
-            sizes[file.size].add(file.inode)
+            inode_to_files[file.inode].append(file)
+            gist_to_inodes[self.gist(file)].add(file.inode)
 
         total_save = n_peek = n_snap = 0
         report: list[list[int | File]] = []
         to_merge: list[list[File]] = []
-        for size, size_inodes in sizes.items():
-            if len(size_inodes) == 1:
+        for gist_inodes in gist_to_inodes.values():
+            if len(gist_inodes) == 1:
                 continue  # Only one file of this size
 
-            size_heads = [inodes[inode][0] for inode in size_inodes]
+            gist_heads = [inode_to_files[inode][0] for inode in gist_inodes]
             peeks: dict[str, list[File]] = collections.defaultdict(list)
-            for head in size_heads:
+            for head in gist_heads:
                 peeks[head.peek()].append(head)
                 n_peek += 1
 
@@ -154,11 +160,12 @@ class Dedupe:
                 files = [
                     file
                     for head in snap_heads
-                    for file in inodes[head.inode]
+                    for file in inode_to_files[head.inode]
                 ]
                 num_files = len(files)
                 to_merge.append(files)
 
+                size = files[0].size
                 print(
                     f"[{len(to_merge)}] ({size:,} B) "
                     f"[{num_files}/{num_heads}] "
@@ -180,6 +187,14 @@ class Dedupe:
         for files in to_merge:
             for file in files[1:]:
                 file.hardlink_to(files[0])
+
+    def gist(self, file: File) -> int:
+        """Get the gist of the file."""
+        if not self.args.archive:
+            return file.size
+        info = file.info
+        gist = (info.st_size, info.st_mtime, info.st_mode)
+        return hash(gist)
 
     def do_csv(self, report: list[list[int | File]]) -> None:
         """Write and open the CSV report."""
