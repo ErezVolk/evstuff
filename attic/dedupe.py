@@ -47,6 +47,7 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("-o", "--open-csv", action="store_true")
     parser.add_argument("-g", "--include-git", action="store_true")
+    parser.add_argument("-S", "--include-svn", action="store_true")
     parser.add_argument("-z", "--include-zotero", action="store_true")
     return parser.parse_args()
 
@@ -102,6 +103,7 @@ class Walker:
         self.roots: list[Path] = args.roots
         self.min_size: int = args.min_size
         self.include_git: bool = args.include_git
+        self.include_svn: bool = args.include_svn
         self.include_zotero: bool = args.include_zotero
 
     def walk(self) -> t.Iterable[File]:
@@ -113,6 +115,10 @@ class Walker:
         if not self.include_git:
             if (branch / ".git").is_dir():
                 print(f"Skipping Git repo {branch}")
+                return
+        if not self.include_svn:
+            if (branch / ".svn").is_dir():
+                print(f"Skipping Subversion {branch}")
                 return
 
         if not self.include_zotero:
