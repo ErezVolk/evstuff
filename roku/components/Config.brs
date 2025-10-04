@@ -49,7 +49,8 @@ Function loadConfig() as Object
     Title: "NHK World"
     streamFormat: "hls"
 '    Stream: "https://master.nhkworld.jp/nhkworld-tv/playlist/live.m3u8"
-    Stream: "https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_1M.m3u8"
+'    Stream: "https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_1M.m3u8"
+     Stream: "https://media-tyo.hls.nhkworld.jp/hls/w/live/master.m3u8"
 }
     
     
