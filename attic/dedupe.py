@@ -14,17 +14,25 @@ __TODO__ = """
 - Proper, rsync/tar-like exclude
 """
 
+DEFAULT_MIN_SIZE = 1024 * 1024
+
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument("roots", type=Path, nargs="+", default=Path.cwd())
-    parser.add_argument("-s", "--min-size", type=int, default=1024 * 1024)
+    parser.add_argument(
+        "-s",
+        "--min-size",
+        type=int,
+        default=DEFAULT_MIN_SIZE,
+        help=f"Ignore files smaller than this [{kbmbgb(DEFAULT_MIN_SIZE)}]",
+    )
     parser.add_argument(
         "-a",
         "--archive",
         action="store_true",
-        help="Include perms, modification time",
+        help="Consider owner, group, and mode",
     )
 
     group = parser.add_mutually_exclusive_group()
@@ -42,10 +50,26 @@ def parse_args() -> argparse.Namespace:
     )
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-c", "--csv", type=Path, default="dedupe.csv")
-    group.add_argument("-C", "--no-csv", action="store_true")
+    group.add_argument(
+        "-c",
+        "--csv",
+        type=Path,
+        default="dedupe.csv",
+        help="Write CSV report",
+    )
+    group.add_argument(
+        "-C",
+        "--no-csv",
+        action="store_true",
+        help="Write CSV report",
+    )
 
-    parser.add_argument("-o", "--open-csv", action="store_true")
+    parser.add_argument(
+        "-o",
+        "--open-csv",
+        action="store_true",
+        help="Open CSV report after running",
+    )
     parser.add_argument("-g", "--include-git", action="store_true")
     parser.add_argument("-S", "--include-svn", action="store_true")
     parser.add_argument("-z", "--include-zotero", action="store_true")
@@ -109,7 +133,10 @@ class Walker:
     def walk(self) -> t.Iterable[File]:
         """Walk a tree."""
         for root in self.roots:
-            yield from self._walk(root, root)
+            if not root.is_dir():
+                print(f"Not a directory: {root}")
+            else:
+                yield from self._walk(root, root)
 
     def _walk(self, root: Path, branch: Path) -> t.Iterable[File]:
         if self._should_skip(branch):
@@ -190,7 +217,7 @@ class Dedupe:
 
                 size = files[0].size
                 print(
-                    f"[{len(to_merge)}] ({self.kbmbgb(size)}) "
+                    f"[{len(to_merge)}] ({kbmbgb(size)}) "
                     f"[{num_files}/{num_heads}] "
                     f"{files}",
                 )
@@ -202,12 +229,15 @@ class Dedupe:
                     self.merge(files)
 
         print(
-            f"Files peeked/read: {self.counts['peek']}/{self.counts['snap']}",
+            f"Files seen/peeked/read: "
+            f"{self.counts['total_files']}/"
+            f"{self.counts['peek']}/"
+            f"{self.counts['snap']}",
         )
         if not to_merge:
             return
 
-        print(f"Savings: {self.kbmbgb(self.counts['total_save'])}")
+        print(f"Savings: {kbmbgb(self.counts['total_save'])}")
 
         if self.args.dont_wait:
             return
@@ -224,6 +254,7 @@ class Dedupe:
         self.gist_to_inodes = collections.defaultdict(set)
 
         for file in Walker(self.args).walk():
+            self.counts["total_files"] += 1
             self.inode_to_files[file.inode].append(file)
             self.gist_to_inodes[self.gist(file)].add(file.inode)
 
@@ -257,7 +288,12 @@ class Dedupe:
         if not self.args.archive:
             return file.size
         info = file.info
-        gist = (info.st_size, info.st_mtime, info.st_mode)
+        gist = (
+            info.st_size,
+            info.st_mode,
+            info.st_uid,
+            info.st_gid,
+        )
         return hash(gist)
 
     def do_csv(self, report: list[list[int | File]]) -> None:
@@ -275,23 +311,24 @@ class Dedupe:
         if self.args.open_csv:
             subprocess.run(["/usr/bin/open", str(self.args.csv)], check=False)
 
-    TENNISH = 9.995
-    HUNDREDISH = 99.95
-    THOUSANDISH = 999.5
 
-    @classmethod
-    def kbmbgb(cls, num: float) -> str:
-        """Format a number as "932K", etc."""
-        prefixes = ["", "KiB", "MiB", "GiB", "TiB"]
-        for prefix in prefixes:
-            if abs(num) < cls.TENNISH:
-                return f"{num:,.2f} {prefix}"
-            if abs(num) < cls.HUNDREDISH:
-                return f"{num:,.1f} {prefix}"
-            if abs(num) < cls.THOUSANDISH:
-                return f"{num:,.0f} {prefix}"
-            num = num / 1024
-        return f"{num:,.1f} {prefixes[-1]}"
+TENNISH = 9.995
+HUNDREDISH = 99.95
+THOUSANDISH = 999.5
+
+
+def kbmbgb(num: float) -> str:
+    """Format a number as "932K", etc."""
+    prefixes = ["", "KiB", "MiB", "GiB", "TiB"]
+    for prefix in prefixes:
+        if abs(num) < TENNISH:
+            return f"{num:,.2f} {prefix}"
+        if abs(num) < HUNDREDISH:
+            return f"{num:,.1f} {prefix}"
+        if abs(num) < THOUSANDISH:
+            return f"{num:,.0f} {prefix}"
+        num = num / 1024
+    return f"{num:,.1f} {prefixes[-1]}"
 
 
 if __name__ == "__main__":
