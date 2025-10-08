@@ -952,7 +952,7 @@ function ri_disable_grep(ri) {
         gstyle.grepExpression = '*' + gstyle.grepExpression;
     }
   }
-  ri_stop_subcounter(ri, "Disable GREP");
+  ri_stop_subcounter(ri, "- Disable GREP");
 }
 
 function ri_enable_grep(ri) {
@@ -970,7 +970,7 @@ function ri_enable_grep(ri) {
         gstyle.grepExpression = gstyle.grepExpression.substr(1);
     }
   }
-  ri_stop_subcounter(ri, "Enable GREP");
+  ri_stop_subcounter(ri, "- Enable GREP");
 }
 
 function ri_disable_reflow(ri) {
@@ -984,7 +984,7 @@ function ri_disable_reflow(ri) {
   ri.saved_reflow = ri.doc.textPreferences.smartTextReflow;
   ri.doc.textPreferences.smartTextReflow = false;
   ri.reflow_changed = true;
-  ri_stop_subcounter(ri, "Disable reflow");
+  ri_stop_subcounter(ri, "- Disable reflow");
 }
 
 function ri_restore_reflow(ri) {
@@ -1002,7 +1002,7 @@ function ri_restore_reflow(ri) {
   ri.doc.activeProcess.waitForProcess(30);
   ri.doc.preflightOptions.preflightOff = saved_preflight;
   ri.reflow_changed = false;
-  ri_stop_subcounter(ri, "Enable reflow");
+  ri_stop_subcounter(ri, "- Enable reflow");
 }
 
 function ri_main_frame(ri, page) {
