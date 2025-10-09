@@ -23,7 +23,7 @@ chord:
   Today-{} across the fingerboard: {2*CHORD}
 
 learn:
-  "All the Things You Are" {}: {<0)sing bass|7)Seventh walk with passing tones|9)scalar|10a)sequence>}
+  "All the Things You Are" {}: {<0)sing bass|7)Seventh walk with passing tones|9)scalar|10a)sequence|10b)motive>}
   "All the Things You Are" (today-key) {}: {<0)sing bass|1)roots|3a)1-5-pass|3b)1-3-pass|4)triad|5)quad|6)triadic walk>}
   "Stella By Starlight" {}: {<0)sing bass|5)quad|6)triadic walk|7)Seventh walk with passing tones>}
   "Stella By Starlight" (today-key) {}: {<0)sing bass|3a)1-5-pass|3b)1-3-pass|4)triad>}
