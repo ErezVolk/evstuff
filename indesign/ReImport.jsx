@@ -996,13 +996,11 @@ function ri_restore_reflow(ri) {
 
   var saved_preflight = ri.doc.preflightOptions.preflightOff;
 
-  ri_start_subcounter(ri);
   ri.doc.preflightOptions.preflightOff = false; 
   ri.doc.textPreferences.smartTextReflow = ri.saved_reflow;
   ri.doc.activeProcess.waitForProcess(30);
   ri.doc.preflightOptions.preflightOff = saved_preflight;
   ri.reflow_changed = false;
-  ri_stop_subcounter(ri, "- Enable reflow");
 }
 
 function ri_main_frame(ri, page) {
