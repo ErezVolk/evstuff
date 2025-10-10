@@ -4,18 +4,17 @@
 # mypy: disable-error-code="import-untyped"
 
 import argparse
-from collections import Counter
-from collections import defaultdict
-from copy import deepcopy
 import datetime
-from pathlib import Path
 import re
 import shutil
 import subprocess
-
 import typing as t
 
-from bidi.algorithm import get_display
+from collections import Counter
+from collections import defaultdict
+from copy import deepcopy
+from pathlib import Path
+
 from lxml import etree
 
 from docx_worker import DocxWorker
@@ -27,7 +26,7 @@ class Proof(DocxWorker):
     """Checks things in .docx files."""
 
     def parse_args(self) -> None:
-        """Command line"""
+        """Parse command line."""
         parser = argparse.ArgumentParser(description=self.__class__.__doc__)
         parser.add_argument("input", type=Path, nargs="?", help="Input .docx")
         parser.add_argument(
@@ -178,7 +177,7 @@ class Proof(DocxWorker):
     antidict: re.Pattern | None
     antiwords: Counter
     args: argparse.Namespace
-    comments: dict[list[str]]
+    comments: dict[str, list[str]]
     formula_style_id: str
     opath: Path
 
@@ -276,7 +275,7 @@ class Proof(DocxWorker):
         self._scan_images()
 
         self.dump_counter("Counts", self.counts)
-        self.dump_counter("Antidict", self.antiwords, get_display)
+        self.dump_counter("Antidict", self.antiwords)
 
         return worked
 

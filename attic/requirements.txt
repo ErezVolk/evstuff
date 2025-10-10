@@ -13,7 +13,6 @@ pylint
 pymupdf
 pynput
 pyright
-python-bidi
 rich
 seaborn
 simple_term_menu

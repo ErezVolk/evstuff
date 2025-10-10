@@ -12,11 +12,6 @@ import urllib.parse
 from collections import defaultdict
 from pathlib import Path
 
-try:
-    from bidi import get_display
-except ImportError:
-    from bidi.algorithm import get_display
-
 BIN = Path.home() / "bin"
 CONFIG = BIN / "ggev.json"
 HISTORY = BIN / "ggev.history"
@@ -47,7 +42,6 @@ def main() -> None:
     try:
         hits = {}
         for kwargs in config["SEARCHES"]:
-            # hits.update(google(**kwargs))
             hits.update(ddg(**kwargs))
     except SearchError as ge:
         print(ge)
@@ -82,12 +76,12 @@ def main() -> None:
     else:
         for n, url in enumerate(sorted(added), 1):
             hit = hits[url]
-            title = get_display(hit["title"])
+            title = hit["title"]
             print(f"{n}. {BOLD}{title}{END}")
             print(urllib.parse.unquote(url))
-            print("")
-            print(get_display(hit["abstract"]))
-            print("")
+            print()
+            print(hit["abstract"])
+            print()
 
         with HISTORY.open("w", encoding="utf-8") as fo:
             for url, md5s in history.items():
@@ -105,7 +99,11 @@ GG2DDG_TIME = {
 }
 
 
-def ddg(query: str, lang=None, timeframe="m1") -> dict[str, dict]:
+def ddg(
+    query: str,
+    lang: str | None = None,
+    timeframe: str | None = "m1",
+) -> dict[str, dict]:
     """Call DuckDuckGo."""
     cmd = ["ddgr", "--json"]
     if lang is not None:
@@ -116,15 +114,6 @@ def ddg(query: str, lang=None, timeframe="m1") -> dict[str, dict]:
         cmd.append(GG2DDG_TIME[timeframe])
     cmd.append(query)
     return call_searcher(cmd)
-
-
-# def google(query, lang=None, timeframe="m1"):
-#     """DEPRECATED"""
-#     cmd = ["googler"]
-#     if lang:
-#         cmd.extend(["-l", lang])
-#     cmd.extend(["--json", "-t", timeframe, query])
-#     return call_searcher(cmd)
 
 
 def call_searcher(cmd: list[str]) -> dict[str, dict]:
