@@ -19,11 +19,17 @@ show_git()
 	do_git "$@" | sed -e "s/^/$PREFIX/" >&2
 }
 
+set_title()
+{
+	printf "\033]0;$1\007"
+}
+
 ROOT=$(git rev-parse --show-toplevel) || exit  # Fails if not a Git repo
 NAME=$(basename $ROOT)
 PREFIX="[$NAME] "
 
-echo "… $ROOT"
+# echo "\033]0;git fetch $ROOT\007… $ROOT"
+set_title "git fetch $ROOT"
 show_git fetch --quiet --prune --all || exit   # Fails if no remote; this is the only server communication
 
 REMOTE=$(do_git rev-parse @{u}) || exit  # Fails if not a remote-tracking branch

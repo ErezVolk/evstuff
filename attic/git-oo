@@ -4,6 +4,7 @@ if which parallel > /dev/null; then
 	if [ -f ~/.gitoorc ]; then
 		. ~/.gitoorc
 	fi
+	echo Git repos in `pwd`...
 	find . -type d -a -name .git -prune |parallel $PARALLEL_ARGS git -C "{}"/.. o
 else
 	find . -type d -a -name .git -prune -exec git -C "{}"/.. o ";"
