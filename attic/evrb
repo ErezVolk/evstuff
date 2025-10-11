@@ -9,6 +9,7 @@ import typing as t
 from pathlib import Path
 
 __TODO__ = """
+- Rsync log
 - Case where there's more than one disk attached
 - A restore option
 - Write default exclude file
@@ -55,12 +56,6 @@ class EvRb:
             "--dry-run",
             action="store_true",
             help="List the files instead of copying them",
-        )
-        parser.add_argument(
-            "-r",
-            "--raw",
-            action="store_true",
-            help="Do not run rsync with caffeinate/sudo",
         )
         parser.add_argument(
             "-y",
@@ -238,21 +233,20 @@ class EvRb:
             "rsync",
             "--archive",
             "--no-times",
+            "--checksum",
             "--hard-links",
             "--progress",
             "--delete",
+            "--itemize-changes",
         ]
 
-        if not self.args.raw:
-            args.insert(0, "/usr/bin/caffeinate")
-            args.insert(0, "/usr/bin/sudo")
         if self.model:
             args.append(f"--link-dest={self.model}")
         if self.exclude_from:
             args.append(f"--exclude-from={self.args.exclude_from}")
         args.extend(f"--exclude={exclude}" for exclude in self.exclude)
         if self.args.dry_run:
-            args.append("--list-only")
+            args.append("--dry-run")
         args.append(f"{Path.home()}/")
         args.append(f"{self.target}/")
         print(" ".join(shlex.quote(arg) for arg in args))
