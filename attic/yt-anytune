@@ -12,5 +12,7 @@ for i in "$@"; do
 	yt-dlp --extract-audio --audio-format mp3 --embed-metadata "$i"
 done
 
-echo "After Anytune loads, kill this script to delete $WORKDIR"
+bold=`tput smso` offbold=`@TPUT@ rmso`
+
+echo "${bold}After Anytune loads, kill this script${offbold} to delete $WORKDIR"
 open -a Anytune -W *.mp3
