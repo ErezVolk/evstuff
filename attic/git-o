@@ -28,6 +28,9 @@ ROOT=$(git rev-parse --show-toplevel) || exit  # Fails if not a Git repo
 NAME=$(basename $ROOT)
 PREFIX="[$NAME] "
 
+bold=$(tput bold)
+offbold=$(tput sgr0)
+
 # echo "\033]0;git fetch $ROOT\007… $ROOT"
 set_title "git fetch $ROOT"
 show_git fetch --quiet --prune --all || exit   # Fails if no remote; this is the only server communication
@@ -38,15 +41,15 @@ BASE=$(do_git merge-base $LOCAL $REMOTE)
 
 STATUS=$(do_git status --porcelain --untracked-files=no)
 if [ -n "$STATUS" ]; then
-    echo "! $ROOT"  # Local uncommitted changes
+    echo "${bold}!${offbold} $ROOT"  # Local uncommitted changes
 elif [ $LOCAL = $REMOTE ]; then
-    echo "✔ $ROOT"  # Up to date
+    echo "${bold}✔${offbold} $ROOT"  # Up to date
 elif [ $LOCAL = $BASE ]; then
-    echo "⇣ $ROOT"  # What we can here for
+    echo "${bold}⇣${offbold} $ROOT"  # What we can here for
     show_git merge --ff-only $REMOTE
-    echo "↳ $ROOT"
+    echo "${bold}↳${offbold} $ROOT"
 elif [ $REMOTE = $BASE ]; then
-    echo "⇡ $ROOT"  # Need to push
+    echo "${bold}⇡${offbold} $ROOT"  # Need to push
 else
-    echo "⇅ $ROOT"  # Diverged
+    echo "${bold}⇅${offbold} $ROOT"  # Diverged
 fi
