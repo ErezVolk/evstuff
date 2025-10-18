@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Help extracting some semblance of index from PDF files."""
+# pyright: reportMissingImports=false
+# pylint: disable=import-error
 import argparse
 import re
 import subprocess
@@ -20,7 +22,7 @@ class MakeIndex:
         parser.add_argument(
             "inputs",
             type=Path,
-            nargs="*"
+            nargs="*",
         )
         parser.add_argument(
             "-o", "--output-directory", type=Path, default="indexes",
@@ -75,7 +77,7 @@ class MakeIndex:
                     return
         print(f"Opening {pdf} for you...")
         try:
-            subprocess.run(["open", str(pdf)], check=True)
+            subprocess.run(["/usr/bin/open", str(pdf)], check=True)
         except FileNotFoundError:
             print(f" > Couldn't open {pdf}, skipping")
             return
@@ -125,7 +127,7 @@ class MakeIndex:
                 kwargs["dpi"] = self.args.dpi
             pixmap = page.get_pixmap(**kwargs)
             pixmap.pil_save(tiff)
-            pixmap.pil_save(THIS.with_suffix(".tiff"))
+            pixmap.pil_save(f"{THIS.stem}.tiff")
             cli = ["tesseract"]
             if self.args.lang:
                 cli.extend(["-l", self.args.lang])
