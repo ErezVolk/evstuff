@@ -117,7 +117,10 @@ function ri_analyze(ri) {
     } else if (name == "ReImport Settings") {
       ri.var_settings = cur;
       try {
-        ri.saved_settings = eval(value);
+        var obj = eval(value);
+        if (obj != null) {
+           ri.saved_settings = obj;
+        }
       } catch (e) {
         ri.messages.push('Could not read settings: ' + e);
       }
@@ -393,27 +396,28 @@ function ri_do_import(ri) {
       variableType: VariableTypes.CUSTOM_TEXT_TYPE
     });
 
-  ri.var_settings.variableOptions.contents = uneval({
-    importee: ri.importee.fsName,
+  obj = {importee: ri.importee.fsName};
 
-    a_master: ri.a_master_name,
-    b_master: ri.b_master_name,
-    c_master: ri.c_master_name,
-    dont_import_images: !ri.ui_import_images.checkedState,
-    dont_shrink_tables: !ri.ui_groom_resize_tables.checkedState,
-    hide_import_options: !ri.ui_import_options.checkedState,
-    keep_grep: !ri.ui_disable_grep.checkedState,
-    keep_reflow: !ri.ui_disable_reflow.checkedState,
-    not_pre_clear: !ri.ui_pre_clear.checkedState,
-    not_pre_remaster: !ri.ui_pre_remaster.checkedState,
-    unconvert_post_its: !ri.ui_post_convert_post_its.checkedState,
-    unfix_justification: !ri.ui_groom_fully_justify.checkedState,
-    unfix_masters: !ri.ui_groom_fix_masters.checkedState,
-    unfix_specific_fonts: !ri.ui_post_fix_specific_fonts.checkedState,
-    unkeep_masters: !ri.ui_groom_keep_masters.checkedState,
-    unremove_footnote_whitespace: !ri.ui_post_remove_footnote_whitespace,
-    unupdate_toc: !ri.ui_groom_update_toc.checkedState,
-  })
+  obj["a_master"] = ri.a_master_name;
+  obj["b_master"] = ri.b_master_name;
+  obj["c_master"] = ri.c_master_name;
+  obj["dont_import_images"] = !ri.ui_import_images.checkedState;
+  obj["dont_shrink_tables"] = !ri.ui_groom_resize_tables.checkedState;
+  obj["hide_import_options"] = !ri.ui_import_options.checkedState;
+  obj["keep_grep"] = !ri.ui_disable_grep.checkedState;
+  obj["keep_reflow"] = !ri.ui_disable_reflow.checkedState;
+  obj["not_pre_clear"] = !ri.ui_pre_clear.checkedState;
+  obj["not_pre_remaster"] = !ri.ui_pre_remaster.checkedState;
+  obj["unconvert_post_its"] = !ri.ui_post_convert_post_its.checkedState;
+  obj["unfix_justification"] = !ri.ui_groom_fully_justify.checkedState;
+  obj["unfix_masters"] = !ri.ui_groom_fix_masters.checkedState;
+  obj["unfix_specific_fonts"] = !ri.ui_post_fix_specific_fonts.checkedState;
+  obj["unkeep_masters"] = !ri.ui_groom_keep_masters.checkedState;
+  obj["unremove_footnote_whitespace"] = !ri.ui_post_remove_footnote_whitespace;
+  if (ri.have_toc) {
+    obj["unupdate_toc"] = !ri.ui_groom_update_toc.checkedState;
+  }
+  ri.var_settings.variableOptions.contents = uneval(obj);
 }
 
 function ri_do_images(ri) {
