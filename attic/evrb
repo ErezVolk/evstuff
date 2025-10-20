@@ -1,33 +1,26 @@
 #!/usr/bin/env python3
 """Erez Volk's Rsync Backup."""
 import argparse
-import asyncio
-import datetime
-import json
 import shlex
-import sys
+import subprocess
 import typing as t
 from pathlib import Path
 
 __TODO__ = """
-- Rsync log
 - Case where there's more than one disk attached
 - A restore option
 - Write default exclude file
-- Sync?
 - Backup multiple machines
-- Maybe json->plistlib, because it's more restrictive
-  - And/or a limit on the JSON file size
 """
 
 
 class EvRb:
-    """Erez Volk's Rsync Backup."""
+    """Erez Volk's Restic Backup."""
 
     def parse_args(self) -> None:
         """Parse command-line arguments."""
         parser = argparse.ArgumentParser(
-            description="Backup home (using rsync) to an external volume",
+            description="Backup home (using restic) to an external volume",
         )
         parser.add_argument(
             "-v",
@@ -40,23 +33,7 @@ class EvRb:
             "--exclude",
             type=str,
             nargs="*",
-            help=(
-                "Exclude list; if not given and --exclude-file not specified, "
-                "use a default list"
-            ),
-        )
-        parser.add_argument(
-            "-X",
-            "--exclude-from",
-            type=Path,
-            default=Path.home() / ".evrb.filter",
-            help="Exclude file (see rsync manpage)",
-        )
-        parser.add_argument(
-            "-r",
-            "--raw",
-            action="store_true",
-            help="No sudo",
+            help="Exclude list (case-insensitive)",
         )
         parser.add_argument(
             "-n",
@@ -77,210 +54,81 @@ class EvRb:
     args: argparse.Namespace
     parser: argparse.ArgumentParser
     root: Path
-    wip: Path
-    target: Path
-    model: Path | None
-    exclude_from: Path | None = None
-    exclude: list[str]
+    exclude: list[Path | str]
 
     def run(self) -> None:
         """Incremental backup to external volume."""
         self.parse_args()
-        self.find_target()
+        self.find_root()
         self.find_exclude()
-        self.copy_me()
         self.backup()
 
     def fail(self, message: str) -> t.Never:
         """Fail and exit."""
         self.parser.error(message)
 
-    def find_target(self) -> None:
+    def find_root(self) -> None:
         """Figure out where to backup to."""
         if self.args.volume:
             if not self.args.volume.is_dir():
                 self.fail("Invalid volume")
-            root = self.args.volume / "evrb"
-            if not root.is_dir():
-                print(f"Creating {root}/")
-                root.mkdir(exist_ok=True)
+            root = self.args.volume / "restic"
         else:
             for volume in Path("/Volumes").glob("*"):
-                if (root := volume / "evrb").is_dir():
+                if (root := volume / "restic").is_dir():
                     break
             else:
                 self.fail("Please specify --volume")
 
         self.root = root
-
-        # Look for model or stuck job
-        latest: Path | None = None
-        for path in root.glob("*"):
-            if path.is_dir() and not path.is_symlink():
-                if latest is None or path.name > latest.name:
-                    latest = path
-        if not self.resume_target(latest):
-            self.make_target(latest)
-
-    def wip_of(self, target: Path) -> Path:
-        """Create wip filename."""
-        return target.with_suffix(".wip")
-
-    def resume_target(self, target: Path | None) -> bool:
-        """Try to resume an old run."""
-        if target is None:
-            return False  # No previous run
-
-        if not (wip := self.wip_of(target)).is_file():
-            return False  # Wasn't aborted
-
-        try:
-            saved = self.read_wip(wip)
-        except json.decoder.JSONDecodeError:
-            print(f"Malformed {wip}, cannot resume")
-            return False  # Invalid JSON
-
-        self.target = target
-        self.wip = wip
-        self.model = None
-
-        if isinstance(name := saved.get("model"), str):
-            if (model := self.root / name).is_dir():
-                self.model = model
-
-        return True
-
-    def make_target(self, model: Path | None) -> None:
-        """Configure target when we have no interrupted backup."""
-        self.model = model
-        if model:
-            print(f"Model: {self.model}")
-        else:
-            print(f"No previous backup under {self.root}")
-
-        now = datetime.datetime.now(datetime.UTC)
-        self.target = self.root / f"{now:%Y%m%d-%H%M%S}"
-        if self.target.is_dir():
-            self.target = self.root / f"{now:%Y%m%d-%H%M%S.%f}"
-            if self.target.is_dir():
-                self.fail("Cannot create unique target")
-
-        self.wip = self.wip_of(self.target)
-        print(f"Target: {self.target}")
+        if not root.is_dir():
+            print(f"Creating {root}/")
+            self.restic(["init"])
 
     def find_exclude(self) -> None:
         """Figure out exclude list."""
-        if self.args.exclude_from and self.args.exclude_from.is_file():
-            self.exclude_from = self.args.exclude_from
-
         if self.args.exclude is not None:
             self.exclude = self.args.exclude
-        elif self.exclude_from:
-            self.exclude = []  # Let the file handle it
         else:
             self.exclude = [
-                "/Library",
-                "/.Trash",
-                "/.local",
-                "/.pub-cache",
-                "/Music/Music",
-                "cache/",
-                ".cache/",
-                "_cacache/",
-                "Caches/",
+                Path.home() / "Library",
+                Path.home() / ".Trash",
+                Path.home() / ".local",
+                Path.home() / ".pub-cache",
+                Path.home() / "Music/Music",
+                "cache",
+                ".cache",
+                "_cacache",
+                "Caches",
             ]
 
-    def copy_me(self) -> None:
-        """Copy this script to the target."""
-        here = Path(__file__)
-        this = self.read(here)
-        there = self.root / here.name
-
-        if there.is_file():
-            if self.read(there, len(this) + 1) == this:
-                return
-
-            back = self.target.with_name(f"evrb-{self.target.name}.bak")
-            print(f"{there} -> {back}")
-            there.rename(back)
-
-        self.write(there, this)
-        there.chmod(0o755)
-
-    def read(self, path: Path, size: int = -1) -> bytes:
-        """Read a script. Shouldn't be too big."""
-        with path.open("rb") as fobj:
-            return fobj.read(size)
-
-    def write(self, path: Path, data: bytes) -> None:
-        """Write a file and make it executable."""
-        print(f"Writing {path}")
-        with path.open("wb") as fobj:
-            fobj.write(data)
-
-    def read_wip(self, wip: Path) -> dict:
-        """Parse wip file, guaranteed to exist."""
-        with wip.open("rb") as fobj:
-            context = json.load(fobj)
-        if isinstance(context, dict):
-            return context
-        return {}
-
-    def write_wip(self) -> None:
-        """Write WIP file."""
-        context = {}
-        if self.model:
-            context["model"] = self.model.name
-        with self.wip.open("w", encoding="utf-8") as fobj:
-            json.dump(context, fobj, ensure_ascii=False, indent=2)
-
     def backup(self) -> None:
-        """Run rsync."""
+        """Run restic."""
         args = [
-            "/usr/bin/caffeinate",
-            "rsync",
-            "--archive",
-            "--no-times",
-            "--checksum",
-            "--hard-links",
-            "--progress",
-            "--delete",
-            "--itemize-changes",
+            "backup",
+            Path.home(),
+            "--verbose",
+            "--exclude-caches",
         ]
-
-        if not self.args.raw:
-            args.insert(1, "/usr/bin/sudo")
-        if self.model:
-            args.append(f"--link-dest={self.model}")
-        if self.exclude_from:
-            args.append(f"--exclude-from={self.args.exclude_from}")
-        args.extend(f"--exclude={exclude}" for exclude in self.exclude)
+        for item in self.exclude:
+            args.extend(["--iexclude", str(item)])
         if self.args.dry_run:
             args.append("--dry-run")
-        args.append(f"{Path.home()}/")
-        args.append(f"{self.target}/")
+        self.restic(args)
+
+    def restic(self, args: list[str]) -> None:
+        """Call restic."""
+        args = [
+            "/usr/bin/caffeinate",
+            "restic",
+            "--repo",
+            str(self.root),
+            "--insecure-no-password",
+            *map(str, args),
+        ]
         print(" ".join(shlex.quote(arg) for arg in args))
         input("Press Enter to run...")
-
-        log = Path(self.target.with_suffix(".log"))
-
-        self.write_wip()
-        with log.open("wb") as lobj:
-            asyncio.run(self.run_rsync(args, lobj))
-        self.wip.unlink()
-
-    async def run_rsync(self, args: list[str], lobj: t.BinaryIO) -> None:
-        """Follow running rsync."""
-        proc = await asyncio.create_subprocess_exec(
-            *args,
-            stdout=asyncio.subprocess.PIPE,
-        )
-        if proc.stdout is None:
-            raise RuntimeError("Could not run rsync")
-        async for line in proc.stdout:
-            lobj.write(line)
-            lobj.flush()
-            sys.stdout.write(line.decode())
+        subprocess.run(args, check=True)
 
 
 if __name__ == "__main__":
