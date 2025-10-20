@@ -53,6 +53,12 @@ class EvRb:
             help="Exclude file (see rsync manpage)",
         )
         parser.add_argument(
+            "-r",
+            "--raw",
+            action="store_true",
+            help="No sudo",
+        )
+        parser.add_argument(
             "-n",
             "--dry-run",
             action="store_true",
@@ -242,6 +248,8 @@ class EvRb:
             "--itemize-changes",
         ]
 
+        if not self.args.raw:
+            args.insert(1, "/usr/bin/sudo")
         if self.model:
             args.append(f"--link-dest={self.model}")
         if self.exclude_from:
@@ -255,7 +263,6 @@ class EvRb:
         input("Press Enter to run...")
 
         log = Path(self.target.with_suffix(".log"))
-        log = Path("erez.log")
 
         self.write_wip()
         with log.open("wb") as lobj:
