@@ -1,4 +1,0 @@
-#!/bin/sh
-
-d=`basename $1`
-git -C "$1" depull |sed -e "s|^|[${d}] |"
