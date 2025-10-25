@@ -54,6 +54,11 @@ class BingWallpaper:
             default=10,
             help="HTTP GET timeout (Seconds)",
         )
+        parser.add_argument(
+            "-6",
+            "--allow-ipv6",
+            action="store_true",
+        )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "-q", "--quiet", action="store_true", help="No output.",
@@ -62,6 +67,9 @@ class BingWallpaper:
             "-d", "--debug", action="store_true", help="More output.",
         )
         self.args = parser.parse_args()
+
+        if not self.args.allow_ipv6:
+            requests.packages.urllib3.util.connection.HAS_IPV6 = False
 
     def scan_existing(self) -> None:
         """Find out what files we already have."""
@@ -75,6 +83,7 @@ class BingWallpaper:
         """Download N photos from the "archive" json."""
         if not self.args.archive:
             return
+        self.debug("Getting archive list")
         reply = requests.get(
             f"{self.BASE}HPImageArchive.aspx?format=js&n={self.args.archive}",
             timeout=self.args.timeout,
@@ -85,6 +94,7 @@ class BingWallpaper:
             images = reply.json()["images"]
         except json.JSONDecodeError:
             return
+        self.debug(f"Number of images: {len(images)}")
         for image in images:
             self.handle_href(image["url"])
 
