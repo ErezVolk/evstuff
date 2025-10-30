@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Figure out whom is whom."""
 import argparse
-from pathlib import Path
-import tempfile
 import subprocess
+import tempfile
+from pathlib import Path
 
 import pandas as pd  # type: ignore[import-not-found]
 
@@ -154,11 +154,21 @@ def main() -> None:
 def do_read(path: Path) -> pd.DataFrame:
     """Actuall read a file."""
     if path.suffix.lower() == ".fods":
-        zath = path.with_suffix(".ods")
+        while path.is_symlink():
+            path = path.parent / path.readlink()
+        path = path.absolute()
+
+        zath = path.with_name(f"auto-{path.stem}.ods")
         if not zath.is_file() or zath.stat().st_mtime < path.stat().st_mtime:
-            subprocess.run([
-                "soffice", "--headless", "--convert-to", "ods", str(path),
-            ], check=True)
+            print(f"{path} -> {zath}")
+            with tempfile.TemporaryDirectory() as tdir:
+                subprocess.run([
+                    "soffice", "--headless", "--convert-to", "ods", str(path),
+                ], cwd=tdir, check=True)
+
+                created = Path(tdir) / f"{path.stem}.ods"
+                zath.unlink(missing_ok=True)
+                created.rename(zath)
         path = zath
     return pd.read_excel(path)
 
