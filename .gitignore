@@ -16,6 +16,7 @@ htmlcov
 *.xcuserstate
 *.xcuserdatad
 standards/real-books
+standards/albums.ods
 *.mscz
 .mscbackup
 *.mkv

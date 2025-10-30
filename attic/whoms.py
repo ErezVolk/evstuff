@@ -2,6 +2,8 @@
 """Figure out whom is whom."""
 import argparse
 from pathlib import Path
+import tempfile
+import subprocess
 
 import pandas as pd  # type: ignore[import-not-found]
 
@@ -15,6 +17,7 @@ def main() -> None:
         type=Path,
         nargs="+",
         default=[
+            Path.home() / ".whoms.fods",
             Path.home() / ".whoms.ods",
             Path.home() / "Dropbox" / "Private" / "albums.ods",
         ],
@@ -56,7 +59,7 @@ def main() -> None:
     errors: list[str] = []
     for path in args.inputs:
         if path.is_file():
-            albums = pd.read_excel(path)
+            albums = do_read(path)
             break
         if path.is_symlink():
             errors.append(f"Broken link: {path}...")
@@ -146,6 +149,18 @@ def main() -> None:
     if len(relisten) > 0:
         row = relisten.sample(1).iloc[0]
         print(f"- (relisten) {row_desc(row)}")
+
+
+def do_read(path: Path) -> pd.DataFrame:
+    """Actuall read a file."""
+    if path.suffix.lower() == ".fods":
+        zath = path.with_suffix(".ods")
+        if not zath.is_file() or zath.stat().st_mtime < path.stat().st_mtime:
+            subprocess.run([
+                "soffice", "--headless", "--convert-to", "ods", str(path),
+            ], check=True)
+        path = zath
+    return pd.read_excel(path)
 
 
 def row_desc(row: pd.Series) -> str:
