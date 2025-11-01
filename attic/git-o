@@ -1,6 +1,19 @@
 #!/bin/sh
 # Update Git repo and pull if safe, without excessive traffic.
 
+QUIET=""
+while getopts ":q" opt; do
+  case ${opt} in
+    q)
+      QUIET="y"
+      ;;
+    ?)
+      echo "Invalid option: -${OPTARG}."
+      exit 1
+      ;;
+  esac
+done
+
 outf=$(mktemp)
 errf=$(mktemp)
 trap "rm -f $outf $errf" EXIT
@@ -43,7 +56,7 @@ STATUS=$(do_git status --porcelain --untracked-files=no)
 if [ -n "$STATUS" ]; then
     echo "${bold}!${offbold} $ROOT"  # Local uncommitted changes
 elif [ $LOCAL = $REMOTE ]; then
-    echo "✔ $ROOT"  # Up to date
+    [ -n "${QUIET}" ] || echo "✔ $ROOT"  # Up to date
 elif [ $LOCAL = $BASE ]; then
     echo "${bold}⇣${offbold} $ROOT"  # What we can here for
     show_git merge --ff-only $REMOTE
