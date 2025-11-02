@@ -21,9 +21,9 @@ function cr_run(cr) {
 
     cr_do_continuations(cr);
 
-    cr_start_subcounter(cr);
+    //cr_do_stars(cr);
+
     cr_do_export(cr);
-    cr_stop_subcounter(cr, "IDML export");
   } catch(err) {
     cr_log(cr, "Line " + err.line + ": " + err.name + ": " + err.message);
   }
@@ -212,28 +212,10 @@ function cr_do_continuations(cr) {
   for (var i = 0; i < cr.docs.length; ++ i) {
     cr.doc = cr.docs[i];
 
-    // Get paragraphs for all styles combined
-    paras = [];
-    app.findGrepPreferences = NothingEnum.nothing;
-    app.findGrepPreferences.findWhat = "^";
-    for (var j = 0; j < cr.doc.paragraphStyles.length; ++ j) {
-      var style = cr.doc.paragraphStyles[j];
-      if (style.name.indexOf("@Continuation@") < 0) {
-        continue;
-      }
-
-      app.findGrepPreferences.appliedParagraphStyle = style;
-      var hits = cr.doc.findGrep();
-      var idxs = Array(hits.length);
-      for (var k = 0; k < hits.length; ++ k) {
-        paras.push(hits[k].paragraphs[0]);
-      }
-    }
+    paras = cr_doc_get_all_paras_with_styles_containing(cr, "@Continuation@");
 
     if (paras.length == 0)
       continue;
-
-    paras.sort(function(px, py){ var x = px.index; var y = py.index; return x < y ? -1 : x == y ? 0 : 1 });
 
     // Now fix them
     var prefs = cr.doc.viewPreferences;
@@ -268,13 +250,69 @@ function cr_do_continuations(cr) {
   }
 }
 
+function cr_do_stars(cr) {
+  var count = 0;
+
+  for (var i = 0; i < cr.docs.length; ++ i) {
+    cr.doc = cr.docs[i];
+
+    paras = cr_doc_get_all_paras_with_styles_containing(cr, "@Starrable@");
+
+    if (paras.length == 0)
+      continue;
+
+    for (var i = 0; i < paras.length; ++ i) {
+      var para = paras[i];
+      var frame = para.parentTextFrames[0];
+      var page = frame.parentPage;
+      var prevPage = para.parent.characters.item(para.index - 2).parentTextFrames[0].parentPage;
+      if (page == prevPage) {
+        continue;
+      }
+
+      cr_log(cr, "Page " + page.name);
+      para.insertionPoints[0].contents = "*\r";
+      break;
+    }
+  }
+}
+
+function cr_doc_get_all_paras_with_styles_containing(cr, substr) {
+  paras = [];
+
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.findGrepPreferences.findWhat = "^";
+  for (var j = 0; j < cr.doc.paragraphStyles.length; ++ j) {
+    var style = cr.doc.paragraphStyles[j];
+    if (style.name.indexOf(substr) < 0) {
+      continue;
+    }
+
+    app.findGrepPreferences.appliedParagraphStyle = style;
+    var hits = cr.doc.findGrep();
+    var idxs = Array(hits.length);
+    for (var k = 0; k < hits.length; ++ k) {
+      paras.push(hits[k].paragraphs[0]);
+    }
+  }
+
+  if (paras.length > 0) {
+    paras.sort(function(px, py){ var x = px.index; var y = py.index; return x < y ? -1 : x == y ? 0 : 1 });
+  }
+  app.findGrepPreferences = NothingEnum.nothing;
+
+  return paras;
+}
+
 function cr_do_export(cr) {
+  cr_start_subcounter(cr);
   for (var i = 0; i < cr.docs.length; ++ i) {
     var doc = cr.docs[i];
     var path = File(doc.fullName + ".idml")
     cr_log(cr, "Writing \"" + path.name + "\"");
     doc.exportFile(ExportFormat.INDESIGN_MARKUP, path)
   }
+  cr_stop_subcounter(cr, "IDML export");
 }
 
 function cr_start_counter(cr) {
