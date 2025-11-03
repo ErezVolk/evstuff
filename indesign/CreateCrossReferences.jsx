@@ -21,6 +21,8 @@ function cr_run(cr) {
 
     cr_do_continuations(cr);
 
+    cr_do_vcenters(cr);
+
     //cr_do_stars(cr);
 
     cr_do_export(cr);
@@ -247,6 +249,29 @@ function cr_do_continuations(cr) {
 
   if (count > 0) {
     cr_log(cr, "Fixed " + count + " continuation paragraph(s).");
+  }
+}
+
+function cr_do_vcenters(cr) {
+  var count = 0;
+
+  for (var i = 0; i < cr.docs.length; ++ i) {
+    cr.doc = cr.docs[i];
+
+    paras = cr_doc_get_all_paras_with_styles_containing(cr, "@VCenter@");
+
+    if (paras.length == 0)
+      continue;
+
+    for (var i = 0; i < paras.length; ++ i) {
+      var frame = paras[i].parentTextFrames[0];
+      frame.textFramePreferences.verticalJustification = VerticalJustification.CENTER_ALIGN;
+      count ++;
+    }
+  }
+
+  if (count > 0) {
+    cr_log(cr, "Vertically centered " + count + " text frame(s).");
   }
 }
 
