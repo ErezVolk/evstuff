@@ -102,7 +102,11 @@ def main() -> None:
 
     unheard = albums.loc[albums.When.isna()]
     if args.query:
-        unheard = unheard.query(args.query)
+        try:
+            unheard = unheard.query(args.query)
+        except NameError as exc:
+            print("Bad query:", exc)
+            return
     if len(unheard) == 0:
         print("Time to find more music.")
     else:
@@ -161,10 +165,9 @@ def do_read(path: Path) -> pd.DataFrame:
         zath = path.with_name(f"auto-{path.stem}.ods")
         if not zath.is_file() or zath.stat().st_mtime < path.stat().st_mtime:
             print(f"{path} -> {zath}")
+            cmd = ["soffice", "--headless", "--convert-to", "ods", str(path)]
             with tempfile.TemporaryDirectory() as tdir:
-                subprocess.run([
-                    "soffice", "--headless", "--convert-to", "ods", str(path),
-                ], cwd=tdir, check=True)
+                subprocess.run(cmd, cwd=tdir, check=True)
 
                 created = Path(tdir) / f"{path.stem}.ods"
                 zath.unlink(missing_ok=True)
