@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2025-11-04T10:55:19.028756000</dc:date><meta:editing-duration>P187DT2H8M50S</meta:editing-duration><meta:editing-cycles>4613</meta:editing-cycles><meta:generator>LibreOffice/25.8.2.2$MacOSX_AARCH64 LibreOffice_project/d401f2107ccab8f924a8e2df40f573aab7605b6f</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="10024" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2025-11-04T14:22:02.703199000</dc:date><meta:editing-duration>P187DT5H35M28S</meta:editing-duration><meta:editing-cycles>4626</meta:editing-cycles><meta:generator>LibreOffice/25.8.2.2$MacOSX_AARCH64 LibreOffice_project/d401f2107ccab8f924a8e2df40f573aab7605b6f</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="10044" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">51393</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">502151</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">503054</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
-       <config:config-item config:name="CursorPositionX" config:type="int">6</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">1109</config:config-item>
+       <config:config-item config:name="CursorPositionX" config:type="int">7</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">913</config:config-item>
        <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
        <config:config-item config:name="VerticalSplitPosition" config:type="int">1</config:config-item>
        <config:config-item config:name="ActiveSplitRange" config:type="short">2</config:config-item>
-       <config:config-item config:name="PositionLeft" config:type="int">6</config:config-item>
+       <config:config-item config:name="PositionLeft" config:type="int">5</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">1086</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">897</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">110</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -17853,7 +17853,15 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>James Genus</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell office:value-type="date" office:date-value="2025-11-04" calcext:value-type="date">
+      <text:p>2025-11</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Default" office:value-type="string" calcext:value-type="string">
+      <text:p>Shatita Boom Boom, Elle</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Great rhythm section, great groove. Highly enjoyable.</text:p>
+     </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
@@ -28691,7 +28699,13 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Buster Williams</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell office:value-type="date" office:date-value="2025-11-04" calcext:value-type="date">
+      <text:p>2025-11</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Like the &quot;let&apos;s all make noises&quot; part of a Hermeto Pascoal album. A bit much for me. The bass didn&apos;t stand out.</text:p>
+     </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
@@ -34466,7 +34480,61 @@
      <table:table-cell/>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047463">
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1112" calcext:value-type="float">
+      <text:p>1112</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Tete Montoliu</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Blues for Myself</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1977" calcext:value-type="float">
+      <text:p>1977</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H40M00S" calcext:value-type="time">
+      <text:p>0:40</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Eric Peter</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1113" calcext:value-type="float">
+      <text:p>1113</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Florian Pellissier Quintet</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Cap de bonne espérance</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="2016" calcext:value-type="float">
+      <text:p>2016</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H54M00S" calcext:value-type="time">
+      <text:p>0:54</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Apple Music</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Yoni Zelnik</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell table:style-name="Default" office:value-type="string" calcext:value-type="string">
+      <text:p>Cap de bonne espérance</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047461">
      <table:table-cell table:number-columns-repeated="10"/>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
