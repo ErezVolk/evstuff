@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Figure out whom is whom."""
 import argparse
+import hashlib
 import subprocess
 import tempfile
 from pathlib import Path
@@ -158,22 +159,46 @@ def main() -> None:
 def do_read(path: Path) -> pd.DataFrame:
     """Actuall read a file."""
     if path.suffix.lower() == ".fods":
-        while path.is_symlink():
-            path = path.parent / path.readlink()
-        path = path.absolute()
-
-        zath = path.with_name(f"auto-{path.stem}.ods")
-        if not zath.is_file() or zath.stat().st_mtime < path.stat().st_mtime:
-            print(f"{path} -> {zath}")
-            cmd = ["soffice", "--headless", "--convert-to", "ods", str(path)]
-            with tempfile.TemporaryDirectory() as tdir:
-                subprocess.run(cmd, cwd=tdir, check=True)
-
-                created = Path(tdir) / f"{path.stem}.ods"
-                zath.unlink(missing_ok=True)
-                created.rename(zath)
-        path = zath
+        path = deflatten(path)
     return pd.read_excel(path)
+
+
+def deflatten(path: Path) -> Path:
+    """Convert flat ODS to ODS."""
+    while path.is_symlink():
+        path = path.parent / path.readlink()
+    path = path.absolute()
+    digest = file_digest(path)
+
+    zath = path.with_name(f"auto-{path.stem}.ods")
+    hath = zath.with_suffix(".digest")
+    if not zath.is_file() or read_digest(hath) != digest:
+        print(f"{path} -> {zath}")
+        cmd = ["soffice", "--headless", "--convert-to", "ods", str(path)]
+        with tempfile.TemporaryDirectory() as tdir:
+            subprocess.run(cmd, cwd=tdir, check=True)
+
+            created = Path(tdir) / f"{path.stem}.ods"
+            zath.unlink(missing_ok=True)
+            created.rename(zath)
+        with hath.open("w", encoding="utf-8") as fobj:
+            fobj.write(digest)
+    return zath
+
+
+def file_digest(path: Path) -> str:
+    """Generate hash of a file."""
+    with path.open("rb") as fobj:
+        return hashlib.file_digest(fobj, "md5").hexdigest()
+
+
+def read_digest(path: Path) -> str | None:
+    """Read the (hash) file."""
+    try:
+        with path.open("r", encoding="utf8") as fobj:
+            return fobj.read().strip()
+    except FileNotFoundError:
+        return None
 
 
 def row_desc(row: pd.Series) -> str:
