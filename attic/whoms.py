@@ -170,8 +170,8 @@ def deflatten(path: Path) -> Path:
     path = path.absolute()
     digest = file_digest(path)
 
-    zath = path.with_name(f"auto-{path.stem}.ods")
-    hath = zath.with_suffix(".digest")
+    zath = path.with_name(f".auto-{path.stem}.ods")
+    hath = path.with_name(f".auto-{path.stem}.digest")
     if not zath.is_file() or read_digest(hath) != digest:
         print(f"{path} -> {zath}")
         cmd = ["soffice", "--headless", "--convert-to", "ods", str(path)]
