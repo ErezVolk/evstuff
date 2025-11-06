@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2025-11-06T14:52:13.124290000</dc:date><meta:editing-duration>P187DT8H15M15S</meta:editing-duration><meta:editing-cycles>4645</meta:editing-cycles><meta:generator>LibreOffice/25.8.2.2$MacOSX_AARCH64 LibreOffice_project/d401f2107ccab8f924a8e2df40f573aab7605b6f</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="10074" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2025-11-06T15:59:09.119539000</dc:date><meta:editing-duration>P187DT9H22M7S</meta:editing-duration><meta:editing-cycles>4654</meta:editing-cycles><meta:generator>LibreOffice/25.8.2.2$MacOSX_AARCH64 LibreOffice_project/d401f2107ccab8f924a8e2df40f573aab7605b6f</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="10085" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">51393</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">504409</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">504860</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
@@ -20,10 +20,10 @@
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
        <config:config-item config:name="VerticalSplitPosition" config:type="int">1</config:config-item>
        <config:config-item config:name="ActiveSplitRange" config:type="short">2</config:config-item>
-       <config:config-item config:name="PositionLeft" config:type="int">2</config:config-item>
+       <config:config-item config:name="PositionLeft" config:type="int">7</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">1037</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">1036</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">110</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -32454,7 +32454,16 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Alain Caron, Michel Donato</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="16377"/>
+     <table:table-cell office:value-type="date" office:date-value="2025-11-06" calcext:value-type="date">
+      <text:p>2025-11</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Cado</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Very much like a Steve Bailey album. I found the synth parts offputting.</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="1052" calcext:value-type="float">
@@ -34301,7 +34310,35 @@
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="16375"/>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047458">
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1117" calcext:value-type="float">
+      <text:p>1117</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Sonny Stitt</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Stitt Plays Bird</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1963" calcext:value-type="float">
+      <text:p>1963</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H45M00S" calcext:value-type="time">
+      <text:p>0:45</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Apple Music</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Richard Davis</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Constellation</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="16375"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047457">
      <table:table-cell table:number-columns-repeated="16384"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
