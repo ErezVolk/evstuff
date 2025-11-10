@@ -1,10 +1,21 @@
 #!/bin/sh
 # Update Git repo and pull if safe, without excessive traffic.
 
+usage() {
+  echo "git o [-l] [-p] [-q] [-h]"
+  echo ""
+  echo "options:"
+  echo " -h     show this help message and exit"
+  echo " -q     output nothing if local is identical to remote"
+  echo " -l     perform no server communication"
+  echo " -p     push if the local branch is ahead of the remote"
+}
+
+
 QUIET=""
 LOCAL=""
 PUSH=""
-while getopts ":lpq" opt; do
+while getopts ":lpqh" opt; do
   case ${opt} in
     l)
       LOCAL="y"
@@ -15,8 +26,13 @@ while getopts ":lpq" opt; do
     q)
       QUIET="y"
       ;;
+    h)
+      usage
+      exit 1
+      ;;
     ?)
       echo "Invalid option: -${OPTARG}."
+      usage
       exit 1
       ;;
   esac
