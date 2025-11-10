@@ -28,21 +28,21 @@ trap "rm -f $outf $errf" EXIT
 
 do_git()
 {
-	git "$@" >$outf 2>$errf
-	code=$?
-	cat $outf
-	cat $errf | sed -e "s/^/$PREFIX/" >&2
-	return $code
+  git "$@" >$outf 2>$errf
+  code=$?
+  cat $outf
+  cat $errf | sed -e "s/^/$PREFIX/" >&2
+  return $code
 }
 
 show_git()
 {
-	do_git "$@" | sed -e "s/^/$PREFIX/" >&2
+  do_git "$@" | sed -e "s/^/$PREFIX/" >&2
 }
 
 set_title()
 {
-	printf "\033]0;$1\007"
+  printf "\033]0;$1\007"
 }
 
 ROOT=$(git rev-parse --show-toplevel) || exit  # Fails if not a Git repo
@@ -70,8 +70,12 @@ elif [ $LOCAL = $BASE ]; then
     show_git merge --ff-only $REMOTE
     echo "${bold}↳${offbold} $ROOT"
 elif [ $REMOTE = $BASE ]; then
-    echo "${bold}⇡${offbold} $ROOT"  # Need to push
-    [ -z "${PUSH}" ] || git push
+    if [ -z "${PUSH}" ]; then
+      echo "${bold}⇡${offbold} $ROOT"  # Need to push
+    else
+      echo "${bold}↥${offbold} $ROOT"  # Need to push
+      git push
+    fi
 else
     echo "${bold}⇅${offbold} $ROOT"  # Diverged
 fi
