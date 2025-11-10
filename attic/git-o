@@ -3,10 +3,14 @@
 
 QUIET=""
 LOCAL=""
-while getopts ":lq" opt; do
+PUSH=""
+while getopts ":lpq" opt; do
   case ${opt} in
     l)
       LOCAL="y"
+      ;;
+    p)
+      PUSH="y"
       ;;
     q)
       QUIET="y"
@@ -67,6 +71,7 @@ elif [ $LOCAL = $BASE ]; then
     echo "${bold}↳${offbold} $ROOT"
 elif [ $REMOTE = $BASE ]; then
     echo "${bold}⇡${offbold} $ROOT"  # Need to push
+    [ -z "${PUSH}" ] || git push
 else
     echo "${bold}⇅${offbold} $ROOT"  # Diverged
 fi
