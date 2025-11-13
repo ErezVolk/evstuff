@@ -14,7 +14,7 @@
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
        <config:config-item config:name="CursorPositionX" config:type="int">7</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">431</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">1082</config:config-item>
        <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
@@ -33688,7 +33688,15 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>N/A</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell office:value-type="date" office:date-value="2025-11-11" calcext:value-type="date">
+      <text:p>2025-11</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Stella By Starlight, Bemsha Swing</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>This is the album that convinced me about Bill Evans. Has distant echoes of Conlon Nancarrow.</text:p>
+     </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
