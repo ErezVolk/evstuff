@@ -1,2 +1,2 @@
 #!/bin/sh
-yt-dlp --extract-audio --embed-metadata --audio-format mp3 -o "%(playlist)s/%(playlist_index)s %(title)s.%(ext)s" "$@"
+yt-dlp --write-thumbnail --extract-audio --embed-metadata --audio-format mp3 -o "%(playlist)s/%(playlist_index)s %(title)s.%(ext)s" "$@"
