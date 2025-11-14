@@ -34043,7 +34043,15 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Jeff Berlin</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell office:value-type="date" office:date-value="2025-11-14" calcext:value-type="date">
+      <text:p>2025-11</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Emeril Kicks It Up, Leibman On A Jetplane, Reggae Ricardo</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Everything they say about him (a legendary beast) is true, and you can also feel the fun.</text:p>
+     </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
@@ -34229,8 +34237,8 @@
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1100" calcext:value-type="float">
-      <text:p>1100</text:p>
+     <table:table-cell office:value-type="float" office:value="1099" calcext:value-type="float">
+      <text:p>1099</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Ben Webster, Oscar Peterson</text:p>
