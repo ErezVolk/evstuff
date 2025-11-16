@@ -1,21 +1,24 @@
 #!/bin/sh
+# vim: set sw=2 et:
 # Update Git repo and pull if safe, without excessive traffic.
 
 usage() {
-  echo "git o [-l] [-p] [-q] [-h]"
+  echo "git o [-l] [-p] [-q] [-h] [-m branch]"
   echo ""
   echo "options:"
-  echo " -h     show this help message and exit"
-  echo " -q     output nothing if local is identical to remote"
-  echo " -l     perform no server communication"
-  echo " -p     push if the local branch is ahead of the remote"
+  echo " -h           show this help message and exit"
+  echo " -q           output nothing if local is identical to remote"
+  echo " -m BRANCH    merge with BRANCH"
+  echo " -l           perform no server communication"
+  echo " -p           push if the local branch is ahead of the remote"
 }
 
 
 QUIET=""
 LOCAL=""
 PUSH=""
-while getopts ":lpqh" opt; do
+MERGE=""
+while getopts ":lpqhm:" opt; do
   case ${opt} in
     l)
       LOCAL="y"
@@ -25,6 +28,9 @@ while getopts ":lpqh" opt; do
       ;;
     q)
       QUIET="y"
+      ;;
+    m)
+      MERGE=${OPTARG}
       ;;
     h)
       usage
@@ -76,22 +82,34 @@ REMOTE=$(do_git rev-parse @{u}) || exit  # Fails if not a remote-tracking branch
 LOCAL=$(do_git rev-parse @)
 BASE=$(do_git merge-base $LOCAL $REMOTE)
 
+on_pushable()
+{
+  if [ -z "${PUSH}" ]; then
+    echo "${bold}⇡${offbold} $ROOT"  # Need to push
+  else
+    echo "${bold}↥${offbold} $ROOT"  # Pushing
+    show_git push
+  fi
+}
+
 STATUS=$(do_git status --porcelain --untracked-files=no)
 if [ -n "$STATUS" ]; then
     echo "${bold}!${offbold} $ROOT"  # Local uncommitted changes
 elif [ $LOCAL = $REMOTE ]; then
     [ -n "${QUIET}" ] || echo "✔ $ROOT"  # Up to date
+    if [ -n "${MERGE}" ]; then
+      show_git merge -q --ff-only $MERGE
+      NEWLOCAL=$(do_git rev-parse @)
+      if [ "${NEWLOCAL}" != "${LOCAL}" ]; then
+        on_pushable
+      fi
+    fi
 elif [ $LOCAL = $BASE ]; then
     echo "${bold}⇣${offbold} $ROOT"  # What we can here for
     show_git merge --ff-only $REMOTE
     echo "${bold}↳${offbold} $ROOT"
 elif [ $REMOTE = $BASE ]; then
-    if [ -z "${PUSH}" ]; then
-      echo "${bold}⇡${offbold} $ROOT"  # Need to push
-    else
-      echo "${bold}↥${offbold} $ROOT"  # Need to push
-      git push
-    fi
+  on_pushable
 else
     echo "${bold}⇅${offbold} $ROOT"  # Diverged
 fi
