@@ -64,6 +64,7 @@ oneString := E|A|D|G
 
 
 __TODO__ = """
+- Overhaul with some kind of pipe(/source/sink) architecture
 - Annals: New decks
 - Template/multilevel (what to do with a standard, Downes' steps, etc.)
 - Make into an app (Kivy? Flutter? No more pmprc parsing)
