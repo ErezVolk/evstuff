@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2025-11-24T09:25:59.322003000</dc:date><meta:editing-duration>P189DT22H58M31S</meta:editing-duration><meta:editing-cycles>4838</meta:editing-cycles><meta:generator>LibreOffice/25.8.3.2$MacOSX_AARCH64 LibreOffice_project/8ca8d55c161d602844f5428fa4b58097424e324e</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="10400" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2025-11-24T12:11:32.808755000</dc:date><meta:editing-duration>P190DT1H17M31S</meta:editing-duration><meta:editing-cycles>4844</meta:editing-cycles><meta:generator>LibreOffice/25.8.3.2$MacOSX_AARCH64 LibreOffice_project/8ca8d55c161d602844f5428fa4b58097424e324e</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="10414" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">51393</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">517504</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">517955</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
        <config:config-item config:name="CursorPositionX" config:type="int">0</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">1145</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">1146</config:config-item>
        <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
@@ -23,7 +23,7 @@
        <config:config-item config:name="PositionLeft" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">1122</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">1116</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">110</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -36,7 +36,7 @@
       </config:config-item-map-entry>
      </config:config-item-map-named>
      <config:config-item config:name="ActiveTable" config:type="string">Sheet1</config:config-item>
-     <config:config-item config:name="HorizontalScrollbarWidth" config:type="int">1320</config:config-item>
+     <config:config-item config:name="HorizontalScrollbarWidth" config:type="int">1666</config:config-item>
      <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
      <config:config-item config:name="ZoomValue" config:type="int">110</config:config-item>
      <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -369,43 +369,6 @@
   <style:style style:name="ce1" style:family="table-cell" style:parent-style-name="Default">
    <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>
   </style:style>
-  <style:style style:name="ce17" style:family="table-cell" style:parent-style-name="Default">
-   <style:text-properties fo:font-weight="normal" style:font-weight-asian="normal" style:font-weight-complex="normal"/>
-  </style:style>
-  <style:style style:name="ce18" style:family="table-cell" style:parent-style-name="Default">
-   <style:text-properties fo:color="#000000" style:text-outline="false" style:text-line-through-style="none" style:text-line-through-type="none" style:font-name="Helvetica" fo:font-size="10pt" fo:language="none" fo:country="none" fo:font-style="normal" fo:text-shadow="none" style:text-underline-style="none" fo:font-weight="normal" style:text-underline-mode="continuous" style:text-overline-mode="continuous" style:text-line-through-mode="continuous" style:font-name-asian="Helvetica" style:font-size-asian="10pt" style:language-asian="none" style:country-asian="none" style:font-style-asian="normal" style:font-weight-asian="normal" style:font-name-complex="Helvetica" style:font-size-complex="10pt" style:language-complex="none" style:country-complex="none" style:font-style-complex="normal" style:font-weight-complex="normal" style:text-emphasize="none" style:font-relief="none" style:text-overline-style="none" style:text-overline-color="font-color"/>
-  </style:style>
-  <style:style style:name="ce19" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N137"/>
-  <style:style style:name="ce20" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N0"/>
-  <style:style style:name="ce21" style:family="table-cell" style:parent-style-name="Default">
-   <style:text-properties fo:font-size="10pt" style:font-size-asian="10pt" style:font-size-complex="10pt"/>
-  </style:style>
-  <style:style style:name="ce22" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N138">
-   <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>
-  </style:style>
-  <style:style style:name="ce23" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N138"/>
-  <style:style style:name="ce24" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N138">
-   <style:text-properties fo:font-weight="normal" style:font-weight-asian="normal" style:font-weight-complex="normal"/>
-  </style:style>
-  <style:style style:name="ce25" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N138">
-   <style:text-properties fo:font-size="10pt" style:font-size-asian="10pt" style:font-size-complex="10pt"/>
-  </style:style>
-  <style:style style:name="ce26" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N61"/>
-  <style:style style:name="ce27" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N137">
-   <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>
-  </style:style>
-  <style:style style:name="ce28" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N137">
-   <style:text-properties fo:font-size="10pt" style:font-size-asian="10pt" style:font-size-complex="10pt"/>
-  </style:style>
-  <style:style style:name="ce29" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N137">
-   <style:table-cell-properties fo:wrap-option="wrap"/>
-  </style:style>
-  <style:style style:name="ce30" style:family="table-cell" style:parent-style-name="Default">
-   <style:table-cell-properties fo:wrap-option="wrap"/>
-  </style:style>
-  <style:style style:name="ce16" style:family="table-cell" style:parent-style-name="Default">
-   <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>
-  </style:style>
   <style:style style:name="ce31" style:family="table-cell" style:parent-style-name="Default">
    <style:text-properties fo:font-weight="normal" style:font-weight-asian="normal" style:font-weight-complex="normal"/>
   </style:style>
@@ -488,7 +451,7 @@
      <text:p><text:sheet-name>???</text:sheet-name><text:s/>(<text:title>???</text:title>)</text:p>
     </style:region-left>
     <style:region-right>
-     <text:p><text:date style:data-style-name="N2" text:date-value="2025-11-24">00/00/0000</text:date>, <text:time style:data-style-name="N2" text:time-value="09:29:06.589379000">00:00:00</text:time></text:p>
+     <text:p><text:date style:data-style-name="N2" text:date-value="2025-11-24">00/00/0000</text:date>, <text:time style:data-style-name="N2" text:time-value="09:52:30.534699000">00:00:00</text:time></text:p>
     </style:region-right>
    </style:header>
    <style:header-left style:display="false"/>
@@ -517,25 +480,25 @@
     <table:table-column table:style-name="co10" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co8" table:number-columns-repeated="16374"/>
     <table:table-row table:style-name="ro1">
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>n</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Who</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>What</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>t</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce36" office:value-type="string" calcext:value-type="string">
       <text:p>dt</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Whence</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Whom</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce41" office:value-type="string" calcext:value-type="string">
@@ -544,10 +507,10 @@
      <table:table-cell table:style-name="ce41" office:value-type="string" calcext:value-type="string">
       <text:p>Which</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>How</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" table:number-columns-repeated="16374"/>
+     <table:table-cell table:style-name="ce1" table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="1" calcext:value-type="float">
@@ -589,10 +552,10 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Charles Mingus</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The Black Saint and the Sinner Lady</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="float" office:value="1963" calcext:value-type="float">
+     <table:table-cell table:style-name="ce1" office:value-type="float" office:value="1963" calcext:value-type="float">
       <text:p>1963</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce36" office:value-type="time" office:time-value="PT00H39M00S" calcext:value-type="time">
@@ -620,10 +583,10 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Charles Mingus</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Mingus Ah Um</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="float" office:value="1959" calcext:value-type="float">
+     <table:table-cell table:style-name="ce1" office:value-type="float" office:value="1959" calcext:value-type="float">
       <text:p>1959</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce36" office:value-type="time" office:time-value="PT00H46M00S" calcext:value-type="time">
@@ -1660,7 +1623,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Donald Byrd</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Fuego</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce31" office:value-type="float" office:value="1960" calcext:value-type="float">
@@ -1726,7 +1689,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>John Coltrane</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Blue Train</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce31" office:value-type="float" office:value="1958" calcext:value-type="float">
@@ -2085,7 +2048,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Ahmad Jamal</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Poinciana</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce31" office:value-type="float" office:value="1988" calcext:value-type="float">
@@ -2244,7 +2207,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>John Coltrane</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>A Love Supreme</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce31" office:value-type="float" office:value="1965" calcext:value-type="float">
@@ -2341,10 +2304,10 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Charles Mingus</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Blues &amp; Roots</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="float" office:value="1959" calcext:value-type="float">
+     <table:table-cell table:style-name="ce1" office:value-type="float" office:value="1959" calcext:value-type="float">
       <text:p>1959</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce36" office:value-type="time" office:time-value="PT00H39M00S" calcext:value-type="time">
@@ -2374,7 +2337,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Eddie Harris and Les McCann</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Second Movement</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce31" office:value-type="float" office:value="1971" calcext:value-type="float">
@@ -2629,7 +2592,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Derek Smith Trio</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Love For Sale</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1978" calcext:value-type="float">
@@ -2823,7 +2786,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Oscar Peterson Trio</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The Sound of the Trio</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1962" calcext:value-type="float">
@@ -3249,7 +3212,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Cannonball Adderley</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Portrait of Cannonball</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1958" calcext:value-type="float">
@@ -3311,7 +3274,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Charles Mingus</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Mingus, Mingus, Mingus, Mingus, Mingus</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1964" calcext:value-type="float">
@@ -3891,7 +3854,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>The Quintet</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Jazz at Massey Hall</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1953" calcext:value-type="float">
@@ -3986,10 +3949,10 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Thelonious Monk</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Brilliant Corners</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="float" office:value="1957" calcext:value-type="float">
+     <table:table-cell table:style-name="ce1" office:value-type="float" office:value="1957" calcext:value-type="float">
       <text:p>1957</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="time" office:time-value="PT01H07M00S" calcext:value-type="time">
@@ -4050,10 +4013,10 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Horace Silver</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Song for My Father</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="float" office:value="1965" calcext:value-type="float">
+     <table:table-cell table:style-name="ce1" office:value-type="float" office:value="1965" calcext:value-type="float">
       <text:p>1965</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce38" office:value-type="time" office:time-value="PT00H42M00S" calcext:value-type="time">
@@ -4213,7 +4176,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Charles Mingus</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The Clown</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1957" calcext:value-type="float">
@@ -4405,7 +4368,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Charles Mingus</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Mingus Plays Piano</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1963" calcext:value-type="float">
@@ -5802,7 +5765,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Eddie Harris</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The In Sound</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1966" calcext:value-type="float">
@@ -5967,7 +5930,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Eddie Harris</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The Electrifying Eddie Harris</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1968" calcext:value-type="float">
@@ -6584,7 +6547,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Eddie Harris</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>That is Why You’re Overweight</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1975" calcext:value-type="float">
@@ -6748,7 +6711,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Andrew Hill</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Point of Departure</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1964" calcext:value-type="float">
@@ -6842,7 +6805,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Hermeto Pascoal</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Brasil Universo</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1988" calcext:value-type="float">
@@ -7007,7 +6970,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Eddie Harris</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>How Can You Live Like That?</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1986" calcext:value-type="float">
@@ -8123,7 +8086,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Cannonball Adderley</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Things Are Getting Better</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1958" calcext:value-type="float">
@@ -8189,7 +8152,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>André Previn</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>After Hours</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1989" calcext:value-type="float">
@@ -8350,7 +8313,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Lonnie Lison Smith &amp; the Cosmic Echoes</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Expansions</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1974" calcext:value-type="float">
@@ -8383,7 +8346,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Cecil McBee</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Music from the Source</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1977" calcext:value-type="float">
@@ -8416,7 +8379,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Ramsey Lewis Trio</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The In Crowd</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1965" calcext:value-type="float">
@@ -9350,7 +9313,7 @@
      <table:table-cell table:style-name="ce31" office:value-type="string" calcext:value-type="string">
       <text:p>Charles Mingus</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Charles Mingus Presents Charles Mingus</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1960" calcext:value-type="float">
@@ -10480,7 +10443,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Joe Pass &amp; Niels-Henning Ørsted Pedersen</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Chops</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1978" calcext:value-type="float">
@@ -10579,7 +10542,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Oscar Peterson Trio</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Live at the Stratford Shakespearean Festival</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1956" calcext:value-type="float">
@@ -10612,7 +10575,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Cecil Taylor</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Looking Ahead!</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1958" calcext:value-type="float">
@@ -11571,7 +11534,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Miles Davis</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Sketches of Spain</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1960" calcext:value-type="float">
@@ -11604,7 +11567,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Miles Davis</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>In a Silent Way</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1969" calcext:value-type="float">
@@ -12092,7 +12055,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Eugene McDaniels</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Headless Heroes of the Apocalypse</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1971" calcext:value-type="float">
@@ -12387,7 +12350,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Ray Brown</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Two Bass Hits</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1991" calcext:value-type="float">
@@ -13166,7 +13129,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Eric Dolphy</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Out There</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1960" calcext:value-type="float">
@@ -14371,7 +14334,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Sonny Stitt</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Sonny Side Up</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1957" calcext:value-type="float">
@@ -14962,7 +14925,15 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Cecil McBee</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell office:value-type="date" office:date-value="2025-11-24" calcext:value-type="date">
+      <text:p>2025-11</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>The Search</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Quite good, sometimes too modernish for me.</text:p>
+     </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
@@ -14987,7 +14958,15 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Wayne Dockery</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell office:value-type="date" office:date-value="2025-11-24" calcext:value-type="date">
+      <text:p>2025-11</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Spidit</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Very nice.</text:p>
+     </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
@@ -15281,7 +15260,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Gil Evans</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=7sGIK551yNQ" xlink:type="simple">Blues in Orbit</text:a></text:p>
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=7sGIK551yNQ" xlink:type="simple">Blues in Orbit</text:a></text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1980" calcext:value-type="float">
       <text:p>1980</text:p>
@@ -15336,7 +15315,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Gil Evans</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Svengali</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1973" calcext:value-type="float">
@@ -15369,7 +15348,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>The Carla Bley Band</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The Carla Bley Big Band Goes To Church</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1996" calcext:value-type="float">
@@ -15942,7 +15921,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Art Pepper</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Plus Eleven</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1959" calcext:value-type="float">
@@ -16333,7 +16312,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Don Pullen</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Tomorrow&apos;s Promises</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1977" calcext:value-type="float">
@@ -16482,7 +16461,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Steve Swallow and Robert Creeley</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>So There</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="2006" calcext:value-type="float">
@@ -19335,7 +19314,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Roland Kirk</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The Inflated Tear</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1968" calcext:value-type="float">
@@ -19609,7 +19588,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Roland Kirk</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>I, Eye, Aye</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1972" calcext:value-type="float">
@@ -19807,7 +19786,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Roland Kirk</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The Return of the 5000 Lb. Man</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1976" calcext:value-type="float">
@@ -19906,7 +19885,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Kamasi Washington</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>The Epic</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="2015" calcext:value-type="float">
@@ -21923,7 +21902,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Roland Kirk</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Here Comes the Whistleman</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1965" calcext:value-type="float">
@@ -22687,7 +22666,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Max Roach</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>We Insist!</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1961" calcext:value-type="float">
@@ -22801,7 +22780,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Charled Mingus</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Mingus at Antibes</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1960" calcext:value-type="float">
@@ -22859,7 +22838,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Pharoah Sanders</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Karma</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1969" calcext:value-type="float">
@@ -23219,7 +23198,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Ray Brown, Pierre Boussaguet, Dado Moroni</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Two Bass Hits [Euro version?]</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1988" calcext:value-type="float">
@@ -24126,7 +24105,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Ornette Coleman</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=iWpYyEPIw0Y" xlink:type="simple">Science Fiction</text:a></text:p>
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=iWpYyEPIw0Y" xlink:type="simple">Science Fiction</text:a></text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1972" calcext:value-type="float">
       <text:p>1972</text:p>
@@ -24651,7 +24630,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Henry Threadgill</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Easily Slip Into Another World</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1987" calcext:value-type="float">
@@ -27362,7 +27341,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>John Coltrane</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Giant Steps</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1960" calcext:value-type="float">
@@ -29451,7 +29430,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Roland Kirk</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Prepare Thyself To Deal With A Miracle</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1973" calcext:value-type="float">
@@ -34517,7 +34496,7 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>John Coltrane Quartet</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Ballads</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1963" calcext:value-type="float">
@@ -35547,10 +35526,10 @@
      <table:table-cell office:value-type="float" office:value="1140" calcext:value-type="float">
       <text:p>1140</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Roland Kirk</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce16" office:value-type="string" calcext:value-type="string">
+     <table:table-cell table:style-name="ce1" office:value-type="string" calcext:value-type="string">
       <text:p>Blacknuss</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1971" calcext:value-type="float">
@@ -35717,7 +35696,36 @@
      <table:table-cell table:number-columns-repeated="3"/>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047429">
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1146" calcext:value-type="float">
+      <text:p>1146</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Pharoah Sanders</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Africa</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1987" calcext:value-type="float">
+      <text:p>1987</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H57M00S" calcext:value-type="time">
+      <text:p>0:57</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Apple Music</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Curtis Lundy</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>You&apos;ve Got To Have Freedom</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047428">
      <table:table-cell table:number-columns-repeated="10"/>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
