@@ -21,7 +21,7 @@ function cr_run(cr) {
 
     cr_do_continuations(cr);
 
-    cr_do_vcenters(cr);
+    cr_do_valigns(cr);
 
     //cr_do_stars(cr);
 
@@ -198,6 +198,7 @@ function cr_do_mirrors(cr) {
       var hits = app.findText();
       for (var k = 0; k < hits.length; ++ k) {
         hits[k].createOutlines()[0].flipItem(Flip.HORIZONTAL);
+        count ++;
       }
     }
   }
@@ -252,29 +253,38 @@ function cr_do_continuations(cr) {
   }
 }
 
-function cr_do_vcenters(cr) {
+function cr_do_valigns(cr) {
+  var count = 0;
+  count += cr_do_valign(cr, "@VBottom@", VerticalJustification.BOTTOM_ALIGN);
+  count += cr_do_valign(cr, "@VCenter@", VerticalJustification.CENTER_ALIGN);
+  if (count > 0) {
+    cr_log(cr, "Vertically aligned " + count + " text frame(s).");
+  }
+}
+
+function cr_do_valign(cr, substr, justification) {
   var count = 0;
 
   for (var i = 0; i < cr.docs.length; ++ i) {
     cr.doc = cr.docs[i];
 
-    paras = cr_doc_get_all_paras_with_styles_containing(cr, "@VCenter@");
+    paras = cr_doc_get_all_paras_with_styles_containing(cr, substr);
 
-    if (paras.length == 0)
+    if (paras.length == 0) {
       continue;
+    }
 
     for (var i = 0; i < paras.length; ++ i) {
       var frame = paras[i].parentTextFrames[0];
-      frame.textFramePreferences.verticalJustification = VerticalJustification.CENTER_ALIGN;
+      frame.textFramePreferences.verticalJustification = justification;
       count ++;
     }
   }
 
-  if (count > 0) {
-    cr_log(cr, "Vertically centered " + count + " text frame(s).");
-  }
+  return count;
 }
 
+/*
 function cr_do_stars(cr) {
   var count = 0;
 
@@ -301,14 +311,16 @@ function cr_do_stars(cr) {
     }
   }
 }
+*/
 
 function cr_doc_get_all_paras_with_styles_containing(cr, substr) {
   paras = [];
 
   app.findGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = "^";
-  for (var j = 0; j < cr.doc.paragraphStyles.length; ++ j) {
-    var style = cr.doc.paragraphStyles[j];
+  var styles = cr.doc.allParagraphStyles;
+  for (var j = 0; j < styles.length; ++ j) {
+    var style = styles[j];
     if (style.name.indexOf(substr) < 0) {
       continue;
     }
