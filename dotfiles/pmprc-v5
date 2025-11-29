@@ -1,0 +1,766 @@
+# ♩♫♬♪̵♭♮♯♪𝄪𝄫↗↘⍻ᴼⁱ⁴⁵⁶⁷⁸⁹₁²³₇Δː≅⚠
+# ➀➁➂➃➄➅➆➇➈➉ ➊➋➌➍➎➏➐➑➒➓ ❶❷❸❹❺❻❼❽❾❿
+
+# Nicolas outline:
+# - SCALES, CHORDS, etc.
+# - CURRENTLY bosseant
+#   - When new one, transcribe
+# - REVISE previously bossé
+#   - Speed work
+#   - Recording/backing track
+
+*_bass = [ bass ]
+
+bass = [ seed 1@raybrown scale chord learn 2@revise more ]
+
+KEY := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+MODE := Ionian|Dorian|Phrygian|Lydian|Mixolydian|Aeolian|Locrian
+CHORD := Major|Minor|M7|m7|ø7|o7|M6|m6
+
+seed:
+  ** Try MM ♩={} {}{} {} on beat {} today **: {[60-100]} {ANY} {↗|↘} {<❶|➋|➌|➃|5|6|7|8>} {1|2|3|4|2+4|1+3}
+
+scale:
+  Key of {} {} -- {}: {5*KEY} {3*MODE} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
+
+chord:
+  Today-{} across the fingerboard: {2*CHORD}
+
+learn:
+  Play a today-blues: NONE
+  Work on "Cherokee" {}: {<Downes|Chorus|Brownify>}
+  Work on "All the Things You Are" {}: {<Downes|Chorus|Brownify>}
+  Work on "Stella" {}: {<Downes|Chorus|Brownify>}
+  Work on "You Don't Know What Love Is" {}: {<Downes|Chorus|Brownify>}
+  More Nicolas [Prince Will Come, Bye Bye Blackbird, Black Forest Blues, But Not For Me, Remember, You've Changed]: NONE
+
+-learn-next:
+  Work on "Moonlight in Vermont" [ ]: NONE
+  Work on "Softly, as in a Morning Sunrise" [ ]: NONE
+  Work on "Take the “A” Train" [ ]: NONE
+  Work on "Autumn Leaves" [ ]: NONE
+  Work on "The Days of Wine and Roses" [ ]: NONE
+  Work on "Blue Bossa" [ ]: NONE
+  Work on "Blue Monk" [ ]: NONE
+  Work on "Au Privave" [ ]: NONE
+  Work on "Body and Soul" [ ]: NONE
+  Work on "Doxy" [ ]: NONE
+  Work on "Stompin’ at the Savoy" [ ]: NONE
+  Work on "Oleo" [X]: NONE
+  Work on "It Could Happen to You" [-]: NONE
+  Work on "Have You Met Miss Jones?" [ ]: NONE
+  Work on "Lady Bird" [ ]: NONE
+  Work on "Beautiful Love" [ ]: NONE
+  Work on "You and the Night and the Music" [ ]: NONE
+  Work on "Confirmation" [ ]: NONE
+
+revise:
+  Play "Four": NONE
+  Play "There Will Never Be Another You": NONE
+  Play "Solar": NONE
+  Play "Billie's Bounce": NONE
+
+  Play "Ornithology": NONE
+  Play "Tricotism": NONE
+  Play "Anthropology": NONE
+  Play "But Not For Me" [Remember Israel Crosby, Percy Heath]: NONE
+  Play "It Could Happen to You": NONE
+  Play "Out of Nowhere" [Remember Ray Brown]: NONE
+  Play "There Will Never Be Another You" [Remember Buster Williams]: NONE
+  Play "They Say It's Wonderful": NONE
+  Play "Central Park West": NONE
+  Play "Wave": NONE
+
+more:
+  Transcribe: NONE
+  Book: NONE
+  Chords: NONE
+  Record: NONE
+
+
+morn = [ seed warmup 2@intonation 2@theory 2@current max ]
+eve = [ seed @warmup _eve ]
+day = [ seed warmup 2@intonation _eve ]
+_eve = [ 2@theory 1@digression 2@current 2@maxRevise ]
+suggest = [ 2@_future ]
+
+#
+# Shorthand
+#
+oneString := IV|III|II|I
+twoAdjacentStrings := IV+III|III+II|II+I
+twoSubjacentStrings := IV+II|III+I
+rayBrownBluesKeys := C|F|B♭|G
+rayBrownDrillKeys := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
+rayBrown10thKeys := (E↗B) ↗ (E♭↗B♭)|(B↘E) ↗ (B♭↘E♭)
+majMin:
+  -major: major
+  -minor: minor
+
+#######
+
+_nextBebopHeads:
+# David Baker’s Vol 3 Ch. 3 "34 tunes", merged with "List of Essential Tunes"
+  A NIGHT IN TUNISIA: NONE
+  AFTERNOON IN PARIS: NONE
+  BACK HOME BLUES: NONE
+  BARBADOS: NONE
+  BEBOP REVISITED: NONE
+  BEBOP: NONE
+  BIRDLIKE: NONE
+  BLOOMDIDO: NONE
+  BOUNCIN' WITH BUD: NONE
+  BROWNIE SPEAKS: NONE
+  CALCUTTA CUTIE: NONE
+  CHERYL: NONE
+  CHI-CHI: NONE
+  CONFIRMATION: NONE
+  COOKIN' AT THE CONTINENTAL: NONE
+  DANCE OF THE INFIDELS: NONE
+  DEWEY SQUARE: NONE
+  DEXTERITY: NONE
+  DON'T ARGUE: NONE
+  DONNA LEE: NONE
+  DONNA: NONE
+  DONNALEE: NONE
+  ETERNAL TRIANGLE: NONE
+  FOUR BROTHERS: NONE
+  GOOD BAIT: NONE
+  GROOVIN' HIGH: NONE
+  HALF NELSON: NONE
+  HOT HOUSE: NONE
+  JORDU: NONE
+  JOY SPRING: NONE
+  LITTLE WILLIE LEAPS: NONE
+  MAYREH: NONE
+  MILESTONES (old): NONE
+  MILESTONES: NONE
+  MOHAWK: NONE
+  MOOSE THE MOOCH: NONE
+  OPUS V: NONE
+  ORNITHOLOGY: NONE
+  PASSPORT: NONE
+  QUICKSILVER: NONE
+  RELAXIN' AT CAMARILLO: NONE
+  ROOM 608: NONE
+  SALT PEANUTS (entire tune): NONE
+  SALT PEANUTS: NONE
+  SCRAPPLE FROM THE APPLE: NONE
+  SHAW NUFF: NONE
+  SIPPIN' AT BELLS: NONE
+  Split Kick: NONE
+  SPLIT KICK: NONE
+  STEEPLECHASE: NONE
+  THAT'S EARL, BROTHER: NONE
+  THE SERPENT'S TOOTH: NONE
+  THINGS TO COME: NONE
+  WAIL: NONE
+  WHERE YOU AT?: NONE
+  WOODY 'N' YOU: NONE
+  YARDBIRD SUITE: NONE
+# More from https://www.jazzguitar.be/forum/ear-training-transcribing-reading/96246-essential-bebop-heads.html
+  Au Privave: NONE
+  Blues for Alice: NONE
+# More from https://playjazzpianonyc.com/resources/repertoire/32-must-know-bebop-heads/
+  Blues For Bennie: NONE
+  Celia: NONE
+  Four: NONE
+  In Walked Bud: NONE
+  Move: NONE
+  Sandu: NONE
+  Straight no Chaser: NONE
+  Strollin’: NONE
+  The Sidewinder: NONE
+  Walkin’: NONE
+  Walkin’ Shoes: NONE
+  Well, You Needn’t: NONE
+  Yeah: NONE
+# Downes' list
+
+current:
+  Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
+  Bob Magnusson's Ex 23: NONE
+  # Stricker-3: NONE  (On hiatus)
+
+#######
+
+max:
+  # When in need, use key of {}: {C|G|F|B♭|D}
+  MdA 9 -- A-major·{}·&c: {<⍻3|⍻4|⍻5@90|6@45|⍻7 with mp3>}
+  1@maxRevise  # Curr
+  1@maxStandardCurr
+
+maxRevise:
+  MdA 3.19: NONE
+  MdA 3.22: NONE
+  MdA 3.26 [In today's key: NONE
+  MdA 3.27: NONE
+  MdA 3.29 [In today's key]: NONE
+
+  MdA 4.13 [N.B last line]: NONE
+
+  MdA 5.(5+6): NONE
+  MdA 5.10: NONE
+  MdA 5.11: NONE
+  MdA 5.15: NONE
+  MdA 5.16: NONE
+
+  MdA 6.4 [In today's key]: NONE
+  MdA 6.5: NONE
+  MdA 6.7: NONE
+  MdA 6.10: NONE
+  MdA 6.14: NONE
+
+  MdA 7.3: NONE
+  MdA 7.5 [In today's key]: NONE
+  MdA 7.6: NONE
+  MdA 7.7 [90/100 BPM]: NONE
+  MdA 7.9: NONE
+  MdA 7.11: NONE
+  MdA 7.12: NONE
+  MdA 7.21: NONE
+  MdA 7.22: NONE
+  MdA 7.23 [85/100 BPM]: NONE
+  MdA 7.15 [In today's key]: NONE
+  MdA 7.16 [In today's key]: NONE
+  MdA 7.17 [In today's key]: NONE
+  MdA 7.18 [In today's key]: NONE
+  MdA 7.19 [In today's key]: NONE
+  MdA 7.24 [80/112 BPM]: NONE
+  MdA 8.{}, head and solo: {1|2|15|16|23}
+  MdA 8.14: NONE
+  MdA 8.17: NONE
+  MdA 8 -- some of {}, in today's key: {<4|5|6|7|8|9|10|11|12|13>}
+
+# maxReviseCurr:
+
+maxStandard:
+  *A Ghost of a chance (C) – The New Real Book 3 [132=127 MdA Ch. 5]: NONE
+  *But beautiful (G) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Darn that dream (G) – The New Real Book 1 [61=76 MdA Ch. 5]: NONE
+  Don't blame me (C) – The New Real Book 3 [111=110 MdA Ch. 5, see Toots version, not great but the recordings improved it for me]: NONE
+  Emily (G) – The New Real Book 3 [117=115 MdA Ch. 5]: NONE
+  Everything I have is yours (C) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Exactly like you (C) – The New Real Book 2 [98(=110) MdA Ch. 5]: NONE
+  Fly me to the moon (Am) – The New Real Book 2 [MdA Ch. 5]: NONE
+  Here's that rainy day (G) – The New Real Book 1 [138=153 MdA Ch. 5]: NONE
+  I got it bad (G) – The New Real Book 3 [153=146 MdA Ch. 5]: NONE
+  I should care (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  It's only a paper moon (G) – The New Real Book 2 [MdA Ch. 5]: NONE
+  *Just friends (G) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Just you, just me (C) – The New Real Book 3 [MdA Ch. 5]: NONE
+  The lamp is low (G) – The New Real Book 3 [MdA Ch. 5]: NONE
+  Laura (G) – The New Real Book 3 [p212=199 MdA Ch. 5]: NONE
+  Like someone in love (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Line for lyons (G) – The New Real Book 1 [188=182 MdA Ch. 5]: NONE
+  My romance (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  *Moonglow (C) – The New Real Book 3 [p252=235 MdA Ch. 5]: NONE
+  On the sunny side of the street (C) – The New Real Book 2 [MdA Ch. 5]: NONE
+  Satin doll (C) – The New Real Book 1 [p308=302 MdA Ch. 5]: NONE
+  The shadow of your smile (3) – The New Real Book 3 [336=311 MdA Ch. 5]: NONE
+  The song is you (C) – The New Real Book 1 [329=323 MdA Ch. 5]: NONE
+  St. Thomas (C) – The New Real Book 1 [p340=334 MdA Ch. 5]: NONE
+  Take the “A” train (C) – The New Real Book 1 [MdA Ch. 5]: NONE
+  Unforgettable (G) – The New Real Book 2 [399(=411)MdA Ch. 5]: NONE
+  Beautiful love (Dm) – The New real Book 1 [16=29 MdA Ch. 6]: NONE
+  Bernie's tune (Dm) – The New Real Book 1 [17=30 MdA Ch. 6]: NONE
+  Blues for Alice (F) – The New Real Book 2 [26 MdA Ch. 6]: NONE
+  Bye bye blackbird (F) – The New Real Book 2 [35 MdA Ch. 6]: NONE
+  *Chega de saudade (Dm) – The New Real Book 1 [49=64 MdA Ch. 6]: NONE
+  Darn that dream (G) – The New Real Book 1 [61=76 MdA Ch. 6]: NONE
+  Desafinado (F) – The New Real Book 1 [p65=80 MdA Ch. 6]: NONE
+  Flamingo (F) – The New Real Book 2 [105 MdA Ch. 6]: NONE
+  Honeysuckle Rose (F) – The New Real Book 2 [134(=146) MdA Ch. 6]: NONE
+  I'm glad there is you (F) – The New Real Book 2 [153 MdA Ch. 6]: NONE
+  I'm getting sentimental over you (F) – The New Real Book 3 [162=154 MdA Ch. 6]: NONE
+  *I'm through with love (F) – The New Real Book 3 [165=157 MdA Ch. 6]: NONE
+  *In a sentimental mood (Dm) – The New Real Book 3 [171=162 MdA Ch. 6]: NONE
+  I thought about you (F) – The New Real Book 1 [146=161 MdA Ch. 6]: NONE
+  I'm old fashioned (F) – The New Real Book 1 [HL Real Book 3 133=138 MdA Ch. 6]: NONE
+  ⍻Just Squeeze me (F) – The New Real Book 3 [194=184 MdA Ch. 6]: NONE
+  ⍻Mean to me (F) – The New Real Book 2 [201 MdA Ch. 6]: NONE
+  Moon and sand (F) – The New Real Book 3 [249=233 MdA Ch. 6]: NONE
+  Moonlight serenade (F) – The New Real Book 3 [254=236 MdA Ch. 6]: NONE
+  Nature boy (Dm) – The New Real Book 1 [231=225 MdA Ch. 6]: NONE
+  Polkadots & Moonbeams (F) – The New Real Book 1 [273=267 MdA Ch. 6]: NONE
+  The way you look tonight (F) – The New Real Book 1 [395=386 MdA Ch. 6]: NONE
+  Waltz for Debby (F) – The New Real Book 1 [387=381 MdA Ch. 6]: NONE
+  ⍻Witchcraft (F) – The New Real Book 1 [407=401 MdA Ch. 6]: NONE
+  Yesterdays (Dm) – The New Real Book 1 [409=403 MdA Ch. 6]: NONE
+  The Days of Wine and Roses - Chuck Sher's The Real Standards Book [105=111 MdA Ch. 6]: NONE
+
+  A child is born (Bb) – The New Real Book 2 [48(=60) MdA Ch. 7]: NONE
+  Almost like being in love (Bb) – The New Real Book 3 [12=20 MdA Ch. 7]: NONE
+  *Autumn leaves (Gm) – The New Real Book 1 [12=25 MdA Ch. 7]: NONE
+  *Basin Street Blues (Bb) – The New Real Book 1 [15=28 MdA Ch. 7]: NONE
+  Come Sunday (Bb) – The New Real Book 1 [52=67 MdA Ch. 7]: NONE
+  Don’t go to strangers (Bb) – The New Real Book 1 [74=89 MdA Ch. 7]: NONE
+  ⍻Everything happens to me (Bb) – The New Real Book 1 [91=106 MdA Ch. 7]: NONE
+  I’m all smiles (D) – The New Real Book 1 [old 216(=224) MdA Ch. 7]: NONE
+  In your own sweet Way (Bb) – The New Real Book 2 [157(=169) MdA Ch. 7]: NONE
+  It don’t mean a thing (Bb) – The New Real Book 2 [161(=173) MdA Ch. 7]: NONE
+  Laurie (Bb) – The New Real Book 1 [182=176 MdA Ch. 7]: NONE
+  Manha de carnival (Gm) – The New Real Book 2 [197(=209) MdA Ch. 7]: NONE
+  Mercy, Mercy, Mercy (Bb) – The New Real Book 1 [205=199 MdA Ch. 7]: NONE
+  Someday my prince will come (Bb) – The New Real Book 1 [326=320 MdA Ch. 7]: NONE
+  There is no greater love (Bb) – The New Real Book 2 [366 MdA Ch. 7]: NONE
+  ⍻Tristeza (D) – The New Real Book 2 [386(=398) MdA Ch. 7]: NONE
+  Up jumped spring (Bb) – The New Real Book 1 [old 440(=448) MdA Ch. 7]: NONE
+  *Wave (D) – The New Real Book 1 [old-452 MdA Ch. 7]: NONE
+  ⍻*You must believe in spring (D) – The New Real Book 3 [421=388 MdA Ch. 7]: NONE
+
+  Now’s the Time [Real Book 3 MdA Ch. 8]: NONE
+  Billie’s Bounce [Real Book 2 MdA Ch. 8]: NONE
+  Blue Monk [Real Book 1 52=51 MdA Ch. 8]: NONE
+  *Straight, no chaser [Real Book 1 386=385 MdA Ch. 8]: NONE
+  Freddie freeloader [Real Book 1 151=151 MdA Ch. 8]: NONE
+  Sonnymoon for two [Separate file MdA Ch. 8]: NONE
+  Tenor Madness [Real Book 2 376(=383) MdA Ch. 8]: NONE
+  C Jam Blues [Real Book 2 55(=62) MdA Ch. 8]: NONE
+  Blue Trane [Real Book 1 54=53 MdA Ch. 8]: NONE
+  *Sandu [New Real Book 1 307=301 MdA Ch. 8]: NONE
+  Bag’s Groove [Real Book 2, 557 MdA Ch. 8]: NONE
+  Blues in the closet [Real Book 2, 36(=43) MdA Ch. 8]: NONE
+
+maxStandardCurr:
+  Baby, It’s cold outside (Eb) – The New Real Book 2 [13(=25) MdA Ch. 9]: NONE
+  Blue Bossa (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Blue Moon (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
+  Dindi (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  *For all we know (Eb) – The New Real Book 3 [122=119 MdA Ch. 9]: NONE
+  The gentle rain (Cm) – The New Real Book 3 [MdA Ch. 9]: NONE
+  Gush (F♯m) – The New Real Book 3 [MdA Ch. 9]: NONE
+  I fall in love too easily (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
+  Imagination (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Moonlight in Vermont (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  *Misty (Eb) – The New Real Book 1 [(old) 296(=304) MdA Ch. 9]: NONE
+  Once I loved (A) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Out of this world (Eb) – The New Real Book 1 [255=249 MdA Ch. 9]: NONE
+  Over the rainbow (Eb) – The New Real Book 3 [MdA Ch. 9]: NONE
+  Reincarnation of a lovebird (F♯m) – The New Real Book 1 [MdA Ch. 9]: NONE
+  Sing me softly of the blues (A) – The New Real Book 2 [326(=338) MdA Ch. 9]: NONE
+  Skylark (Eb) – The New Real Book 1 [321=315 MdA Ch. 9]: NONE
+  Someone to light up my life (A) – The New Real Book 2 [MdA Ch. 9]: NONE
+  Solar (Cm) – The New Real Book 1 [MdA Ch. 9]: NONE
+  *Solitude (Eb) – The New Real Book 3 [346=319 MdA Ch. 9]: NONE
+  *Speak no evil (Cm) – The New Real Book 1 [336=330 MdA Ch. 9]: NONE
+  Tenderly (Eb) – The New Real Book 1 [353=347 MdA Ch. 9]: NONE
+  There will never be another you (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  These foolish things (Eb) – The New Real Book 1 [MdA Ch. 9]: NONE
+  *Triste (A) – The New Real Book 1 [370=364 MdA Ch. 9]: NONE
+
+
+#######
+
+warmup = [ @warmupInterval @warmupOther ]
+
+warmupOther = { @warmupHarvey @warmupRhythm }
+
+warmupInterval:
+  {} drill: {Octave|5th}
+
+warmupHarvey:
+  Harvey from {}: {G|C}
+  Mickey's {}: {Major|Minor}
+  {} Meta-chops: {Modal|Chromatic}
+
+warmupRhythm:
+  4-bar 4/4 Victor's {}: {<1|2|3|4|5|6|7|1|3>}
+  4-bar 6/8 Victor's {}: {<1|2|3|4|5|1|3|5>}
+
+raybrown:
+  Ray Brown's Blues (p.100), {} pattern: {A+B|C|D|E|F}
+  Ray Brown's Blues (I) (p.101), starting from {}: rayBrownBluesKeys
+  Ray Brown's Blues (II) (p.102), starting from {}: rayBrownBluesKeys
+  Ray Brown's Blues (III) (p.103), starting from {}: rayBrownBluesKeys
+
+  Ray Brown's Exercise in 10ths (p.{}): {36|37|39|40|41|42}
+  Ray Brown's 10ths with a 5th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 5th, {}: rayBrown10thKeys
+  Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 6th, {}: rayBrown10thKeys
+  Ray Brown's 10ths with a 7th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 7th, {}: rayBrown10thKeys
+
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), Today-based: NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase II), Today-based (p.65): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), Today-based: NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), Today-based: NONE
+
+  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
+  Ray Brown's Diminished Exercise (p.79) Today-based: NONE
+  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
+  Ray Brown's Diminished Exercise (p.82): NONE
+  Ray Brown's Diminished Exercise (p.83) [across the fingerboard]: NONE
+  Ray Brown's Diminished Exercise (Solo) (p.84) [MM=92, aim for blind playing]: NONE
+  Ray Brown's Diminished Exercise (p.85): NONE
+
+  Ray Brown's Augmented Exercise (p.92): NONE
+  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
+  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
+  Ray Brown's Augmented Exercise (p.97): NONE
+  Ray Brown's Augmented Exercise (p.98): NONE
+
+  Ray Brown's Solo Exercise (p.118, i.e. 8 53 6 42 5 31 4 27 1) {}: {chromatically|circle of 4ths}
+  Ray Brown's Solo Exercise (p.119) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.120) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.121): NONE
+  Ray Brown's Exercise in Fourths (p.122): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.123), Today-based: NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
+  Ray Brown's Exercise (Solo) (p.125-126): NONE
+  Ray Brown's Exercise (Solo) (p.127-128): NONE
+  Ray Brown's Exercise (Solo) (p.129, i.e., 7 98 6 87 5 76 4 65 3 54 2 43 1): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
+  Ray Brown's Exercise (p.131) [7853 5^642 4v531 42₇1]: NONE
+  Ray Brown's Exercise (p.132): NONE
+  Ray Brown's Exercise (p.133): NONE
+  Ray Brown's Triplet Exercise for Solos (p.135) [NB Right hand]: NONE
+
+intonation:  # TODO: split into boring and non-boring?
+  4ths drill on the {} strings: twoAdjacentStrings
+  3rds drill on the {} strings: twoAdjacentStrings
+  Minor 3rds drill on the {} strings: twoAdjacentStrings
+  6ths drill on the {} strings: twoSubjacentStrings
+  Minor 6ths drill with the low string being {}: IV|III
+  10ths drill: NONE
+  Minor 10ths drill: NONE
+  Chromatic scale on the {} string [sing before you play!]: {oneString}
+  JP's ⡠⠑ on the {} string: {oneString}
+  Hazard {} in today's permutation: {3rds|minor 3rds|6ths|minor 6ths}
+  Today-{} in 10th double stops (page 13): Major|Minor
+  Today-{} in 4th double stops (Ex 5 on page 10): Major|Minor
+  Today-{} in "chairs" (Ex 6 on page 10): Major|Minor  # Not really double stops, but had to put it somewhere
+  Today-{} in 5th double stops (Ex 6 on page 7): Major|Minor
+  Today-{} in octave double stops 1-3-2-4-... (Ex 5 on page 7): Major|Minor
+  Chromatic scale in 5th double stops on {} (page 6): twoAdjacentStrings
+  Today-melodic minor linear slides of a second in octave double stops (Ex 4A on p.19): NONE
+  Today-dorian zig-zag slides of a third (1̊-3̊ 2̊-4̊ 5̊-7̊ 6̊-8̊) in octave double stops (Ex 4B on p.19): NONE
+  Today-melodic minor linear slides of a second in fifth double stops (Ex 5A on p.19): NONE
+  Today-dorian zig-zag slides of a third in fifth double stops (Ex 5B on p.19, use 4B as model!): NONE
+  Slides in 3rds (Ex. {} on page 21/22) on the {} strings: {3|4A|4B|4C} {twoAdjacentStrings}
+  Minor 1-2-3-2-3-4... slides (Ex. 4D on page 22) on the {} string: oneString
+  Today-major Diatonic Slides of 4th half notes (1↗4 4↘1 2↗5 5↘2 ...): NONE
+  Today-major Diatonic Slides in 4ths 143₇-2541-3652-... (Ex. 2A on page 23): NONE
+  Today-major Diatonic Slides of 5th half notes (1↗5 5↘1 2↗6 ..) (Ex. 1 on page 25): NONE
+  Today-major Diatonic Slides of up to a 5ths ({}): {Ex 2 on page 26|Ex. 2A on page 27|Ex. 2B on page 27|Ex. 2C on page 27}
+  Today-major Diatonic Slides of 6th half notes (1-6 6-1 2-7 ..) (Ex. 4 on page 28): NONE
+  Today-major Diatonic Slides combination up to 6ths (Ex. 5 on page 29): NONE
+  Today-{} Diatonic string-crossing slides of a 7th (page 33): Major|Minor
+  Today-{} Octave string-crossing slide exercise on page 34: Major|Minor
+  Slide blending exercises on page 30: NONE
+  Harmonic slides exercise on page 35: NONE
+  Steve's Exercise 3 on page 36 [N.B. right hand]: NONE
+  Steve's Etude 6 on page 39 [last played at ♩=45]: NONE
+  Steve's 5th Shifting (Ex 3 on page 6): NONE
+  Steve's 5th Combination (Ex 4 on page 7): NONE
+  Steve's 4th Shifting (Ex 3 on page 9): NONE
+  Steve's 4th Combination (Ex 4 on page 9): NONE
+  Steve's 6ths étude (Ex 5 on page 16): NONE
+  Steve's 10th Combination (page 13): NONE
+  Steve's Triads 1 (page 17) [last played at ♩=69]: NONE
+  Steve's Triads 2 (page 18): NONE
+  Steve's linear Slides (Ex 3 on page 18) using the {} finger on {}: {1st|2nd|3rd|4th} {twoAdjacentStrings}
+  Steve's Ex 1 on page 20: NONE
+  Steve's "Slow and Bluesy" (Ex 2 on page 20) [N.B. bars 8-9]: NONE
+  Today-major Diatonic slides of 4th in ♫ 1₅₆2.3₇14... (Ex. 2B on page 23): NONE
+  Steve's 4th slide etude (Ex. 3 on page 24): NONE
+  Steve's 4th slide etude (Ex. 4 on page 24) [last played at ♩=67]: NONE
+  Diatonic Slides combination exercise (Ex. 3 on page 27) [last played at MM ♩=69]: NONE
+  Slide blending etude on page 31 [last played at MM ♩=59]: NONE
+  Blending "Ryan's Hope" on page 32 [last played at MM ♩=88]: NONE
+  Steve's Etude 4 on page 37 [Last played at 50 BPM]: NONE
+  Steve's Etude 5 on page 38 [last played at 34 BPM]: NONE
+
+  Ray Brown's Blues (p.100), {} pattern: {A+B|C|D|E|F}
+  Ray Brown's Blues (I) (p.101), starting from {}: rayBrownBluesKeys
+  Ray Brown's Blues (II) (p.102), starting from {}: rayBrownBluesKeys
+  Ray Brown's Blues (III) (p.103), starting from {}: rayBrownBluesKeys
+
+  Ray Brown's Exercise in 10ths (p.{}): {36|37|39|40|41|42}
+  Ray Brown's 10ths with a 5th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 5th, {}: rayBrown10thKeys
+  Ray Brown's 10ths with a 6th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 6th, {}: rayBrown10thKeys
+  Ray Brown's 10ths with a 7th, {}: rayBrown10thKeys
+  Ray Brown's minor 10ths with a 7th, {}: rayBrown10thKeys
+
+  Ray Brown's Rhythm Patterns with Drops (Phase I) (p.64), Today-based: NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase II), Today-based (p.65): NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase III) (p.69), Today-based: NONE
+  Ray Brown's Rhythm Patterns with Drops (Phase IV) (p.70), Today-based: NONE
+
+  Ray Brown's Diminished Exercise (Beginners) (p.78): NONE
+  Ray Brown's Diminished Exercise (p.79) Today-based: NONE
+  Ray Brown's Diminished Exercise (Advanced) (p.80-81): NONE
+  Ray Brown's Diminished Exercise (p.82): NONE
+  Ray Brown's Diminished Exercise (p.83) [across the fingerboard]: NONE
+  Ray Brown's Diminished Exercise (Solo) (p.84) [MM=92, aim for blind playing]: NONE
+  Ray Brown's Diminished Exercise (p.85): NONE
+
+  Ray Brown's Augmented Exercise (p.92): NONE
+  Ray Brown's Augmented Exercise ♫↗↗ (p.93-94): NONE
+  Ray Brown's Augmented Exercise ♫↗↘ (p.95-96): NONE
+  Ray Brown's Augmented Exercise (p.97): NONE
+  Ray Brown's Augmented Exercise (p.98): NONE
+
+  Ray Brown's Solo Exercise (p.118, i.e. 8 53 6 42 5 31 4 27 1) {}: {chromatically|circle of 4ths}
+  Ray Brown's Solo Exercise (p.119) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.120) {}: {chromatically|circle of 4ths}
+  Ray Brown's Exercise in Fourths (p.121): NONE
+  Ray Brown's Exercise in Fourths (p.122): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.123), Today-based: NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.124): NONE
+  Ray Brown's Exercise (Solo) (p.125-126): NONE
+  Ray Brown's Exercise (Solo) (p.127-128): NONE
+  Ray Brown's Exercise (Solo) (p.129, i.e., 7 98 6 87 5 76 4 65 3 54 2 43 1): NONE
+  Ray Brown's Exercise in Fourths (Solo) (p.130): NONE
+  Ray Brown's Exercise (p.131) [7853 5^642 4v531 42₇1]: NONE
+  Ray Brown's Exercise (p.132): NONE
+  Ray Brown's Exercise (p.133): NONE
+  Ray Brown's Triplet Exercise for Solos (p.135) [NB Right hand]: NONE
+
+  Bob Magnusson's sequences on pp. 14-17 [Blind, with fingerboard mobility]: NONE
+  Bob Magnusson's Blues sequences on pp. 21-25 [Blind, with fingerboard mobility]: NONE
+  Bob Magnusson's II-V-I pp. 17-20 [Blind, with fingerboard mobility]: NONE
+  Bob Magnusson's 27-29 [Blind, with fingerboard mobility]: NONE
+  Bob Magnusson's 31-32 [Blind, with fingerboard mobility]: NONE
+  Bob Magnusson's 34 [Blind, with fingerboard mobility]: NONE
+  Bob Magnusson's 36-7: NONE
+  Bob Magnusson's 38-9: NONE
+  Bob Magnusson's Ex. 20-22 pp. 42-43 (Minor Blues): NONE
+
+theory:
+  Today-{} Scale: {Ionian (I, Major)|Dorian (II)|Phrygian (III)|Lydian (IV)|Mixolydian (V)|Aeolian (VI, Minor)|Locrian (VII)}
+  Today-{} Scale: {Whole Tone|Diminished|Harmonic Minor|Melodic Minor}  # TODO: Jewish
+  Ray Brown's {} Triads, Today-based: {Major (p.29)|Minor (p.30)}
+  JP@AW 2.20 Walking Bass in the Lower Positions (Slow) [practice degrees; DO NOT FORGET THE GROOVE]: NONE
+  Walk on Today-Blues [soon - add minor/other blues patterns]: NONE
+
+###
+
+digression = { reviseDean reviseMelodic reviseClassical reviseJP@AW sightReading }
+
+reviseDean:
+  Dean's Figure 15 on p.16: NONE
+  Dean's Figure 16 on p.17 (C(9) chord): NONE
+  Dean's Figure 17 on pp.18-19: NONE
+  Dean's Figure 19 on page 21 (D-major scale): NONE
+  Dean's Figure 20 (chord inventory), page {} ({}): {[22-28]} {top|bottom}  # Add as I work through them
+  Dean's Figure 21 on page 29: NONE
+  Dean's Figure 22 on page 30: NONE
+  Dean's Figure 23 on page 30: NONE
+  Dean's Figure 24 on page 30: NONE
+  Dean's Figure 25 on page 31: NONE
+  Dean's Figure 30 (dual node harmonics) on page 36: NONE
+  Dean's Figure 33 (false harmonics--left hand) on page 38: NONE
+  Dean's Figure 34 (false harmonics--right hand) on page 39, play {}: ANY
+  Dean's Figure 35 (false harmonics) on page 40 [pick with the pinky; muting!]: NONE
+  Dean's Figure 39 (slides) on page 42 [⍻]: NONE
+  {} maj7, m7, 7, m7(b5) chords in the upper register: ANY
+
+reviseClassical:
+  Baroque Étude No. 1 (p.3) [last played at ♩=92 of 108]: NONE
+  Baroque Étude No. 2 (p.3) [last played at ♩=92 of 126; N.B. bars 20-24]: NONE
+  Baroque Étude No. 3 (p.4) [last played at ♩=80 of 104, N.B. intonation]: NONE
+  Baroque Étude No. 4 (p.4-5): NONE
+  Baroque Étude No. 6 (p.6) [last played at ♩=72 of 72]: NONE
+  Baroque Étude No. 7 (p.6) [last played at ♩=84 of 108]: NONE
+  Baroque Étude No. 8 (p.6): NONE
+  Baroque Étude No. 9 (p.7): NONE
+  Simandl Étude 1 (p.3): NONE
+  Simandl Étude 2 (p.4): NONE
+  Simandl Étude 3 (p.4-5) [N.B. intonation]: NONE
+  Bach I. Prelude [last played at ♩=76]: NONE
+  Bach I. Allemande [40 BPM, NB bars 20-24, BREATHE!]: NONE
+
+reviseMelodic:
+  Melodic Étude in C Major (p.7): NONE
+  Melodic Etude in F Major (p.8) [last played at ♩=84 of 93]: NONE
+  Melodic Étude in B♭ Major (p.9) [last played at ♩=69 of 86]: NONE
+  Melodic Étude in E♭ Major (p.10) [last played at ♩=92]: NONE
+  Melodic Étude in A♭ Major (p.11): NONE
+  Melodic Étude in D♭ Major (p.12) [last played fully at MM ♩=66/86]: NONE
+
+reviseJP@AW:
+  JP@AW 1.25 Basic Etude in C Major (2. solo): NONE
+  JP@AW 1.26 Basic Etude in F Major (2. bass, 3. solo): NONE
+  JP@AW 1.27 Basic Etude in B♭ Major (2. bass line like sample groove): NONE
+  JP@AW 1.28 Basic Etude in E♭ Major (2. two-feel, 3. walk, 4. solo): NONE
+  JP@AW 1.29 Basic Etude in A♭ Major (2. bass line, 3. solo): NONE
+  JP@AW 1.30 Basic Etude in D♭ Major (2. half bassline, then solo): NONE
+  JP@AW 1.31 Basic Etude in G♭ Major (2. two-feel, 3. solo): NONE
+  JP@AW 1.32 Basic Etude in B Major (2. bass line): NONE
+  JP@AW 1.33 Basic Etude in E Major (2. solo): NONE
+  JP@AW 1.34 Basic Etude in A Major (2. two-feel, maybe walking, 3. solo): NONE
+  JP@AW 1.35 Basic Etude in D Major (2. Baião, 3+4. solo): NONE
+  JP@AW 1.36 Basic Etude in G Major (2. two-feel, 3. solo): NONE
+  JP@AW 1.37 Basic Etude in C Minor (2. solo, 3+4. walk): NONE
+  JP@AW 1.38 Basic Etude in F Minor (2+3. Baião): NONE
+  JP@AW 1.39 Basic Etude in B♭ Minor (2. two-feel, 3. solo): NONE
+  JP@AW 1.40 Basic Etude in E♭ Minor (2. solo, 3. samba feel): NONE
+  JP@AW 1.41 Basic Etude in G♯ Minor (2. solo, 3. two-feel): NONE
+  JP@AW 1.42 Basic Etude in C♯ Minor (2+3. 6/8 bass line): NONE
+  JP@AW 1.43 Basic Etude in F♯ Minor (straight eighths 2. bass line, 3. solo): NONE
+  JP@AW 1.44 Basic Etude in B Minor (2. two-feel, 3. solo): NONE
+  JP@AW 1.45 Basic Etude in E Minor (2+3. walk, 4. solo): NONE
+  JP@AW 1.46 Basic Etude in A Minor (2. bossa nova bass line, 3+4. solo): NONE
+  JP@AW 1.47 Basic Etude in D Minor (2. ballad bass line): NONE
+  JP@AW 1.48 Basic Etude in G Minor (2+3. bass line, 4. solo): NONE
+  JP@AW 1.49 Bolero (Slow): NONE
+  JP@AW 1.50-1.51 Simple 6/8 (Slow): NONE
+  JP@AW 1.52 Bossa Nova (Slow): NONE
+  JP@AW {} Cells: F7 (2.10)|Bb7 (2.11)|Am7 (2.12)|D7 (2.13)|Gm7 (2.14)|C7 (2.15)
+  JP@AW {} Simple Jazz 2 Beat Feel II⧸V Progression: 2.16 (Slow)|2.17 (Fast)
+  JP@AW 2.18 Simple Jazz 2 Beat Feel II⧸V with Triplets [start with roots+groove, no looking at the sheet music]: NONE
+  JP@AW 2.19 Simple Jazz 2 Beat Feel II⧸V with Triplets [⍻ start with roots+groove, no looking at the sheet music]: NONE
+
+sightReading:
+  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Minor": {[1-10]} {[4-23]}
+  Line {} on Page {} in "Taylor, Bob - Sightreading Jazz - Major": {[1-10]} {[4-27]}
+  Line {} on Page {} in "Sightreading Mastery For Bass Guitar Exersices": {[1-8]} {[2-63]}
+  Exercise {} in "Robert Anthony - 300 Progressive Sight Reading Exercises for Bass Guitar": {[1-300]}
+  Track {} in "Motto - Essential sightreading studies for electric bass": {[1-82]}
+  "Lewis Jamey - Sight Reading For Electric Bassist Book 1", key of {}, number {}: {C Major|A Minor|F Major|D Minor|G Major|E Minor} {[1-10]}
+  Page {} in "Simplified Sight Reading": {[37-46,48-53,56-59,65-68]}
+  Page {} in PDF of "Evans, Arnold - Note Reading Studies For Bass": {[2-49,52-65]}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Intermediate Level)": {[1-125]}
+  Exercise {} in "Clayton, Stuart - The Bass Guitarist's Guide To Reading Music (Advanced Level)": {[1-40,51-107]}
+  Page {} in "Appleman, Rich - Reading Contemporary Electric Bass Rhythms": {[5-112]}
+
+
+_nextStepOptions:  # i.e., what should I add 15 minutes of to daily practice
+  transcription [seems to be the real thing]: NONE
+  playing with recording, and recording that [maybe combine with Vitti]: NONE
+  how about Ed's Bass Grooves, Josquin's Classic Grooves (at least the muting section): NONE
+  memorizing standards [pros? cons?]: NONE
+  ear training [book/course X/wouldn't Radley be for chord progressions?]: NONE
+  Sher's Improviser/Solo book: NONE
+  Bob Magnusson [isn't that trumped by transcription?]: NONE
+  Jeff Berlin's Walking Bass Book: NONE
+
+
+_walkingBooks:
+  Bob Magnusson -- if done thoroughly, where would I be: NONE
+  Friedland after all? Has Mystery Tunes and pairings (p42=43): NONE
+  Patitucci's Walking Bass: NONE
+  Patitucci's video course: NONE
+  Rufus Reid: NONE
+  Downes, I now see, has a very nice selection of, e.g., II-V-I walking patterns, as well as a Fuqua-like Chater 14: NONE
+  Danny Ziemann courses.discoverdoublebass.com/p/walk-on: NONE
+  Danny Ziemann books at dannyziemann.company.site: NONE
+  Weigert for the rhythm section thing: NONE
+
+
+_books:
+  Aebersold's Jazz Ear Training ({}): https://www.jazzbooks.com/mm5/merchant.mvc?Screen=PROD&Product_code=D-JETCD
+  Ear Training Items--Interval, Degree in maj/min scale, Note Sequence, Chord Seq (top?): NONE
+  Gioia's _The Jazz Standards_ is a very good source for info and recommendations: NONE
+  Chapter 9 of _Improviser's Bass Method_ for analyzing: NONE
+  Harvey recommends Chuck Sher _Improviser's Bass Method_ and/or _Concepts for Bass Soloing_: NONE
+  The Bob Magnusson book is looking better now: NONE
+  The Rufus Reid book is looking better now, see eg. Ch. 4, 5: NONE
+  JP's Melodic Arpeggios book is looking better now: NONE
+  Just go on with JP's video course?: NONE
+  JP's Walking Book ($9.99 kindle, 100 pages)? there's no self-study: NONE
+  Bob Sinicrope, Walking Bass Line Construction ($25 pdf, 61 pages)? Too formulaic and resticted?: NONE
+  Fuqua's Bassics (VERY lightweight)?: NONE
+  Bass Foundations by Israels (120 pages, looks mostly like stories of his life with Bill Evans)?: NONE
+  Friedland after all?: NONE
+  Mike Downes?: NONE
+  Latin bass book? (supposed to be definitive, but is this my focus now): NONE
+  Tapping? Clayton? CB's Tapping course on scottsbasslessons.com ? That Brazilian guy? Tapestry? (cool but basically for show): NONE
+  One of the other improv/ books: NONE
+  'Weiskopf - The Augmented Scale' looks serious: NONE
+  Eddie Harris after all?: NONE
+  Vitti's Finger Funk (technique)? Vitti Funk Fills (textbook)?: NONE
+  Slonimsky? Lateef? Bergonzi?: NONE
+
+_future:
+  Jewish (Phrygian Domainant) Scale [Shalom Aleikhem, Hava Nagila]: NONE
+  Ukraininan Dorian [another Jewish scale]: NONE
+  Dean's Fig 36-38 [Maybe someday]: NONE
+
+  Magnusson II-V-I Ex 5/6 pp. 17-19: NONE
+  Magnusson II-V-I pp. 19-20: NONE
+
+  # The Girl from Ipanema [what key?]: NONE
+  # Dream a Little Dream [what key?]: NONE
+
+  # Rhythm Changes:
+  # - chart in "1950s Jazz Fake Book":8
+  # - "Herb Ellis Jazz Guitar Method"
+  # - Oleo, Lester Leaps In, Rhythm-A-Ning
+  # - Squatty Roo (Ray Brown transcription on Downes)
+
+  # For repertoire:
+  # - The "12 key tunes" in "Insights in Jazz"
+  # - Data-driven approach in "Watkins - Improvization - 07 Repertoire"
+  # - https://chrisfitzgeraldmusic.com/download/study-method-repertoire-and-improvisation/?wpdmdl=940&refresh=68bc5926ea2a91757174054
+  # - Downes' list
+  # - Baker - How to Learn Tunes
+
+  Learn "Blame It On The Boogie": NONE
+  Learn "Master Blaster": NONE
+  Learn "Lately": NONE
+  Learn "What's Going On": NONE
+  Learn "Honky Cat": NONE
+  Learn "If You Want Me to Stay": NONE
+  Learn "Xeshbon pashut": NONE
+  Learn "Suru meni": NONE
+  Rehearse "In My Little Town": NONE
+  Play "Oh What a Night": NONE
+
+  Lester Leaps In [Rhythm Changes]: NONE
+
+  All of Me: NONE
+  All The Things You Are [note Goldsby's pdf-213; Also some guy on talkbass.com sez]: NONE
+  Alone Together: NONE
+  Black Orpheus (Manhã de Carnaval): NONE
+  Blue Bossa: NONE
+  Body and Soul [Jimmy Blanton transcription in Coolman]: NONE
+  Bye Bye Blackbird: NONE
+  Cherokee ["often recommended by tutors as a core standard to learn early on in a jazz pupil's development"]: NONE
+  Confirmation [Mraz transcription in Coolman]: NONE
+  Days of Wine and Roses [Rybicki has RB transcription]: NONE
+  Doxy [Real Easy Book]: NONE
+  Fly Me To The Moon: NONE
+  Footprints [* I like this one]: NONE
+  Four: NONE
+  Have You Met Miss Jones [*; Rybicki has RB transcription]: NONE
+  How High The Moon [Rybicki has RB transcription]: NONE
+  I Hear a Rhapsody: NONE
+  I Love You: NONE
+  I Remember You: NONE
+  I'll Remember April: NONE
+  I'm Old Fashioned: NONE
+  If I Should Lose You: NONE
+  If I Were A Bell [* Blossom's version with Ray Brown on the bass]: NONE
+  In A Mellow Tone: NONE
+  In A Sentimental Mood: NONE
+  It Could Happen To You: NONE
+  Just Friends: NONE
+  Killer Joe [*Real Easy Book, RB transcriptions in RB and Coolman, Jonathan]: NONE
+  Misty: NONE
+  My Funny Valentine: NONE
+  Night and Day: NONE
+  On Green Dolphin Street [Also some guy on talkbass.com sez]: NONE
+  Recorda Me: NONE
+  Satin Doll: NONE
+  Stella By Starlight [*; Sam Jones transcription in Coolman]: NONE
+  Scrapple From The Apple: NONE
+  So What [Also some guy on talkbass.com sez]: NONE
+  Solar: NONE
+  St. Thomas [Real Easy Book]: NONE
+  Sweet Georgia Brown: NONE
+  Take The A Train: NONE
+  The Girl From Ipanema: NONE
+  There Is No Greater Love: NONE
+  Up Jumped Spring: NONE
+  What Is This Thing Called Love: NONE
+  Yesterdays: NONE
+
+  Perdido [etude in Goldsbypdf-209]: NONE
+  Cold Duck Time [Real Easy Book]: NONE
+  Equinox [Real Easy Book, Weigert]: NONE
+  Song for My Father [*, Real Easy Book]: NONE
