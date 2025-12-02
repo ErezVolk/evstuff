@@ -9,8 +9,8 @@ from pathlib import Path
 import pandas as pd  # type: ignore[import-not-found]
 
 
-def main() -> None:
-    """Figure out whom is whom."""
+def parse_cli() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-i",
@@ -56,6 +56,12 @@ def main() -> None:
         action="store_true",
     )
     args = parser.parse_args()
+    return (parser, args)
+
+
+def main() -> None:
+    """Figure out whom is whom."""
+    parser, args = parse_cli()
 
     errors: list[str] = []
     for path in args.inputs:
@@ -170,17 +176,41 @@ def deflatten(path: Path) -> Path:
     path = path.absolute()
     digest = file_digest(path)
 
-    zath = path.with_name(f".auto-{path.stem}.ods")
+    math = path.with_name(f".auto-{path.stem}.fods")
     hath = path.with_name(f".auto-{path.stem}.digest")
-    if not zath.is_file() or read_digest(hath) != digest:
-        print(f"{path} -> {zath}")
-        cmd = ["soffice", "--headless", "--convert-to", "ods", str(path)]
-        with tempfile.TemporaryDirectory() as tdir:
-            subprocess.run(cmd, cwd=tdir, check=True)
+    changed = read_digest(hath) != digest
+    for ext in "csv", "ods":  # .ods must come last, b/c we return it
+        zath = math.with_suffix(f".{ext}")
+        oath = math.with_suffix(f".prev.{ext}")
+        dath = math.with_suffix(f".diff.{ext}")
+        exists = zath.is_file()
+        if changed or not exists:
+            print(f"{path} -> {zath}")
+            if exists:
+                zath.copy(oath)
+            with tempfile.TemporaryDirectory() as tdir:
+                cmd = ["soffice", "--headless", "--convert-to", ext, str(path)]
+                subprocess.run(
+                    cmd,
+                    cwd=tdir,
+                    stdout=subprocess.PIPE,
+                    check=True,
+                )
 
-            created = Path(tdir) / f"{path.stem}.ods"
-            zath.unlink(missing_ok=True)
-            created.rename(zath)
+                created = Path(tdir) / f"{path.stem}.{ext}"
+                created.move(zath)
+            if exists:
+                with dath.open("w", encoding="utf-8") as fobj:
+                    fobj.write("albums.fods\n\n")
+                    fobj.flush()
+
+                    subprocess.run(
+                        ["/usr/bin/env", "diff", "-suw", str(oath), str(zath)],
+                        stdout=fobj,
+                        check=False,
+                        encoding="utf-8",
+                    )
+    if changed:
         with hath.open("w", encoding="utf-8") as fobj:
             fobj.write(digest)
     return zath
