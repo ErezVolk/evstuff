@@ -205,7 +205,7 @@ def deflatten(path: Path) -> Path:
                     fobj.flush()
 
                     subprocess.run(
-                        ["/usr/bin/env", "diff", "-suw", str(oath), str(zath)],
+                        ["/usr/bin/env", "diff", "-sU0", str(oath), str(zath)],
                         stdout=fobj,
                         check=False,
                         encoding="utf-8",
