@@ -16,9 +16,10 @@ bass = [ seed 1@raybrown scale chord learn 2@revise more ]
 KEY := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 MODE := Ionian|Dorian|Phrygian|Lydian|Mixolydian|Aeolian|Locrian
 CHORD := Major|Minor|M7|m7|ø7|o7|M6|m6
+BEAT := 1|2|3|4|2+4|1+3
 
 seed:
-  ** Try MM ♩={} {}{} {} on beat {} today **: {[60-100]} {ANY} {↗|↘} {<❶|➋|➌|➃|5|6|7|8>} {1|2|3|4|2+4|1+3}
+  ** Try MM ♩={} {}{} {} on beat {} today **: {[60-100]} {ANY} {↗|↘} {<❶|➋|➌|➃|5|6|7|8>} {2*BEAT}
 
 scale:
   Key of {} {} -- {}: {5*KEY} {3*MODE} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
@@ -372,6 +373,8 @@ warmupHarvey:
 warmupRhythm:
   4-bar 4/4 Victor's {}: {<1|2|3|4|5|6|7|1|3>}
   4-bar 6/8 Victor's {}: {<1|2|3|4|5|1|3|5>}
+
+oneBrown = [ 1@raybrown ]
 
 raybrown:
   Ray Brown's Blues (p.100), {} pattern: {A+B|C|D|E|F}
