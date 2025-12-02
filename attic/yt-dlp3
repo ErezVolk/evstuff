@@ -1,2 +1,0 @@
-#!/bin/sh
-yt-dlp --extract-audio --audio-format mp3 --embed-metadata "$@"

@@ -1,0 +1,2 @@
+#!/bin/sh
+yt-dlp -t mp3 --embed-metadata --embed-thumbnail "$@"
