@@ -218,7 +218,13 @@ def deflatten(path: Path) -> Path:
                     dfo.flush()
 
                     subprocess.run(
-                        ["/usr/bin/env", "diff", "-sU0", str(oath), str(zath)],
+                        [
+                            "/usr/bin/env", "diff",
+                            "-L before",
+                            "-L after",
+                            "-s", "-U0",
+                            str(oath), str(zath),
+                        ],
                         stdout=dfo,
                         check=False,
                         encoding="utf-8",
