@@ -55,6 +55,11 @@ def parse_cli() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
         "--write",
         action="store_true",
     )
+    parser.add_argument(
+        "-C",
+        "--convert-and-exit",
+        action="store_true",
+    )
     args = parser.parse_args()
     return (parser, args)
 
@@ -78,6 +83,9 @@ def main() -> None:
         for error in errors:
             print(error)
         parser.error("Please specify --inputs")
+
+    if args.convert_and_exit:
+        return
 
     albums["heard"] = albums.When.notna()
     albums["Whom"] = albums.Whom.fillna("N/A")
@@ -183,30 +191,35 @@ def deflatten(path: Path) -> Path:
         zath = math.with_suffix(f".{ext}")
         oath = math.with_suffix(f".prev.{ext}")
         dath = math.with_suffix(f".diff.{ext}")
-        exists = zath.is_file()
-        if changed or not exists:
-            print(f"{path} -> {zath}")
-            if exists:
-                zath.copy(oath)
-            with tempfile.TemporaryDirectory() as tdir:
-                cmd = ["soffice", "--headless", "--convert-to", ext, str(path)]
-                subprocess.run(
-                    cmd,
-                    cwd=tdir,
-                    stdout=subprocess.PIPE,
-                    check=True,
-                )
+        with dath.open("w", encoding="utf-8") as dfo:
+            dfo.write("albums.fods\n\n")
 
-                created = Path(tdir) / f"{path.stem}.{ext}"
-                created.move(zath)
-            if exists:
-                with dath.open("w", encoding="utf-8") as fobj:
-                    fobj.write("albums.fods\n\n")
-                    fobj.flush()
+            exists = zath.is_file()
+            if changed or not exists:
+                print(f"{path} -> {zath}")
+                if exists:
+                    zath.copy(oath)
+                with tempfile.TemporaryDirectory() as tdir:
+                    cmd = [
+                        "soffice",
+                        "--headless", "--convert-to", ext,
+                        str(path),
+                    ]
+                    subprocess.run(
+                        cmd,
+                        cwd=tdir,
+                        stdout=subprocess.PIPE,
+                        check=True,
+                    )
+
+                    created = Path(tdir) / f"{path.stem}.{ext}"
+                    created.move(zath)
+                if exists:
+                    dfo.flush()
 
                     subprocess.run(
                         ["/usr/bin/env", "diff", "-sU0", str(oath), str(zath)],
-                        stdout=fobj,
+                        stdout=dfo,
                         check=False,
                         encoding="utf-8",
                     )
