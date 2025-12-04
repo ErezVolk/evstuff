@@ -60,6 +60,11 @@ def parse_cli() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
         "--convert-and-exit",
         action="store_true",
     )
+    parser.add_argument(
+        "-S",
+        "--shortest-new-guys",
+        action="store_true",
+    )
     args = parser.parse_args()
     return (parser, args)
 
@@ -146,23 +151,28 @@ def main() -> None:
             comment = f"one of {n_rows} " if n_rows > 1 else ""
             print(f"- ({comment}oldest released) {row_desc(row)}")
 
-        guys = whoms.query("heard == 0")
-        if len(stars := guys.query("total > 1")) > 0:
+        new_guys = whoms.query("heard == 0")
+        if len(stars := new_guys.query("total > 1")) > 0:
             starness = stars.total.max()
             star = stars[stars.total == starness].sample(1).index[0]
             works_with = unheard[unheard.Whom.str.contains(star, regex=False)]
             if len(works_with) > 0:
                 row = works_with.sample(1).iloc[0]
                 print(f"- ({starness}-popular new guy) {row_desc(row)}")
-        elif len(names := set(guys.index)) > 0:
-            works_with = albums[
+        elif len(names := set(new_guys.index)) > 0:
+            rows = albums[
                 albums.Whoms.apply(lambda ppl: len(set(ppl) & names) > 0)
             ]
-            rows = works_with[works_with.dt == works_with.dt.min()]
+            parts = ["new guy"]
+            if args.shortest_new_guys:
+                rows = rows[rows.dt == rows.dt.min()]
+                parts.insert(0, "shortest ")
             n_rows = len(rows)
+            if n_rows > 1:
+                parts.insert(0, f"one of {n_rows} ")
+                parts.append("s")
             row = rows.sample(1).iloc[0]
-            comment = f"one of {n_rows} " if n_rows > 1 else ""
-            print(f"- ({comment}shortest new guy) {row_desc(row)}")
+            print(f"- ({''.join(parts)}) {row_desc(row)}")
 
     relisten = albums[albums.How.astype("string").str.contains("relisten")]
     if len(relisten) > 0:
