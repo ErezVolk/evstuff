@@ -4,138 +4,165 @@ import argparse
 import hashlib
 import subprocess
 import tempfile
+import typing as t
 from pathlib import Path
 
 import pandas as pd  # type: ignore[import-not-found]
 
 
-def parse_cli() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
-    """Parse command-line arguments."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-i",
-        "--inputs",
-        type=Path,
-        nargs="+",
-        default=[
-            Path.home() / ".whoms.fods",
-            Path.home() / ".whoms.ods",
-            Path.home() / "Dropbox" / "Private" / "albums.ods",
-        ],
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        type=Path,
-        default="whoms.xlsx",
-    )
-    parser.add_argument(
-        "-N",
-        "--shortest-nth",
-        type=int,
-        default=2,
-    )
-    parser.add_argument(
-        "-n",
-        "--count",
-        type=int,
-        default=4,
-    )
-    parser.add_argument(
-        "-q",
-        "--query",
-    )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-    )
-    parser.add_argument(
-        "-w",
-        "--write",
-        action="store_true",
-    )
-    parser.add_argument(
-        "-C",
-        "--convert-and-exit",
-        action="store_true",
-    )
-    parser.add_argument(
-        "-S",
-        "--shortest-new-guys",
-        action="store_true",
-    )
-    args = parser.parse_args()
-    return (parser, args)
+class Whoms:
+    """Recommend an album."""
 
+    parser: argparse.ArgumentParser
+    args: argparse.Namespace
 
-def main() -> None:
-    """Figure out whom is whom."""
-    parser, args = parse_cli()
+    def parse_cli(self) -> None:
+        """Parse command-line arguments."""
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "-i",
+            "--inputs",
+            type=Path,
+            nargs="+",
+            default=[
+                Path.home() / ".whoms.fods",
+                Path.home() / ".whoms.ods",
+                Path.home() / "Dropbox" / "Private" / "albums.ods",
+            ],
+        )
+        parser.add_argument(
+            "-o",
+            "--output",
+            type=Path,
+            default="whoms.xlsx",
+        )
+        parser.add_argument(
+            "-N",
+            "--shortest-nth",
+            type=int,
+            default=2,
+        )
+        parser.add_argument(
+            "-n",
+            "--count",
+            type=int,
+            default=4,
+        )
+        parser.add_argument(
+            "-q",
+            "--query",
+        )
+        parser.add_argument(
+            "-v",
+            "--verbose",
+            action="store_true",
+        )
+        parser.add_argument(
+            "-w",
+            "--write",
+            action="store_true",
+        )
+        parser.add_argument(
+            "-C",
+            "--convert-and-exit",
+            action="store_true",
+        )
+        parser.add_argument(
+            "-S",
+            "--shortest-new-guys",
+            action="store_true",
+        )
+        self.args = parser.parse_args()
+        self.parser = parser
 
-    errors: list[str] = []
-    for path in args.inputs:
-        if path.is_file():
-            albums = do_read(path)
-            break
-        if path.is_symlink():
-            errors.append(f"Broken link: {path}...")
-        elif path.exists(follow_symlinks=False):
-            errors.append(f"Not a file: {path}...")
+    def fail(self, msg: str) -> t.Never:
+        """Fail because of the user."""
+        self.parser.error(msg)
+
+    def run(self) -> None:
+        """Figure out whom is whom."""
+        self.parse_cli()
+
+        errors: list[str] = []
+        for path in self.args.inputs:
+            if path.is_file():
+                albums = do_read(path)
+                break
+            if path.is_symlink():
+                errors.append(f"Broken link: {path}...")
+            elif path.exists(follow_symlinks=False):
+                errors.append(f"Not a file: {path}...")
+            else:
+                errors.append(f"No {path}...")
         else:
-            errors.append(f"No {path}...")
-    else:
-        for error in errors:
-            print(error)
-        parser.error("Please specify --inputs")
+            for error in errors:
+                print(error)
+            self.fail("Please specify --inputs")
 
-    if args.convert_and_exit:
-        return
+        if not self.args.convert_and_exit:
+            self.choose(albums)
 
-    albums["heard"] = albums.When.notna()
-    albums["Whom"] = albums.Whom.fillna("N/A")
-    albums["Whoms"] = albums.Whom.str.replace(
-        r"\s*[,&]\s*", "|", regex=True,
-    ).str.split("|")
+    def choose(self, albums: pd.DataFrame) -> None:
+        """Choose albums, print reports."""
+        albums["heard"] = albums.When.notna()
+        albums["Whom"] = albums.Whom.fillna("N/A")
+        albums["Whoms"] = albums.Whom.str.replace(
+            r"\s*[,&]\s*", "|", regex=True,
+        ).str.split("|")
 
-    whalbums = albums.explode("Whoms")
-    whoms = whalbums.Whoms.value_counts().to_frame("total")
-    whoms["heard"] = whalbums[whalbums.heard].Whoms.value_counts()
-    whoms["heard"] = whoms.heard.fillna(0).astype(int)
+        whalbums = albums.explode("Whoms")
+        whoms = whalbums.Whoms.value_counts().to_frame("total")
+        whoms["heard"] = whalbums[whalbums.heard].Whoms.value_counts()
+        whoms["heard"] = whoms.heard.fillna(0).astype(int)
 
-    hours = albums["dt"].apply(lambda dt: dt.hour + dt.minute / 60)
-    albums["minutes"] = hours * 60
-    albums["hours"] = hours
-    heards = [
-        f"{k_of_n(albums.heard)} albums",
-        f"{k_of_n(whoms.heard)} players",
-        f"{x_of_y(int(hours[albums.heard].sum()), int(hours.sum()))} hours",
-    ]
-    print("Heard", ", ".join(heards))
+        hours = albums["dt"].apply(lambda dt: dt.hour + dt.minute / 60)
+        albums["minutes"] = hours * 60
+        albums["hours"] = hours
+        hours_total = hours.sum()
+        hours_heard = hours[albums.heard].sum()
+        heards = [
+            f"{k_of_n(albums.heard)} albums",
+            f"{k_of_n(whoms.heard)} players",
+            f"{x_of_y(int(hours_heard), int(hours_total))} hours",
+        ]
+        print("Heard", ", ".join(heards))
 
-    whoms["cov"] = whoms.heard / whoms.total
-    if args.write:
-        whoms.to_excel(args.output)
-    if args.verbose:
-        print(whoms.iloc[:10])
-        print()
+        whoms["cov"] = whoms.heard / whoms.total
+        if self.args.write:
+            whoms.to_excel(self.args.output)
+        if self.args.verbose:
+            print(whoms.iloc[:10])
+            print()
 
-    unheard = albums.loc[albums.When.isna()]
-    if args.query:
-        try:
-            unheard = unheard.query(args.query)
-        except NameError as exc:
-            print("Bad query:", exc)
+        unheard = albums.loc[albums.When.isna()]
+        if self.args.query:
+            try:
+                unheard = unheard.query(self.args.query)
+            except NameError as exc:
+                print("Bad query:", exc)
+                return
+
+        self.choose_unheard(albums, unheard, whoms)
+        self.choose_heard(albums)
+
+    def choose_unheard(
+        self,
+        albums: pd.DataFrame,
+        unheard: pd.DataFrame,
+        whoms: pd.DataFrame,
+    ) -> None:
+        """Choose among the unheard albums."""
+        if len(unheard) == 0:
+            print("Time to find more music.")
             return
-    if len(unheard) == 0:
-        print("Time to find more music.")
-    else:
-        if args.shortest_nth:
-            n_shortest = max(len(unheard) // args.shortest_nth, 1)
+
+        if self.args.shortest_nth:
+            n_shortest = max(len(unheard) // self.args.shortest_nth, 1)
             shorts = unheard.sort_values("dt").iloc[:n_shortest]
         else:
             shorts = unheard
-        offer = shorts.sample(n=min(args.count, len(shorts))).sort_values("n")
+        sample_size = min(self.args.count, len(shorts))
+        offer = shorts.sample(n=sample_size).sort_values("n")
         print(f"Suggestions ({len(offer)} / {len(shorts)} / {len(unheard)}):")
         for _, row in offer.iterrows():
             print(f"- {row_desc(row)}")
@@ -164,7 +191,7 @@ def main() -> None:
                 albums.Whoms.apply(lambda ppl: len(set(ppl) & names) > 0)
             ]
             parts = ["new guy"]
-            if args.shortest_new_guys:
+            if self.args.shortest_new_guys:
                 rows = rows[rows.dt == rows.dt.min()]
                 parts.insert(0, "shortest ")
             n_rows = len(rows)
@@ -174,10 +201,12 @@ def main() -> None:
             row = rows.sample(1).iloc[0]
             print(f"- ({''.join(parts)}) {row_desc(row)}")
 
-    relisten = albums[albums.How.astype("string").str.contains("relisten")]
-    if len(relisten) > 0:
-        row = relisten.sample(1).iloc[0]
-        print(f"- (relisten) {row_desc(row)}")
+    def choose_heard(self, albums: pd.DataFrame) -> None:
+        """Choose things to relisten to."""
+        relisten = albums[albums.How.astype("string").str.contains("relisten")]
+        if len(relisten) > 0:
+            row = relisten.sample(1).iloc[0]
+            print(f"- (relisten) {row_desc(row)}")
 
 
 def do_read(path: Path) -> pd.DataFrame:
@@ -290,4 +319,4 @@ def one_of(names: str) -> str:
 
 
 if __name__ == "__main__":
-    main()
+    Whoms().run()
