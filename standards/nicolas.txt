@@ -1,3 +1,15 @@
+2025-12-04
+----------
+- Work on speed in full walking
+- Work in parts, a little beyond the comfortable (~220 BPM?)
+- For solo solo: Add anchors
+- Try and use tritone subs
+- Over a dominant chord, can use dim + flat 9?
+- That French book he's using, authors also make vids online
+  - Dericq & Guéreau: En Harmonie
+- His drill: Diminished scale
+
+
 2025-11-27
 ----------
 - 2-bar call-response
@@ -12,3 +24,4 @@
 - Work on Barry Harris' ii-V phrase
 - Work on creating a simple, clear, blues (e.g.) head
 - Study Cherokee and make a chorus on that, maybe only the A part
+
