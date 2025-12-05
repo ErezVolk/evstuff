@@ -10,6 +10,14 @@ from pathlib import Path
 import pandas as pd  # type: ignore[import-not-found]
 
 
+class Paths(t.NamedTuple):
+    """Paths in conversion."""
+
+    zath: Path
+    oath: Path
+    dath: Path
+
+
 class Whoms:
     """Recommend an album."""
 
@@ -63,6 +71,11 @@ class Whoms:
             action="store_true",
         )
         parser.add_argument(
+            "-c",
+            "--git-commit",
+            action="store_true",
+        )
+        parser.add_argument(
             "-C",
             "--convert-and-exit",
             action="store_true",
@@ -86,7 +99,7 @@ class Whoms:
         errors: list[str] = []
         for path in self.args.inputs:
             if path.is_file():
-                albums = do_read(path)
+                albums = self.do_read(path)
                 break
             if path.is_symlink():
                 errors.append(f"Broken link: {path}...")
@@ -208,36 +221,68 @@ class Whoms:
             row = relisten.sample(1).iloc[0]
             print(f"- (relisten) {row_desc(row)}")
 
+    def do_read(self, path: Path) -> pd.DataFrame:
+        """Actuall read a file."""
+        if path.suffix.lower() == ".fods":
+            path = self.deflatten(path)
+        return pd.read_excel(path)
 
-def do_read(path: Path) -> pd.DataFrame:
-    """Actuall read a file."""
-    if path.suffix.lower() == ".fods":
-        path = deflatten(path)
-    return pd.read_excel(path)
+    def deflatten(self, path: Path) -> Path:
+        """Convert flat ODS to ODS."""
+        while path.is_symlink():
+            path = path.parent / path.readlink()
+        path = path.absolute()
+        digest = file_digest(path)
 
+        math = path.with_name(f".auto-{path.stem}.fods")
+        hath = path.with_name(f".auto-{path.stem}.digest")
+        changed = read_digest(hath) != digest
+        csv = self.deflatten_ext(path, math, "csv", changed=changed)
+        with csv.dath.open("w", encoding="utf-8") as dfo:
+            dfo.write(path.name)
+            dfo.write("\n\n")
 
-def deflatten(path: Path) -> Path:
-    """Convert flat ODS to ODS."""
-    while path.is_symlink():
-        path = path.parent / path.readlink()
-    path = path.absolute()
-    digest = file_digest(path)
+            if csv.oath.is_file():
+                dfo.flush()
 
-    math = path.with_name(f".auto-{path.stem}.fods")
-    hath = path.with_name(f".auto-{path.stem}.digest")
-    changed = read_digest(hath) != digest
-    for ext in "csv", "ods":  # .ods must come last, b/c we return it
+                cmd = [
+                    "diff",
+                    "-L before",
+                    "-L after",
+                    "-s", "-U0",
+                    str(csv.oath), str(csv.zath),
+                ]
+                subprocess.run(cmd, stdout=dfo, check=False, encoding="utf-8")
+
+        ods = self.deflatten_ext(path, math, "ods", changed=changed)
+        if changed:
+            with hath.open("w", encoding="utf-8") as fobj:
+                fobj.write(digest)
+            if self.args.git_commit:
+                cmd = ["git", "commit", path.name, "-F", csv.dath.name]
+                print(">", " ".join(cmd))
+                subprocess.run(cmd, cwd=path.parent, check=True)
+
+        return ods.zath
+
+    def deflatten_ext(
+        self,
+        path: Path,
+        math: Path,
+        ext: str,
+        *,
+        changed: bool,
+    ) -> Paths:
+        """Deflatten one file."""
         zath = math.with_suffix(f".{ext}")
         oath = math.with_suffix(f".prev.{ext}")
         dath = math.with_suffix(f".diff.{ext}")
-        with dath.open("w", encoding="utf-8") as dfo:
-            dfo.write("albums.fods\n\n")
 
-            exists = zath.is_file()
-            if changed or not exists:
-                print(f"{path} -> {zath}")
-                if exists:
-                    zath.copy(oath)
+        exists = zath.is_file()
+        if changed or not exists:
+            print(f"{path} -> {zath}")
+            if exists:
+                zath.copy(oath)
                 with tempfile.TemporaryDirectory() as tdir:
                     cmd = [
                         "soffice",
@@ -245,33 +290,12 @@ def deflatten(path: Path) -> Path:
                         str(path),
                     ]
                     subprocess.run(
-                        cmd,
-                        cwd=tdir,
-                        stdout=subprocess.PIPE,
-                        check=True,
+                        cmd, cwd=tdir, stdout=subprocess.PIPE, check=True,
                     )
 
                     created = Path(tdir) / f"{path.stem}.{ext}"
                     created.move(zath)
-                if exists:
-                    dfo.flush()
-
-                    subprocess.run(
-                        [
-                            "/usr/bin/env", "diff",
-                            "-L before",
-                            "-L after",
-                            "-s", "-U0",
-                            str(oath), str(zath),
-                        ],
-                        stdout=dfo,
-                        check=False,
-                        encoding="utf-8",
-                    )
-    if changed:
-        with hath.open("w", encoding="utf-8") as fobj:
-            fobj.write(digest)
-    return zath
+        return Paths(oath=oath, zath=zath, dath=dath)
 
 
 def file_digest(path: Path) -> str:
