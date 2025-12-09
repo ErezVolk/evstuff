@@ -70,9 +70,15 @@ class Whoms:
             "--write",
             action="store_true",
         )
-        parser.add_argument(
-            "-c",
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "-g",
             "--git-commit",
+            action="store_true",
+        )
+        group.add_argument(
+            "-G",
+            "--git-commit-interactive",
             action="store_true",
         )
         parser.add_argument(
@@ -258,8 +264,9 @@ class Whoms:
         if changed:
             with hath.open("w", encoding="utf-8") as fobj:
                 fobj.write(digest)
-            if self.args.git_commit:
-                cmd = ["git", "commit", path.name, "-F", csv.dath.name]
+            if self.args.git_commit or self.args.git_commit_interactive:
+                flag = "-F" if self.args.git_commit else "-t"
+                cmd = ["git", "commit", path.name, flag, csv.dath.name]
                 print(">", " ".join(cmd))
                 subprocess.run(cmd, cwd=path.parent, check=True)
 
