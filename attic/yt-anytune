@@ -9,7 +9,7 @@ cleanup() {
 trap cleanup EXIT
 
 for i in "$@"; do
-	yt-dlp --extract-audio --audio-format mp3 --embed-metadata "$i"
+	yt-dlp --extract-audio --audio-format mp3 --embed-metadata --no-playlist "$i"
 done
 
 bold=$(tput bold)
