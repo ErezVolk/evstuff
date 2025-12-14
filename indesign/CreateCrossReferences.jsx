@@ -276,8 +276,8 @@ function cr_do_valign(cr, substr, justification) {
       continue;
     }
 
-    for (var i = 0; i < paras.length; ++ i) {
-      var frame = paras[i].parentTextFrames[0];
+    for (var j = 0; j < paras.length; ++ j) {
+      var frame = paras[j].parentTextFrames[0];
       frame.textFramePreferences.verticalJustification = justification;
       count ++;
     }
@@ -298,11 +298,16 @@ function cr_do_sections(cr) {
       continue;
     }
 
-    for (var i = 0; i < paras.length; ++ i) {
-      var frame = paras[i].parentTextFrames[0];
+    var sections = cr.doc.sections;
+    for (var j = 0; j < paras.length; ++ j) {
+      var frame = paras[j].parentTextFrames[0];
       var page = frame.parentPage;
-      cr.doc.sections.add(page);
-      count ++;
+      try {
+        sections.add(page);
+        count ++;
+      } catch(err) {
+        // Ignore
+      }
     }
   }
 
