@@ -23,6 +23,8 @@ function cr_run(cr) {
 
     cr_do_valigns(cr);
 
+    cr_do_sections(cr);
+
     //cr_do_stars(cr);
 
     cr_do_export(cr);
@@ -282,6 +284,31 @@ function cr_do_valign(cr, substr, justification) {
   }
 
   return count;
+}
+
+function cr_do_sections(cr) {
+  var count = 0;
+
+  for (var i = 0; i < cr.docs.length; ++ i) {
+    cr.doc = cr.docs[i];
+
+    paras = cr_doc_get_all_paras_with_styles_containing(cr, "@Section@");
+
+    if (paras.length == 0) {
+      continue;
+    }
+
+    for (var i = 0; i < paras.length; ++ i) {
+      var frame = paras[i].parentTextFrames[0];
+      var page = frame.parentPage;
+      cr.doc.sections.add(page);
+      count ++;
+    }
+  }
+
+  if (count > 0) {
+    cr_log(cr, "Created " + count + " section(s).");
+  }
 }
 
 /*
