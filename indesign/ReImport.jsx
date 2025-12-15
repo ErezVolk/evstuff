@@ -69,6 +69,7 @@ function ri_run(ri) {
     ri_groom_fully_justify(ri);
     ri_groom_resize_tables(ri);
     ri_groom_fix_masters(ri);
+    ri_groom_special_styles(ri);
     ri_groom_update_toc(ri);
     ri_stop_subcounter(ri, "Grooming");
   }
@@ -1048,9 +1049,13 @@ function ri_post_special_styles(ri) {
   riss_do_mirrors(ri);
 
   riss_do_continuations(ri);
+}
+
+function ri_groom_special_styles(ri) {
+  if (!ri.ui_post_special_styles.checkedState)
+    return;
 
   riss_do_valigns(ri);
-
   riss_do_sections(ri);
 }
 
