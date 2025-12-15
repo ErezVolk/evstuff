@@ -163,7 +163,7 @@ function cr_doc_style_redo_sources(cr, style) {
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
     var contents = text.contents;
-    if (contents[0] != "=") {
+    if (contents[0] != "=" && contents[0] != "@") {
       cr_log(cr, "Ignoring malformed source: \"" + contents + "\"");
       continue;
     }
@@ -298,12 +298,16 @@ function cr_do_sections(cr) {
       continue;
     }
 
-    var sections = cr.doc.sections;
+    try {
+      cr.doc.sections.itemsByRange(1, -1).remove();
+    } catch(err) {
+      // Ignore
+    }
     for (var j = 0; j < paras.length; ++ j) {
       var frame = paras[j].parentTextFrames[0];
       var page = frame.parentPage;
       try {
-        sections.add(page);
+        cr.doc.sections.add(page);
         count ++;
       } catch(err) {
         // Ignore
