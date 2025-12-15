@@ -1081,21 +1081,12 @@ function riss_remove_destinations(ri) {
 
 function riss_create_destinations(ri) {
   var added = 0;
-  for (var i = 0; i < ri.doc.characterStyles.length; ++ i)
-    added = added + riss_style_do_destinations(ri, ri.doc.characterStyles[i]);
-  if (added > 0)
-    ri_log(ri, "Added " + added + " destination(s)");
-}
 
-function riss_style_do_destinations(ri, style) {
-  if (style.name.indexOf("@Destination@") < 0)
-    return 0;
-
-  var added = 0;
   app.findGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = ".+"; // i.e., no newlines
-  app.findGrepPreferences.appliedCharacterStyle = style;
-  hits = ri.doc.findGrep();
+  var hits = ri_get_all_texts_with_styles_containing(ri, "@Destination@");
+  app.findGrepPreferences = NothingEnum.nothing;
+
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
     var name = normalize_name(text.contents);
@@ -1108,8 +1099,9 @@ function riss_style_do_destinations(ri, style) {
       added = added + 1;
     }
   }
-  app.findGrepPreferences = NothingEnum.nothing;
-  return added;
+
+  if (added > 0)
+    ri_log(ri, "Added " + added + " destination(s)");
 }
 
 function normalize_name(name) {
@@ -1143,22 +1135,13 @@ function riss_redo_sources(ri) {
     ri.source_style.buildingBlocks.add(BuildingBlockTypes.PAGE_NUMBER_BUILDING_BLOCK);
   }
 
-  var added = 0;
-  for (var i = 0; i < ri.doc.characterStyles.length; ++ i)
-    added = added + riss_style_redo_sources(ri, ri.doc.characterStyles[i]);
-  if (added > 0)
-    ri_log(ri, "Added " + added + " source(s)");
-}
-
-function riss_style_redo_sources(ri, style) {
-  if (style.name.indexOf("@Source@") < 0)
-    return 0;
-
-  var added = 0;
   app.findGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = ".+"; // i.e., no newlines
-  app.findGrepPreferences.appliedCharacterStyle = style;
-  hits = ri.doc.findGrep();
+  hits = ri_get_all_texts_with_styles_containing(ri, "@Source@");
+  app.findGrepPreferences = NothingEnum.nothing;
+
+  var added = 0;
+  var styles = ri.doc.allCharacterStyles;
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
     var contents = text.contents;
@@ -1179,30 +1162,21 @@ function riss_style_redo_sources(ri, style) {
     ri_unlog(ri);
     added = added + 1;
   }
-  app.findGrepPreferences = NothingEnum.nothing;
-  return added;
+  if (added > 0)
+    ri_log(ri, "Added " + added + " source(s)");
 }
 
 function riss_do_mirrors(ri) {
   var count = 0;
 
   app.findTextPreferences = NothingEnum.nothing;
-
-  for (var j = 0; j < ri.doc.characterStyles.length; ++ j) {
-    var style = ri.doc.characterStyles[j];
-    if (style.name.indexOf("@Reversed@") < 0) {
-      continue;
-    }
-
-    app.findTextPreferences.appliedCharacterStyle = style;
-    var hits = app.findText();
-    for (var k = 0; k < hits.length; ++ k) {
-      hits[k].createOutlines()[0].flipItem(Flip.HORIZONTAL);
-      count ++;
-    }
-  }
-
+  hits = ri_get_all_texts_with_styles_containing(ri, "@Reversed@");
   app.findTextPreferences = NothingEnum.nothing;
+
+  for (var i = 0; i < hits.length; ++ i) {
+    hits[i].createOutlines()[0].flipItem(Flip.HORIZONTAL);
+    count ++;
+  }
 
   if (count > 0) {
     ri_log(ri, "Flipped " + count + " spans.");
@@ -1316,7 +1290,6 @@ function ri_get_all_paras_with_styles_containing(ri, substr) {
 
     app.findGrepPreferences.appliedParagraphStyle = style;
     var hits = ri.doc.findGrep();
-    var idxs = Array(hits.length);
     for (var k = 0; k < hits.length; ++ k) {
       paras.push(hits[k].paragraphs[0]);
     }
@@ -1329,6 +1302,28 @@ function ri_get_all_paras_with_styles_containing(ri, substr) {
 
   return paras;
 }
+
+// Uses any fields currently in app.findGrepPreferences
+function ri_get_all_texts_with_styles_containing(ri, substr) {
+  texts = [];
+
+  var styles = ri.doc.allCharacterStyles;
+  for (var j = 0; j < styles.length; ++ j) {
+    var style = styles[j];
+    if (style.name.indexOf(substr) < 0) {
+      continue;
+    }
+
+    app.findGrepPreferences.appliedCharacterStyle = style;
+    var hits = ri.doc.findGrep();
+    for (var k = 0; k < hits.length; ++ k) {
+      texts.push(hits[k]);
+    }
+  }
+
+  return texts;
+}
+
 
 
 ri_main();
