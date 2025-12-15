@@ -417,7 +417,7 @@ function ri_do_import(ri) {
   obj["c_master"] = ri.c_master_name;
   obj["dont_import_images"] = !ri.ui_import_images.checkedState;
   obj["dont_shrink_tables"] = !ri.ui_groom_resize_tables.checkedState;
-  obj["handle_special_styles"] = !ri.ui_post_special_styles.checkedState;
+  obj["handle_special_styles"] = ri.ui_post_special_styles.checkedState;
   obj["hide_import_options"] = !ri.ui_import_options.checkedState;
   obj["keep_grep"] = !ri.ui_disable_grep.checkedState;
   obj["keep_reflow"] = !ri.ui_disable_reflow.checkedState;
