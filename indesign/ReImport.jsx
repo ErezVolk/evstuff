@@ -59,6 +59,7 @@ function ri_run(ri) {
     ri_post_fix_dashes(ri);
     ri_post_remove_footnote_whitespace(ri);
     ri_post_convert_post_its(ri);
+    ri_post_special_styles(ri);
     ri_reset_searches(ri);
     ri_stop_subcounter(ri, "Post-Import");
   }
@@ -66,7 +67,6 @@ function ri_run(ri) {
   if (ri.uig_groom.checkedState) {
     ri_start_subcounter(ri);
     ri_groom_fully_justify(ri);
-    ri_restore_reflow(ri);
     ri_groom_resize_tables(ri);
     ri_groom_fix_masters(ri);
     ri_groom_update_toc(ri);
@@ -95,7 +95,15 @@ function ri_stop_subcounter(ri, name) {
   end_ms = new Date().valueOf();
   elapsed = (end_ms - ri.substart_ms) / 1000.0;
 
-  ri.messages.push(name + ": took " + String(elapsed) + " Sec.");
+  ri_log(ri, name + ": took " + String(elapsed) + " Sec.");
+}
+
+function ri_log(ri, msg) {
+  ri.messages.push(msg);
+}
+
+function ri_unlog(ri) {
+  ri.messages.pop();
 }
 
 function ri_analyze(ri) {
@@ -122,7 +130,7 @@ function ri_analyze(ri) {
            ri.saved_settings = obj;
         }
       } catch (e) {
-        ri.messages.push('Could not read settings: ' + e);
+        ri_log(ri, 'Could not read settings: ' + e);
       }
     }
   }
@@ -217,6 +225,11 @@ function ri_get_options(ri) {
             checkboxControls.add({
               staticLabel: "(If Tagged Text) Convert comments",
               checkedState: !ri.saved_settings.unconvert_post_its,
+            });
+          ri.ui_post_special_styles =
+            checkboxControls.add({
+              staticLabel: "Handle special (@) styles",
+              checkedState: !!ri.saved_settings.handle_special_styles,
             });
         }
       }
@@ -373,21 +386,21 @@ function ri_do_import(ri) {
       mtime = File(rerunner).modified;
       if (mtime) {
         cmd = 'do shell script "' + rerunner + '"';
-        ri.messages.push(cmd);
+        ri_log(ri, cmd);
         app.doScript(cmd, ScriptLanguage.APPLESCRIPT_LANGUAGE);
         for (var n = 0; n < 50 && File(rerunner).modified.getTime() == mtime.getTime(); ++ n)
           $.sleep(100);
       }
-      ri.messages.pop();
+      ri_unlog(ri);
     } catch (e) {
-      ri.messages.push('Could not rerun: ' + e);
+      ri_log(ri, 'Could not rerun: ' + e);
     }
   }
 
   try {
     frame.place(ri.importee, ri.ui_import_options.checkedState);
   } catch (e) {
-    ri.messages.push('Could not import document: ' + e);
+    ri_log(ri, 'Could not import document: ' + e);
   }
 
   if (!ri.var_settings)
@@ -403,6 +416,7 @@ function ri_do_import(ri) {
   obj["c_master"] = ri.c_master_name;
   obj["dont_import_images"] = !ri.ui_import_images.checkedState;
   obj["dont_shrink_tables"] = !ri.ui_groom_resize_tables.checkedState;
+  obj["handle_special_styles"] = !ri.ui_post_special_styles.checkedState;
   obj["hide_import_options"] = !ri.ui_import_options.checkedState;
   obj["keep_grep"] = !ri.ui_disable_grep.checkedState;
   obj["keep_reflow"] = !ri.ui_disable_reflow.checkedState;
@@ -454,7 +468,7 @@ function ri_do_images(ri) {
     try {
       ri.doc.place(path);
     } catch(e) {
-      ri.messages.push('Could not import image ' + path + ': ' + e);
+      ri_log(ri, 'Could not import image ' + path + ': ' + e);
     }
   }
 
@@ -712,14 +726,14 @@ function ri_groom_fully_justify(ri) {
   prefs.horizontalMeasurementUnits = oldUnits;
 
   if (ri.num_considered) {
-    ri.messages.push(
+    ri_log(ri, 
       String(ri.num_considered) + ' of ' +
       String(paragraphs.count()) + ' paragraph(s) ' +
       ' considered for justification adjustment.'
     );
   }
   if (ri.num_adjustified) {
-    ri.messages.push(String(ri.num_adjustified) + ' changed.');
+    ri_log(ri, String(ri.num_adjustified) + ' changed.');
   }
 }
 
@@ -1023,5 +1037,293 @@ function ri_main_frame(ri, page) {
   }
   return frames[0];
 }
+
+function ri_post_special_styles(ri) {
+  if (!ri.ui_post_special_styles.checkedState)
+    return;
+
+  riss_do_destinations(ri);
+  riss_do_sources(ri);
+
+  riss_do_mirrors(ri);
+
+  riss_do_continuations(ri);
+
+  riss_do_valigns(ri);
+
+  riss_do_sections(ri);
+}
+
+function riss_do_destinations(ri) {
+  ri.destinations = {};
+  riss_remove_destinations(ri);
+  riss_create_destinations(ri);
+}
+
+function riss_remove_destinations(ri) {
+  var removed = 0;
+  var destinations = ri.doc.hyperlinkTextDestinations;
+  for (var i = destinations.length - 1; i >= 0; -- i) {
+    var destination = destinations[i];
+    if (destination.label == "cxr") {
+      destination.remove()
+      removed = removed + 1;
+    }
+  }
+  if (removed > 0)
+    ri_log(ri, "Removed " + removed + " destination(s)");
+}
+
+function riss_create_destinations(ri) {
+  var added = 0;
+  for (var i = 0; i < ri.doc.characterStyles.length; ++ i)
+    added = added + riss_style_do_destinations(ri, ri.doc.characterStyles[i]);
+  if (added > 0)
+    ri_log(ri, "Added " + added + " destination(s)");
+}
+
+function riss_style_do_destinations(ri, style) {
+  if (style.name.indexOf("@Destination@") < 0)
+    return 0;
+
+  var added = 0;
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.findGrepPreferences.findWhat = ".+"; // i.e., no newlines
+  app.findGrepPreferences.appliedCharacterStyle = style;
+  hits = ri.doc.findGrep();
+  for (var i = 0; i < hits.length; ++ i) {
+    var text = hits[i];
+    var name = normalize_name(text.contents);
+    if (ri.destinations.hasOwnProperty(name)) {
+      ri_log(ri, "Ignoring duplicate: \"" + name + "\" is " + ri.destinations[name].toSource());
+    } else {
+      ri_log(ri, "Creating destination \"" + name + "\"");
+      ri.destinations[name] = ri.doc.hyperlinkTextDestinations.add(text, {label: "cxr"})
+      ri_unlog(ri);
+      added = added + 1;
+    }
+  }
+  app.findGrepPreferences = NothingEnum.nothing;
+  return added;
+}
+
+function normalize_name(name) {
+  return name.replace(RegExp("\u200c*\uFB4B\u200c*", "g"), "\u05D5\u05B9");
+}
+
+function riss_do_sources(ri) {
+  riss_undo_sources(ri);
+  riss_redo_sources(ri);
+}
+
+function riss_undo_sources(ri) {
+  var sources = ri.doc.crossReferenceSources;
+  var removed = 0;
+  for (var i = sources.length - 1; i >= 0; -- i) {
+    var source = sources[i];
+    if (source.label.substr(0, 4) == "cxr:") {
+      source.sourceText.contents = source.label.substr(4);
+      source.remove();
+      removed = removed + 1;
+    }
+  }
+  if (removed > 0)
+    ri_log(ri, "Undid " + removed + " source(s)");
+}
+
+function riss_redo_sources(ri) {
+  ri.source_style = ri.doc.crossReferenceFormats.itemByName("Bare Page Number");
+  if (!ri.source_style.isValid) {
+    ri.source_style = ri.doc.crossReferenceSources.add("Bare Page Number");
+    ri.source_style.buildingBlocks.add(BuildingBlockTypes.PAGE_NUMBER_BUILDING_BLOCK);
+  }
+
+  var added = 0;
+  for (var i = 0; i < ri.doc.characterStyles.length; ++ i)
+    added = added + riss_style_redo_sources(ri, ri.doc.characterStyles[i]);
+  if (added > 0)
+    ri_log(ri, "Added " + added + " source(s)");
+}
+
+function riss_style_redo_sources(ri, style) {
+  if (style.name.indexOf("@Source@") < 0)
+    return 0;
+
+  var added = 0;
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.findGrepPreferences.findWhat = ".+"; // i.e., no newlines
+  app.findGrepPreferences.appliedCharacterStyle = style;
+  hits = ri.doc.findGrep();
+  for (var i = 0; i < hits.length; ++ i) {
+    var text = hits[i];
+    var contents = text.contents;
+    if (contents[0] != "=" && contents[0] != "@") {
+      ri_log(ri, "Ignoring malformed source: \"" + contents + "\"");
+      continue;
+    }
+
+    var name = normalize_name(contents.substring(1));
+    if (!ri.destinations.hasOwnProperty(name)) {
+      ri_log(ri, "Ignoring unknown destination: \"" + name + "\"");
+      continue;
+    }
+
+    ri_log(ri, "Creating source \"" + name + "\"");
+    source = ri.doc.crossReferenceSources.add(text, ri.source_style, {label: "cxr:" + contents})
+    ri.doc.hyperlinks.add(source, ri.destinations[name], {label: "cxr"});
+    ri_unlog(ri);
+    added = added + 1;
+  }
+  app.findGrepPreferences = NothingEnum.nothing;
+  return added;
+}
+
+function riss_do_mirrors(ri) {
+  var count = 0;
+
+  app.findTextPreferences = NothingEnum.nothing;
+
+  for (var j = 0; j < ri.doc.characterStyles.length; ++ j) {
+    var style = ri.doc.characterStyles[j];
+    if (style.name.indexOf("@Reversed@") < 0) {
+      continue;
+    }
+
+    app.findTextPreferences.appliedCharacterStyle = style;
+    var hits = app.findText();
+    for (var k = 0; k < hits.length; ++ k) {
+      hits[k].createOutlines()[0].flipItem(Flip.HORIZONTAL);
+      count ++;
+    }
+  }
+
+  app.findTextPreferences = NothingEnum.nothing;
+
+  if (count > 0) {
+    ri_log(ri, "Flipped " + count + " spans.");
+  }
+}
+
+function riss_do_continuations(ri) {
+  var count = 0;
+
+  paras = ri_get_all_paras_with_styles_containing(ri, "@Continuation@");
+
+  if (paras.length == 0)
+    return;
+
+  // Now fix them
+  var prefs = ri.doc.viewPreferences;
+  var oldUnits = prefs.horizontalMeasurementUnits;
+  prefs.horizontalMeasurementUnits = MeasurementUnits.points;
+
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.findGrepPreferences.findWhat = "^\\s*";
+  app.changeGrepPreferences = NothingEnum.nothing;
+  app.changeGrepPreferences.changeTo = "";
+
+  for (var i = 0; i < paras.length; ++ i) {
+    var currPara = paras[i];
+    var prevChar = currPara.parent.characters.item(currPara.index - 2);
+
+    currPara.changeGrep();
+
+    currPara.firstLineIndent = 0;
+    currPara.firstLineIndent = Math.abs(prevChar.endHorizontalOffset - currPara.horizontalOffset);
+  }
+
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.changeGrepPreferences = NothingEnum.nothing;
+
+  prefs.horizontalMeasurementUnits = oldUnits;
+
+  count += paras.length;
+
+  if (count > 0) {
+    ri_log(ri, "Fixed " + count + " continuation paragraph(s).");
+  }
+}
+
+function riss_do_valigns(ri) {
+  var count = 0;
+  count += riss_do_valign(ri, "@VBottom@", VerticalJustification.BOTTOM_ALIGN);
+  count += riss_do_valign(ri, "@VCenter@", VerticalJustification.CENTER_ALIGN);
+  if (count > 0) {
+    ri_log(ri, "Vertically aligned " + count + " text frame(s).");
+  }
+}
+
+function riss_do_valign(ri, substr, justification) {
+  var count = 0;
+
+  paras = ri_get_all_paras_with_styles_containing(ri, substr);
+
+  for (var j = 0; j < paras.length; ++ j) {
+    var frame = paras[j].parentTextFrames[0];
+    frame.textFramePreferences.verticalJustification = justification;
+    count ++;
+  }
+
+  return count;
+}
+
+function riss_do_sections(ri) {
+  var count = 0;
+
+  paras = ri_get_all_paras_with_styles_containing(ri, "@Section@");
+
+  if (paras.length == 0) {
+    return 0;
+  }
+
+  try {
+    ri.doc.sections.itemsByRange(1, -1).remove();
+  } catch(err) {
+    // Ignore
+  }
+  for (var j = 0; j < paras.length; ++ j) {
+    var frame = paras[j].parentTextFrames[0];
+    var page = frame.parentPage;
+    try {
+      ri.doc.sections.add(page);
+      count ++;
+    } catch(err) {
+      // Ignore
+    }
+  }
+
+  if (count > 0) {
+    ri_log(ri, "Created " + count + " section(s).");
+  }
+}
+
+function ri_get_all_paras_with_styles_containing(ri, substr) {
+  paras = [];
+
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.findGrepPreferences.findWhat = "^";
+  var styles = ri.doc.allParagraphStyles;
+  for (var j = 0; j < styles.length; ++ j) {
+    var style = styles[j];
+    if (style.name.indexOf(substr) < 0) {
+      continue;
+    }
+
+    app.findGrepPreferences.appliedParagraphStyle = style;
+    var hits = ri.doc.findGrep();
+    var idxs = Array(hits.length);
+    for (var k = 0; k < hits.length; ++ k) {
+      paras.push(hits[k].paragraphs[0]);
+    }
+  }
+
+  if (paras.length > 0) {
+    paras.sort(function(px, py){ var x = px.index; var y = py.index; return x < y ? -1 : x == y ? 0 : 1 });
+  }
+  app.findGrepPreferences = NothingEnum.nothing;
+
+  return paras;
+}
+
 
 ri_main();
