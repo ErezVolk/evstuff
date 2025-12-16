@@ -156,6 +156,7 @@ class Whoms:
         unheard = albums.loc[albums.When.isna()]
         if self.args.query:
             try:
+                albums = albums.query(self.args.query)
                 unheard = unheard.query(self.args.query)
             except NameError as exc:
                 print("Bad query:", exc)
