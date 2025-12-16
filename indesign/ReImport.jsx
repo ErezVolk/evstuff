@@ -58,6 +58,7 @@ function ri_run(ri) {
     ri_post_fix_specific_fonts(ri);
     ri_post_fix_dashes(ri);
     ri_post_remove_footnote_whitespace(ri);
+    ri_post_convert_newlines(ri);
     ri_post_convert_post_its(ri);
     ri_post_special_styles(ri);
     ri_reset_searches(ri);
@@ -226,6 +227,11 @@ function ri_get_options(ri) {
             checkboxControls.add({
               staticLabel: "(If Tagged Text) Convert comments",
               checkedState: !ri.saved_settings.unconvert_post_its,
+            });
+          ri.ui_post_convert_newlines =
+            checkboxControls.add({
+              staticLabel: "(If Tagged Text) Convert U+2028 to newline",
+              checkedState: !ri.saved_settings.unconvert_newlines,
             });
           ri.ui_post_special_styles =
             checkboxControls.add({
@@ -423,6 +429,7 @@ function ri_do_import(ri) {
   obj["keep_reflow"] = !ri.ui_disable_reflow.checkedState;
   obj["not_pre_clear"] = !ri.ui_pre_clear.checkedState;
   obj["not_pre_remaster"] = !ri.ui_pre_remaster.checkedState;
+  obj["unconvert_newlines"] = !ri.ui_post_convert_newlines.checkedState;
   obj["unconvert_post_its"] = !ri.ui_post_convert_post_its.checkedState;
   obj["unfix_justification"] = !ri.ui_groom_fully_justify.checkedState;
   obj["unfix_masters"] = !ri.ui_groom_fix_masters.checkedState;
@@ -554,6 +561,13 @@ function ri_post_remove_footnote_whitespace(ri) {
       .changeGrep();
   } catch (e) {
   }
+}
+
+function ri_post_convert_newlines(ri) {
+  if (!ri.ui_post_convert_newlines.checkedState)
+    return;
+
+  ri_change_grep(ri, "\\x{2028}", "\\n")
 }
 
 function ri_post_convert_post_its(ri) {
