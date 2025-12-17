@@ -78,8 +78,9 @@ class Whoms:
         )
         group.add_argument(
             "-G",
-            "--git-commit-interactive",
+            "--git-push",
             action="store_true",
+            help="Do --git-commit, followed by git push",
         )
         parser.add_argument(
             "-C",
@@ -265,11 +266,15 @@ class Whoms:
         if changed:
             with hath.open("w", encoding="utf-8") as fobj:
                 fobj.write(digest)
-            if self.args.git_commit or self.args.git_commit_interactive:
+            if self.args.git_commit or self.args.git_push:
                 flag = "-F" if self.args.git_commit else "-t"
                 cmd = ["git", "commit", path.name, flag, csv.dath.name]
                 print(">", " ".join(cmd))
                 subprocess.run(cmd, cwd=path.parent, check=True)
+                if self.args.git_push:
+                    cmd = ["git", "push"]
+                    print(">", " ".join(cmd))
+                    subprocess.run(cmd, cwd=path.parent, check=True)
 
         return ods.zath
 
