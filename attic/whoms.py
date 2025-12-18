@@ -99,7 +99,7 @@ class Whoms:
         """Fail because of the user."""
         self.parser.error(msg)
 
-    def run(self) -> None:
+    def main(self) -> None:
         """Figure out whom is whom."""
         self.parse_cli()
 
@@ -260,7 +260,7 @@ class Whoms:
                     "-s", "-U0",
                     str(csv.oath), str(csv.zath),
                 ]
-                subprocess.run(cmd, stdout=dfo, check=False, encoding="utf-8")
+                self.run(cmd, stdout=dfo, check=False, encoding="utf-8")
 
         ods = self.deflatten_ext(path, math, "ods", changed=changed)
         if changed:
@@ -270,11 +270,11 @@ class Whoms:
                 flag = "-F" if self.args.git_commit else "-t"
                 cmd = ["git", "commit", path.name, flag, csv.dath.name]
                 print(">", " ".join(cmd))
-                subprocess.run(cmd, cwd=path.parent, check=True)
+                self.run(cmd, cwd=path.parent)
                 if self.args.git_push:
                     cmd = ["git", "push"]
                     print(">", " ".join(cmd))
-                    subprocess.run(cmd, cwd=path.parent, check=True)
+                    self.run(cmd, cwd=path.parent)
 
         return ods.zath
 
@@ -302,13 +302,32 @@ class Whoms:
                         "--headless", "--convert-to", ext,
                         str(path),
                     ]
-                    subprocess.run(
-                        cmd, cwd=tdir, stdout=subprocess.PIPE, check=True,
-                    )
+                    self.run(cmd, cwd=tdir, stdout=subprocess.PIPE)
 
                     created = Path(tdir) / f"{path.stem}.{ext}"
                     created.move(zath)
         return Paths(oath=oath, zath=zath, dath=dath)
+
+    def run(
+        self,
+        args: str[list],
+        *,
+        check: bool = True,
+        encoding: str | None = None,
+        stdout: t.IO | None = None,
+        cwd: str | Path | None = None,
+    ) -> subprocess.CompletedProcess:
+        """Run the command described by args.
+
+        Wraps `subprocess.run()`.
+        """
+        return subprocess.run(
+            args,
+            stdout=stdout,
+            check=check,
+            encoding=encoding,
+            cwd=cwd,
+        )
 
 
 def file_digest(path: Path) -> str:
@@ -356,4 +375,4 @@ def one_of(names: str) -> str:
 
 
 if __name__ == "__main__":
-    Whoms().run()
+    Whoms().main()
