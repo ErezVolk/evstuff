@@ -1234,10 +1234,16 @@ function riss_do_continuations(ri) {
 
     currPara.firstLineIndent = 0;
     try {
-      currPara.firstLineIndent = Math.abs(prevChar.endHorizontalOffset - currPara.horizontalOffset);
+      var oldOffset = currPara.horizontalOffset;
+      var refOffset = prevChar.endHorizontalOffset;
+      var newIndent = Math.abs(refOffset - oldOffset);
+      currPara.firstLineIndent = newIndent;
       count += 1;
     } catch(err) {
-      ri_log(ri, "Error fixing: " + currPara);
+      ri_log(
+        ri, "Error in line " + err.line + " fixing \"" + currPara.contents + "\" with style \"" + currPara.appliedParagraphStyle.name + "\":" + err.description
+      );
+      currPara.clearOverrides();
     }
   }
 
@@ -1266,8 +1272,14 @@ function riss_do_valign(ri, substr, justification) {
   paras = ri_get_all_paras_with_styles_containing(ri, substr);
 
   for (var j = 0; j < paras.length; ++ j) {
-    var frame = paras[j].parentTextFrames[0];
-    frame.textFramePreferences.verticalJustification = justification;
+    var para = paras[j];
+    var frame = para.parentTextFrames[0];
+    try {
+      var prefs = frame.textFramePreferences;
+      prefs.verticalJustification = justification;
+    } catch (err) {
+      ri_log(ri, "Cannot set paragraph \"" + para.contents + "\+ with style \"" + para.appliedParagraphStyle.name + "\" in frame " + frame + " to " + justification + ": " + err);
+    }
     count ++;
   }
 
