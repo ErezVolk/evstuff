@@ -916,7 +916,13 @@ function ri_set_b_master(ri, start_paragraph, check_prev) {
   app.findTextPreferences.startParagraph = start_paragraph;
   var pars = ri.doc.findText();
   for (var i = 0; i < pars.length; ++ i) {
-    var page = pars[i].parentTextFrames[0].parentPage;
+    try {
+      var page = pars[i].parentTextFrames[0].parentPage;
+      break;
+    } catch(err) {
+      ri_log(ri, "Cannot get page object, check Smart Text Reflow");
+
+    }
     var pageIndex = page.documentOffset;
     if (pageIndex == 0) {
       continue;
@@ -1188,8 +1194,13 @@ function riss_do_mirrors(ri) {
   app.findTextPreferences = NothingEnum.nothing;
 
   for (var i = 0; i < hits.length; ++ i) {
-    hits[i].createOutlines()[0].flipItem(Flip.HORIZONTAL);
-    count ++;
+    var hit = hits[i];
+    try {
+      hit.createOutlines()[0].flipItem(Flip.HORIZONTAL);
+      count ++;
+    } catch(err) {
+      ri_log(ri, "Couldn't flip \"" + hit + "\"");
+    }
   }
 
   if (count > 0) {
@@ -1222,15 +1233,18 @@ function riss_do_continuations(ri) {
     currPara.changeGrep();
 
     currPara.firstLineIndent = 0;
-    currPara.firstLineIndent = Math.abs(prevChar.endHorizontalOffset - currPara.horizontalOffset);
+    try {
+      currPara.firstLineIndent = Math.abs(prevChar.endHorizontalOffset - currPara.horizontalOffset);
+      count += 1;
+    } catch(err) {
+      ri_log(ri, "Error fixing: " + currPara);
+    }
   }
 
   app.findGrepPreferences = NothingEnum.nothing;
   app.changeGrepPreferences = NothingEnum.nothing;
 
   prefs.horizontalMeasurementUnits = oldUnits;
-
-  count += paras.length;
 
   if (count > 0) {
     ri_log(ri, "Fixed " + count + " continuation paragraph(s).");
