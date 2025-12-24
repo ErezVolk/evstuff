@@ -188,8 +188,10 @@ class Whoms:
         for _, row in offer.iterrows():
             print(f"- {row_desc(row)}")
 
-        oldest_added = unheard.sort_values("n").iloc[0]
-        print(f"- (oldest added) {row_desc(oldest_added)}")
+        n_oldest_added = unheard.sort_values("n").head()
+        oldest_added = n_oldest_added.sample(1).iloc[0]
+        print(f"- (one of {len(n_oldest_added)} oldest added) "
+              f"{row_desc(oldest_added)}")
         earliest_t = unheard.t.min()
         oldest_released = unheard[
             (unheard.t == earliest_t) & (unheard.What != oldest_added.What)
@@ -310,11 +312,11 @@ class Whoms:
 
     def run(
         self,
-        args: str[list],
+        args: list[str],
         *,
         check: bool = True,
         encoding: str | None = None,
-        stdout: t.IO | None = None,
+        stdout: t.IO | int | None = None,
         cwd: str | Path | None = None,
     ) -> subprocess.CompletedProcess:
         """Run the command described by args.
