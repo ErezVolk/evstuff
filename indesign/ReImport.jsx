@@ -352,6 +352,7 @@ function ri_pre_remaster(ri) {
 }
 
 function ri_reset_all_masters(ri) {
+  var count = 0;
   var pages = ri.doc.pages;
   ri_maybe_set_master(ri, pages[0], ri.c_master);
   for (var i = 1; i < pages.length; ++ i)
@@ -905,37 +906,59 @@ function ri_groom_fix_masters(ri) {
   if (!ri.uig_pre.checkedState || !ri.ui_pre_remaster.checkedState)
     ri_reset_all_masters(ri)
 
-  ri_set_b_master(ri, StartParagraph.NEXT_PAGE, false);
-  ri_set_b_master(ri, StartParagraph.NEXT_ODD_PAGE, true);
-  ri_set_b_master(ri, StartParagraph.NEXT_EVEN_PAGE, true);
+  var count = 0;
+  count += ri_set_b_master(ri, StartParagraph.NEXT_PAGE, false);
+  count += ri_set_b_master(ri, StartParagraph.NEXT_ODD_PAGE, true);
+  count += ri_set_b_master(ri, StartParagraph.NEXT_EVEN_PAGE, true);
+  count += ri_set_b_finals(ri);
   // TODO: NEXT_FRAME, NEXT_COLUMN
+  if (count > 0) {
+    ri_log(ri, "Set " + count + " B master(s).");
+  }
 }
 
 function ri_set_b_master(ri, start_paragraph, check_prev) {
   app.findTextPreferences = NothingEnum.nothing;
   app.findTextPreferences.startParagraph = start_paragraph;
   var pars = ri.doc.findText();
+  var count = 0;
   for (var i = 0; i < pars.length; ++ i) {
     try {
       var page = pars[i].parentTextFrames[0].parentPage;
-      break;
     } catch(err) {
       ri_log(ri, "Cannot get page object, check Smart Text Reflow");
-
+      continue;
     }
     var pageIndex = page.documentOffset;
     if (pageIndex == 0) {
       continue;
     }
     ri_set_master(ri, page, ri.b_master);
+    count += 1;
     if (check_prev) {
       var prev = ri.doc.pages[pageIndex - 1];
       if (ri_page_is_empty(ri, prev)) {
         ri_set_master(ri, prev, ri.b_master);
+        count += 1;
       }
     }
   }
   app.findTextPreferences = NothingEnum.nothing;
+  return count;
+}
+
+function ri_set_b_finals(ri) {
+  var i, page, count = 0;
+  for (i = ri.doc.pages.length - 1; i > 0; -- i) {
+      page = ri.doc.pages[i];
+      if (!ri_page_is_empty(ri, page)) {
+        break;
+      } else {
+        ri_set_master(ri, page, ri.b_master);
+        count += 1;
+      }
+  }
+  return count;
 }
 
 function ri_page_is_empty(ri, page) {
