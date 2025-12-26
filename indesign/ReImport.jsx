@@ -1174,7 +1174,7 @@ function riss_undo_sources(ri) {
 function riss_redo_sources(ri) {
   ri.source_style = ri.doc.crossReferenceFormats.itemByName("Bare Page Number");
   if (!ri.source_style.isValid) {
-    ri.source_style = ri.doc.crossReferenceSources.add("Bare Page Number");
+    ri.source_style = ri.doc.crossReferenceFormats.add("Bare Page Number");
     ri.source_style.buildingBlocks.add(BuildingBlockTypes.PAGE_NUMBER_BUILDING_BLOCK);
   }
 
