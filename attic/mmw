@@ -18,6 +18,11 @@ class MarkMyWord:
             nargs="?",
             help="directory in which to watch Word files",
         )
+        parser.add_argument(
+            "-b", "--backup",
+            type=Path,
+            help="backup directory",
+        )
         self.args = parser.parse_args()
 
     args: argparse.Namespace
@@ -43,15 +48,15 @@ class MarkMyWord:
             return
 
         counts: collections.Counter = collections.Counter()
-        backups = Path(".mmw").resolve()
-        backups.mkdir(exist_ok=True, parents=True)
+        backup = (self.args.backup or Path(".mmw")).resolve()
+        backup.mkdir(exist_ok=True, parents=True)
         try:
             for line in proc.stdout:
                 source = Path(line.strip())
                 if source.parent != watchee:
                     continue  # No recurse
 
-                if source.is_relative_to(backups):
+                if source.is_relative_to(backup):
                     continue  # Just in case we do add recursion
 
                 name = source.name
@@ -62,7 +67,7 @@ class MarkMyWord:
                     print(f"*** GONE: {source}")
                     continue
 
-                target = backups / f"mmw-{name}"
+                target = backup / f"mmw-{name}"
                 if name not in counts:  # First time
                     print(source, "->", target)
 
