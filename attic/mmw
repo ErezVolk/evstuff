@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Mark My Word: Save copies of MS Word files on change."""
+"""Mark My Words: Save copies of MS Word files on change."""
+import argparse
 import collections
 import subprocess
 from pathlib import Path
@@ -8,9 +9,23 @@ from pathlib import Path
 class MarkMyWord:
     """Save copies of MS Word files on change."""
 
+    def parse_cli(self) -> None:
+        """Parse command-line arguments."""
+        parser = argparse.ArgumentParser(description=__doc__)
+        parser.add_argument(
+            "path",
+            type=Path,
+            nargs="?",
+            help="directory in which to watch Word files",
+        )
+        self.args = parser.parse_args()
+
+    args: argparse.Namespace
+
     def main(self) -> None:
         """Watch Word files and save them."""
-        watchee = Path.cwd()
+        self.parse_cli()
+        watchee = self.args.path
         cmd = [
             "fswatch",
             "--include", r"[.]docx$",
