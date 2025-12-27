@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""Mark My Word: Save copies of MS Word files on change."""
+import collections
+import subprocess
+from pathlib import Path
+
+
+class MarkMyWord:
+    """Save copies of MS Word files on change."""
+
+    def main(self) -> None:
+        """Watch Word files and save them."""
+        watchee = Path.cwd()
+        cmd = [
+            "fswatch",
+            "--include", r"[.]docx$",
+            "--exclude", ".",
+            str(watchee),
+        ]
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            bufsize=1,
+            text=True,
+        )
+        if proc.stdout is None:
+            print("Cannot read output of fswatch")
+            return
+
+        counts: collections.Counter = collections.Counter()
+        backups = Path(".mmw").resolve()
+        backups.mkdir(exist_ok=True, parents=True)
+        try:
+            for line in proc.stdout:
+                source = Path(line.strip())
+                if source.parent != watchee:
+                    continue  # No recurse
+
+                if source.is_relative_to(backups):
+                    continue  # Just in case we do add recursion
+
+                name = source.name
+                if name.startswith("~$"):
+                    continue  # Temporary Word files
+
+                if not source.is_file():
+                    print(f"*** GONE: {source}")
+                    continue
+
+                target = backups / f"mmw-{name}"
+                if name not in counts:  # First time
+                    print(source, "->", target)
+
+                source.copy(target, preserve_metadata=True)
+                counts[name] += 1
+        except KeyboardInterrupt:
+            print("Report:")
+            for name, count in counts.most_common():
+                print(f"{count}\t{name}")
+            proc.terminate()
+
+
+if __name__ == "__main__":
+    MarkMyWord().main()
