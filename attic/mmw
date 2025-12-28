@@ -97,7 +97,7 @@ class MarkMyWord:
 
                 self.batch.add(source)
         except KeyboardInterrupt:
-            print("Report:")
+            print("\nReport:")
             for name, count in self.counts.most_common():
                 print(f"{count}\t{name}")
             proc.terminate()
