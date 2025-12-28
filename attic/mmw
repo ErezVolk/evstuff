@@ -50,7 +50,7 @@ class MarkMyWord:
         self.args = parser.parse_args()
 
     args: argparse.Namespace
-    batch: set[Path]
+    batch: collections.Counter
     counts: collections.Counter
 
     def main(self) -> None:
@@ -78,7 +78,7 @@ class MarkMyWord:
         print(f"Watching {watchee}...")
         try:
             self.counts = collections.Counter()
-            self.batch = set()
+            self.batch = collections.Counter()
             for line in proc.stdout:
                 event = line.strip()
                 if event == "NoOp":
@@ -96,7 +96,7 @@ class MarkMyWord:
                 if source.stem.startswith("~$"):
                     continue  # Temporary Word files
 
-                self.batch.add(source)
+                self.batch[source] += 1
         except KeyboardInterrupt:
             print("\nReport:")
             for key, count in self.counts.most_common():
@@ -113,25 +113,26 @@ class MarkMyWord:
 
     def ship_batch(self) -> None:
         """Handle files in the batch."""
-        for source in self.batch:
+        for source, bcount in self.batch.items():
             if not source.is_file():
                 print(f"*** GONE: {source}")
                 continue
 
             name = source.name
-            target = self.get_backup_dir(source) / f"mmw-{name}"
             key = name if self.args.recursive else str(source)
+
+            target = self.get_backup_dir(source) / f"mmw-{name}"
             if key not in self.counts:
                 print(source, "->", target)
             elif self.args.verbose:
-                print(f"{source} -> {target} ({self.counts[key]})")
+                print(f"{source} -> {target} ({self.counts[key]}) [{bcount}]")
 
             source.copy(target, preserve_metadata=True)
             self.counts[key] += 1
-        self.batch = set()
+        self.batch = collections.Counter()
 
     def get_backup_dir(self, path: Path) -> Path:
-        """Return backup directory for a file."""
+        """Create backup directory for a file."""
         backup = self._get_backup_dir(path)
         backup.mkdir(exist_ok=True, parents=True)
         return backup
