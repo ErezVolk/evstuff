@@ -6,6 +6,15 @@ import subprocess
 from pathlib import Path
 
 
+__TODO__ = """
+- Add multiple versions (mwm-1-file.docx)
+- Same file multiple times in a batch (--batch-marker)
+- Maybe the -0 thing, if I can make it work
+- Either per-file .mwm of global one (recursive)
+- Roll my own using pyobjc-framework-FSEvents
+"""
+
+
 class MarkMyWord:
     """Save copies of MS Word files on change."""
 
@@ -56,6 +65,7 @@ class MarkMyWord:
         counts: collections.Counter = collections.Counter()
         backup = (self.args.backup or Path(".mmw")).resolve()
         backup.mkdir(exist_ok=True, parents=True)
+        print(f"Watching {watchee}...")
         try:
             for line in proc.stdout:
                 source = Path(line.strip())
