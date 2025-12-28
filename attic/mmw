@@ -12,8 +12,8 @@ __TODO__ = """
 - Add multiple versions (mwm-1-file.docx)
   - Hash them (.mwm/.hashes or something)
 - Maybe the -0 thing, if I can make it work
-- Either per-file .mwm of global one (recursive)
-- Roll my own using pyobjc-framework-FSEvents
+  - Or do my own wrapper around libfswatch
+- Either per-folder ./.mwm/ or global one (recursive)
 """
 
 
