@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Mark My Words: Save copies of MS Word files on change."""
 
-import argparse
+import argparse  # noqa: I001
 import collections
 import subprocess
+
 from pathlib import Path
 
 

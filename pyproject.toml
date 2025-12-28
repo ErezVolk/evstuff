@@ -5,6 +5,7 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+   "COM812",  # Missing trailing comma
    "D105",  # Missing docstring in magic method
    "D107",  # Missing docstring in "__init__"
    "D203",  # Blank line *before* class docstring (?!)
