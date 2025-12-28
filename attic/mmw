@@ -13,7 +13,6 @@ __TODO__ = """
   - Hash them (.mwm/.hashes or something)
 - Maybe the -0 thing, if I can make it work
   - Or do my own wrapper around libfswatch
-- Either per-folder ./.mwm/ or global one (recursive)
 """
 
 
@@ -32,12 +31,17 @@ class MarkMyWord:
         parser.add_argument(
             "-b", "--backup",
             type=Path,
-            help="backup directory",
+            help="global backup directory (otherwise use per-directory .mwm/)",
         )
         parser.add_argument(
             "-l", "--latency",
             type=float,
             default=1.0,
+        )
+        parser.add_argument(
+            "-r", "--recursive",
+            action="store_true",
+            help="global backup directory",
         )
         parser.add_argument(
             "-v", "--verbose",
@@ -46,7 +50,6 @@ class MarkMyWord:
         self.args = parser.parse_args()
 
     args: argparse.Namespace
-    backup: Path
     batch: set[Path]
     counts: collections.Counter
 
@@ -72,8 +75,6 @@ class MarkMyWord:
             print("Cannot read output of fswatch")
             return
 
-        self.backup = (self.args.backup or Path(".mmw")).resolve()
-        self.backup.mkdir(exist_ok=True, parents=True)
         print(f"Watching {watchee}...")
         try:
             self.counts = collections.Counter()
@@ -85,22 +86,30 @@ class MarkMyWord:
                     continue
 
                 source = Path(line.strip())
-                if source.parent != watchee:
-                    continue  # No recurse
+                if not self.args.recursive:
+                    if source.parent != watchee:
+                        continue  # No recurse
 
-                if source.is_relative_to(self.backup):
+                if self.is_in_backup(source):
                     continue  # Just in case we do add recursion
 
-                name = source.name
                 if source.stem.startswith("~$"):
                     continue  # Temporary Word files
 
                 self.batch.add(source)
         except KeyboardInterrupt:
             print("\nReport:")
-            for name, count in self.counts.most_common():
-                print(f"{count}\t{name}")
+            for key, count in self.counts.most_common():
+                print(f"{count}\t{key}")
             proc.terminate()
+
+    def is_in_backup(self, path: Path) -> bool:
+        """Check if changed file is a backup itself."""
+        if path.parent.name == ".mwm":
+            return True
+        if not self.args.backup:
+            return False
+        return path.is_relative_to(self.args.backup)
 
     def ship_batch(self) -> None:
         """Handle files in the batch."""
@@ -110,15 +119,26 @@ class MarkMyWord:
                 continue
 
             name = source.name
-            target = self.backup / f"mmw-{name}"
-            if name not in self.counts:
+            target = self.get_backup_dir(source) / f"mmw-{name}"
+            key = name if self.args.recursive else str(source)
+            if key not in self.counts:
                 print(source, "->", target)
             elif self.args.verbose:
-                print(f"{source} -> {target} ({self.counts[name]})")
+                print(f"{source} -> {target} ({self.counts[key]})")
 
             source.copy(target, preserve_metadata=True)
-            self.counts[name] += 1
+            self.counts[key] += 1
         self.batch = set()
+
+    def get_backup_dir(self, path: Path) -> Path:
+        """Return backup directory for a file."""
+        backup = self._get_backup_dir(path)
+        backup.mkdir(exist_ok=True, parents=True)
+        return backup
+
+    def _get_backup_dir(self, path: Path) -> Path:
+        """Return backup directory for a file."""
+        return self.args.backup or path.parent / ".mwm"
 
 
 if __name__ == "__main__":
