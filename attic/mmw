@@ -10,7 +10,7 @@ from pathlib import Path
 
 __TODO__ = """
 - Add multiple versions (mwm-1-file.docx)
-  - Hash them (.mwm/.hashes or something)
+  - Hash them (.mwm/.hashes or something); or use filecmp
 - Maybe the -0 thing, if I can make it work
   - Or do my own wrapper around libfswatch
 """
@@ -52,18 +52,19 @@ class MarkMyWord:
     args: argparse.Namespace
     batch: collections.Counter
     counts: collections.Counter
+    watchee: Path
 
     def main(self) -> None:
         """Watch Word files and save them."""
         self.parse_cli()
-        watchee = self.args.path or Path.cwd()
+        self.watchee = self.args.path or Path.cwd()
         cmd = [
             "fswatch",
             "-l", str(self.args.latency),
             "-i", r"[.]docx$",
             "-e", ".",
             "--batch-marker",
-            str(watchee),
+            str(self.watchee),
         ]
         proc = subprocess.Popen(
             cmd,
@@ -75,7 +76,7 @@ class MarkMyWord:
             print("Cannot read output of fswatch")
             return
 
-        print(f"Watching {watchee}...")
+        print(f"Watching {self.watchee}...")
         try:
             self.counts = collections.Counter()
             self.batch = collections.Counter()
@@ -87,7 +88,7 @@ class MarkMyWord:
 
                 source = Path(line.strip())
                 if not self.args.recursive:
-                    if source.parent != watchee:
+                    if source.parent != self.watchee:
                         continue  # No recurse
 
                 if self.is_in_backup(source):
@@ -120,12 +121,19 @@ class MarkMyWord:
 
             name = source.name
             key = name if self.args.recursive else str(source)
-
             target = self.get_backup_dir(source) / f"mmw-{name}"
+
+            rsource = source.relative_to(self.watchee)
+            if self.args.backup:
+                rtarget = target.relative_to(self.args.backup)
+            else:
+                rtarget = target.relative_to(self.watchee)
+
             if key not in self.counts:
-                print(source, "->", target)
+                print(f"{rsource} -> {rtarget}")
             elif self.args.verbose:
-                print(f"{source} -> {target} ({self.counts[key]}) [{bcount}]")
+                count = self.counts[key]
+                print(f"{rsource} -> {rtarget} ({count}) [{bcount}]")
 
             source.copy(target, preserve_metadata=True)
             self.counts[key] += 1
