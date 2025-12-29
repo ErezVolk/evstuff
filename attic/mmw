@@ -10,9 +10,8 @@ from pathlib import Path
 
 __TODO__ = """
 - Add multiple versions (mwm-1-file.docx)
-  - Hash them (.mwm/.hashes or something); or use filecmp
+- Hash them (.mwm/.hashes or something); or use filecmp
 - Maybe the -0 thing, if I can make it work
-  - Or do my own wrapper around libfswatch
 """
 
 
