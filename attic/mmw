@@ -3,6 +3,7 @@
 
 import argparse  # noqa: I001
 import collections
+import contextlib
 import filecmp
 import subprocess
 import tempfile
@@ -11,7 +12,6 @@ from pathlib import Path
 
 
 __TODO__ = """
-- Add multiple versions (mmw-1-file.docx)
 - Change window color.
 - Maybe the -0 thing, if I can make it work
 """
@@ -35,15 +35,21 @@ class MarkMyWord:
             help="global backup directory (otherwise use per-directory .mmw/)",
         )
         parser.add_argument(
+            "-R", "--no-recursion",
+            action="store_true",
+            help="do not watch files in subdirectories",
+        )
+        parser.add_argument(
+            "-n", "--num-versions",
+            type=int,
+            default=5,
+            help="number of previous versions of file to keep",
+        )
+        parser.add_argument(
             "-l", "--latency",
             type=float,
             default=3.0,
             help="check events every LATENCY seconds",
-        )
-        parser.add_argument(
-            "-r", "--recursive",
-            action="store_true",
-            help="global backup directory",
         )
         parser.add_argument(
             "-v", "--verbose",
@@ -90,7 +96,7 @@ class MarkMyWord:
                     continue
 
                 source = Path(line.strip())
-                if not self.args.recursive:
+                if self.args.no_recursion:
                     if source.parent != self.watchee:
                         continue  # No recurse
 
@@ -128,7 +134,7 @@ class MarkMyWord:
             return
 
         name = source.name
-        key = name if self.args.recursive else str(source)
+        key = name if self.args.no_recursion else str(source)
         target = self.get_backup_dir(source) / f"mmw-{name}"
 
         if not self.do_copy(source, target):
@@ -163,11 +169,24 @@ class MarkMyWord:
                 source.copy(ttarget, preserve_metadata=True)
                 if filecmp.cmp(ttarget, target, shallow=False):
                     return False
-                ttarget.move(target)
+                self.shift_history(ttarget, target)
                 return True
         except (FileNotFoundError, OSError) as exc:
             print(f"*** ERROR: {source}: {exc}")
             return False
+
+    def shift_history(self, temp_target: Path, target: Path) -> None:
+        """Move temporary target to target, and shift history."""
+        for idx in range(self.args.num_versions - 1, 0, -1):
+            with contextlib.suppress(FileNotFoundError):
+                self.nth(target, idx).move(self.nth(target, idx + 1))
+        temp_target.move(target)
+
+    def nth(self, target: Path, idx: int) -> Path:
+        """Return name of idx-th (1-based) version of target."""
+        if idx == 1:
+            return target
+        return target.with_stem(f"{target.stem}.{idx}")
 
     def get_backup_dir(self, path: Path) -> Path:
         """Create backup directory for a file."""
