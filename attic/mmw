@@ -12,6 +12,7 @@ from pathlib import Path
 
 __TODO__ = """
 - Add multiple versions (mmw-1-file.docx)
+- Change window color.
 - Maybe the -0 thing, if I can make it work
 """
 
