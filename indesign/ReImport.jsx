@@ -923,13 +923,14 @@ function ri_set_b_master(ri, start_paragraph, check_prev) {
   var pars = ri.doc.findText();
   var count = 0;
   for (var i = 0; i < pars.length; ++ i) {
+    var par = pars[i];
     try {
-      var page = pars[i].parentTextFrames[0].parentPage;
+      var page = par.parentTextFrames[0].parentPage;
+      var pageIndex = page.documentOffset;
     } catch(err) {
-      ri_log(ri, "Cannot get page object, check Smart Text Reflow");
+      ri_log(ri, "Cannot get page object, check Smart Text Reflow for \"" + par.contents + "\"");
       continue;
     }
-    var pageIndex = page.documentOffset;
     if (pageIndex == 0) {
       continue;
     }
