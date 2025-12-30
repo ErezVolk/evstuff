@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Extract text from a Word document."""
 import argparse
+import re
+import typing as t
+import unicodedata as ud
 from pathlib import Path
 
 from docx_worker import DocxWorker  # type: ignore[import-not-found]
+
+Strings: t.TypeAlias = t.Iterable[str]
 
 
 class Docx2Utf8(DocxWorker):
@@ -18,6 +23,17 @@ class Docx2Utf8(DocxWorker):
         parser = argparse.ArgumentParser(description=__doc__)
         parser.add_argument("input", type=Path, help="a .docx file")
         parser.add_argument("output", type=Path, help="a text file", nargs="?")
+        parser.add_argument(
+            "-s", "--sentences",
+            action="store_true",
+            help="break text into sentences",
+        )
+        parser.add_argument(
+            "-l", "--min-length",
+            type=int,
+            default=1,
+            help="minimum line length in letters",
+        )
         self.args = parser.parse_args()
         self.inpath = self.args.input
         self.outpath = self.args.output or self.inpath.with_suffix(".txt")
@@ -26,16 +42,44 @@ class Docx2Utf8(DocxWorker):
 
     def work(self) -> None:
         """Work while `self.izip` is open."""
-        npars = nchars = 0
+        npars = 0
         with self.outpath.open("w", encoding="utf-8") as ofo:
             body = self.find(self.doc, "./w:body")
             for pnode in self.xpath(body, "./w:p"):
-                for tnode in self.pnode_tnodes(pnode):
-                    nchars += len(tnode.text)
-                    ofo.write(tnode.text)
-                ofo.write("\n\n")
                 npars += 1
+                ichunks = (tnode.text for tnode in self.pnode_tnodes(pnode))
+                for ochunk in self._handle_paragraph(ichunks):
+                    ofo.write(ochunk)
+            nchars = ofo.tell()
         print(f"{self.outpath}: {npars} paragraphs(s), {nchars} character(s).")
+
+    def _handle_paragraph(self, ichunks: Strings) -> Strings:
+        """Convert one input paragraph."""
+        # Optimization: Case where we don't need to join
+        if not self.args.sentences and self.args.min_length <= 1:
+            yield from ichunks
+            yield "\n\n"
+            return
+
+        text = "".join(ichunks)
+
+        if self.args.sentences:
+            for sentence in re.findall(r"\w[^.?!:]+(?:[.?!:]+|$)", text):
+                yield from self._consider(sentence, "\n")
+        else:
+            yield from self._consider(text, "\n\n")
+
+    def _consider(self, line: str, sep: str) -> Strings:
+        """Consider outputting a line."""
+        if self._vlen(line) >= self.args.min_length:
+            yield line
+            yield sep
+
+    def _vlen(self, text: str) -> int:
+        """Return visible Length (or an approximation thereof)."""
+        chars = [c for c in text if ud.category(c)[0] in "LNPSZ"]
+        wides = [c for c in chars if ud.east_asian_width(c) in "WF"]
+        return len(chars) + len(wides)
 
 
 if __name__ == "__main__":
