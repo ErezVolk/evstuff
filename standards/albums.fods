@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2025-12-29T18:29:12.602497000</dc:date><meta:editing-duration>P196DT9H39M23S</meta:editing-duration><meta:editing-cycles>5230</meta:editing-cycles><meta:generator>LibreOffice/25.8.3.2$MacOSX_X86_64 LibreOffice_project/8ca8d55c161d602844f5428fa4b58097424e324e</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="11213" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2025-12-30T11:03:14.550166000</dc:date><meta:editing-duration>P196DT11H8M8S</meta:editing-duration><meta:editing-cycles>5243</meta:editing-cycles><meta:generator>LibreOffice/25.8.3.2$MacOSX_X86_64 LibreOffice_project/8ca8d55c161d602844f5428fa4b58097424e324e</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="11250" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">44535</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">553177</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">555435</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
-       <config:config-item config:name="CursorPositionX" config:type="int">7</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">1199</config:config-item>
+       <config:config-item config:name="CursorPositionX" config:type="int">8</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">1163</config:config-item>
        <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
        <config:config-item config:name="VerticalSplitPosition" config:type="int">1</config:config-item>
        <config:config-item config:name="ActiveSplitRange" config:type="short">2</config:config-item>
-       <config:config-item config:name="PositionLeft" config:type="int">3</config:config-item>
+       <config:config-item config:name="PositionLeft" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">1183</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">1147</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">100</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -475,7 +475,7 @@
      <text:p><text:sheet-name>???</text:sheet-name><text:s/>(<text:title>???</text:title>)</text:p>
     </style:region-left>
     <style:region-right>
-     <text:p><text:date style:data-style-name="N2" text:date-value="2025-12-29">00/00/0000</text:date>, <text:time style:data-style-name="N2" text:time-value="09:16:51.514774000">00:00:00</text:time></text:p>
+     <text:p><text:date style:data-style-name="N2" text:date-value="2025-12-30">00/00/0000</text:date>, <text:time style:data-style-name="N2" text:time-value="09:34:23.677750000">00:00:00</text:time></text:p>
     </style:region-right>
    </style:header>
    <style:header-left style:display="false"/>
@@ -34097,7 +34097,13 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Calvin Jones</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>2nd Flow, 3rd Flow, D.a.s.h., Generations, Burundi</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Great freeish jazz trombone. So great I went and added abunch of other albums with this guy. Relisten.</text:p>
+     </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
@@ -36658,7 +36664,7 @@
       <text:p>2025-12</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
-      <text:p>Two&apos;s Blues, Blue Gene (transcribe harmonica and bass solo)</text:p>
+      <text:p>Two&apos;s Blues, Blue Gene (transcribe harmonica and bass solo), Bime Blue</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Great harmonica by Damien Masterson! Great bass solo! The blues tracks were great, the others not as wild as I&apos;d hoped from a jazz flute album.</text:p>
@@ -38378,7 +38384,132 @@
      <table:table-cell table:number-columns-repeated="3"/>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047350">
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1225" calcext:value-type="float">
+      <text:p>1225</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Don Byron</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Bug Music</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1996" calcext:value-type="float">
+      <text:p>1996</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H51M00S" calcext:value-type="time">
+      <text:p>0:51</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Kenny Davis</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1226" calcext:value-type="float">
+      <text:p>1226</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Joseph Jarman</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Earth Passage – Density</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1981" calcext:value-type="float">
+      <text:p>1981</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H46M00S" calcext:value-type="time">
+      <text:p>0:46</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Rafael Garrett</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1227" calcext:value-type="float">
+      <text:p>1227</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>David Murray Latin Big Band</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Now Is Another Time</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="2003" calcext:value-type="float">
+      <text:p>2003</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H12M00S" calcext:value-type="time">
+      <text:p>1:12</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Feliciano Arango Noa, Narciso Jorge, Reyes Hernandez</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1228" calcext:value-type="float">
+      <text:p>1228</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>David Murray </text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Murray&apos;s Steps</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1983" calcext:value-type="float">
+      <text:p>1983</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H40M00S" calcext:value-type="time">
+      <text:p>0:40</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>AllMusic-5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Wilber Morris</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1229" calcext:value-type="float">
+      <text:p>1229</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Julius Hemphill Big Band</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Raw Materials and Residuals</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1977" calcext:value-type="float">
+      <text:p>1977</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H36M00S" calcext:value-type="time">
+      <text:p>0:36</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Apple Music</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>N/A</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047345">
      <table:table-cell table:number-columns-repeated="10"/>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="16374"/>
     </table:table-row>
