@@ -1,5 +1,6 @@
 // ex: set et sw=2:
 
+// TODO: (clickable!) QR Codes
 // TODO: Status indication
 // TODO: Pairwise kerning
 // TODO: Check for the double frame thing at beginning/end.
