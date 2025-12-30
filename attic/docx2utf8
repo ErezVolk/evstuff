@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+"""Extract text from a Word document."""
+import argparse
+from pathlib import Path
+
+from docx_worker import DocxWorker  # type: ignore[import-not-found]
+
+
+class Docx2Utf8(DocxWorker):
+    """Extract text from a Word document."""
+
+    args: argparse.Namespace
+    inpath: Path
+    outpath: Path
+
+    def pre_work(self) -> Path:
+        """Return path to input .docx."""
+        parser = argparse.ArgumentParser(description=__doc__)
+        parser.add_argument("input", type=Path, help="a .docx file")
+        parser.add_argument("output", type=Path, help="a text file", nargs="?")
+        self.args = parser.parse_args()
+        self.inpath = self.args.input
+        self.outpath = self.args.output or self.inpath.with_suffix(".txt")
+        print(f"{self.inpath} -> {self.outpath}")
+        return self.args.input
+
+    def work(self) -> None:
+        """Work while `self.izip` is open."""
+        npars = nchars = 0
+        with self.outpath.open("w", encoding="utf-8") as ofo:
+            body = self.find(self.doc, "./w:body")
+            for pnode in self.xpath(body, "./w:p"):
+                for tnode in self.pnode_tnodes(pnode):
+                    nchars += len(tnode.text)
+                    ofo.write(tnode.text)
+                ofo.write("\n\n")
+                npars += 1
+        print(f"{self.outpath}: {npars} paragraphs(s), {nchars} character(s).")
+
+
+if __name__ == "__main__":
+    Docx2Utf8().main()
