@@ -11,12 +11,19 @@ from docx_worker import DocxWorker  # type: ignore[import-not-found]
 Strings: t.TypeAlias = t.Iterable[str]
 
 
+class StopError(Exception):
+    """Stop converting the file."""
+
+
 class Docx2Utf8(DocxWorker):
     """Extract text from a Word document."""
 
     args: argparse.Namespace
     inpath: Path
     outpath: Path
+    start_found: bool = False
+    stop_found: bool = False
+    nlines: int
 
     def pre_work(self) -> Path:
         """Return path to input .docx."""
@@ -34,6 +41,16 @@ class Docx2Utf8(DocxWorker):
             default=1,
             help="minimum line length in letters",
         )
+        parser.add_argument(
+            "--start",
+            metavar="STRING",
+            help="ignore text up to first occurence of STRING",
+        )
+        parser.add_argument(
+            "--stop",
+            metavar="STRING",
+            help="stop after paragraph containing STRING",
+        )
         self.args = parser.parse_args()
         self.inpath = self.args.input
         self.outpath = self.args.output or self.inpath.with_suffix(".txt")
@@ -42,26 +59,33 @@ class Docx2Utf8(DocxWorker):
 
     def work(self) -> None:
         """Work while `self.izip` is open."""
-        npars = 0
+        npars = self.nlines = 0
         with self.outpath.open("w", encoding="utf-8") as ofo:
             body = self.find(self.doc, "./w:body")
-            for pnode in self.xpath(body, "./w:p"):
-                npars += 1
-                ichunks = (tnode.text for tnode in self.pnode_tnodes(pnode))
-                for ochunk in self._handle_paragraph(ichunks):
-                    ofo.write(ochunk)
+            try:
+                for pno in self.xpath(body, "./w:p"):
+                    npars += 1
+                    ichunks = (tno.text for tno in self.pnode_tnodes(pno))
+                    for ochunk in self._handle_paragraph(ichunks):
+                        ofo.write(ochunk)
+            except StopError:
+                pass
             nchars = ofo.tell()
-        print(f"{self.outpath}: {npars} paragraphs(s), {nchars} character(s).")
+        print(
+            f"{self.outpath}: "
+            f"{npars} paragraphs(s), "
+            f"{self.nlines} line(s), "
+            f"{nchars} character(s).",
+        )
 
     def _handle_paragraph(self, ichunks: Strings) -> Strings:
         """Convert one input paragraph."""
-        # Optimization: Case where we don't need to join
-        if not self.args.sentences and self.args.min_length <= 1:
-            yield from ichunks
-            yield "\n\n"
-            return
-
         text = "".join(ichunks)
+
+        if self.args.start and not self.start_found:
+            self.start_found = self.args.start in text
+            if not self.start_found:
+                return
 
         if self.args.sentences:
             for sentence in re.findall(r"\w[^.?!:]+(?:[.?!:]+|$)", text):
@@ -74,6 +98,11 @@ class Docx2Utf8(DocxWorker):
         if self._vlen(line) >= self.args.min_length:
             yield line
             yield sep
+            self.nlines += 1
+
+        if self.args.stop:
+            if self.args.stop in line:
+                raise StopError
 
     def _vlen(self, text: str) -> int:
         """Return visible Length (or an approximation thereof)."""
