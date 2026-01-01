@@ -81,12 +81,6 @@ class Docx2Utf8(DocxWorker):
     def _handle_paragraph(self, ichunks: Strings) -> Strings:
         """Convert one input paragraph."""
         text = "".join(ichunks)
-
-        if self.args.start and not self.start_found:
-            self.start_found = self.args.start in text
-            if not self.start_found:
-                return
-
         if self.args.sentences:
             for sentence in re.findall(r"\w[^.?!:]+(?:[.?!:]+|$)", text):
                 yield from self._consider(sentence, "\n")
@@ -95,6 +89,11 @@ class Docx2Utf8(DocxWorker):
 
     def _consider(self, line: str, sep: str) -> Strings:
         """Consider outputting a line."""
+        if self.args.start and not self.start_found:
+            self.start_found = self.args.start in line
+            if not self.start_found:
+                return
+
         if self._vlen(line) >= self.args.min_length:
             yield line
             yield sep
