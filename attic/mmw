@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 __TODO__ = """
-- Change window color.
+- Change window color/title.
 - Maybe the -0 thing, if I can make it work
 """
 
@@ -61,12 +61,13 @@ class MarkMyWord:
     args: argparse.Namespace
     batch: collections.Counter
     counts: collections.Counter
+    tmp: Path | None = None
     watchee: Path
 
     def main(self) -> None:
         """Watch Word files and save them."""
         self.parse_cli()
-        self.watchee = self.args.path or Path.cwd()
+        self.choose_locations()
         cmd = [
             "fswatch",
             "-l", str(self.args.latency),
@@ -112,6 +113,18 @@ class MarkMyWord:
             for key, count in self.counts.most_common():
                 print(f"{count}\t{key}")
             proc.terminate()
+
+    def choose_locations(self) -> None:
+        """Choose where to watch and where to make temp files."""
+        self.watchee = self.args.path or Path.cwd()
+        tempdir = Path(tempfile.gettempdir())
+        if self.device(self.watchee) == self.device(tempdir):
+            self.tmp = tempdir
+
+    @classmethod
+    def device(cls, path: Path) -> int:
+        """Get device ID for a path."""
+        return path.stat().st_dev
 
     def is_in_backup(self, path: Path) -> bool:
         """Check if changed file is a backup itself."""
@@ -164,7 +177,8 @@ class MarkMyWord:
                 source.copy(target, preserve_metadata=True)
                 return True
 
-            with tempfile.NamedTemporaryFile(dir=target.parent) as tfo:
+            tdir = self.tmp or target.parent
+            with tempfile.NamedTemporaryFile(dir=tdir) as tfo:
                 ttarget = Path(tfo.name)
                 source.copy(ttarget, preserve_metadata=True)
                 if filecmp.cmp(ttarget, target, shallow=False):
