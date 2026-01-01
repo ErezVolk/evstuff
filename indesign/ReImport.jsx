@@ -984,7 +984,7 @@ function ri_maybe_set_master(ri, page, master) {
     ri_do_set_master(ri, page, master);
 }
 
-function ri_do_set_master(ri, page, master) {
+function ri_do_set_master(_ri, page, master) {
   page.appliedMaster = master;
 }
 
@@ -1102,6 +1102,7 @@ function ri_groom_special_styles(ri) {
 
   riss_do_valigns(ri);
   riss_do_sections(ri);
+  riss_do_masters(ri);
 }
 
 function riss_do_destinations(ri) {
@@ -1341,8 +1342,40 @@ function riss_do_sections(ri) {
   }
 }
 
+function riss_do_masters(ri) {
+  var count = 0;
+  for (var i = 0; i < ri.doc.masterSpreads.length; ++ i) {
+    count += riss_do_master(ri, ri.doc.masterSpreads[i]);
+  }
+
+  if (count > 0) {
+    ri_log(ri, "Forced " + count + " master(s).");
+  }
+}
+
+function riss_do_master(ri, master) {
+  var paras = ri_get_all_paras_with_styles_containing(ri, "@Master" + master.namePrefix + "@");
+
+  if (paras.length == 0)
+    return
+
+  var count = 0;
+  for (var i = 0; i < paras.length; ++ i) {
+    try {
+      var frame = paras[i].parentTextFrames[0];
+      var page = frame.parentPage;
+      ri_set_master(ri, page, master);
+      count += 1;
+    } catch(err) {
+      ri_log(ri, "*** Cannot set " + master.name + ": " + err);
+    }
+  }
+
+  return count;
+}
+
 function ri_get_all_paras_with_styles_containing(ri, substr) {
-  paras = [];
+  var paras = [];
 
   app.findGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = "^";
@@ -1361,7 +1394,7 @@ function ri_get_all_paras_with_styles_containing(ri, substr) {
   }
 
   if (paras.length > 0) {
-    paras.sort(function(px, py){ var x = px.index; var y = py.index; return x < y ? -1 : x == y ? 0 : 1 });
+    paras.sort(function(px, py){ x = px.index; y = py.index; return x < y ? -1 : x == y ? 0 : 1 });
   }
   app.findGrepPreferences = NothingEnum.nothing;
 
@@ -1370,7 +1403,7 @@ function ri_get_all_paras_with_styles_containing(ri, substr) {
 
 // Uses any fields currently in app.findGrepPreferences
 function ri_get_all_texts_with_styles_containing(ri, substr) {
-  texts = [];
+  var texts = [];
 
   var styles = ri.doc.allCharacterStyles;
   for (var j = 0; j < styles.length; ++ j) {
