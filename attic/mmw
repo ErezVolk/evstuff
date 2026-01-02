@@ -5,6 +5,7 @@ import argparse  # noqa: I001
 import collections
 import contextlib
 import filecmp
+import os
 import subprocess
 import tempfile
 
@@ -12,7 +13,6 @@ from pathlib import Path
 
 
 __TODO__ = """
-- Change window color/title.
 - Maybe the -0 thing, if I can make it work
 """
 
@@ -51,6 +51,23 @@ class MarkMyWord:
             default=3.0,
             help="check events every LATENCY seconds",
         )
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "--iterm",
+            action="store_true",
+            help=(
+                "set iTerm2 tab color and title "
+                "(default if MMW_ITERM is set)"
+            ),
+        )
+        group.add_argument(
+            "--no-iterm",
+            action="store_true",
+            help=(
+                "do NOT set iTerm2 tab color and title "
+                "(even if MMW_ITERM is set)"
+            ),
+        )
         parser.add_argument(
             "-v", "--verbose",
             action="store_true",
@@ -61,6 +78,7 @@ class MarkMyWord:
     args: argparse.Namespace
     batch: collections.Counter
     counts: collections.Counter
+    iterm: bool
     tmp: Path | None = None
     watchee: Path
 
@@ -86,7 +104,7 @@ class MarkMyWord:
             print("Cannot read output of fswatch")
             return
 
-        print(f"Watching {self.watchee}...")
+        self.announce()
         try:
             self.counts = collections.Counter()
             self.batch = collections.Counter()
@@ -109,10 +127,23 @@ class MarkMyWord:
 
                 self.batch[source] += 1
         except KeyboardInterrupt:
-            print("\nReport:")
-            for key, count in self.counts.most_common():
-                print(f"{count}\t{key}")
+            self.report()
             proc.terminate()
+
+    def announce(self) -> None:
+        """Print start message, optionally set terminal stuff."""
+        print(f"Watching {self.watchee}...")
+        if self.iterm:
+            print("\033]6;1;bg;green;brightness;63\a")
+            print(f"\033]0;MMW:{self.watchee.name}/\a")
+
+    def report(self) -> None:
+        """Print end message, optionally unset terminal stuff."""
+        print("\nReport:")
+        for key, count in self.counts.most_common():
+            print(f"{count}\t{key}")
+        if self.iterm:
+            print("\033]6;1;bg;*;default\a")
 
     def choose_locations(self) -> None:
         """Choose where to watch and where to make temp files."""
@@ -120,6 +151,12 @@ class MarkMyWord:
         tempdir = Path(tempfile.gettempdir())
         if self.device(self.watchee) == self.device(tempdir):
             self.tmp = tempdir
+        if self.args.no_iterm:
+            self.iterm = False
+        elif self.args.iterm or os.getenv("MMW_ITERM"):
+            self.iterm = True
+        else:
+            self.iterm = False
 
     @classmethod
     def device(cls, path: Path) -> int:
