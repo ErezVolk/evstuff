@@ -13,6 +13,7 @@ from pathlib import Path
 
 
 __TODO__ = """
+- Print status on keypress
 - Maybe the -0 thing, if I can make it work
 """
 
