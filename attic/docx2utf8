@@ -65,7 +65,7 @@ class Docx2Utf8(DocxWorker):
             try:
                 for pno in self.xpath(body, "./w:p"):
                     npars += 1
-                    ichunks = (tno.text for tno in self.pnode_tnodes(pno))
+                    ichunks = self.pnode_text(pno)
                     for ochunk in self._handle_paragraph(ichunks):
                         ofo.write(ochunk)
             except StopError:

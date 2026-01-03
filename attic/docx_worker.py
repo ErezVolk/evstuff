@@ -11,7 +11,7 @@ from typing import IO
 from typing import ClassVar
 from typing import TypeAlias
 
-from lxml import etree
+from lxml import etree  # type: ignore[import-untyped]
 
 __all__ = [
     "DocxWorker",
@@ -184,6 +184,20 @@ class DocxWorker(abc.ABC):
             attrib = {self.wtag(key): val for key, val in attrib.items()}
         return self.doc.getroot().makeelement(self.wtag(tag), attrib=attrib)
 
+    R_XPATH = "w:r | w:ins/w:r | w:hyperlink/w:r"
+    RT_XPATH = f"({R_XPATH})/w:t"
+
     def pnode_tnodes(self, pnode: etree._Entity) -> Iterable[etree._Entity]:
         """Yield every w:r/w:t node in a w:p node."""
-        yield from self.xpath(pnode, "./w:r/w:t | ./w:ins/w:r/w:t")
+        yield from self.xpath(pnode, self.RT_XPATH)
+
+    def pnode_text(self, pnode: etree._Entity) -> Iterable[str]:
+        """Yield chunks of text."""
+        for rnode in self.xpath(pnode, self.R_XPATH):
+            for node in self.xpath(rnode, "w:tab | w:t | w:br[not(@*)]"):
+                if node.tag == self.wtag("tab"):
+                    yield "\t"
+                elif node.tag == self.wtag("br"):
+                    yield "\n"
+                elif node.text:
+                    yield node.text
