@@ -6,6 +6,7 @@ import collections
 import contextlib
 import filecmp
 import os
+import shutil
 import subprocess
 import tempfile
 
@@ -70,12 +71,18 @@ class MarkMyWord:
             ),
         )
         parser.add_argument(
+            "--fswatch",
+            help="fswatch executable",
+        )
+        parser.add_argument(
             "-v", "--verbose",
             action="store_true",
             help="print more information",
         )
         self.args = parser.parse_args()
+        self.parser = parser
 
+    parser: argparse.ArgumentParser
     args: argparse.Namespace
     batch: collections.Counter
     counts: collections.Counter
@@ -87,20 +94,7 @@ class MarkMyWord:
         """Watch Word files and save them."""
         self.parse_cli()
         self.choose_locations()
-        cmd = [
-            "fswatch",
-            "-l", str(self.args.latency),
-            "-i", r"[.]docx$",
-            "-e", ".",
-            "--batch-marker",
-            str(self.watchee),
-        ]
-        proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            bufsize=1,
-            text=True,
-        )
+        proc = self.launch_fswatch()
         if proc.stdout is None:
             print("Cannot read output of fswatch")
             return
@@ -158,6 +152,27 @@ class MarkMyWord:
             self.iterm = True
         else:
             self.iterm = False
+
+    def launch_fswatch(self) -> subprocess.Popen:
+        """Run the actual utility."""
+        fswatch = self.args.fswatch or shutil.which("fswatch")
+        if not fswatch:
+            self.parser.error("fswatch not found (try brew install fswatch).")
+
+        cmd = [
+            fswatch,
+            "-l", str(self.args.latency),
+            "-i", r"[.]docx$",
+            "-e", ".",
+            "--batch-marker",
+            str(self.watchee),
+        ]
+        return subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            bufsize=1,
+            text=True,
+        )
 
     @classmethod
     def device(cls, path: Path) -> int:
