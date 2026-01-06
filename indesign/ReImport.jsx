@@ -1,5 +1,7 @@
 // ex: set et sw=2:
 
+// deno-lint-ignore-file no-var no-inner-declarations no-with
+
 // TODO: (clickable!) QR Codes
 // TODO: Status indication
 // TODO: Pairwise kerning
@@ -65,6 +67,7 @@ function ri_run(ri) {
     ri_reset_searches(ri);
     ri_stop_subcounter(ri, "Post-Import");
   }
+  ri_enable_grep(ri);
   ri_restore_reflow(ri);
   if (ri.uig_groom.checkedState) {
     ri_start_subcounter(ri);
@@ -110,11 +113,12 @@ function ri_unlog(ri) {
 }
 
 function ri_analyze(ri) {
+  var i;
   var vars = ri.doc.textVariables;
   ri.var_settings = null;
   ri.saved_settings = {}
 
-  for (var i = 0; i < vars.length; ++ i) {
+  for (i = 0; i < vars.length; ++ i) {
     var cur = vars[i]
     if (cur.variableType != VariableTypes.CUSTOM_TEXT_TYPE)
       continue;
@@ -145,7 +149,7 @@ function ri_analyze(ri) {
   if (ri.doc.tocStyles.length > 1) {
     ri.toc_styles = ri.doc.tocStyles.everyItem().name;
     ri.toc_styles.shift();
-    for (var i = 0; i < stories.length && !ri.have_toc; ++ i) {
+    for (i = 0; i < stories.length && !ri.have_toc; ++ i) {
       ri.have_toc = (stories[i].storyType == StoryTypes.TOC_STORY);
     }
   }
@@ -279,24 +283,34 @@ function ri_get_options(ri) {
 
       with (borderPanels.add()) {
         with (dialogColumns.add() ) {
-          staticTexts.add({staticLabel: "Default Parent:"});
-          staticTexts.add({staticLabel: "Headless Parent:"});
-          staticTexts.add({staticLabel: "First Parent:"});
+          staticTexts.add({staticLabel: "Body Parent:"});
+          staticTexts.add({staticLabel: "Next Page Parent:"});
+          staticTexts.add({staticLabel: "Odd/Even Page Parent:"});
+          staticTexts.add({staticLabel: "Title Parent:"});
+          staticTexts.add({staticLabel: "End Parent:"});
         }
         with (dialogColumns.add()) {
           var masters = ri.doc.masterSpreads.everyItem().name;
-          ri.ui_a_master = dropdowns.add({stringList: masters, selectedIndex: 0});
-          ri.ui_b_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
-          ri.ui_c_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
-          if (ri.saved_settings.a_master)
-            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.a_master)).isValid)
-              ri.ui_a_master.selectedIndex = m.index;
-          if (ri.saved_settings.b_master)
-            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.b_master)).isValid)
-              ri.ui_c_master.selectedIndex = ri.ui_b_master.selectedIndex = m.index;
-          if (ri.saved_settings.c_master)
-            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.c_master)).isValid)
-              ri.ui_c_master.selectedIndex = m.index;
+          ri.ui_std_master = dropdowns.add({stringList: masters, selectedIndex: 0});
+          ri.ui_nwp_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
+          ri.ui_nop_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
+          ri.ui_ttl_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
+          ri.ui_fnl_master = dropdowns.add({stringList: masters, selectedIndex: masters.length - 1});
+          if (ri.saved_settings.std_master)
+            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.std_master)).isValid)
+              ri.ui_std_master.selectedIndex = m.index;
+          if (ri.saved_settings.nwp_master)
+            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.nwp_master)).isValid)
+              ri.ui_ttl_master.selectedIndex = ri.ui_fnl_master.selectedIndex = ri.ui_nwp_master.selectedIndex = m.index;
+          if (ri.saved_settings.nop_master)
+            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.nop_master)).isValid)
+              ri.ui_ttl_master.selectedIndex = ri.ui_fnl_master.selectedIndex = ri.ui_nop_master.selectedIndex = m.index;
+          if (ri.saved_settings.ttl_master)
+            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.ttl_master)).isValid)
+              ri.ui_ttl_master.selectedIndex = ri.ui_fnl_master.selectedIndex = m.index;
+          if (ri.saved_settings.fnl_master)
+            if ((m = ri.doc.masterSpreads.itemByName(ri.saved_settings.fnl_master)).isValid)
+              ri.ui_fnl_master.selectedIndex = m.index;
         }
       }
 
@@ -319,12 +333,16 @@ function ri_get_options(ri) {
     return false;
   }
 
-  ri.a_master_name = masters[ri.ui_a_master.selectedIndex];
-  ri.a_master = ri.doc.masterSpreads.itemByName(ri.a_master_name);
-  ri.b_master_name = masters[ri.ui_b_master.selectedIndex];
-  ri.b_master = ri.doc.masterSpreads.itemByName(ri.b_master_name);
-  ri.c_master_name = masters[ri.ui_c_master.selectedIndex];
-  ri.c_master = ri.doc.masterSpreads.itemByName(ri.c_master_name);
+  ri.std_master_name = masters[ri.ui_std_master.selectedIndex];
+  ri.std_master = ri.doc.masterSpreads.itemByName(ri.std_master_name);
+  ri.nwp_master_name = masters[ri.ui_nwp_master.selectedIndex];
+  ri.nwp_master = ri.doc.masterSpreads.itemByName(ri.nwp_master_name);
+  ri.nop_master_name = masters[ri.ui_nop_master.selectedIndex];
+  ri.nop_master = ri.doc.masterSpreads.itemByName(ri.nop_master_name);
+  ri.ttl_master_name = masters[ri.ui_ttl_master.selectedIndex];
+  ri.ttl_master = ri.doc.masterSpreads.itemByName(ri.ttl_master_name);
+  ri.fnl_master_name = masters[ri.ui_fnl_master.selectedIndex];
+  ri.fnl_master = ri.doc.masterSpreads.itemByName(ri.fnl_master_name);
   return true;
 }
 
@@ -336,16 +354,6 @@ function ri_get_importee(ri) {
   return ri.importee;
 }
 
-function ri_filter_files(ri, file) {
-  if (file.constructor.name == "Folder") {
-    return true;
-  }
-  if (file.name.match(/\.(docx?|txt|idtt)$/)) {
-    return true;
-  }
-  return false;
-}
-
 function ri_pre_remaster(ri) {
   if (!ri.ui_pre_remaster.checkedState)
     return;
@@ -353,11 +361,10 @@ function ri_pre_remaster(ri) {
 }
 
 function ri_reset_all_masters(ri) {
-  var count = 0;
   var pages = ri.doc.pages;
-  ri_maybe_set_master(ri, pages[0], ri.c_master);
+  ri_maybe_set_master(ri, pages[0], ri.ttl_master);
   for (var i = 1; i < pages.length; ++ i)
-    ri_maybe_set_master(ri, pages[i], ri.a_master);
+    ri_maybe_set_master(ri, pages[i], ri.std_master);
 }
 
 function ri_pre_clear(ri) {
@@ -368,11 +375,13 @@ function ri_pre_clear(ri) {
     var frame = ri_main_frame(ri, page)
     var story = frame.parentStory;
     story.contents = "";
-  } catch (e) {
+  } catch (_e) {
+    // What can you do.
   }
   //ri_override_all_master_page_items(ri, page);
 }
 
+/*
 function ri_override_all_master_page_items(ri, page) {
   for (var i = 0; i < page.masterPageItems.length; ++ i) {
     mpi = page.masterPageItems[i];
@@ -384,6 +393,7 @@ function ri_override_all_master_page_items(ri, page) {
     }
   }
 }
+*/
 
 function ri_do_import(ri) {
   var page = ri.doc.pages[0];
@@ -420,9 +430,12 @@ function ri_do_import(ri) {
 
   obj = {importee: ri.importee.fsName};
 
-  obj["a_master"] = ri.a_master_name;
-  obj["b_master"] = ri.b_master_name;
-  obj["c_master"] = ri.c_master_name;
+  obj["std_master"] = ri.std_master_name;
+  obj["nwp_master"] = ri.nwp_master_name;
+  obj["nop_master"] = ri.nop_master_name;
+  obj["ttl_master"] = ri.ttl_master_name;
+  obj["fnl_master"] = ri.fnl_master_name;
+
   obj["dont_import_images"] = !ri.ui_import_images.checkedState;
   obj["dont_shrink_tables"] = !ri.ui_groom_resize_tables.checkedState;
   obj["handle_special_styles"] = ri.ui_post_special_styles.checkedState;
@@ -445,6 +458,8 @@ function ri_do_import(ri) {
 }
 
 function ri_do_images(ri) {
+  var i;
+
   if (!ri.ui_import_images.checkedState)
     return;
 
@@ -454,7 +469,7 @@ function ri_do_images(ri) {
       .characterStyles.item("(Image)");
     if (!image_ref_style.isValid)
       return;
-  } catch (e) {
+  } catch (_e) {
     return;
   }
 
@@ -467,11 +482,12 @@ function ri_do_images(ri) {
     var page = ri.doc.pages[0];
     var frame = ri_main_frame(ri, page)
     where = frame.parentStory;
-  } catch (e) {
+  } catch (_e) {
+    // Ignore
   }
 
   var refs = where.findGrep();
-  for (var i = 0; i < refs.length; ++ i) {
+  for (i = 0; i < refs.length; ++ i) {
     var ref = refs[i];
     var path = File(ri.doc.filePath + "/" + ref.contents);
     ref.select();
@@ -485,7 +501,7 @@ function ri_do_images(ri) {
   app.findGrepPreferences = NothingEnum.nothing;
 
   var links = ri.doc.links;
-  for (var i = 0; i < links.length; ++ i) {
+  for (i = 0; i < links.length; ++ i) {
     links[i].unlink();
   }
 }
@@ -497,7 +513,8 @@ function ri_post_clear_overrides(ri) {
   try {
     ri.doc.stories.everyItem().footnotes.everyItem().texts.everyItem().clearOverrides();
   }
-  catch (e) {
+  catch (_e) {
+    // So don't
   }
 }
 
@@ -543,12 +560,14 @@ function ri_fix_vav_in_font(ri, fontname) {
   app.findGrepPreferences = NothingEnum.nothing;
 }
 
-//function ri_en_to_em_dash_in_font(ri, fontname) {
-//  app.findGrepPreferences.appliedFont = fontname;
-//  ri_change_grep(ri, "(?<!\S)~=", "~_");
-//  ri_change_grep(ri, "~=(?!\S)", "~_");
-//  app.findGrepPreferences = NothingEnum.nothing;
-//}
+/* NOT USED
+function ri_en_to_em_dash_in_font(ri, fontname) {
+  app.findGrepPreferences.appliedFont = fontname;
+  ri_change_grep(ri, "(?<!\S)~=", "~_");
+  ri_change_grep(ri, "~=(?!\S)", "~_");
+  app.findGrepPreferences = NothingEnum.nothing;
+}
+*/
 
 function ri_post_remove_footnote_whitespace(ri) {
   if (!ri.ui_post_remove_footnote_whitespace.checkedState)
@@ -561,7 +580,8 @@ function ri_post_remove_footnote_whitespace(ri) {
       .footnotes.everyItem()
       .texts.everyItem()
       .changeGrep();
-  } catch (e) {
+  } catch (_e) {
+    // Oh well
   }
 }
 
@@ -580,7 +600,7 @@ function ri_post_convert_post_its(ri) {
     var ugly_ref_style = ri.doc
       .characterStyleGroups.item(AUTOGENERATED_GROUP_NAME)
       .characterStyles.item("(Comment Reference)");
-  } catch (e) {
+  } catch (_e) {
     return;
   }
 
@@ -786,7 +806,6 @@ function ri_fully_justify(ri, paragraphs, index) {
   }
 
   var lines = paragraph.lines;
-  var numLines = lines.count()
   var lastLine = lines[-1];
   var lastLineFrame = lastLine.parentTextFrames[0];
   if (lastLineFrame == undefined) {
@@ -859,7 +878,7 @@ function ri_fully_justify(ri, paragraphs, index) {
   }
 }
 
-/* NOT CURRENTLY USED */
+/* NOT CURRENTLY USED
 function ri_really_fully_justify(ri, paragraph) {
   var unfull_style = paragraph.appliedParagraphStyle;
 
@@ -880,19 +899,22 @@ function ri_really_fully_justify(ri, paragraph) {
   }
   paragraph.applyParagraphStyle(full_style);
 }
+*/
 
-function ri_reset_searches(ri) {
+function ri_reset_searches(_ri) {
   app.findTextPreferences = NothingEnum.nothing;
   app.changeTextPreferences = NothingEnum.nothing;
   app.findGrepPreferences = NothingEnum.nothing;
   app.changeGrepPreferences = NothingEnum.nothing;
 }
 
+/*
 function ri_change_text(ri, findWhat, changeTo) {
   app.findTextPreferences.findWhat = findWhat;
   app.changeTextPreferences.changeTo = changeTo;
   ri.doc.changeText();
 }
+*/
 
 function ri_change_grep(ri, findWhat, changeTo) {
   app.findGrepPreferences.findWhat = findWhat;
@@ -908,17 +930,18 @@ function ri_groom_fix_masters(ri) {
     ri_reset_all_masters(ri)
 
   var count = 0;
-  count += ri_set_b_master(ri, StartParagraph.NEXT_PAGE, false);
-  count += ri_set_b_master(ri, StartParagraph.NEXT_ODD_PAGE, true);
-  count += ri_set_b_master(ri, StartParagraph.NEXT_EVEN_PAGE, true);
-  count += ri_set_b_finals(ri);
+  count += ri_set_keep_master(ri, StartParagraph.NEXT_PAGE, ri.nwp_master, false);
+  count += ri_set_keep_master(ri, StartParagraph.NEXT_ODD_PAGE, ri.nop_master, true);
+  count += ri_set_keep_master(ri, StartParagraph.NEXT_EVEN_PAGE, ri.nop_master, true);
+  count += ri_set_final_master(ri);
+
   // TODO: NEXT_FRAME, NEXT_COLUMN
   if (count > 0) {
     ri_log(ri, "Set " + count + " B master(s).");
   }
 }
 
-function ri_set_b_master(ri, start_paragraph, check_prev) {
+function ri_set_keep_master(ri, start_paragraph, master, check_prev) {
   app.findTextPreferences = NothingEnum.nothing;
   app.findTextPreferences.startParagraph = start_paragraph;
   var pars = ri.doc.findText();
@@ -928,19 +951,19 @@ function ri_set_b_master(ri, start_paragraph, check_prev) {
     try {
       var page = par.parentTextFrames[0].parentPage;
       var pageIndex = page.documentOffset;
-    } catch(err) {
-      ri_log(ri, "Cannot get page object, check Smart Text Reflow for \"" + par.contents + "\"");
+    } catch(_err) {
+      ri_log(ri, "Cannot get page object, check Smart Text Reflow for \"" + par.contents + "\": " + err);
       continue;
     }
     if (pageIndex == 0) {
       continue;
     }
-    ri_set_master(ri, page, ri.b_master);
+    ri_set_master(ri, page, master);
     count += 1;
     if (check_prev) {
       var prev = ri.doc.pages[pageIndex - 1];
       if (ri_page_is_empty(ri, prev)) {
-        ri_set_master(ri, prev, ri.b_master);
+        ri_set_master(ri, prev, master);
         count += 1;
       }
     }
@@ -949,14 +972,14 @@ function ri_set_b_master(ri, start_paragraph, check_prev) {
   return count;
 }
 
-function ri_set_b_finals(ri) {
+function ri_set_final_master(ri) {
   var i, page, count = 0;
   for (i = ri.doc.pages.length - 1; i > 0; -- i) {
       page = ri.doc.pages[i];
       if (!ri_page_is_empty(ri, page)) {
         break;
       } else {
-        ri_set_master(ri, page, ri.b_master);
+        ri_set_master(ri, page, ri.fnl_master);
         count += 1;
       }
   }
@@ -1067,7 +1090,7 @@ function ri_restore_reflow(ri) {
   ri.reflow_changed = false;
 }
 
-function ri_main_frame(ri, page) {
+function ri_main_frame(_ri, page) {
   var frames = page.textFrames;
   if (frames == null)
     return null;
@@ -1078,7 +1101,8 @@ function ri_main_frame(ri, page) {
       if (master.nextTextFrame != null || master.previousTextFrame != null) {
         return frame;
       }
-    } catch (e) {
+    } catch (_e) {
+      // Oh well
     }
   }
   return frames[0];
@@ -1136,6 +1160,7 @@ function riss_create_destinations(ri) {
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
     var name = normalize_name(text.contents);
+    // deno-lint-ignore no-prototype-builtins
     if (ri.destinations.hasOwnProperty(name)) {
       ri_log(ri, "Ignoring duplicate: \"" + name + "\" is " + ri.destinations[name].toSource());
     } else {
@@ -1187,7 +1212,6 @@ function riss_redo_sources(ri) {
   app.findGrepPreferences = NothingEnum.nothing;
 
   var added = 0;
-  var styles = ri.doc.allCharacterStyles;
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
     var contents = text.contents;
@@ -1197,6 +1221,7 @@ function riss_redo_sources(ri) {
     }
 
     var name = normalize_name(contents.substring(1));
+    // deno-lint-ignore no-prototype-builtins
     if (!ri.destinations.hasOwnProperty(name)) {
       ri_log(ri, "Ignoring unknown destination: \"" + name + "\"");
       continue;
@@ -1225,7 +1250,7 @@ function riss_do_mirrors(ri) {
       hit.createOutlines()[0].flipItem(Flip.HORIZONTAL);
       count ++;
     } catch(err) {
-      ri_log(ri, "Couldn't flip \"" + hit + "\"");
+      ri_log(ri, "Couldn't flip \"" + hit + "\": " + err);
     }
   }
 
@@ -1323,7 +1348,7 @@ function riss_do_sections(ri) {
 
   try {
     ri.doc.sections.itemsByRange(1, -1).remove();
-  } catch(err) {
+  } catch(_e) {
     // Ignore
   }
   for (var j = 0; j < paras.length; ++ j) {
@@ -1332,7 +1357,7 @@ function riss_do_sections(ri) {
     try {
       ri.doc.sections.add(page);
       count ++;
-    } catch(err) {
+    } catch(_e) {
       // Ignore
     }
   }
