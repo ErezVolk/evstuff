@@ -144,9 +144,10 @@ class Whoms:
             f"{k_of_n(albums.heard)} albums",
             f"{k_of_n(whoms.heard)} players",
             f"{x_of_y(int(hours_heard), int(hours_total))} hours",
-            f"median {int(albums.minutes.median())} "
-            f"(unheard: {int(albums[~albums.heard].minutes.median())}) "
-            f"minutes",
+            f"median {int(albums.minutes.median())} ("
+            f"heard: {int(albums[albums.heard].minutes.median())}, "
+            f"unheard: {int(albums[~albums.heard].minutes.median())}"
+            f") minutes",
         ]
         print("Heard", ", ".join(heards))
 
