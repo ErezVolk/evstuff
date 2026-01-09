@@ -276,8 +276,8 @@ class Whoms:
                 flag = "-F" if self.args.git_commit else "-t"
                 cmd = ["git", "commit", path.name, flag, csv.dath.name]
                 print(">", " ".join(cmd))
-                self.run(cmd, cwd=path.parent)
-                if self.args.git_push:
+                proc = self.run(cmd, cwd=path.parent, check=False)
+                if proc.returncode == 0 and self.args.git_push:
                     cmd = ["git", "push"]
                     print(">", " ".join(cmd))
                     self.run(cmd, cwd=path.parent)
