@@ -4,7 +4,7 @@
 
 /* TODO:
  - (clickable!) QR Codes
- - Yori's thing (@Rasterize@ takes text frame and sets export options; but can also just be the master!)
+ - Yori's thing (@Rasterize@ takes text frame, duplicates, sets no-export on original?)
  - Assign exported classes for hebrew (Paragraph?) style names (based on ARIA roles? based on Word internal names?)
  - flag bad orphans (at top of even page, either one word line or one line pre-space; maybe a pre-pause page-bottom too-close-to-aligned)
  - Separate log into good and bad
