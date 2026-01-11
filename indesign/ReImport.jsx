@@ -3,9 +3,11 @@
 // deno-lint-ignore-file no-var no-inner-declarations no-with
 
 /* TODO:
- - flag bad orphans (at top of even page, either one word line or one line pre-space; maybe a pre-pause page-bottom too-close-to-aligned)
- - Separate log into 
  - (clickable!) QR Codes
+ - Yori's thing (@Rasterize@ takes text frame and sets export options; but can also just be the master!)
+ - Assign exported classes for hebrew (Paragraph?) style names (based on ARIA roles? based on Word internal names?)
+ - flag bad orphans (at top of even page, either one word line or one line pre-space; maybe a pre-pause page-bottom too-close-to-aligned)
+ - Separate log into good and bad
  - Status indication
  - Pairwise kerning
  - Check for the double frame thing at beginning/end.
