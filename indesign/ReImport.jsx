@@ -1429,14 +1429,9 @@ function ri_get_all_paras_with_styles_containing(ri, substr) {
 
   app.findGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = "^";
-  var styles = ri.doc.allParagraphStyles;
+  var styles = ri_filter_styles(ri.doc.allParagraphStyles, substr);
   for (var j = 0; j < styles.length; ++ j) {
-    var style = styles[j];
-    if (style.name.indexOf(substr) < 0) {
-      continue;
-    }
-
-    app.findGrepPreferences.appliedParagraphStyle = style;
+    app.findGrepPreferences.appliedParagraphStyle = styles[j];
     var hits = ri.doc.findGrep();
     for (var k = 0; k < hits.length; ++ k) {
       paras.push(hits[k].paragraphs[0]);
@@ -1455,14 +1450,9 @@ function ri_get_all_paras_with_styles_containing(ri, substr) {
 function ri_get_all_texts_with_styles_containing(ri, substr) {
   var texts = [];
 
-  var styles = ri.doc.allCharacterStyles;
+  var styles = ri_filter_styles(ri.doc.allCharacterStyles, substr);
   for (var j = 0; j < styles.length; ++ j) {
-    var style = styles[j];
-    if (style.name.indexOf(substr) < 0) {
-      continue;
-    }
-
-    app.findGrepPreferences.appliedCharacterStyle = style;
+    app.findGrepPreferences.appliedCharacterStyle = styles[j];
     var hits = ri.doc.findGrep();
     for (var k = 0; k < hits.length; ++ k) {
       texts.push(hits[k]);
@@ -1472,6 +1462,16 @@ function ri_get_all_texts_with_styles_containing(ri, substr) {
   return texts;
 }
 
+function ri_filter_styles(all_styles, substr) {
+  var styles = [];
+  for (var j = 0; j < all_styles.length; ++ j) {
+    var style = all_styles[j];
+    if (style.name.indexOf(substr) >= 0)
+      styles.push(style)
+  }
+
+  return styles;
+}
 
 
 ri_main();
