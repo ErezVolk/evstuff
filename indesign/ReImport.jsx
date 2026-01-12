@@ -274,15 +274,17 @@ function ri_get_options(ri) {
               checkedState: !ri.saved_settings.unkeep_masters,
             });
           if (ri.have_toc) {
-            ri.ui_groom_update_toc =
-              checkboxControls.add({
-                staticLabel: "Update TOC",
-                checkedState: !ri.saved_settings.unupdate_toc,
+            with (dialogRows.add()) {
+              ri.ui_groom_update_toc =
+                checkboxControls.add({
+                  staticLabel: "Update TOC",
+                  checkedState: !ri.saved_settings.unupdate_toc,
+                });
+              ri.ui_groom_toc_style = dropdowns.add({
+                stringList: ri.toc_styles,
+                selectedIndex: 0
               });
-            ri.ui_groom_toc_style = dropdowns.add({
-              stringList: ri.toc_styles,
-              selectedIndex: 0
-            });
+            }
           }
         }
       }
