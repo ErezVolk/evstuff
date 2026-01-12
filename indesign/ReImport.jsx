@@ -1,6 +1,6 @@
 // ex: set et sw=2:
 
-// deno-lint-ignore-file no-var no-inner-declarations no-with
+// deno-lint-ignore-file no-var no-inner-declarations no-with no-prototype-builtins
 
 /* TODO:
  - (clickable!) QR Codes
@@ -1168,7 +1168,6 @@ function riss_create_destinations(ri) {
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
     var name = normalize_name(text.contents);
-    // deno-lint-ignore no-prototype-builtins
     if (ri.destinations.hasOwnProperty(name)) {
       ri_log(ri, "Ignoring duplicate: \"" + name + "\" is " + ri.destinations[name].toSource());
     } else {
@@ -1229,7 +1228,6 @@ function riss_redo_sources(ri) {
     }
 
     var name = normalize_name(contents.substring(1));
-    // deno-lint-ignore no-prototype-builtins
     if (!ri.destinations.hasOwnProperty(name)) {
       ri_log(ri, "Ignoring unknown destination: \"" + name + "\"");
       continue;
@@ -1387,17 +1385,15 @@ function riss_do_masters(ri) {
 }
 
 function riss_do_master(ri, master) {
-  var paras = ri_get_all_paras_with_styles_containing(ri, "@Master" + master.namePrefix + "@");
+  var frames = ri_get_all_frames_with_para_styles_containins(ri, "@Master" + master.namePrefix + "@");
 
-  if (paras.length == 0)
+  if (frames.length == 0)
     return
 
   var count = 0;
-  for (var i = 0; i < paras.length; ++ i) {
+  for (var i = 0; i < frames.length; ++ i) {
     try {
-      var frame = paras[i].parentTextFrames[0];
-      var page = frame.parentPage;
-      ri_set_master(ri, page, master);
+      ri_set_master(ri, frames[i].parentPage, master);
       count += 1;
     } catch(err) {
       ri_log(ri, "*** Cannot set " + master.name + ": " + err);
@@ -1405,6 +1401,27 @@ function riss_do_master(ri, master) {
   }
 
   return count;
+}
+
+function ri_get_all_frames_with_para_styles_containins(ri, substr) {
+  var fids = {};
+  var paras = ri_get_all_paras_with_styles_containing(ri, substr);
+  var frames = [];
+  for (var i = 0; i < paras.length; ++ i) {
+    try {
+      var frame = paras[i].parentTextFrames[0];
+    } catch (_e) {
+      continue;
+    }
+    var fid = frame.id;
+    if (fids.hasOwnProperty(fid))
+      continue;
+    fids[fid] = true;
+    frames.push(frame);
+  }
+
+  frames.sort(function(fx, fy){ x = fx.parentPage.index; y = fy.parentPage.index; return x < y ? -1 : x == y ? 0 : 1 });
+  return frames;
 }
 
 function ri_get_all_paras_with_styles_containing(ri, substr) {
