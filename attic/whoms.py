@@ -225,8 +225,9 @@ class Whoms:
             if n_rows > 1:
                 parts.insert(0, f"one of {n_rows} ")
                 parts.append("s")
-            row = rows.sample(1).iloc[0]
-            print(f"- ({''.join(parts)}) {row_desc(row)}")
+            if n_rows > 0:
+                row = rows.sample(1).iloc[0]
+                print(f"- ({''.join(parts)}) {row_desc(row)}")
 
     def choose_heard(self, albums: pd.DataFrame) -> None:
         """Choose things to relisten to."""
