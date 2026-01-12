@@ -7,7 +7,7 @@ import tempfile
 import typing as t
 from pathlib import Path
 
-import pandas as pd  # type: ignore[import-not-found]
+import pandas as pd  # type: ignore[import-not-found,import-untyped]
 
 
 class Paths(t.NamedTuple):
@@ -167,7 +167,10 @@ class Whoms:
                 print("Bad query:", exc)
                 return
 
-        self.choose_unheard(albums, unheard, whoms)
+        if len(unheard) > 0:
+            self.choose_unheard(albums, unheard, whoms)
+        else:
+            print("Time to find more music.")
         self.choose_heard(albums)
 
     def choose_unheard(
@@ -177,10 +180,6 @@ class Whoms:
         whoms: pd.DataFrame,
     ) -> None:
         """Choose among the unheard albums."""
-        if len(unheard) == 0:
-            print("Time to find more music.")
-            return
-
         if self.args.shortest_nth:
             n_shortest = max(len(unheard) // self.args.shortest_nth, 1)
             shorts = unheard.sort_values("dt").iloc[:n_shortest]
