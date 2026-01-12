@@ -4,9 +4,8 @@
 
 /* TODO:
  - (clickable!) QR Codes
- - Yori's thing (@Rasterize@ takes text frame, duplicates, sets no-export on original?)
- - Assign exported classes for hebrew (Paragraph?) style names (based on ARIA roles? based on Word internal names?)
  - flag bad orphans (at top of even page, either one word line or one line pre-space; maybe a pre-pause page-bottom too-close-to-aligned)
+ - Assign exported classes for hebrew (Paragraph?) style names (based on ARIA roles? based on Word internal names?)
  - Separate log into good and bad
  - Status indication
  - Pairwise kerning
@@ -82,6 +81,7 @@ function ri_run(ri) {
     ri_groom_resize_tables(ri);
     ri_groom_fix_masters(ri);
     ri_groom_special_styles(ri);
+    ri_groom_rasterize(ri);
     ri_groom_update_toc(ri);
     ri_stop_subcounter(ri, "Grooming");
   }
@@ -274,6 +274,11 @@ function ri_get_options(ri) {
               staticLabel: "Keep correct parents",
               checkedState: !ri.saved_settings.unkeep_masters,
             });
+          ri.ui_groom_rasterize =
+            checkboxControls.add({
+              staticLabel: "Rasterize by special style",
+              checkedState: !!ri.saved_settings.rasterize,
+            });
           if (ri.have_toc) {
             with (dialogRows.add()) {
               ri.ui_groom_update_toc =
@@ -453,6 +458,7 @@ function ri_do_import(ri) {
   obj["keep_reflow"] = !ri.ui_disable_reflow.checkedState;
   obj["not_pre_clear"] = !ri.ui_pre_clear.checkedState;
   obj["not_pre_remaster"] = !ri.ui_pre_remaster.checkedState;
+  obj["rasterize"] = ri.ui_groom_rasterize.checkedState;
   obj["unconvert_newlines"] = !ri.ui_post_convert_newlines.checkedState;
   obj["unconvert_post_its"] = !ri.ui_post_convert_post_its.checkedState;
   obj["unfix_justification"] = !ri.ui_groom_fully_justify.checkedState;
@@ -1136,7 +1142,6 @@ function ri_groom_special_styles(ri) {
   riss_do_valigns(ri);
   riss_do_sections(ri);
   riss_do_masters(ri);
-  riss_do_rasterize(ri);
 }
 
 function riss_do_destinations(ri) {
@@ -1403,58 +1408,66 @@ function riss_do_master(ri, master) {
   return count;
 }
 
-function riss_do_rasterize(ri) {
-  var frames = ri_get_all_frames_with_para_styles_containins(ri, "@Rasterize@");
+function ri_groom_rasterize(ri) {
+  if (!ri.ui_groom_rasterize.checkedState)
+    return;
 
+  var frames = ri_get_all_frames_with_para_styles_containins(ri, "@Rasterize@");
   if (frames.length == 0)
     return;
 
   var layers = ri.doc.layers;
-  var i, srcLayer, dstLayer = layers.itemByName(RASTERIZED_LAYER_NAME);
+  var i, src_frame, dst_frame;
+  var src_layer, dst_layer = layers.itemByName(RASTERIZED_LAYER_NAME);
   for (i = layers.length - 1; i >= 0; -- i) {
     var layer = layers[i];
-    if (layer != dstLayer) {
-      srcLayer = layer;
+    if (layer != dst_layer) {
+      src_layer = layer;
       break;
     }
   }
 
-  if (!srcLayer || !srcLayer.isValid) {
+  if (!src_layer || !src_layer.isValid) {
     ri_log(ri, "No non-Rasterize layer!");
     return;
   }
 
-  if (dstLayer && dstLayer.isValid) {
+  if (dst_layer && dst_layer.isValid) {
     try {
-      frames = dstLayer.textFrames;
-      for (i = frames.length - 1; i >= 0; -- i) {
-        frame = frames[i];
-        frame.itemLayer = srcLayer;
-      }
-      dstLayer.remove();
+      dst_layer.remove();
     }
     catch (e) {
       ri_log("Cannot remove old layer: " + e);
     }
   }
+  dst_layer = layers.add({name: RASTERIZED_LAYER_NAME});
 
-  dstLayer = layers.add({name: RASTERIZED_LAYER_NAME});
-
+  src_frames = []
   for (i = 0; i < frames.length; ++ i) {
-    frame = frames[i];
-    if (frame.itemLayer == srcLayer) {
-      frame.objectExportOptions.properties = {
-        customLayout: true,
-        customLayoutType: CustomLayoutTypeEnum.ALIGNMENT_AND_SPACING,
-        imageConversionType: ImageFormat.JPEG,
-        imageExportResolution: ImageResolution.PPI_300,
-        imagePageBreak: ImagePageBreakType.PAGE_BREAK_AFTER,
-        jpegOptionsFormat: JPEGOptionsFormat.BASELINE_ENCODING,
-        jpegOptionsQuality: JPEGOptionsQuality.HIGH,
-        preserveAppearanceFromLayout: PreserveAppearanceFromLayoutEnum.PRESERVE_APPEARANCE_RASTERIZE_CONTAINER,
-        sizeType: SizeTypeEnum.NONE_SIZE }
-      frame.itemLayer = dstLayer;
-    }
+    var frame = frames[i];
+    if (frame.itemLayer == src_layer)
+      src_frames.push(frame);
+  }
+
+  for (i = src_frames.length - 1; i >= 0; -- i) {
+    src_frame = src_frames[i];
+    dst_frame = src_frame.duplicate(dst_layer);
+    dst_frame.objectExportOptions.properties = {
+      customLayout: true,
+      customLayoutType: CustomLayoutTypeEnum.ALIGNMENT_AND_SPACING,
+      imageConversionType: ImageFormat.JPEG,
+      imageExportResolution: ImageResolution.PPI_300,
+      imagePageBreak: ImagePageBreakType.PAGE_BREAK_AFTER,
+      jpegOptionsFormat: JPEGOptionsFormat.BASELINE_ENCODING,
+      jpegOptionsQuality: JPEGOptionsQuality.HIGH,
+      preserveAppearanceFromLayout: PreserveAppearanceFromLayoutEnum.PRESERVE_APPEARANCE_RASTERIZE_CONTAINER,
+      sizeType: SizeTypeEnum.NONE_SIZE }
+  }
+
+  for (i = src_frames.length - 1; i >= 0; -- i) {
+    src_frame = src_frames[i];
+    src_frame.contents = "";
+    src_frame.remove()
   }
 
   ri_log(ri, "Rasterized " + frames.length + " frame(s).");
