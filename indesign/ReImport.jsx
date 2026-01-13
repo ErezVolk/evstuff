@@ -1274,7 +1274,7 @@ function riss_do_mirrors(ri) {
       hit.createOutlines()[0].flipItem(Flip.HORIZONTAL);
       count ++;
     } catch(err) {
-      ri_logw(ri, "Couldn't flip \"" + hit + "\": " + err);
+      ri_logw(ri, "Couldn't flip \"" + hit.contents + "\": " + err);
     }
   }
 
