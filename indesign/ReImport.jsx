@@ -1424,9 +1424,11 @@ function ri_groom_rasterize(ri) {
     return;
 
   var layers = ri.doc.layers;
-  var dst_layer = layers.itemByName(RASTERIZED_LAYER_NAME);
+  var i, layer, src_frame, dst_frame, src_layer, dst_layer, frames;
+
+  dst_layer = layers.itemByName(RASTERIZED_LAYER_NAME);
   for (i = layers.length - 1; i >= 0; -- i) {
-    var layer = layers[i];
+    layer = layers[i];
     if (layer != dst_layer) {
       src_layer = layer;
       break;
@@ -1438,19 +1440,19 @@ function ri_groom_rasterize(ri) {
     return;
   }
 
-  var frames = ri_get_all_frames_with_para_styles_containins(ri, "@Rasterize@");
-  if (frames.length == 0)
-    return;
-
-  var i, src_frame, dst_frame, src_layer;
   if (dst_layer && dst_layer.isValid) {
     try {
       dst_layer.remove();
     }
     catch (e) {
-      ri_logw("Cannot remove old layer: " + e);
+      ri_logw("Cannot remove old rasterized layer: " + e);
     }
   }
+
+  frames = ri_get_all_frames_with_para_styles_containins(ri, "@Rasterize@");
+  if (frames.length == 0)
+    return;
+
   dst_layer = layers.add({name: RASTERIZED_LAYER_NAME});
 
   src_frames = []
@@ -1476,9 +1478,7 @@ function ri_groom_rasterize(ri) {
   }
 
   for (i = src_frames.length - 1; i >= 0; -- i) {
-    src_frame = src_frames[i];
-    src_frame.contents = "";
-    src_frame.remove()
+    src_frames[i].contents = SpecialCharacters.FRAME_BREAK;
   }
 
   ri_log(ri, "Rasterized " + frames.length + " frame(s).");
