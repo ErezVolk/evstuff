@@ -388,7 +388,7 @@ function ri_clear_old_epub_stuff(ri) {
 
   ri.for_epub = {};
 
-  var i, j, body, layer, frames, frame;
+  var i, j, home, layer, frames, frame;
   var layers = ri.doc.layers;
 
   // Remove extra layers (but salvage things that had been moved there)
@@ -398,10 +398,14 @@ function ri_clear_old_epub_stuff(ri) {
     layer = layers[i];
     if (MY_NAME_RE.test(layer.name)) {
       remove.push(layer);
-    } else if (!body) {
-      body = layer; // The "home base", to which we return things we moved away
+    } else if (!home) {
+      home = layer; // The "home base", to which we return things we moved away
     }
   }
+
+  if (!home)
+    throw "No non-ReImport layer found, this document is bad.";
+
   for (i = 0; i < remove.length; ++ i) {
     layer = remove[i];
     frames = layer.textFrames;
@@ -409,7 +413,7 @@ function ri_clear_old_epub_stuff(ri) {
       frame = frames[j];
       if (frame.nextTextFrame || frame.previousTextFrame) {
         // Main frame that was rasterized and moved away to get correct ordering in EPUB
-        frame.itemLayer = body;
+        frame.itemLayer = home;
         salvaged ++;
       }
     }
@@ -480,7 +484,7 @@ function ri_find_story(ri) {
   var pages = ri.doc.pages;
   for (var i = 0; i < pages.length; ++ i) {
     var page = pages[i];
-    var frame = ri_main_frame(ri, page)
+    var frame = ri_main_frame(ri, page, true)
     var story = frame.parentStory;
     if (story.isValid) {
       ri.story = story;
@@ -857,10 +861,7 @@ function ri_groom_fully_justify(ri) {
   if (!ri.ui_groom_fully_justify.checkedState)
     return;
 
-  var page = ri.doc.pages[0];
-  var frame = ri_main_frame(ri, page);
-  var story = frame.parentStory;
-  var paragraphs = story.paragraphs;
+  var paragraphs = ri.story.paragraphs;
 
   var prefs = ri.doc.viewPreferences;
   var oldUnits = prefs.horizontalMeasurementUnits;
@@ -1203,11 +1204,12 @@ function ri_restore_reflow(ri) {
   ri.reflow_changed = false;
 }
 
-function ri_main_frame(_ri, page) {
+function ri_main_frame(_ri, page, must) {
   var frames = page.textFrames;
   if (frames == null)
     return null;
 
+  found = []
   for (var i = 0; i < frames.length; ++ i) {
     try {
       var frame = frames[i];
@@ -1219,12 +1221,18 @@ function ri_main_frame(_ri, page) {
         continue;
       if (MY_NAME_RE.test(layer.name))
         continue;
-      if (frame.nextTextFrame || frame.previousTextFrame )
-        return frame;
+      if (frame.nextTextFrame || frame.previousTextFrame)
+        found.push(frame);
     } catch (_e) {
       // Oh well
     }
   }
+  if (found.length > 1 && must)
+    ri_logw(ri, "Found " + found.length + " linked frames");
+  if (found.length > 0)
+    return found[0];
+  if (or_die)
+    throw "No main frame found, cannot work";
   return frames[0];
 }
 
