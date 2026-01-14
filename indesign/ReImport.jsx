@@ -100,7 +100,7 @@ function ri_stop_counter(ri) {
 
   if (ri.warnings.length > 0) {
     ri.messages.push("\nWARNINGS:");
-    ri.messages = ri.messages.concat(ri.messages);
+    ri.messages = ri.messages.concat(ri.warnings);
   }
 
   ri.messages.unshift("Done in " + String(elapsed) + " Sec.");
@@ -210,7 +210,7 @@ function ri_get_options(ri) {
           });
           ri.ui_import_options = checkboxControls.add({
             staticLabel: "Show import options",
-            checkedState: !ri.saved_settings.hide_import_options,
+            checkedState: !!ri.saved_settings.show_import_options,
           });
           ri.ui_import_images = checkboxControls.add({
             staticLabel: "Import images",
@@ -464,7 +464,7 @@ function ri_do_import(ri) {
   obj["dont_import_images"] = !ri.ui_import_images.checkedState;
   obj["dont_shrink_tables"] = !ri.ui_groom_resize_tables.checkedState;
   obj["handle_special_styles"] = ri.ui_post_special_styles.checkedState;
-  obj["hide_import_options"] = !ri.ui_import_options.checkedState;
+  obj["show_import_options"] = ri.ui_import_options.checkedState;
   obj["keep_grep"] = !ri.ui_disable_grep.checkedState;
   obj["keep_reflow"] = !ri.ui_disable_reflow.checkedState;
   obj["not_pre_clear"] = !ri.ui_pre_clear.checkedState;
