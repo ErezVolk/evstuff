@@ -48,6 +48,7 @@ function ri_run(ri) {
   ri_start_counter(ri);
   ri_disable_grep(ri);
   ri_disable_reflow(ri);
+  ri_clear_old_epub_stuff(ri);
   ri_find_story(ri);
   if (ri.uig_pre.checkedState) {
     ri_start_subcounter(ri);
@@ -57,7 +58,6 @@ function ri_run(ri) {
     ri_pre_remaster(ri);
     ri_stop_subcounter(ri, "Pre-Master");
   }
-  ri_clear_old_epub_stuff(ri);
   if (ri.uig_import.checkedState) {
     ri_start_subcounter(ri);
     ri_do_import(ri);
@@ -388,28 +388,45 @@ function ri_clear_old_epub_stuff(ri) {
 
   ri.for_epub = {};
 
-  var i, j;
+  var i, j, body, layer, frames, frame;
   var layers = ri.doc.layers;
-  var removed = []
+  var remove = []
+  var salvaged = 0;
   for (i = layers.length - 1; i >= 0; -- i) {
-    var layer = layers[i];
-    var name = layer.name;
-    if (MY_NAME_RE.test(name)) {
-      layer.remove();
-      removed.push(name);
+    layer = layers[i];
+    if (MY_NAME_RE.test(layer.name)) {
+      remove.push(layer);
+    } else if (!body) {
+      body = layer;
     }
   }
-  if (removed.length > 0) {
-    ri_log(ri, "Removed old layers: " + removed.join(" "));
+  for (i = 0; i < remove.length; ++ i) {
+    layer = remove[i];
+    frames = layer.textFrames;
+    for (j = frames.length - 1; j >= 0; -- j) {
+      frame = frames[j];
+      if (frame.nextTextFrame || frame.previousTextFrame) {
+        frame.itemLayer = body;
+        salvaged ++;
+      }
+    }
+    layer.remove()
+  }
+  if (remove.length > 0) {
+    ri_log(ri, "Removed old layers: " + remove.join(" "));
+  }
+  if (salvaged > 0) {
+    ri_log(ri, "Salvaged " + salvaged + " threaded frame(s)");
   }
 
   var pages = ri.doc.pages;
   var count = 0;
   for (i = pages.length - 1; i >= 0; -- i) {
-    var frames = pages[i].textFrames;
+    frames = pages[i].textFrames;
     for (j = frames.length - 1; j >= 0; -- j) {
-      var frame = frames[j];
+      frame = frames[j];
       if (MY_NAME_RE.test(frame.label)) {
+        frame.locked = false;
         frame.remove();
         count ++;
       }
@@ -1078,9 +1095,11 @@ function ri_page_is_empty(ri, page) {
   if (page.pageItems.length == 0) {
     return true;
   }
-  if (ri_main_frame(ri, page).contents == "") {
+  var frame = ri_main_frame(ri, page);
+  if (frame && frame.isValid && frame.contents == "") {
     return true;
   }
+  return false;
 }
 
 function ri_set_master(ri, page, master) {
@@ -1194,7 +1213,7 @@ function ri_main_frame(_ri, page) {
         continue;
       if (MY_NAME_RE.test(layer.name))
         continue;
-      if (frame.nextTextFrame != null || frame.previousTextFrame != null)
+      if (frame.nextTextFrame || frame.previousTextFrame )
         return frame;
     } catch (_e) {
       // Oh well
@@ -1522,7 +1541,7 @@ function ri_groom_rasterize(ri) {
   if (!ri.ui_epubbify.checkedState)
     return;
 
-  var i, src_frame, dst_frame, src_frames, dst_layer;
+  var i, src_frame, dst_frame, src_frames, dst_layer, new_src_layer;
 
   src_frames = ri_get_all_frames_with_para_styles_containins(ri, "@Rasterize@");
   if (src_frames.length == 0)
@@ -1533,6 +1552,7 @@ function ri_groom_rasterize(ri) {
   app.findGrepPreferences.findWhat = ".+";
   app.changeGrepPreferences.changeTo = "";
 
+  new_src_layer = ri_get_epub_layer(ri, "non_epub");
   if (RASTERIZE_TO_LAYER)
     dst_layer = ri_get_epub_layer(ri, "rasterized");
   for (i = src_frames.length - 1; i >= 0; -- i) {
@@ -1558,6 +1578,7 @@ function ri_groom_rasterize(ri) {
     } catch (e) {
       ri_logw(ri, "Cannot clear source frame: " + e);
     }
+    src_frame.itemLayer = new_src_layer;
   }
 
   app.findGrepPreferences = NothingEnum.nothing;
