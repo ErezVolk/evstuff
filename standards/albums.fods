@@ -20,7 +20,7 @@
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
        <config:config-item config:name="VerticalSplitPosition" config:type="int">1</config:config-item>
        <config:config-item config:name="ActiveSplitRange" config:type="short">2</config:config-item>
-       <config:config-item config:name="PositionLeft" config:type="int">3</config:config-item>
+       <config:config-item config:name="PositionLeft" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionBottom" config:type="int">827</config:config-item>
@@ -36,7 +36,7 @@
       </config:config-item-map-entry>
      </config:config-item-map-named>
      <config:config-item config:name="ActiveTable" config:type="string">Sheet1</config:config-item>
-     <config:config-item config:name="HorizontalScrollbarWidth" config:type="int">1767</config:config-item>
+     <config:config-item config:name="HorizontalScrollbarWidth" config:type="int">1664</config:config-item>
      <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
      <config:config-item config:name="ZoomValue" config:type="int">100</config:config-item>
      <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -119,9 +119,9 @@
    <config:config-item config:name="IsSnapToRaster" config:type="boolean">false</config:config-item>
    <config:config-item config:name="LinkUpdateMode" config:type="short">3</config:config-item>
    <config:config-item config:name="LoadReadonly" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrinterName" config:type="string">Brother HL-L8260CDW series</config:config-item>
+   <config:config-item config:name="PrinterName" config:type="string">Default printer</config:config-item>
    <config:config-item config:name="PrinterPaperFromSetup" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrinterSetup" config:type="base64Binary">QwH+/0Jyb3RoZXIgSEwtTDgyNjBDRFcgc2VyaWVzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQnJvdGhlciBITC1MODI2MENEVyBzZXJpZXMtQWlyUAAWAAQABAAAAAAAAAAEAAhSAAAEdAAAAAAAABIAQ09NUEFUX0RVUExFWF9NT0RFEwBEdXBsZXhNb2RlOjpVbmtub3duDABQUklOVEVSX05BTUUaAEJyb3RoZXIgSEwtTDgyNjBDRFcgc2VyaWVzCwBEUklWRVJfTkFNRSMAQnJvdGhlciBITC1MODI2MENEVyBzZXJpZXMtQWlyUHJpbnQ=</config:config-item>
+   <config:config-item config:name="PrinterSetup" config:type="base64Binary">FQH+/0RlZmF1bHQgcHJpbnRlcgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAAQABAAAAAAAAAAEAAhSAAAEdAAAAAAAABIAQ09NUEFUX0RVUExFWF9NT0RFEwBEdXBsZXhNb2RlOjpVbmtub3duDABQUklOVEVSX05BTUUPAERlZmF1bHQgcHJpbnRlcgsARFJJVkVSX05BTUUAAA==</config:config-item>
    <config:config-item config:name="RasterIsVisible" config:type="boolean">false</config:config-item>
    <config:config-item config:name="RasterResolutionX" config:type="int">1000</config:config-item>
    <config:config-item config:name="RasterResolutionY" config:type="int">1000</config:config-item>
@@ -22054,7 +22054,13 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Rashaan Carter</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell office:value-type="date" office:date-value="2026-01-15" calcext:value-type="date">
+      <text:p>2026-01</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Very strong Miles vibes here, with a more bearable personality (but he gets pretty close on &quot;Stand&quot;).</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="697" calcext:value-type="float">
