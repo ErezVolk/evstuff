@@ -756,7 +756,7 @@ function ri_post_convert_post_its(ri) {
     nice_frame.anchoredObjectSettings
       .insertAnchoredObject(ugly_ref.storyOffset, AnchorPosition.ANCHORED);
 
-    ri_fix_post_it(ri, nice_frame);
+    nice_frame.applyObjectStyle(ri_post_it_object_style(ri));
   }
 
   // Get rid of the ugly footnotes
@@ -764,10 +764,6 @@ function ri_post_convert_post_its(ri) {
 
   // Get rid of the ugly style
   ugly_ref_style.remove();
-}
-
-function ri_fix_post_it(ri, frame) {
-  frame.applyObjectStyle(ri_post_it_object_style(ri));
 }
 
 function ri_post_it_object_style(ri) {
