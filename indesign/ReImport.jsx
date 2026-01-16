@@ -746,10 +746,10 @@ function ri_post_convert_post_its(ri) {
     for (var j = 0; j < ugly_paragraphs.length; ++ j) {
       var ugly_paragraph = ugly_paragraphs[j];
       var nice_paragraph = ugly_paragraph.duplicate(LocationOptions.AT_END, nice_frame);
-
-      prefix = nice_paragraph.characters[0];
-      if (prefix.contents == SpecialCharacters.FOOTNOTE_SYMBOL)
-        prefix.remove();
+      var nice_characters = nice_paragraph.characters;
+      if (nice_characters[0].contents == SpecialCharacters.FOOTNOTE_SYMBOL) {
+        nice_characters.itemByRange(0, 1).remove();
+      }
     }
 
     nice_frame.anchoredObjectSettings
@@ -836,10 +836,11 @@ function ri_post_it_object_style(ri) {
     distance: "6pt"
   }
 
+  var length = String(ri.doc.marginPreferences.left) + " - 6pt";
   style.transformAttributeOptions.properties = {
     transformAttrRefAnchorPoint: AnchorPoint.CENTER_ANCHOR,
-    transformAttrHeight: "72pt",
-    transformAttrWidth: "72pt"
+    transformAttrHeight: length,
+    transformAttrWidth: length
   }
 
   return style;
