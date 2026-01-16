@@ -74,6 +74,7 @@ function ri_run(ri) {
     ri_post_remove_footnote_whitespace(ri);
     ri_post_convert_newlines(ri);
     ri_post_convert_post_its(ri);
+    ri_post_convert_hyperlinks(ri);
     ri_post_special_styles(ri);
     ri_reset_searches(ri);
     ri_stop_subcounter(ri, "Post-Import");
@@ -253,6 +254,11 @@ function ri_get_options(ri) {
             checkboxControls.add({
               staticLabel: "(If Tagged Text) Convert comments",
               checkedState: !ri.saved_settings.unconvert_post_its,
+            });
+          ri.ui_post_convert_hyperlinks =
+            checkboxControls.add({
+              staticLabel: "(If Tagged Text) Convert hyperlinks",
+              checkedState: !!ri.saved_settings.convert_hyperlinks,
             });
           ri.ui_post_convert_newlines =
             checkboxControls.add({
@@ -559,15 +565,16 @@ function ri_do_import(ri) {
   obj["ttl_master"] = ri.ttl_master_name;
   obj["fnl_master"] = ri.fnl_master_name;
 
+  obj["convert_hyperlinks"] = ri.ui_post_convert_hyperlinks.checkedState;
   obj["dont_import_images"] = !ri.ui_import_images.checkedState;
   obj["dont_shrink_tables"] = !ri.ui_groom_resize_tables.checkedState;
+  obj["epubbify"] = ri.ui_epubbify.checkedState;
   obj["handle_special_styles"] = ri.ui_post_special_styles.checkedState;
-  obj["show_import_options"] = ri.ui_import_options.checkedState;
   obj["keep_grep"] = !ri.ui_disable_grep.checkedState;
   obj["keep_reflow"] = !ri.ui_disable_reflow.checkedState;
   obj["not_pre_clear"] = !ri.ui_pre_clear.checkedState;
   obj["not_pre_remaster"] = !ri.ui_pre_remaster.checkedState;
-  obj["epubbify"] = ri.ui_epubbify.checkedState;
+  obj["show_import_options"] = ri.ui_import_options.checkedState;
   obj["unconvert_newlines"] = !ri.ui_post_convert_newlines.checkedState;
   obj["unconvert_post_its"] = !ri.ui_post_convert_post_its.checkedState;
   obj["unfix_justification"] = !ri.ui_groom_fully_justify.checkedState;
@@ -831,6 +838,13 @@ function ri_post_it_object_style(ri) {
   }
 
   return style;
+}
+
+function ri_post_convert_hyperlinks(ri) {
+  if (!ri.ui_post_convert_hyperlinks.checkedState)
+    return;
+
+  ri_logw(ri, "Hyperlinks: NOT IMPLEMENTED");
 }
 
 function ri_groom_resize_tables(ri) {
