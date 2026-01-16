@@ -769,17 +769,6 @@ function ri_post_convert_post_its(ri) {
 function ri_fix_post_it(ri, frame) {
   frame.applyObjectStyle(ri_post_it_object_style(ri));
 
-  var anchoring = frame.anchoredObjectSettings;
-  ///anchoring.spineRelative = true;
-  ///anchoring.anchoredPosition = AnchorPosition.ANCHORED;
-  ///anchoring.horizontalAlignment = HorizontalAlignment.LEFT_ALIGN;
-  ///anchoring.horizontalReferencePoint = AnchoredRelativeTo.TEXT_FRAME;
-  ///anchoring.verticalAlignment = VerticalAlignment.TOP_ALIGN;
-  anchoring.anchorPoint = AnchorPoint.TOP_RIGHT_ANCHOR;
-  anchoring.anchorXoffset = "6pt";
-  anchoring.verticalReferencePoint = VerticallyRelativeTo.TOP_OF_LEADING;
-  anchoring.anchorYoffset = "0pt";
-
   frame.resize(
     BoundingBoxLimits.GEOMETRIC_PATH_BOUNDS,
     AnchorPoint.CENTER_ANCHOR,
