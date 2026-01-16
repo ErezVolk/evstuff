@@ -1301,12 +1301,10 @@ function ri_main_frame(_ri, page, must) {
         continue;
       if (MY_NAME_RE.test(layer.name))
         continue;
-      if (frame.nextTextFrame || frame.previousTextFrame)
+      if (ri_is_threaded(ri, frame))
         found.push(frame);
-      var master = frame.overriddenMasterPageItem;
-      if (master && master.isValid)
-        if (master.nextTextFrame || master.previousTextFrame)
-          found.push(frame);
+      else if (ri_is_threaded(ri, frame.overriddenMasterPageItem))
+        found.push(frame);
     } catch (_e) {
       // Oh well
     }
@@ -1318,6 +1316,12 @@ function ri_main_frame(_ri, page, must) {
   if (must)
     throw "No main frame found, cannot work";
   return frames[0];
+}
+
+function ri_is_threaded(_ri, frame) {
+  if (!frame || !frame.isValid)
+    return false;
+  return (frame.nextTextFrame || frame.previousTextFrame);
 }
 
 function ri_post_special_styles(ri) {
