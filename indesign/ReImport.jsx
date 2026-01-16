@@ -768,13 +768,6 @@ function ri_post_convert_post_its(ri) {
 
 function ri_fix_post_it(ri, frame) {
   frame.applyObjectStyle(ri_post_it_object_style(ri));
-
-  frame.resize(
-    BoundingBoxLimits.GEOMETRIC_PATH_BOUNDS,
-    AnchorPoint.CENTER_ANCHOR,
-    ResizeMethods.REPLACING_CURRENT_DIMENSIONS_WITH,
-    [72, 72]
-  );
 }
 
 function ri_post_it_object_style(ri) {
@@ -818,31 +811,41 @@ function ri_post_it_object_style(ri) {
 
   style.setDimensionAttributeState(DimensionAttributes.WIDTH_ATTRIBUTE, true);
 
-  var prefs = style.textFramePreferences;
-  prefs.insetSpacing = 2;
-  prefs.autoSizingType = AutoSizingTypeEnum.HEIGHT_ONLY;
+  style.textFramePreferences.properties = {
+    insetSpacing: 2,
+    autoSizingType: AutoSizingTypeEnum.HEIGHT_ONLY
+  }
 
-  var baseline = style.baselineFrameGridOptions;
-  baseline.useCustomBaselineFrameGrid = true;
-  baseline.baselineFrameGridRelativeOption = BaselineFrameGridRelativeOption.TOP_OF_FRAME;
-  baseline.startingOffsetForBaselineFrameGrid = 0;
-  baseline.baselineFrameGridIncrement = "9pt";
+  style.baselineFrameGridOptions.properties = {
+    useCustomBaselineFrameGrid: true,
+    baselineFrameGridRelativeOption: BaselineFrameGridRelativeOption.TOP_OF_FRAME,
+    startingOffsetForBaselineFrameGrid: 0,
+    baselineFrameGridIncrement: "9pt"
+  }
 
-  var anchoring = style.anchoredObjectSettings;
-  anchoring.spineRelative = true;
-  anchoring.anchorPoint = AnchorPoint.TOP_RIGHT_ANCHOR;
-  anchoring.anchoredPosition = AnchorPosition.ANCHORED;
-  anchoring.horizontalAlignment = HorizontalAlignment.LEFT_ALIGN;
-  anchoring.horizontalReferencePoint = AnchoredRelativeTo.TEXT_FRAME;
-  anchoring.anchorXoffset = "6pt";
-  anchoring.verticalAlignment = VerticalAlignment.TOP_ALIGN;
-  anchoring.verticalReferencePoint = VerticallyRelativeTo.TOP_OF_LEADING;
-  anchoring.anchorYoffset = "0pt";
+  style.anchoredObjectSettings.properties = {
+    spineRelative: true,
+    anchorPoint: AnchorPoint.TOP_RIGHT_ANCHOR,
+    anchoredPosition: AnchorPosition.ANCHORED,
+    horizontalAlignment: HorizontalAlignment.LEFT_ALIGN,
+    horizontalReferencePoint: AnchoredRelativeTo.TEXT_FRAME,
+    anchorXoffset: "6pt",
+    verticalAlignment: VerticalAlignment.TOP_ALIGN,
+    verticalReferencePoint: VerticallyRelativeTo.TOP_OF_LEADING,
+    anchorYoffset: "0pt"
+  }
 
-  var drop = style.transparencySettings.dropShadowSettings;
-  drop.mode = ShadowMode.DROP;
-  drop.opacity = 50;
-  drop.distance = "6pt";
+  style.transparencySettings.dropShadowSettings.properties = {
+    mode: ShadowMode.DROP,
+    opacity: 50,
+    distance: "6pt"
+  }
+
+  style.transformAttributeOptions.properties = {
+    transformAttrRefAnchorPoint: AnchorPoint.CENTER_ANCHOR,
+    transformAttrHeight: "72pt",
+    transformAttrWidth: "72pt"
+  }
 
   return style;
 }
