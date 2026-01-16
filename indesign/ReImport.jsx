@@ -3,8 +3,9 @@
 // deno-lint-ignore-file no-var no-inner-declarations no-with no-prototype-builtins
 
 /* TODO:
- - Refuse to work if there are unlinked pages
  - (clickable!) QR Codes
+ - Refuse to work if there are unlinked pages
+ - Identify styles (in use) with offsets that aren't a multiple of baseline
  - flag bad orphans (at top of even page, either one word line or one line pre-space; maybe a pre-pause page-bottom too-close-to-aligned)
  - Assign exported classes for hebrew (Paragraph?) style names (based on ARIA roles? based on Word internal names?)
  - Status indication (progress bar, etc.)
@@ -1063,7 +1064,7 @@ function ri_groom_fix_masters(ri) {
 
   // TODO: NEXT_FRAME, NEXT_COLUMN
   if (count > 0) {
-    ri_log(ri, "Set " + count + " B master(s).");
+    ri_log(ri, "Set " + count + " parent(s).");
   }
 }
 
