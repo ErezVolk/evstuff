@@ -747,10 +747,9 @@ function ri_post_convert_post_its(ri) {
       var ugly_paragraph = ugly_paragraphs[j];
       var nice_paragraph = ugly_paragraph.duplicate(LocationOptions.AT_END, nice_frame);
 
-      nice_characters = nice_paragraph.characters;
-      if (nice_characters[0].contents == SpecialCharacters.FOOTNOTE_SYMBOL) {
-        nice_characters.itemByRange(0, 1).remove();
-      }
+      prefix = nice_paragraph.characters[0];
+      if (prefix.contents == SpecialCharacters.FOOTNOTE_SYMBOL)
+        prefix.remove();
     }
 
     nice_frame.anchoredObjectSettings
