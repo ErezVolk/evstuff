@@ -35,36 +35,39 @@ learn:
 
 -learn-next:
   Learn "Sonny's Mood" [Nicolas 2026-01-31, from "Dial S for Sonny"]: NONE
-  Learn "Have You Met Miss Jones" [Nicolas 2026-02-07, from youtu.be/G3jtb4G-6HI by Kenny Barron Trio]: NONE
+  Learn "Have You Met Miss Jones" [Nicolas 2026-02-07, from youtu.be/G3jtb4G-6HI live by Kenny Barron Trio]: NONE
   Learn "Dark That Dream" [Nicolas 2026-02-07, from Dexter Gordon, "One Flight Up"]: NONE
   Learn "Lover Man" [Nicolas 2026-02-14, from "Introducing Johnny Griffin"]: NONE
   Learn "Blue Minor" [Nicolas 2026-02-21, from "Cool Struttin'"]: NONE
-  Learn "Segment" [Nicolas 2026-02-28, from youtu.be/_KsLNGcuTlE]: NONE
-  Learn "Now's the Time" [Nicolas 2026-02-28, from youtu.be/ryNtmkfeJk4]: NONE
+  Learn "Segment" [Nicolas 2026-02-28, Charlie Parker version that's on "Verve 15"]: NONE
+  Learn "Now's the Time" [Nicolas 2026-02-28, Charlie Parker version that's on "BD Music"]: NONE
   Learn "There Is No Greater Love" [Nicolas 2026-03-07, from "Boss Tenors"]: NONE
-  Learn "Confirmation" [Nicolas 2026-03-14, from youtu.be/yXK0pZx92MU]: NONE
-  Learn "Cheryl" [Nicolas 2026-03-14, from youtu.be/fHNK3XcUSTo]: NONE
-  Learn "Lady Bird" [Nicolas 2026-03-21, from youtu.be/r0vhqDCy9eQ]: NONE
+  Learn "Confirmation" [Nicolas 2026-03-14, Charlie Parker version that's on "BD Music"]: NONE
+  Learn "Cheryl" [Nicolas 2026-03-14, Charlie Parker version that's on "Best of Complete Savoy"]: NONE
+  Learn "Lady Bird" [Nicolas 2026-03-21, from youtu.be/r0vhqDCy9eQ live by Dexter Gordon]: NONE
   Learn "Nostalgia in Times Square" [Nicolas 2026-03-21, from "First Flight Out"]: NONE
+  Learn "Rhythm-a-Ning" [Nicolas 2026-03-28, from "Criss-Cross"]: NONE
+  Learn "Blue Monk" [Nicolas 2026-03-28, from "Thelonius in Action", youtu.be/cWOz9mILqbA]: NONE
+  Learn "Whims of Chambers" [Nicolas 2026-04-11, from "Whims of Chambers", youtu.be/ZrtC3DdGPp8]: NONE
+  Learn "Line for Lyons" [Nicolas 2026-04-11, from Baker/Mulligan "Carnegie Hall Concert" youtu.be/eZZnIhq7b5I]: NONE
+  Learn "Tune Up" [Nicolas 2026-04-18, from "Prestige LP 161" youtu.be/By9OyX2DfWY]: NONE
+  Learn "Body and Soul" [Nicolas 2026-04-18, from "Jasmine" youtu.be/nOmc5PbMlpQ]: NONE
+  Learn "This I Dig of You" [Nicolas 2026-04-18, from "Soul Station" youtu.be/nJ-i3i2B9O0]: NONE
 
-  Learn "Oleo" [X]: NONE
-  Learn "Moonlight in Vermont" [ ]: NONE
-  Learn "Softly, as in a Morning Sunrise" [ ]: NONE
-  Learn "Take the “A” Train" [ ]: NONE
-  Learn "Autumn Leaves" [ ]: NONE
-  Learn "The Days of Wine and Roses" [ ]: NONE
-  Learn "Blue Bossa" [ ]: NONE
-  Learn "Blue Monk" [ ]: NONE
   Learn "Au Privave" [ ]: NONE
-  Learn "Body and Soul" [ ]: NONE
-  Learn "Doxy" [ ]: NONE
-  Learn "Stompin’ at the Savoy" [ ]: NONE
-  Learn "It Could Happen to You" [-]: NONE
-  Learn "Have You Met Miss Jones?" [ ]: NONE
-  Learn "Lady Bird" [ ]: NONE
+  Learn "Autumn Leaves" [ ]: NONE
   Learn "Beautiful Love" [ ]: NONE
+  Learn "Blue Bossa" [ ]: NONE
+  Learn "Doxy" [ ]: NONE
+  Learn "Have You Met Miss Jones?" [ ]: NONE
+  Learn "It Could Happen to You" [-]: NONE
+  Learn "Moonlight in Vermont" [ ]: NONE
+  Learn "Oleo" [X]: NONE
+  Learn "Softly, as in a Morning Sunrise" [ ]: NONE
+  Learn "Stompin’ at the Savoy" [ ]: NONE
+  Learn "Take the “A” Train" [ ]: NONE
+  Learn "The Days of Wine and Roses" [ ]: NONE
   Learn "You and the Night and the Music" [ ]: NONE
-  Learn "Confirmation" [ ]: NONE
 
 revise:
   Recall "All the Things You Are" {}: {<Downes|Chorus|Brownify>}
