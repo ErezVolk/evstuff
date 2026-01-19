@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2026-01-19T12:06:13.352951000</dc:date><meta:editing-duration>P200DT5H6M25S</meta:editing-duration><meta:editing-cycles>5423</meta:editing-cycles><meta:generator>LibreOffice/25.8.4.2$MacOSX_AARCH64 LibreOffice_project/290daaa01b999472f0c7a3890eb6a550fd74c6df</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="11648" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2026-01-19T15:08:38.280933000</dc:date><meta:editing-duration>P200DT8H8M43S</meta:editing-duration><meta:editing-cycles>5436</meta:editing-cycles><meta:generator>LibreOffice/25.8.4.2$MacOSX_AARCH64 LibreOffice_project/290daaa01b999472f0c7a3890eb6a550fd74c6df</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="11674" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">44535</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">572142</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">573045</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
-       <config:config-item config:name="CursorPositionX" config:type="int">6</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">1267</config:config-item>
+       <config:config-item config:name="CursorPositionX" config:type="int">8</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">1008</config:config-item>
        <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
        <config:config-item config:name="VerticalSplitPosition" config:type="int">1</config:config-item>
        <config:config-item config:name="ActiveSplitRange" config:type="short">2</config:config-item>
-       <config:config-item config:name="PositionLeft" config:type="int">0</config:config-item>
+       <config:config-item config:name="PositionLeft" config:type="int">5</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">1233</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">991</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">100</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -1822,7 +1822,9 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Vampira</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Can&apos;t remember and noticed later I didn&apos;t write it.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="42" calcext:value-type="float">
@@ -4289,7 +4291,10 @@
      <table:table-cell office:value-type="date" office:date-value="2023-10-17" calcext:value-type="date">
       <text:p>2023-10</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="2"/>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Mingus was the man.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="121" calcext:value-type="float">
@@ -4317,7 +4322,7 @@
       <text:p>2025-02</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
-      <text:p><text:s/>Fifth House, Harmonique</text:p>
+      <text:p>Fifth House, Harmonique</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>This is how you do it, the sax, the bass, the whole thing. A cautious Coltrane, shining best when he expands. Downes has a transcription of &quot;Some Other Blues&quot; (p. 44)</text:p>
@@ -5170,7 +5175,10 @@
      <table:table-cell office:value-type="date" office:date-value="2023-11-27" calcext:value-type="date">
       <text:p>2023-11</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="2"/>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Can&apos;t remember and noticed later I didn&apos;t write it.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="149" calcext:value-type="float">
@@ -7314,7 +7322,9 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Bloomin&apos; Rose</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Good.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="217" calcext:value-type="float">
@@ -18363,7 +18373,7 @@
       <text:p>Blossom Dearie</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
-      <text:p>Once Upton A Summertime...</text:p>
+      <text:p>Once Upon A Summertime...</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="float" office:value="1959" calcext:value-type="float">
       <text:p>1959</text:p>
@@ -18383,7 +18393,9 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Tea For Two, The Surrey, If I Were A Bell, Doop-Doo-De-Doop, Our Love Is Here to Stay</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Wonderful.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="574" calcext:value-type="float">
@@ -20003,7 +20015,9 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>It Could Happen to You</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Liked it. Probably relisten b/c I can&apos;t remember the bass and noticed a year later I didn&apos;t write it down.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="628" calcext:value-type="float">
@@ -21472,7 +21486,9 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Fly Town Nose Blues, Jitterbug Waltz</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Outstanding.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="677" calcext:value-type="float">
@@ -24191,7 +24207,9 @@
      <table:table-cell table:style-name="Default" office:value-type="string" calcext:value-type="string">
       <text:p>The Long Two/Four, Hastings Street Bounce (transcribe)</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Can&apos;t remember and noticed later I didn&apos;t write it.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="769" calcext:value-type="float">
@@ -31228,7 +31246,15 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Buster Williams</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="3"/>
+     <table:table-cell office:value-type="date" office:date-value="2026-01-19" calcext:value-type="date">
+      <text:p>2026-01</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>All The Things You Are</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Everyone does their job very well. Didn&apos;t win me over.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="1008" calcext:value-type="float">
@@ -38311,7 +38337,10 @@
      <table:table-cell office:value-type="date" office:date-value="2026-01-12" calcext:value-type="date">
       <text:p>2026-01</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="2"/>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Very cool.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="1258" calcext:value-type="float">
@@ -38536,7 +38565,55 @@
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047308">
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1267" calcext:value-type="float">
+      <text:p>1267</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Buster Williams</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Houdini</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="2001" calcext:value-type="float">
+      <text:p>2001</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H59M00S" calcext:value-type="time">
+      <text:p>0:59</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Buster Williams</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1268" calcext:value-type="float">
+      <text:p>1268</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Buster Williams, Kenny Barron</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Two As One</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1986" calcext:value-type="float">
+      <text:p>1986</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H51M00S" calcext:value-type="time">
+      <text:p>0:51</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Buster Williams</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1" table:number-rows-repeated="1047306">
      <table:table-cell table:number-columns-repeated="10"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
