@@ -195,14 +195,12 @@ class Whoms:
         oldest_added = n_oldest_added.sample(1).iloc[0]
         print(f"- (one of {len(n_oldest_added)} oldest added) "
               f"{row_desc(oldest_added)}")
-        earliest_t = unheard.t.min()
-        oldest_released = unheard[
-            (unheard.t == earliest_t) & (unheard.What != oldest_added.What)
-        ]
-        if (n_rows := len(oldest_released)) > 0:
-            row = oldest_released.sample(1).iloc[0]
-            comment = f"one of {n_rows} " if n_rows > 1 else ""
-            print(f"- ({comment}oldest released) {row_desc(row)}")
+
+        by_release = unheard[unheard.n != oldest_added.n].sort_values("t")
+        n_oldest_released = by_release.head()
+        oldest_released = n_oldest_released.sample(1).iloc[0]
+        print(f"- (one of {len(n_oldest_released)} oldest released) "
+              f"{row_desc(oldest_released)}")
 
         new_guys = whoms.query("heard == 0")
         if len(stars := new_guys.query("total > 1")) > 0:
