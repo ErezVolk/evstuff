@@ -65,6 +65,10 @@ oneString := E|A|D|G
 
 __TODO__ = """
 - Overhaul with some kind of pipe(/source/sink) architecture
+  - There are (named/unnamed) generator of (T) texts, (S) sentences, (W) words
+  - T := T/S ...; S := ... W ... W ...
+  - Every "engine" can have an ID and be savable
+  - You can have proxy everythings
 - Annals: New decks
 - Template/multilevel (what to do with a standard, Downes' steps, etc.)
 - Make into an app (Kivy? Flutter? No more pmprc parsing)
