@@ -1216,6 +1216,30 @@ function ri_groom_update_toc(ri) {
   var style_name = ri.toc_styles[style_index];
   var style = ri.doc.tocStyles.itemByName(style_name);
   ri.doc.createTOC(style, true);
+
+  riss_post_toc_line_breaks(ri);
+}
+
+function riss_post_toc_line_breaks(ri) {
+  if (!ri.ui_post_special_styles.checkedState)
+    return;
+
+  var i, styles = ri_filter_styles(ri.doc.allCharacterStyles, "@LineBreak@");
+  if (styles.length == 0)
+    return;
+
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.changeGrepPreferences = NothingEnum.nothing;
+  app.findGrepPreferences.findWhat = "\\s+";
+  app.changeGrepPreferences.changeTo = "\\n";
+
+  for (i = 0; i < styles.length; ++ i) {
+    app.findGrepPreferences.appliedCharacterStyle = styles[i];
+    app.changeGrep();
+  }
+
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.changeGrepPreferences = NothingEnum.nothing;
 }
 
 function ri_disable_grep(ri) {
