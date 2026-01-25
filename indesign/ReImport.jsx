@@ -1581,26 +1581,28 @@ function riss_do_valign(ri, substr, justification) {
 }
 
 function riss_do_sections(ri) {
-  var count = 0;
-
-  frames = ri_get_all_frames_with_para_styles_containins(ri, "@Section@");
+  var frames = ri_get_all_frames_with_para_styles_containins(ri, "@Section@");
 
   if (frames.length == 0) {
     return 0;
   }
 
+  var i, count = 0;
+  var sections = ri.doc.sections;
   try {
-    ri.doc.sections.itemsByRange(1, -1).remove();
-  } catch(_e) {
-    // Ignore
+    for (i = sections.length - 1; i > 0; -- i) {
+      sections[i].remove();
+    }
+  } catch(e) {
+    ri_logw(ri, "Error deleting old sections: " + e);
   }
-  for (var j = 0; j < frames.length; ++ j) {
-    var page = frames[j].parentPage;
+  for (i = 0; i < frames.length; ++ i) {
+    var page = frames[i].parentPage;
     try {
-      ri.doc.sections.add(page);
+      sections.add(page);
       count ++;
-    } catch(_e) {
-      // Ignore
+    } catch(e) {
+      ri_logw(ri, "Error adding section on page " + (page.index + 1) + ": " + e);
     }
   }
 
