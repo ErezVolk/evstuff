@@ -1191,18 +1191,20 @@ function ri_page_is_empty(ri, page) {
 
 function ri_set_master(ri, page, master) {
   if (ri.ui_groom_keep_masters.checkedState)
-    ri_maybe_set_master(ri, page, master);
+    return ri_maybe_set_master(ri, page, master);
   else
-    ri_do_set_master(ri, page, master);
+    return ri_do_set_master(ri, page, master);
 }
 
 function ri_maybe_set_master(ri, page, master) {
-  if (page.appliedMaster.id != master.id)
-    ri_do_set_master(ri, page, master);
+  if (page.appliedMaster.id == master.id)
+    return 0;
+  return ri_do_set_master(ri, page, master);
 }
 
 function ri_do_set_master(_ri, page, master) {
   page.appliedMaster = master;
+  return 1;
 }
 
 function ri_groom_update_toc(ri) {
@@ -1235,7 +1237,7 @@ function riss_post_toc_line_breaks(ri) {
 
   for (i = 0; i < styles.length; ++ i) {
     app.findGrepPreferences.appliedCharacterStyle = styles[i];
-    app.changeGrep();
+    ri.story.changeGrep();
   }
 
   app.findGrepPreferences = NothingEnum.nothing;
@@ -1636,9 +1638,11 @@ function riss_do_sections(ri) {
 }
 
 function riss_do_masters(ri) {
-  var count = 0;
+  var added, count = 0;
   for (var i = 0; i < ri.doc.masterSpreads.length; ++ i) {
     count += riss_do_master(ri, ri.doc.masterSpreads[i]);
+    while ((added = riss_do_master(ri, ri.doc.masterSpreads[i], true)) > 0)
+      count += added;
   }
 
   if (count > 0) {
@@ -1646,17 +1650,20 @@ function riss_do_masters(ri) {
   }
 }
 
-function riss_do_master(ri, master) {
+function riss_do_master(ri, master, second_run) {
   var frames = ri_get_all_frames_with_para_styles_containins(ri, "@Master" + master.namePrefix + "@");
 
   if (frames.length == 0)
-    return
+    return 0;
 
   var count = 0;
   for (var i = 0; i < frames.length; ++ i) {
     try {
-      ri_set_master(ri, frames[i].parentPage, master);
-      count += 1;
+      var page = frames[i].parentPage;
+      if (second_run)
+        count += ri_maybe_set_master(ri, page, master);
+      else
+        count += ri_set_master(ri, page, master);
     } catch(err) {
       ri_logw(ri, "Cannot set " + master.name + ": " + err);
     }
