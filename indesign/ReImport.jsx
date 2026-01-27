@@ -3,7 +3,6 @@
 // deno-lint-ignore-file no-var no-inner-declarations no-with no-prototype-builtins
 
 /* TODO:
- * FIXME! Have @Rasterize@; reimport with epub -> reimport without epub -> double frame
  - (clickable!) QR Codes
  - Refuse to work if there are unlinked pages
  - Identify styles (in use) with offsets that aren't a multiple of baseline
@@ -430,11 +429,6 @@ function ri_clear_old_epub_stuff(ri) {
     ri_log(ri, "Salvaged " + salvaged + " threaded frame(s)");
   }
 
-  if (!ri.ui_epubbify.checkedState)
-    return;
-
-  ri.for_epub = {};
-
   // Remove special frames (i.e., mirrored text)
   var pages = ri.doc.pages;
   var count = 0;
@@ -452,6 +446,11 @@ function ri_clear_old_epub_stuff(ri) {
   if (count > 0) {
     ri_log(ri, "Removed " + count + " old frame(s).");
   }
+
+  if (!ri.ui_epubbify.checkedState)
+    return;
+
+  ri.for_epub = {};
 
   // Create our "don't show" character style
   // But note it's the user's responsibility to hide it (using css)
