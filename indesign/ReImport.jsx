@@ -1400,11 +1400,7 @@ function riss_remove_destinations(ri) {
 
 function riss_create_destinations(ri) {
   var added = 0;
-
-  app.findGrepPreferences = NothingEnum.nothing;
-  app.findGrepPreferences.findWhat = ".+"; // i.e., no newlines
   var hits = ri_get_all_texts_with_styles_containing(ri, "@Destination@");
-  app.findGrepPreferences = NothingEnum.nothing;
 
   for (var i = 0; i < hits.length; ++ i) {
     var text = hits[i];
@@ -1454,10 +1450,7 @@ function riss_redo_sources(ri) {
     ri.source_style.buildingBlocks.add(BuildingBlockTypes.PAGE_NUMBER_BUILDING_BLOCK);
   }
 
-  app.findGrepPreferences = NothingEnum.nothing;
-  app.findGrepPreferences.findWhat = ".+"; // i.e., no newlines
-  hits = ri_get_all_texts_with_styles_containing(ri, "@Source@");
-  app.findGrepPreferences = NothingEnum.nothing;
+  var hits = ri_get_all_texts_with_styles_containing(ri, "@Source@");
 
   var added = 0;
   for (var i = 0; i < hits.length; ++ i) {
@@ -1487,17 +1480,16 @@ function riss_redo_sources(ri) {
 function riss_do_mirrors(ri) {
   var count = 0;
 
-  app.findTextPreferences = NothingEnum.nothing;
-  hits = ri_get_all_texts_with_styles_containing(ri, "@Reversed@");
-  app.findTextPreferences = NothingEnum.nothing;
-
+  var hits = ri_get_all_texts_with_styles_containing(ri, "@Reversed@");
   if (hits.length == 0)
     return;
 
-  var outlines, pdf_only_layer, epubbify = ri.ui_epubbify.checkedState;
+  var anchor, outlines, pdf_only_layer, epubbify = ri.ui_epubbify.checkedState;
 
-  if (epubbify)
+  if (epubbify) {
     pdf_only_layer = ri_get_epub_layer(ri, "non_epub");
+    anchor = AnchorPoint.CENTER_ANCHOR;
+  }
 
   for (var i = 0; i < hits.length; ++ i) {
     var hit = hits[i];
@@ -1506,12 +1498,12 @@ function riss_do_mirrors(ri) {
         outlines = hit.createOutlines(false);
         hit.fillColor = "None";
       } else {
-        outlines = hit.createOutlines();
+        outlines = hit.createOutlines(true);
       }
 
       for (var j = 0; j < outlines.length; ++ j) {
         var outline = outlines[j];
-        outline.flipItem(Flip.HORIZONTAL, AnchorPoint.CENTER_ANCHOR);
+        outline.flipItem(Flip.HORIZONTAL, anchor);
 
         if (epubbify) {
           outline.itemLayer = pdf_only_layer;
@@ -1783,6 +1775,8 @@ function ri_get_all_texts_with_styles_containing(ri, substr) {
   var texts = [];
 
   var styles = ri_filter_styles(ri.doc.allCharacterStyles, substr);
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.findGrepPreferences.findWhat = ".+"; // i.e., no newlines
   for (var j = 0; j < styles.length; ++ j) {
     app.findGrepPreferences.appliedCharacterStyle = styles[j];
     var hits = ri.doc.findGrep();
@@ -1790,6 +1784,7 @@ function ri_get_all_texts_with_styles_containing(ri, substr) {
       texts.push(hits[k]);
     }
   }
+  app.findGrepPreferences = NothingEnum.nothing;
 
   return texts;
 }
