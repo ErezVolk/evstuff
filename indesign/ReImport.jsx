@@ -391,11 +391,6 @@ function ri_get_importee(ri) {
 }
 
 function ri_clear_old_epub_stuff(ri) {
-  if (!ri.ui_epubbify.checkedState)
-    return;
-
-  ri.for_epub = {};
-
   var i, j, home, layer, frames, frame;
   var layers = ri.doc.layers;
 
@@ -434,6 +429,11 @@ function ri_clear_old_epub_stuff(ri) {
     ri_log(ri, "Salvaged " + salvaged + " threaded frame(s)");
   }
 
+  if (!ri.ui_epubbify.checkedState)
+    return;
+
+  ri.for_epub = {};
+
   // Remove special frames (i.e., mirrored text)
   var pages = ri.doc.pages;
   var count = 0;
@@ -463,7 +463,7 @@ function ri_clear_old_epub_stuff(ri) {
   var style = styles.item("(non_epub)");
   if (!style.isValid)
     style = styles.add({name: "(non_epub)"});
-  ri.for_epub.cstyle_invisible = style;
+  ri.for_epub.pdf_only_cstyle = style;
 }
 
 function ri_get_epub_layer(ri, name) {
@@ -493,13 +493,15 @@ function ri_find_story(ri) {
   for (var i = 0; i < pages.length; ++ i) {
     var page = pages[i];
     var frame = ri_main_frame(ri, page, true)
-    var story = frame.parentStory;
-    if (story.isValid) {
-      ri.story = story;
-      return;
+    if (frame && frame.isValid) {
+      var story = frame.parentStory;
+      if (story.isValid) {
+        ri.story = story;
+        return;
+      }
     }
   }
-  ri_logw("NO PARENT STORY FOUND");
+  ri_logw(ri, "NO PARENT STORY FOUND");
 }
 
 function ri_pre_clear(ri) {
@@ -1315,7 +1317,10 @@ function ri_main_frame(_ri, page, must) {
   if (frames == null)
     return null;
 
-  found = []
+  var master = page.appliedMaster, master_primary = null;
+  if (master && master.isValid)
+    master_primary = master.primaryTextFrame;
+  var found = []
   for (var i = 0; i < frames.length; ++ i) {
     try {
       var frame = frames[i];
@@ -1327,7 +1332,9 @@ function ri_main_frame(_ri, page, must) {
         continue;
       if (MY_NAME_RE.test(layer.name))
         continue;
-      if (ri_is_threaded(ri, frame))
+      if(frame.overriddenMasterPageItem == master_primary)
+        found.push(frame);
+      else if (ri_is_threaded(ri, frame))
         found.push(frame);
       else if (ri_is_threaded(ri, frame.overriddenMasterPageItem))
         found.push(frame);
@@ -1336,11 +1343,11 @@ function ri_main_frame(_ri, page, must) {
     }
   }
   if (found.length > 1 && must)
-    ri_logw(ri, "Found " + found.length + " linked frames");
+    ri_logw(ri, "Found " + found.length + " linked frames in page " + (page.index + 1));
   if (found.length > 0)
     return found[0];
   if (must)
-    throw "No main frame found, cannot work";
+    return null;
   return frames[0];
 }
 
@@ -1487,10 +1494,10 @@ function riss_do_mirrors(ri) {
   if (hits.length == 0)
     return;
 
-  var outlines, layer, epubbify = ri.ui_epubbify.checkedState;
+  var outlines, pdf_only_layer, epubbify = ri.ui_epubbify.checkedState;
 
   if (epubbify)
-    layer = ri_get_epub_layer(ri, "non_epub");
+    pdf_only_layer = ri_get_epub_layer(ri, "non_epub");
 
   for (var i = 0; i < hits.length; ++ i) {
     var hit = hits[i];
@@ -1504,14 +1511,14 @@ function riss_do_mirrors(ri) {
 
       for (var j = 0; j < outlines.length; ++ j) {
         var outline = outlines[j];
-        outline.flipItem(Flip.HORIZONTAL);
+        outline.flipItem(Flip.HORIZONTAL, AnchorPoint.CENTER_ANCHOR);
 
         if (epubbify) {
-          outline.itemLayer = layer;
+          outline.itemLayer = pdf_only_layer;
           outline.contentType = ContentType.TEXT_TYPE; // Creates a text frame
           var new_frame = outline.itemLayer.textFrames.lastItem(); // TODO: Is this dependable?
           new_frame.name = "flipped(" + hit.contents + ")";
-          new_frame.texts[0].appliedCharacterStyle = ri.for_epub.cstyle_invisible;
+          new_frame.texts[0].appliedCharacterStyle = ri.for_epub.pdf_only_cstyle;
         }
       }
       count ++;
@@ -1524,8 +1531,8 @@ function riss_do_mirrors(ri) {
     ri_log(ri, "Flipped " + count + " outline(s).");
     if (epubbify)
       ri_logw(ri,
-        "When exporting to epub, either hide the layer \"" + layer.name + "\" " +
-        "or make the style \"" + ri.for_epub.cstyle_invisible.name + "\" invisible in CSS.");
+        "When exporting to epub, either hide the layer \"" + pdf_only_layer.name + "\" " +
+        "or make the style \"" + ri.for_epub.pdf_only_cstyle.name + "\" invisible in CSS.");
   }
 }
 
