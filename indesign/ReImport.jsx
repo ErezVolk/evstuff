@@ -3,6 +3,7 @@
 // deno-lint-ignore-file no-var no-inner-declarations no-with no-prototype-builtins
 
 /* TODO:
+ * FIXME! Have @Rasterize@; reimport with epub -> reimport without epub -> double frame
  - (clickable!) QR Codes
  - Refuse to work if there are unlinked pages
  - Identify styles (in use) with offsets that aren't a multiple of baseline
