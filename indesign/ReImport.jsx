@@ -3,15 +3,14 @@
 // deno-lint-ignore-file no-var no-inner-declarations no-with no-prototype-builtins
 
 /* TODO:
- - (clickable!) QR Codes
- - Refuse to work if there are unlinked pages
+ - Do something about pages with no threaded frames
+ - Identify double frames
+ - Identify empty pages
  - Identify styles (in use) with offsets that aren't a multiple of baseline
  - flag bad orphans (at top of even page, either one word line or one line pre-space; maybe a pre-pause page-bottom too-close-to-aligned)
  - Assign exported classes for hebrew (Paragraph?) style names (based on ARIA roles? based on Word internal names?)
  - Status indication (progress bar, etc.)
  - Pairwise kerning
- - Check for the double frame thing at beginning/end.
- - Border tricks at end/beginning of frames
  - Some kind of "only this" button
  - Configurable (and savable) Title matcher (r'Title|Frame Top')
  - Split (and unsplit!) frames on specific styles
