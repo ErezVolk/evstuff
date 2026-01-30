@@ -733,8 +733,10 @@ function ri_post_convert_post_its(ri) {
     return;
 
   app.findGrepPreferences = NothingEnum.nothing;
+  app.changeGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = "~F";
   app.findGrepPreferences.appliedCharacterStyle = ugly_ref_style;
+  app.changeGrepPreferences.changeTo = "";
 
   var ugly_refs = app.findGrep();
   for (var i = ugly_refs.length - 1; i >= 0; -- i) {
@@ -911,7 +913,7 @@ function ri_convert_hyperlink(ri, text) {
     text.insertionPoints[0],
     AnchorPosition.INLINE_POSITION,
   )
-  text.contents = "";
+  text.remove();
 }
 
 function ri_groom_resize_tables(ri) {
