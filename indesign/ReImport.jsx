@@ -47,10 +47,14 @@ function ri_run(ri) {
       return;
 
   ri_start_counter(ri);
+  if (!ri_find_story(ri)) {
+    ri_stop_counter(ri);
+    return;
+  }
+
   ri_disable_grep(ri);
   ri_disable_reflow(ri);
   ri_clear_old_epub_stuff(ri);
-  ri_find_story(ri);
   if (ri.uig_pre.checkedState) {
     ri_start_subcounter(ri);
     ri_pre_clear(ri);
@@ -496,11 +500,12 @@ function ri_find_story(ri) {
       var story = frame.parentStory;
       if (story.isValid) {
         ri.story = story;
-        return;
+        return true;
       }
     }
   }
   ri_logw(ri, "NO PARENT STORY FOUND");
+  return false;
 }
 
 function ri_pre_clear(ri) {
