@@ -6,8 +6,18 @@ ALBUM="Album"
 YEAR=1984
 
 FOLDER="$ARTIST - $ALBUM"
+
+curr=00:00
 track() {
-    mp3splt -o "$FOLDER/$1 - $2" -g "[@a=$ARTIST,@b=$ALBUM,@t=$2,@y=$YEAR,@g=8,@n=$1]" "$DOWNLOADED" $(echo $3 |tr : .) $(echo $4 |tr : .)
+  if [ "$2" -eq -ge 4 ]; then
+    prev=$3
+    curr=$4
+  else
+    prev=$curr
+    curr=$3
+  fi
+  mp3splt -o "$FOLDER/$1 - $2" -g "[@a=$ARTIST,@b=$ALBUM,@t=$2,@y=$YEAR,@g=8,@n=$1]" "$DOWNLOADED" $(echo $prev |tr : .) $(echo $curr |tr : .)
+  export curr
 }
 
 rm -Rfv "$FOLDER"
