@@ -39,12 +39,6 @@ class Whoms:
             ],
         )
         parser.add_argument(
-            "-o",
-            "--output",
-            type=Path,
-            default="whoms.xlsx",
-        )
-        parser.add_argument(
             "-N",
             "--shortest-nth",
             type=int,
@@ -66,9 +60,20 @@ class Whoms:
             action="store_true",
         )
         parser.add_argument(
-            "-w",
-            "--write",
-            action="store_true",
+            "-o",
+            "--output",
+            type=Path,
+            nargs="?",
+            const="whoms.xlsx",
+            help="Write XLSX output",
+        )
+        parser.add_argument(
+            "-p",
+            "--graph",
+            type=Path,
+            nargs="?",
+            const="whoms.pdf",
+            help="Create PDF with some statistics",
         )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
@@ -152,8 +157,10 @@ class Whoms:
         print("Heard", ", ".join(heards))
 
         whoms["cov"] = whoms.heard / whoms.total
-        if self.args.write:
+        if self.args.output:
             whoms.to_excel(self.args.output)
+        if self.args.graph:
+            self.write_pdf(self.args.graph, albums)
         if self.args.verbose:
             print(whoms.iloc[:10])
             print()
@@ -238,6 +245,18 @@ class Whoms:
         if path.suffix.lower() == ".fods":
             path = self.deflatten(path)
         return pd.read_excel(path)
+
+    def write_pdf(self, path: Path, albums: pd.DataFrame) -> None:
+        """Write some stats as a graph."""
+        import seaborn as sns  # noqa: PLC0415
+        sns.set()
+        fig = sns.displot(
+            data=albums,
+            x="minutes", hue="heard",
+            kde=True,
+        )
+        print(f"Writing {path}")
+        fig.savefig(path)
 
     def deflatten(self, path: Path) -> Path:
         """Convert flat ODS to ODS."""
