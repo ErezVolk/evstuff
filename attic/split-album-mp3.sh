@@ -9,7 +9,7 @@ FOLDER="$ARTIST - $ALBUM"
 
 curr=00:00
 track() {
-  if [ "$2" -eq -ge 4 ]; then
+  if [ "$#" -ge 4 ]; then
     prev=$3
     curr=$4
   else
