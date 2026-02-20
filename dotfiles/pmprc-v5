@@ -8,6 +8,19 @@
 # - REVISE previously bossé
 #   - Speed work
 #   - Recording/backing track
+#
+# V2:
+# - Pick a song
+#   - Play the melody
+#   - Do the up-down chord tones thing
+#   - Do the Downes (1-5, 1-3, 1--5/3-pass, triads, chords, triadic, scalar)
+#   - Do the Ray Brown (bassline with jumps via open strings)
+#   - Play a chorus
+#   - Play with a recording
+#   - Transcribe something
+#   - Do a random line from this file
+#   - Play in different keys, transposing
+#   - Play in 3, 5, bossa, rhumba, whatever
 
 *_bass = [ bass ]
 
@@ -21,6 +34,9 @@ BEAT := 1|2|3|4|2+4|1+3|..X|.X.
 seed:
   ** Try MM ♩={} {}{} {} on beat {} today **: {[60-100]} {ANY} {↗|↘} {<❶|➋|➌|➃|5|6|7|8>} {2*BEAT}
 
+activities:  # TODO TODO TODO
+  Chord tones up/down ON A SONG: NONE
+
 scale:
   Key of {} {} -- {}: {5*KEY} {3*MODE} {<Linear (12345678)|Thirds (132435⋯)|Sequences (123234⋯)|Triads (135246⋯)|Arpeggios (13572358⋯)>}
 
@@ -30,7 +46,6 @@ chord:
 learn:
   Play a today-blues: NONE
   Work on "Cherokee" {}: {<Downes|Chorus|Brownify>}
-  Work on "Moonlight in Vermont": NONE
   Recall "Solar": NONE
   Learn "Blue Minor" [Nicolas 2026-02-21, from "Cool Struttin'"]: NONE
   Learn "Goodbye Pork Pie Hat": NONE
@@ -101,6 +116,7 @@ revise:
   Recall "Four" [Not very good]: NONE
   Recall "It Could Happen to You" [Forgot it]: NONE
   Recall "Melody for C" [Nicolas 2026-01-17, from Sonny Clark, "Leapin' and Lopin'"]: NONE
+  Recall "Moonlight in Vermont": NONE
   Recall "Ornithology": NONE
   Recall "Out of Nowhere" [Remember Ray Brown]: NONE
   Recall "Remember" [Nicolas 2025-12-13, Hank Mobley]: NONE
