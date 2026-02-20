@@ -21,6 +21,7 @@
 #   - Do a random line from this file
 #   - Play in different keys, transposing
 #   - Play in 3, 5, bossa, rhumba, whatever
+# - Work on bebop phrases
 
 *_bass = [ bass ]
 
