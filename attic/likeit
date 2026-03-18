@@ -10,9 +10,9 @@ import time
 from pathlib import Path
 
 try:
-    import browser_cookie3
-    import pandas as pd
-    import requests
+    import browser_cookie3  # type: ignore[import-not-found,import-untyped]
+    import pandas as pd  # type: ignore[import-not-found,import-untyped]
+    import requests  # type: ignore[import-not-found,import-untyped]
 except ImportError:
     print("Please install requirements.")
     raise
@@ -71,7 +71,7 @@ class LikeIt:
 
     args: argparse.Namespace
 
-    def run(self):
+    def run(self) -> None:
         """Do the work."""
         self.args = self.parse_cli()
 
@@ -182,12 +182,19 @@ class LikeIt:
         """Create mock spreadsheet when given LTW(s) from the command line."""
         return pd.DataFrame(
             {
-                "Title": self.NO_TITLE,
+                "Title": [self.ltw_title(ltw) for ltw in self.args.ltws],
                 "LTW": self.args.ltws,
                 "L": 250.0,
                 "T": 500,
             },
         )
+
+    @classmethod
+    def ltw_title(cls, ltw: str) -> str:
+        """Try for a title."""
+        if mobj := re.search(r"/work/\d+/t/([^/]+)$", ltw):
+            return mobj.group(1)
+        return cls.NO_TITLE
 
 
 if __name__ == "__main__":
