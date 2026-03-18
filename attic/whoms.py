@@ -149,9 +149,9 @@ class Whoms:
             f"{k_of_n(albums.heard)} albums",
             f"{k_of_n(whoms.heard)} players",
             f"{x_of_y(int(hours_heard), int(hours_total))} hours",
-            f"mean {int(albums.minutes.mean())} minutes ("
-            f"heard: {int(albums[albums.heard].minutes.mean())}, "
-            f"unheard: {int(albums[~albums.heard].minutes.mean())}"
+            f"mean {self.mmss(albums.minutes.mean())} minutes ("
+            f"heard: {self.mmss(albums[albums.heard].minutes.mean())}, "
+            f"unheard: {self.mmss(albums[~albums.heard].minutes.mean())}"
             f")",
         ]
         print("Heard", ", ".join(heards))
@@ -179,6 +179,15 @@ class Whoms:
         else:
             print("Time to find more music.")
         self.choose_heard(albums)
+
+    @staticmethod
+    def mmss(minutes: float) -> str:
+        """Format floating-point minutes as a string."""
+        mm = int(minutes)
+        ss = int((minutes - mm) * 60)
+        if ss:
+            return f"{mm}:{ss:02d}"
+        return str(mm)
 
     def choose_unheard(
         self,
