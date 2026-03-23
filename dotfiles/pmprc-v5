@@ -23,7 +23,25 @@
 #   - Play in 3, 5, bossa, rhumba, whatever
 # - Work on bebop phrases
 
-*_bass = [ bass ]
+*override:
+  Work on "Anthropology" [Liban 2026-03-28]: NONE
+  **Learn "Autumn Leaves (Gm)" [Liban 2026-03-28]: NONE
+  Learn "Beautiful Love" [Liban 2026-03-28]: NONE
+  Learn "Bye Bye Blackbird" [Liban 2026-03-28]: NONE
+  Work on "Billies Bounce" [Liban 2026-03-28]: NONE
+  Learn "Lucky Southern" [Liban 2026-03-28]: NONE
+  Learn "Mr. P.C." [Liban 2026-03-28]: NONE
+  Learn "Oleo" [Liban 2026-03-28]: NONE
+  *Learn "Scrapple from the Apple" [Liban 2026-03-28]: NONE
+  **Learn "So What" [Liban 2026-03-28]: NONE
+  Learn "Softly as in a morning sunrise" [Liban 2026-03-28]: NONE
+  Learn "Soul Eyes" [Liban 2026-03-28]: NONE
+  Learn "St. Thomas" [Liban 2026-03-28]: NONE
+  Work on "Stella by Starlight" [Liban 2026-03-28]: NONE
+  Learn "Tenor Madness" [Liban 2026-03-28]: NONE
+  Work on "There will never be another you" [Liban 2026-03-28]: NONE
+
+_bass = [ bass ]
 
 bass = [ seed 1@raybrown scale chord learn 2@revise more ]
 
@@ -127,7 +145,7 @@ revise:
   Recall "Sea Journey": NONE
   Recall "Solar": NONE
   Recall "Sonny's Mood" [Nicolas 2026-01-31, from "Dial S for Sonny", youtu.be/Qc5BH2-6zI8]: NONE
-  Recall "Stella" {}: {<Downes|Chorus|Brownify>}
+  Recall "Stella by Starlight" {}: {<Downes|Chorus|Brownify>}
   Recall "There Will Never Be Another You" [Remember Buster Williams]: NONE
   Recall "They Say It's Wonderful" [So-so]: NONE
   Recall "Top of My Head": NONE
