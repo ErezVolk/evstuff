@@ -23,25 +23,7 @@
 #   - Play in 3, 5, bossa, rhumba, whatever
 # - Work on bebop phrases
 
-*override:
-  Work on "Anthropology" [Liban 2026-03-28]: NONE
-  **Learn "Autumn Leaves (Gm)" [Liban 2026-03-28]: NONE
-  Learn "Beautiful Love" [Liban 2026-03-28]: NONE
-  Learn "Bye Bye Blackbird" [Liban 2026-03-28]: NONE
-  Work on "Billies Bounce" [Liban 2026-03-28]: NONE
-  Learn "Lucky Southern" [Liban 2026-03-28]: NONE
-  Learn "Mr. P.C." [Liban 2026-03-28]: NONE
-  Learn "Oleo" [Liban 2026-03-28]: NONE
-  *Learn "Scrapple from the Apple" [Liban 2026-03-28]: NONE
-  **Learn "So What" [Liban 2026-03-28]: NONE
-  Learn "Softly as in a morning sunrise" [Liban 2026-03-28]: NONE
-  Learn "Soul Eyes" [Liban 2026-03-28]: NONE
-  Learn "St. Thomas" [Liban 2026-03-28]: NONE
-  Work on "Stella by Starlight" [Liban 2026-03-28]: NONE
-  Learn "Tenor Madness" [Liban 2026-03-28]: NONE
-  Work on "There will never be another you" [Liban 2026-03-28]: NONE
-
-_bass = [ bass ]
+*_bass = [ bass ]
 
 bass = [ seed 1@raybrown scale chord learn 2@revise more ]
 
@@ -65,8 +47,6 @@ chord:
 learn:
   Play a today-blues: NONE
   Work on "Cherokee" {}: {<Downes|Chorus|Brownify>}
-  Learn "Rhythm-a-Ning" [Nicolas 2026-03-28, from "Criss-Cross", youtu.be/8piShQZXIY8]: NONE
-  Learn "Blue Monk" [Nicolas 2026-03-28, from "Thelonius in Action", youtu.be/cWOz9mILqbA]: NONE
   Work on a ii-V-I phrase: NONE
 
 -learn-next-nicholas:
@@ -78,10 +58,10 @@ learn:
 
 -learn-next-on-top-lists:
   **Learn "All Blues": NONE
-  **Learn "Autumn Leaves": NONE
+  **Learn "Autumn Leaves" [Liban 2026-03-28]: NONE
   **Learn "Blue Bossa": NONE
   **Learn "Satin Doll": NONE
-  **Learn "So What": NONE
+  **Learn "So What" [Liban 2026-03-28]: NONE
   **Learn "Straight, No Chaser": NONE
   **Learn "Summertime": NONE
   **Learn "Take the “A” Train": NONE
@@ -95,15 +75,18 @@ learn:
   *Learn "Impressions": NONE
   *Learn "Moanin'": NONE
   *Learn "My Funny Valentine": NONE
-  *Learn "Scrapple from the Apple": NONE
+  *Learn "Scrapple from the Apple" [Liban 2026-03-28]: NONE
   *Learn "How High the Moon": NONE
+  *Learn "Bye Bye Blackbird" [Liban 2026-03-28]: NONE
 
 -learn-next-seen-mentioned:
   Learn "Alone Together" [Jams]: NONE
   Learn "Au Privave" [Jams]: NONE
-  Learn "Beautiful Love": NONE
+  Learn "Beautiful Love" [Liban 2026-03-28]: NONE
   Learn "Body and Soul": NONE
   Learn "But Beautiful" [I like it]: NONE
+  Learn "Cheryl" [Nicolas 2026-03-14, Charlie Parker version that's on "Best of Complete Savoy" youtu.be/fHNK3XcUSTo]: NONE
+  Learn "Confirmation" [Nicolas 2026-03-14, Charlie Parker version that's on "BD Music" youtu.be/yXK0pZx92MU]: NONE
   Learn "Darn That Dream" [Nicolas cancelled 2026-02-07, from Dexter Gordon, "One Flight Up"]: NONE
   Learn "Footprints" [I like it]: NONE
   Learn "I Can't Give You Anything But Love" [Singer in the Jam]: NONE
@@ -111,25 +94,28 @@ learn:
   Learn "Just Friends" [Everybody in AJJ]: NONE
   Learn "Lady Bird" [Nicolas 2026-03-21, from youtu.be/r0vhqDCy9eQ live by Dexter Gordon]: NONE
   Learn "Lover Man" [Nicolas cancelled 2026-02-14, from "Introducing Johnny Griffin"]: NONE
+  Learn "Lucky Southern" [I like it]: NONE
+  Learn "Mr. P.C." [Liban 2026-03-28]: NONE
   Learn "Nostalgia in Times Square" [Nicolas 2026-03-21, from "First Flight Out"]: NONE
   Learn "Now's the Time" [Cancelled Nicolas 2026-02-28, Charlie Parker version that's on "BD Music" youtu.be/ryNtmkfeJk4]: NONE
-  Learn "Oleo" [X]: NONE
+  Learn "Oleo" [Liban 2026-03-28]: NONE
   Learn "One Note Samba" [Every jam]: NONE
   Learn "Segment" [Cancelled Nicolas 2026-02-28, Charlie Parker version that's on "Verve 15" youtu.be/_KsLNGcuTlE]: NONE
-  Learn "Softly, as in a Morning Sunrise" [AJJ]: NONE
-  Learn "St. Thomas" [Nicolas mentioned]: NONE
+  Learn "Softly as in a morning sunrise" [Liban 2026-03-28]: NONE
+  Learn "Soul Eyes" [Liban 2026-03-28]: NONE
+  Learn "St. Thomas" [Liban 2026-03-28]: NONE
   Learn "Stompin’ at the Savoy": NONE
+  Learn "Tenor Madness" [Liban 2026-03-28]: NONE
   Learn "The Days of Wine and Roses": NONE
   Learn "There Is No Greater Love" [Nicolas 2026-03-07, from "Boss Tenors"]: NONE
   Learn "You and the Night and the Music": NONE
-  Learn "Confirmation" [Nicolas 2026-03-14, Charlie Parker version that's on "BD Music" youtu.be/yXK0pZx92MU]: NONE
-  Learn "Cheryl" [Nicolas 2026-03-14, Charlie Parker version that's on "Best of Complete Savoy" youtu.be/fHNK3XcUSTo]: NONE
 
 revise:
   Recall "All the Things You Are" {}: {<Downes|Chorus|Brownify>}
-  Recall "Anthropology": NONE
-  Recall "Billie's Bounce": NONE
+  Recall "Anthropology" [Liban 2026-03-28]: NONE
+  Recall "Billie's Bounce" [Liban]: NONE
   Recall "Blue Minor" [Nicolas 2026-02-21, from "Cool Struttin'"]: NONE
+  Recall "Blue Monk" [Nicolas 2026-03-28, from "Thelonius in Action", youtu.be/cWOz9mILqbA]: NONE
   Recall "But Not For Me" [Remember Israel Crosby, Percy Heath]: NONE
   Recall "Central Park West": NONE
   Recall "Dat Dere": NONE
@@ -142,6 +128,7 @@ revise:
   Recall "Ornithology": NONE
   Recall "Out of Nowhere" [Remember Ray Brown]: NONE
   Recall "Remember" [Nicolas 2025-12-13, Hank Mobley]: NONE
+  Recall "Rhythm-a-Ning" [Nicolas 2026-03-28, from "Criss-Cross", youtu.be/8piShQZXIY8]: NONE
   Recall "Sea Journey": NONE
   Recall "Solar": NONE
   Recall "Sonny's Mood" [Nicolas 2026-01-31, from "Dial S for Sonny", youtu.be/Qc5BH2-6zI8]: NONE
