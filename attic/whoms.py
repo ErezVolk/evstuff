@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Figure out whom is whom."""
 import argparse
+import code
 import hashlib
 import subprocess
 import tempfile
@@ -74,6 +75,12 @@ class Whoms:
             nargs="?",
             const="whoms.pdf",
             help="Create PDF with some statistics",
+        )
+        parser.add_argument(
+            "-I",
+            "--interact",
+            action="store_true",
+            help="Enter interactive mode"
         )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
@@ -179,6 +186,11 @@ class Whoms:
         else:
             print("Time to find more music.")
         self.choose_heard(albums)
+
+        if self.args.interact:
+            cvars = {"whoms": whoms, "albums": albums}
+            console = code.InteractiveConsole(cvars)
+            console.interact(banner=f"Enjoy! Locals: {' '.join(cvars)}")
 
     @staticmethod
     def mmss(minutes: float) -> str:
