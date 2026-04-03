@@ -96,6 +96,7 @@ function ri_run(ri) {
     ri_groom_update_toc(ri);
     ri_stop_subcounter(ri, "Grooming");
   }
+  ri_export_idml(ri);
   ri_stop_counter(ri);
 }
 
@@ -363,6 +364,10 @@ function ri_get_options(ri) {
             staticLabel: "Disable smart reflow when applicable",
             checkedState: !ri.saved_settings.keep_reflow,
           });
+          ri.ui_export_idml = add({
+            staticLabel: "Export IDML",
+            checkedState: !ri.dont_export_idml,
+          });
         }
       }
     }
@@ -574,6 +579,7 @@ function ri_do_import(ri) {
   obj["fnl_master"] = ri.fnl_master_name;
 
   obj["convert_hyperlinks"] = ri.ui_post_convert_hyperlinks.checkedState;
+  obj["dont_export_idml"] = !ri.ui_export_idml;
   obj["dont_import_images"] = !ri.ui_import_images.checkedState;
   obj["dont_shrink_tables"] = !ri.ui_groom_resize_tables.checkedState;
   obj["epubbify"] = ri.ui_epubbify.checkedState;
@@ -869,7 +875,6 @@ function ri_post_convert_hyperlinks(ri) {
 
   var styles = ri_filter_styles(ri.doc.allCharacterStyles, "@QR@");
   for (var i = 0; i < styles.length; ++ i) {
-    ri_log(ri, "EREZ EREZ Style " + styles[i].name);
     count += ri_post_convert_hyperlinks_style(ri, styles[i]);
   }
 
@@ -1328,6 +1333,13 @@ function ri_restore_reflow(ri) {
   ri.doc.activeProcess.waitForProcess(30);
   ri.doc.preflightOptions.preflightOff = saved_preflight;
   ri.reflow_changed = false;
+}
+
+function ri_export_idml(ri) {
+  if (!ri.ui_export_idml)
+    return;
+
+  ri.doc.exportFile(ExportFormat.INDESIGN_MARKUP, File(ri.importee + ".idml"));
 }
 
 function ri_main_frame(_ri, page, must) {
