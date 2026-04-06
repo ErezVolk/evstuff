@@ -3,6 +3,7 @@
 import argparse
 import code
 import hashlib
+import importlib
 import subprocess
 import tempfile
 import typing as t
@@ -269,7 +270,7 @@ class Whoms:
 
     def write_pdf(self, path: Path, albums: pd.DataFrame) -> None:
         """Write some stats as a graph."""
-        import seaborn as sns  # noqa: PLC0415
+        sns = importlib.import_module("seaborn")  # Lazy import since it's slow
         sns.set()
         fig = sns.displot(
             data=albums,
