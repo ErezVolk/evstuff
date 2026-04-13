@@ -157,9 +157,9 @@ class Whoms:
             f"{k_of_n(albums.heard)} albums",
             f"{k_of_n(whoms.heard)} players",
             f"{x_of_y(int(hours_heard), int(hours_total))} hours",
-            f"mean {self.mmss(albums.minutes.mean())} minutes ("
-            f"heard: {self.mmss(albums[albums.heard].minutes.mean())}, "
-            f"unheard: {self.mmss(albums[~albums.heard].minutes.mean())}"
+            f"{self.describe(albums.minutes)} ("
+            f"heard: {self.describe(albums[albums.heard].minutes)}, "
+            f"unheard: {self.describe(albums[~albums.heard].minutes)}"
             f")",
         ]
         print("Heard", ", ".join(heards))
@@ -193,14 +193,24 @@ class Whoms:
             console = code.InteractiveConsole(cvars)
             console.interact(banner=f"Enjoy! Locals: {' '.join(cvars)}")
 
-    @staticmethod
-    def mmss(minutes: float) -> str:
-        """Format floating-point minutes as a string."""
+    @classmethod
+    def describe(cls, minutes: pd.Series) -> str:
+        """Format floating-point minutes as a MEAN±SD string."""
+        return f"{cls.mmss(minutes.mean())}±{cls.ss(minutes.std())}"
+
+    @classmethod
+    def mmss(cls, minutes: float) -> str:
+        """Format floating-point minutes as mm:ss."""
         mm = int(minutes)
         ss = int((minutes - mm) * 60)
-        if ss:
-            return f"{mm}:{ss:02d}"
-        return str(mm)
+        if ss == 0:
+            return f"{mm}m"
+        return f"{mm}:{ss:02d}"
+
+    @classmethod
+    def ss(cls, minutes: float) -> str:
+        """Format floating-point minutes as ss."""
+        return f"{int(minutes * 60)}s"
 
     def choose_unheard(
         self,
