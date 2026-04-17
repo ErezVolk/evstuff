@@ -1,0 +1,24 @@
+#!/bin/sh
+# Download with aria2c -x4 and open.
+
+TDIR=$(mktemp -d)
+
+cleanup() {
+	rm -Rf "$TDIR"
+}
+
+trap cleanup EXIT
+
+# Use a FIFO so aria2c waits for the script
+# https://github.com/aria2/aria2/issues/1554#issuecomment-584429497
+
+HOOK="$TDIR"/open.sh
+FIFO="$HOOK".fifo
+mkfifo $FIFO
+echo 'open "$3"; open -R "$3"; echo DONE >$0.fifo' > "$HOOK"
+chmod 755 "$HOOK"
+
+if aria2c --on-download-complete "$HOOK" "$@"
+then
+	read <$FIFO
+fi
