@@ -10,6 +10,7 @@ import typing as t
 from pathlib import Path
 
 import pandas as pd  # type: ignore[import-not-found,import-untyped]
+import scipy.stats  # type: ignore[import-not-found,import-untyped]
 
 
 class Paths(t.NamedTuple):
@@ -20,11 +21,24 @@ class Paths(t.NamedTuple):
     dath: Path
 
 
+class Stats(t.NamedTuple):
+    """Stats of a collection of album lengths."""
+
+    desc: str
+    mean: float
+    std: float
+    nobs: int
+
+    def __str__(self) -> str:
+        return self.desc
+
+
 class Whoms:
     """Recommend an album."""
 
     parser: argparse.ArgumentParser
     args: argparse.Namespace
+    ALPHA = 0.05
 
     def parse_cli(self) -> None:
         """Parse command-line arguments."""
@@ -153,13 +167,17 @@ class Whoms:
         albums["hours"] = hours
         hours_total = hours.sum()
         hours_heard = hours[albums.heard].sum()
+        heard_stats = self.describe(albums[albums.heard].minutes)
+        unheard_stats = self.describe(albums[~albums.heard].minutes)
+        sep = " << " if self.less_than(heard_stats, unheard_stats) else ", "
         heards = [
             f"{k_of_n(albums.heard)} albums",
             f"{k_of_n(whoms.heard)} players",
             f"{x_of_y(int(hours_heard), int(hours_total))} hours",
             f"{self.describe(albums.minutes)} ("
-            f"heard: {self.describe(albums[albums.heard].minutes)}, "
-            f"unheard: {self.describe(albums[~albums.heard].minutes)}"
+            f"heard: {heard_stats}"
+            f"{sep}"
+            f"unheard: {unheard_stats}"
             f")",
         ]
         print("Heard", ", ".join(heards))
@@ -194,9 +212,14 @@ class Whoms:
             console.interact(banner=f"Enjoy! Locals: {' '.join(cvars)}")
 
     @classmethod
-    def describe(cls, minutes: pd.Series) -> str:
+    def describe(cls, minutes: pd.Series) -> Stats:
         """Format floating-point minutes as a MEAN±SD string."""
-        return f"{cls.mmss(minutes.mean())}±{cls.ss(minutes.std())}"
+        return Stats(
+            nobs=len(minutes),
+            mean=(mean := minutes.mean()),
+            std=(std := minutes.std()),
+            desc=f"{cls.mmss(mean)}±{cls.ss(std)}",
+        )
 
     @classmethod
     def mmss(cls, minutes: float) -> str:
@@ -362,6 +385,16 @@ class Whoms:
                     created = Path(tdir) / f"{path.stem}.{ext}"
                     created.move(zath)
         return Paths(oath=oath, zath=zath, dath=dath)
+
+    @classmethod
+    def less_than(cls, stat1: Stats, stat2: Stats) -> bool:
+        """Check whether two stats are significantly different."""
+        stat = scipy.stats.ttest_ind_from_stats(
+            stat1.mean, stat1.std, stat1.nobs,
+            stat2.mean, stat2.std, stat2.nobs,
+            alternative="less",
+        )
+        return stat.pvalue <= cls.ALPHA
 
     def run(
         self,
