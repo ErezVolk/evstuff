@@ -169,7 +169,7 @@ class Whoms:
         hours_heard = hours[albums.heard].sum()
         heard_stats = self.describe(albums[albums.heard].minutes)
         unheard_stats = self.describe(albums[~albums.heard].minutes)
-        sep = "<<" if self.less_than(heard_stats, unheard_stats) else "≈"
+        sep = "≉" if self.different(heard_stats, unheard_stats) else "≈"
         heards = [
             f"{k_of_n(albums.heard)} albums",
             f"{k_of_n(whoms.heard)} players",
@@ -387,14 +387,13 @@ class Whoms:
         return Paths(oath=oath, zath=zath, dath=dath)
 
     @classmethod
-    def less_than(cls, stat1: Stats, stat2: Stats) -> bool:
+    def different(cls, stat1: Stats, stat2: Stats) -> bool:
         """Check whether two stats are significantly different."""
-        stat = scipy.stats.ttest_ind_from_stats(
+        ttest = scipy.stats.ttest_ind_from_stats(
             stat1.mean, stat1.std, stat1.nobs,
             stat2.mean, stat2.std, stat2.nobs,
-            alternative="less",
         )
-        return stat.pvalue <= cls.ALPHA
+        return ttest.pvalue <= cls.ALPHA
 
     def run(
         self,
