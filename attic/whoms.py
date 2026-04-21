@@ -169,14 +169,14 @@ class Whoms:
         hours_heard = hours[albums.heard].sum()
         heard_stats = self.describe(albums[albums.heard].minutes)
         unheard_stats = self.describe(albums[~albums.heard].minutes)
-        sep = " << " if self.less_than(heard_stats, unheard_stats) else ", "
+        sep = "<<" if self.less_than(heard_stats, unheard_stats) else "≈"
         heards = [
             f"{k_of_n(albums.heard)} albums",
             f"{k_of_n(whoms.heard)} players",
             f"{x_of_y(int(hours_heard), int(hours_total))} hours",
             f"{self.describe(albums.minutes)} ("
             f"heard: {heard_stats}"
-            f"{sep}"
+            f" {sep} "
             f"unheard: {unheard_stats}"
             f")",
         ]
