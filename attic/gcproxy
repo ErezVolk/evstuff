@@ -1,0 +1,33 @@
+#!/bin/sh
+source ~/.gcproxyrc
+
+PROJECT=`gcloud projects list --filter="name=$PROJECT_NAME" --limit=1 --format='value(project_id)'`
+if [ -z "$PROJECT" ]; then
+	echo "Cannot find project named \"$PROJECT_NAME\"."
+	gcloud projects list
+	exit -1
+fi
+echo "PROJECT ID: $PROJECT"
+
+cleanup() {
+    echo "Deleting VM $VM_NAME..."
+    gcloud compute instances delete "$VM_NAME" --zone "$ZONE" --project "$PROJECT" --quiet
+}
+
+trap cleanup EXIT
+
+echo "Creating VM $VM_NAME..."
+gcloud compute instances create $VM_NAME \
+    --project=$PROJECT \
+    --zone=$ZONE \
+    --machine-type=$MACHINE_TYPE \
+    --image-family=$IMAGE_FAMILY \
+    --image-project=$IMAGE_PROJECT \
+
+EXTERNAL_IP=$(gcloud compute instances describe "$VM_NAME" --zone "$ZONE" --project "$PROJECT" --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+echo "EXTERNAL IP: $EXTERNAL_IP"
+
+until gcloud compute ssh "$VM_NAME" --force-key-file-overwrite --ssh-flag="-D 8080" --zone="$ZONE" --project "$PROJECT"; do
+    sleep 2
+    echo "Trying SSH..."
+done
