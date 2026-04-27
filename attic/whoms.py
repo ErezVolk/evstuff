@@ -207,7 +207,7 @@ class Whoms:
         self.choose_heard(albums)
 
         if self.args.interact:
-            cvars = {"whoms": whoms, "albums": albums}
+            cvars = {"whoms": whoms, "albums": albums, "unheard": unheard}
             console = code.InteractiveConsole(cvars)
             console.interact(banner=f"Enjoy! Locals: {' '.join(cvars)}")
 
@@ -242,6 +242,7 @@ class Whoms:
         whoms: pd.DataFrame,
     ) -> None:
         """Choose among the unheard albums."""
+        self.show_wip(unheard)
         if self.args.shortest_nth:
             n_shortest = max(len(unheard) // self.args.shortest_nth, 1)
             shorts = unheard.sort_values("dt").iloc[:n_shortest]
@@ -268,7 +269,7 @@ class Whoms:
         if len(stars := new_guys.query("total > 1")) > 0:
             starness = stars.total.max()
             star = stars[stars.total == starness].sample(1).index[0]
-            works_with = unheard[unheard.Whom.str.contains(star, regex=False)]
+            works_with = self.substr_map(unheard.Whom, star)
             if len(works_with) > 0:
                 row = works_with.sample(1).iloc[0]
                 print(f"- ({starness}-popular new guy) {row_desc(row)}")
@@ -288,12 +289,31 @@ class Whoms:
                 row = rows.sample(1).iloc[0]
                 print(f"- ({''.join(parts)}) {row_desc(row)}")
 
+    def show_wip(self, unheard: pd.DataFrame) -> pd.DataFrame:
+        """Remind user of work in progress."""
+        is_wip = self.substr_map(unheard.How, "WIP")
+        n_wip = sum(is_wip)
+        if n_wip == 0:
+            return unheard
+
+        print(f"Work In Progress ({n_wip}):")
+        wip = unheard[is_wip]
+        for _, row in wip.iterrows():
+            print(f"- {row_desc(row)}")
+        return unheard[~is_wip]
+
     def choose_heard(self, albums: pd.DataFrame) -> None:
         """Choose things to relisten to."""
-        relisten = albums[albums.How.astype("string").str.contains("relisten")]
+        relisten = albums[self.substr_map(albums.How, "relisten")]
         if len(relisten) > 0:
             row = relisten.sample(1).iloc[0]
             print(f"- (relisten) {row_desc(row)}")
+
+    @classmethod
+    def substr_map(cls, series: pd.Series, substr: str) -> pd.Series:
+        """Return Series[boolean] of values containing substring."""
+        as_str = series.astype("string").str
+        return as_str.contains(substr, regex=False).fillna(value=False)
 
     def do_read(self, path: Path) -> pd.DataFrame:
         """Actuall read a file."""
