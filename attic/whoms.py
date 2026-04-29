@@ -251,8 +251,7 @@ class Whoms:
         sample_size = min(self.args.count, len(shorts))
         offer = shorts.sample(n=sample_size).sort_values("n")
         print(f"Suggestions ({len(offer)} / {len(shorts)} / {len(unheard)}):")
-        for _, row in offer.iterrows():
-            print(f"- {row_desc(row)}")
+        self.print_rows(offer)
 
         n_oldest_added = unheard.sort_values("n").head()
         oldest_added = n_oldest_added.sample(1).iloc[0]
@@ -271,8 +270,7 @@ class Whoms:
             star = stars[stars.total == starness].sample(1).index[0]
             works_with = self.substr_map(unheard.Whom, star)
             if len(works_with) > 0:
-                row = works_with.sample(1).iloc[0]
-                print(f"- ({starness}-popular new guy) {row_desc(row)}")
+                self.print_any_row(works_with, f"{starness}-popular new guy")
         elif len(names := set(new_guys.index)) > 0:
             rows = albums[
                 albums.Whoms.apply(lambda ppl: len(set(ppl) & names) > 0)
@@ -286,28 +284,38 @@ class Whoms:
                 parts.insert(0, f"one of {n_rows} ")
                 parts.append("s")
             if n_rows > 0:
-                row = rows.sample(1).iloc[0]
-                print(f"- ({''.join(parts)}) {row_desc(row)}")
+                self.print_any_row(rows, "".join(parts))
 
     def show_wip(self, unheard: pd.DataFrame) -> pd.DataFrame:
         """Remind user of work in progress."""
         is_wip = self.substr_map(unheard.How, "WIP")
         n_wip = sum(is_wip)
-        if n_wip == 0:
-            return unheard
+        if n_wip > 0:
+            print(f"Work In Progress ({n_wip}):")
+            self.print_rows(unheard[is_wip])
 
-        print(f"Work In Progress ({n_wip}):")
-        wip = unheard[is_wip]
-        for _, row in wip.iterrows():
-            print(f"- {row_desc(row)}")
-        return unheard[~is_wip]
+        unheard = unheard[~is_wip]
+        sus = unheard[unheard.How.notna()]
+        n_sus = len(sus)
+        if n_sus > 0:
+            print(f"Unheard but described ({n_sus}):")
+            self.print_rows(sus)
+        return unheard
 
     def choose_heard(self, albums: pd.DataFrame) -> None:
         """Choose things to relisten to."""
         relisten = albums[self.substr_map(albums.How, "relisten")]
         if len(relisten) > 0:
-            row = relisten.sample(1).iloc[0]
-            print(f"- (relisten) {row_desc(row)}")
+            self.print_any_row(relisten, "relisten")
+
+    def print_rows(self, rows: pd.Series) -> None:
+        """Print a list of albums."""
+        for _, row in rows.iterrows():
+            print(f"- {row_desc(row)}")
+
+    def print_any_row(self, rows: pd.DataFrame, inset: str) -> None:
+        """Print one random album with an extra text."""
+        print(f"- ({inset}) {row_desc(rows.sample(1).iloc[0])}")
 
     @classmethod
     def substr_map(cls, series: pd.Series, substr: str) -> pd.Series:
