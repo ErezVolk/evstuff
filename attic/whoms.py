@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Figure out whom is whom."""
+"""Figure out whom is whom.
+
+> pip install pandas scipy seaborn odfpy
+"""
 import argparse
 import code
 import hashlib
@@ -400,8 +403,7 @@ class Whoms:
         exists = zath.is_file()
         if changed or not exists:
             print(f"{path} -> {zath}")
-            if exists:
-                zath.copy(oath)
+            if not exists:
                 with tempfile.TemporaryDirectory() as tdir:
                     cmd = [
                         "soffice",
@@ -412,6 +414,7 @@ class Whoms:
 
                     created = Path(tdir) / f"{path.stem}.{ext}"
                     created.move(zath)
+            zath.copy(oath)
         return Paths(oath=oath, zath=zath, dath=dath)
 
     @classmethod
