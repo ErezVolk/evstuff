@@ -25,6 +25,7 @@ class BingWallpaper:
         self.parse_args()
 
         self.directory = Path.home() / "Pictures" / "bing-wallpapers"
+        self.directory.mkdir(exist_ok=True)
         self.scan_existing()
         self.download_archive()
         for country_code in self.COUNTRIES:
