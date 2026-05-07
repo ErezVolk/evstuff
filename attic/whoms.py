@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
-"""Figure out whom is whom.
-
-> pip install pandas scipy seaborn odfpy
-"""
+#!/usr/bin/env -S uv run --script
+"""Figure out whom is whom."""
 import argparse
 import code
 import hashlib
@@ -494,3 +491,7 @@ def one_of(names: str) -> str:
 
 if __name__ == "__main__":
     Whoms().main()
+
+# /// script
+# dependencies = ["pandas", "scipy", "seaborn", "odfpy"]
+# ///
