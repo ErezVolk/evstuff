@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
 """Download latest wallpapers from bing."""
 import argparse
 import json
@@ -203,3 +203,7 @@ class BingWallpaper:
 
 if __name__ == "__main__":
     BingWallpaper().run()
+
+# /// script
+# dependencies = ["lxml", "requests"]
+# ///
