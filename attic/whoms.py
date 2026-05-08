@@ -16,9 +16,9 @@ import scipy.stats  # type: ignore[import-not-found,import-untyped]
 class Paths(t.NamedTuple):
     """Paths in conversion."""
 
-    zath: Path
-    oath: Path
-    dath: Path
+    curr: Path
+    prev: Path
+    diff: Path
 
 
 class Stats(t.NamedTuple):
@@ -324,10 +324,10 @@ class Whoms:
         return as_str.contains(substr, regex=False).fillna(value=False)
 
     def do_read(self, path: Path) -> pd.DataFrame:
-        """Actuall read a file."""
-        if path.suffix.lower() == ".fods":
-            path = self.deflatten(path)
-        return pd.read_excel(path)
+        """Actually read a file, deflattening if required."""
+        return pd.read_excel(
+            self.deflatten(path) if path.suffix.lower() == ".fods" else path
+        )
 
     def write_pdf(self, path: Path, albums: pd.DataFrame) -> None:
         """Write some stats as a graph."""
@@ -341,22 +341,22 @@ class Whoms:
         print(f"Writing {path}")
         fig.savefig(path)
 
-    def deflatten(self, path: Path) -> Path:
-        """Convert flat ODS to ODS."""
-        while path.is_symlink():
-            path = path.parent / path.readlink()
-        path = path.absolute()
-        digest = file_digest(path)
+    def deflatten(self, flat: Path) -> Path:
+        """Convert FODS to ODS (for reading) and CSV (for diff)."""
+        while flat.is_symlink():
+            flat = flat.parent / flat.readlink()
+        flat = flat.absolute()
+        digested = file_digest(flat)
 
-        math = path.with_name(f".auto-{path.stem}.fods")
-        hath = path.with_name(f".auto-{path.stem}.digest")
-        changed = read_digest(hath) != digest
-        csv = self.deflatten_ext(path, math, "csv", changed=changed)
-        with csv.dath.open("w", encoding="utf-8") as dfo:
-            dfo.write(path.name)
+        model = flat.with_name(f".auto-{flat.stem}.fods")
+        digest = flat.with_name(f".auto-{flat.stem}.digested")
+        changed = read_digest(digest) != digested
+        csv: Paths = self.deflatten_to(flat, model, "csv", changed=changed)
+        with csv.diff.open("w", encoding="utf-8") as dfo:
+            dfo.write(flat.name)
             dfo.write("\n\n")
 
-            if csv.oath.is_file():
+            if csv.prev.is_file():
                 dfo.flush()
 
                 cmd = [
@@ -364,55 +364,55 @@ class Whoms:
                     "-L before",
                     "-L after",
                     "-s", "-U0",
-                    str(csv.oath), str(csv.zath),
+                    str(csv.prev), str(csv.curr),
                 ]
                 self.run(cmd, stdout=dfo, check=False, encoding="utf-8")
 
-        ods = self.deflatten_ext(path, math, "ods", changed=changed)
+        ods: Paths = self.deflatten_to(flat, model, "ods", changed=changed)
         if changed:
-            with hath.open("w", encoding="utf-8") as fobj:
-                fobj.write(digest)
+            with digest.open("w", encoding="utf-8") as fobj:
+                fobj.write(digested)
             if self.args.git_commit or self.args.git_push:
                 flag = "-F" if self.args.git_commit else "-t"
-                cmd = ["git", "commit", path.name, flag, csv.dath.name]
+                cmd = ["git", "commit", flat.name, flag, csv.diff.name]
                 print(">", " ".join(cmd))
-                proc = self.run(cmd, cwd=path.parent, check=False)
+                proc = self.run(cmd, cwd=flat.parent, check=False)
                 if proc.returncode == 0 and self.args.git_push:
                     cmd = ["git", "push"]
                     print(">", " ".join(cmd))
-                    self.run(cmd, cwd=path.parent)
+                    self.run(cmd, cwd=flat.parent)
 
-        return ods.zath
+        return ods.curr
 
-    def deflatten_ext(
+    def deflatten_to(
         self,
         path: Path,
-        math: Path,
-        ext: str,
+        model: Path,
+        extension: str,
         *,
         changed: bool,
     ) -> Paths:
-        """Deflatten one file."""
-        zath = math.with_suffix(f".{ext}")
-        oath = math.with_suffix(f".prev.{ext}")
-        dath = math.with_suffix(f".diff.{ext}")
+        """Deflatten one file to one format."""
+        curr = model.with_suffix(f".{extension}")
+        prev = model.with_suffix(f".prev.{extension}")
+        diff = model.with_suffix(f".diff.{extension}")
 
-        exists = zath.is_file()
+        exists = curr.is_file()
         if changed or not exists:
-            print(f"{path} -> {zath}")
-            if not exists:
-                with tempfile.TemporaryDirectory() as tdir:
-                    cmd = [
-                        "soffice",
-                        "--headless", "--convert-to", ext,
-                        str(path),
-                    ]
-                    self.run(cmd, cwd=tdir, stdout=subprocess.PIPE)
+            print(f"{path} -> {curr}")
+            if exists:
+                curr.copy(prev)
+            with tempfile.TemporaryDirectory() as tdir:
+                cmd = [
+                    "soffice",
+                    "--headless", "--convert-to", extension,
+                    str(path),
+                ]
+                self.run(cmd, cwd=tdir, stdout=subprocess.PIPE)
 
-                    created = Path(tdir) / f"{path.stem}.{ext}"
-                    created.move(zath)
-            zath.copy(oath)
-        return Paths(oath=oath, zath=zath, dath=dath)
+                created = Path(tdir) / f"{path.stem}.{extension}"
+                created.move(curr)
+        return Paths(prev=prev, curr=curr, diff=diff)
 
     @classmethod
     def different(cls, stat1: Stats, stat2: Stats) -> bool:
