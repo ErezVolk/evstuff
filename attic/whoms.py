@@ -493,5 +493,6 @@ if __name__ == "__main__":
     Whoms().main()
 
 # /// script
+# requires-python = ">=3.14"
 # dependencies = ["pandas", "scipy", "seaborn", "odfpy"]
 # ///
