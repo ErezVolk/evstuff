@@ -21,3 +21,4 @@ standards/.auto-*
 .mscbackup
 *.mkv
 .mmw
+uv.lock
