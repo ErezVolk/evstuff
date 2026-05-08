@@ -95,7 +95,6 @@ class LikeIt:
                 )
 
             try:
-                ltw = int(ltw)
                 wishlist.loc[tmap, "LTW"] = ltw
             except ValueError:
                 log.warning("%s: No LTW", title)
@@ -209,6 +208,6 @@ if __name__ == "__main__":
 
 # /// script
 # requires-python = ">=3.14"
-# dependencies = ["pandas", "requests", "browser_cookie3"]
+# dependencies = ["pandas", "requests", "browser_cookie3", "openpyxl"]
 # ///
 # vim: set ft=python:
