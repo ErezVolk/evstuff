@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Shuffle paragraphs in a Word document."""
 import argparse
 import pickle
@@ -254,3 +254,8 @@ class DocxShuffle(DocxWorker):
 
 if __name__ == "__main__":
     DocxShuffle().main()
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["numpy", "lxml"]
+# ///

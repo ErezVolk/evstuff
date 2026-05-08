@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Trivial wrapper for unidecode."""
 import sys
 
@@ -14,3 +14,7 @@ def decode_it() -> None:
 
 if __name__ == "__main__":
     decode_it()
+
+# /// script
+# dependencies = ["unidecode"]
+# ///

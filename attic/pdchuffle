@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Shuffle chapters in a PDF file."""
 import pickle
 import re
@@ -7,8 +7,9 @@ from argparse import Namespace
 from pathlib import Path
 
 import numpy.random as npr
-import pandas as pd
-import pymupdf
+import pandas as pd  # type: ignore[import-not-found,import-untyped]
+import pymupdf  # type: ignore[import-not-found,import-untyped]
+
 
 # We only use bookmarks that point to a new page
 TOP_OF_PAGE = pymupdf.Point(0, 0)
@@ -253,3 +254,9 @@ class Pdchuffle:
 
 if __name__ == "__main__":
     Pdchuffle().main()
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["pandas", "numpy", "pymupdf"]
+# ///
+# vim: set ft=python:

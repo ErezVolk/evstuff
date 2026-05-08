@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
 """Calculate translation stats."""
 from argparse import ArgumentParser
 from datetime import UTC
@@ -7,11 +7,11 @@ from datetime import time
 from functools import partial
 from pathlib import Path
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # type: ignore[import-not-found,import-untyped]
 import numpy as np
 import numpy.typing as npt
-import pandas as pd
-import seaborn as sns
+import pandas as pd  # type: ignore[import-not-found,import-untyped]
+import seaborn as sns  # type: ignore[import-not-found,import-untyped]
 
 EPOCH_DATETIME = datetime(1899, 12, 31, 0, 0, 0, tzinfo=UTC)  # Stupid Excel
 ROOT = Path.home() / "translation"
@@ -147,3 +147,9 @@ def histogram(
 
 if __name__ == "__main__":
     main()
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["pandas", "numpy", "xlrd", "seaborn"]
+# ///
+# vim: set ft=python:
