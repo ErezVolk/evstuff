@@ -12,6 +12,8 @@ echo "PROJECT ID: $PROJECT"
 cleanup() {
     echo "Deleting VM $VM_NAME..."
     gcloud compute instances delete "$VM_NAME" --zone "$ZONE" --project "$PROJECT" --quiet
+    echo "Anything left?"
+    gcloud compute instances list --project "$PROJECT"
 }
 
 trap cleanup EXIT
