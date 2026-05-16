@@ -707,10 +707,7 @@ class PracticeMakesPerfect:
 
     def _open_annals(self) -> t.TextIO:
         """Open the annals file for appending."""
-        if self.args.saveless:
-            path = Path(os.devnull)
-        else:
-            path = self.args.annals_file
+        path = Path(os.devnull) if self.args.saveless else self.args.annals_file
         return path.open("a+t", encoding="utf-8")
 
     def _sign_annals(self) -> None:
