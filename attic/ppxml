@@ -1,8 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Pretty-print XML."""
-import xml.dom.minidom
 from argparse import ArgumentParser
 from pathlib import Path
+
+from lxml import etree
 
 
 def main() -> None:
@@ -13,11 +14,25 @@ def main() -> None:
 
     xmlfn: Path
     for xmlfn in args.xmls:
-        dom = xml.dom.minidom.parse(str(xmlfn))
-        pretty = dom.toprettyxml(indent="  ")
-        with xmlfn.open("w", encoding="utf-8") as xmlfo:
-            xmlfo.write(pretty)
+        try:
+            with xmlfn.open("r") as xmlfo:
+                doc = etree.parse(xmlfo)
+            pretty = etree.tostring(
+                doc,
+                xml_declaration=True,
+                encoding=doc.docinfo.encoding,
+                standalone=doc.docinfo.standalone,
+                pretty_print=True,
+            )
+            with xmlfn.open("wb") as xmlfo:
+                xmlfo.write(pretty)
+        except (FileNotFoundError, PermissionError, etree.XMLSyntaxError) as exc:
+            print(f"ERROR IN {xmlfn}: {exc}")
 
 
 if __name__ == "__main__":
     main()
+
+# /// script
+# dependencies = ["lxml"]
+# ///
