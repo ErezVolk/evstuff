@@ -33,4 +33,10 @@ nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
 autocmd bufreadpre *.md setlocal textwidth=88
 
+if system('uname -m') =~ 'arm64'
+  set rtp+=/opt/homebrew/opt/fzf
+else
+  set rtp+=/usr/local/opt/fzf
+endif
+
 " set fencs=ucs-bom,utf-16le,utf-8,default,latin1
