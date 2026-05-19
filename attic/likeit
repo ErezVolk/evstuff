@@ -207,7 +207,6 @@ if __name__ == "__main__":
     LikeIt().run()
 
 # /// script
-# requires-python = ">=3.14"
 # dependencies = ["pandas", "requests", "browser_cookie3", "openpyxl"]
 # ///
 # vim: set ft=python:

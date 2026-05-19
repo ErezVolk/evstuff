@@ -9,8 +9,8 @@ import tempfile
 import typing as t
 from pathlib import Path
 
-import pandas as pd  # type: ignore[import-not-found,import-untyped]
-import scipy.stats  # type: ignore[import-not-found,import-untyped]
+import pandas as pd
+import scipy.stats
 
 
 class Paths(t.NamedTuple):
@@ -270,7 +270,7 @@ class Whoms:
             star = stars[stars.total == starness].sample(1).index[0]
             works_with = self.substr_map(unheard.Whom, star)
             if len(works_with) > 0:
-                self.print_any_row(works_with, f"{starness}-popular new guy")
+                self.print_one_of(works_with, f"{starness}-popular new guy")
         elif len(names := set(new_guys.index)) > 0:
             rows = albums[
                 albums.Whoms.apply(lambda ppl: len(set(ppl) & names) > 0)
@@ -284,7 +284,7 @@ class Whoms:
                 parts.insert(0, f"one of {n_rows} ")
                 parts.append("s")
             if n_rows > 0:
-                self.print_any_row(rows, "".join(parts))
+                self.print_one_of(rows, "".join(parts))
 
     def show_wip(self, unheard: pd.DataFrame) -> pd.DataFrame:
         """Remind user of work in progress."""
@@ -306,14 +306,14 @@ class Whoms:
         """Choose things to relisten to."""
         relisten = albums[self.substr_map(albums.How, "relisten")]
         if len(relisten) > 0:
-            self.print_any_row(relisten, "relisten")
+            self.print_one_of(relisten, "relisten")
 
-    def print_rows(self, rows: pd.Series) -> None:
+    def print_rows(self, rows: pd.DataFrame) -> None:
         """Print a list of albums."""
         for _, row in rows.iterrows():
             print(f"- {row_desc(row)}")
 
-    def print_any_row(self, rows: pd.DataFrame, inset: str) -> None:
+    def print_one_of(self, rows: pd.DataFrame | pd.Series, inset: str) -> None:
         """Print one random album with an extra text."""
         print(f"- ({inset}) {row_desc(rows.sample(1).iloc[0])}")
 
@@ -493,6 +493,5 @@ if __name__ == "__main__":
     Whoms().main()
 
 # /// script
-# requires-python = ">=3.14"
 # dependencies = ["pandas", "scipy", "seaborn", "odfpy"]
 # ///

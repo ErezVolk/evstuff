@@ -1,37 +1,33 @@
-#!/usr/bin/env python3
-"""UTF-8 to audiobook"""
+#!/usr/bin/env -S uv run --script
+"""UTF-8 to audiobook."""
+
 import argparse
 import html
-from pathlib import Path
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 import pandas as pd
-
-try:
-    from google.cloud import texttospeech as gg_tts
-    HAVE_GOOGLE = True
-except ImportError:
-    HAVE_GOOGLE = False
+from google.cloud import texttospeech as gg_tts  # ty: ignore[unresolved-import]
 
 PAUSE_TO_GAP_MS = {3: 4000, 2: 3000, 1: 1000}
 
 
 class Utf2Tts:
-    """UTF-8 to audiobook"""
-    def parse_args(self):
-        """Command-line arguments"""
+    """UTF-8 to audiobook."""
+
+    def parse_args(self) -> None:
+        """Parse command-line arguments."""
         parser = argparse.ArgumentParser()
         parser.add_argument("input", type=Path, nargs="?", help="Input UTF-8 file")
         parser.add_argument("-d", "--debug", action="store_true")
 
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-v", "--macos-voice", help="Generate audiobook using MacOS")
-        if HAVE_GOOGLE:
-            group.add_argument(
-                "-g", "--google-voice", help="Generate audiobook using Google"
-            )
+        group.add_argument(
+            "-g", "--google-voice", help="Generate audiobook using Google"
+        )
 
         parser.add_argument("-s", "--stem", help="Audio filename prefix")
 
@@ -55,29 +51,31 @@ class Utf2Tts:
     gg_voice: object
     gg_audio: object
 
-    def main(self):
+    def main(self) -> None:
+        """Do it."""
         self.parse_args()
 
-        if HAVE_GOOGLE:
-            if self.args.google_voice and self.args.google_voice.endswith("?"):
-                self.list_google_voices()
-                return
+        if self.args.google_voice and self.args.google_voice.endswith("?"):
+            self.list_google_voices()
+            return
 
-        with open(self.args.input, "r", encoding="utf-8") as ifo:
+        with self.args.input.open("r", encoding="utf-8") as ifo:
             tosay = pd.DataFrame({
                 "text": [line.strip() for line in ifo]
             })
         tosay["lineno"] = tosay.index + 1
-        tosay.drop(tosay.index[tosay.text == ""], inplace=True)
+        tosay = tosay.drop(tosay.index[tosay.text == ""])
         tosay.loc[tosay.text.str.fullmatch(r"\d+"), "chap"] = tosay.text
         tosay["n_words"] = tosay.text.str.split(r"\s", regex=True).str.len()
         tosay["chap"] = tosay.chap.fillna(method="ffill").fillna("0").astype(int)
-        tosay["pause"] = tosay.lineno.diff().map(lambda diff: 1 if diff <= 2 else 2 if diff <= 4 else 3)
+        tosay["pause"] = tosay.lineno.diff().map(
+            lambda diff: 1 if diff <= 2 else 2 if diff <= 4 else 3  # noqa: PLR2004
+        )
 
         if self.args.macos_voice:
             self.preamble = f"[[rate {int(self.args.rate)}]] " if self.args.rate else ""
             tts = self.macos_tts
-        elif HAVE_GOOGLE and self.args.google_voice:
+        elif self.args.google_voice:
             tts = self.google_tts
         else:
             print("Not creating audiobook")
@@ -90,30 +88,30 @@ class Utf2Tts:
             if self.args.force or not path.is_file():
                 tts(rows=group, path=path)
 
-    def macos_tts(self, rows: pd.DataFrame, path: Path):
+    def macos_tts(self, rows: pd.DataFrame, path: Path) -> None:
         """TTS using MacOS's `say (1)` and `sox`."""
         aiff = path.with_suffix(".aiff")
         text = " ".join(
-            f"{self.preamble}[[slnc 600]] {row.text} [[slnc {PAUSE_TO_GAP_MS[row.pause] - 600}]]"
+            f"{self.preamble}[[slnc 600]] {row.text} "
+            f"[[slnc {PAUSE_TO_GAP_MS[row.pause] - 600}]]"
             for _, row in rows.iterrows()
         )
-        subprocess.run(
-            [
-                "say",
-                "-v",
-                self.args.macos_voice,
-                "-o",
-                str(aiff),
-                text,
-            ],
-            check=True,
-        )
+        cmd = [
+            "say",
+            "-v",
+            self.args.macos_voice,
+            "-o",
+            str(aiff),
+            text,
+        ]
+        subprocess.run(cmd, check=True)
         self.sox_and_rm(aiff, path)
 
-    def sox_and_rm(self, curr: Path, path: Path):
-        """Run sox to convert an audio file and delete the original"""
+    def sox_and_rm(self, curr: Path, path: Path) -> None:
+        """Run sox to convert an audio file and delete the original."""
         if curr != path:
-            subprocess.run(["sox", str(curr), str(path)], check=True)
+            cmd = ["sox", str(curr), str(path)]
+            subprocess.run(cmd, check=True)
             curr.unlink()
 
         print(f"... {path} {path.stat().st_size:,} Bytes")
@@ -124,10 +122,10 @@ class Utf2Tts:
                 print("Reached maximum number of files.")
                 sys.exit(0)
 
-    def list_google_voices(self):
-        """List Google cloud voices"""
+    def list_google_voices(self) -> None:
+        """List Google cloud voices."""
         prefix = self.args.google_voice[:-1]
-        print(f"Asking Google for voices starting with {repr(prefix)}...")
+        print(f"Asking Google for voices starting with {prefix!r}...")
         client = gg_tts.TextToSpeechClient()
         for voice in client.list_voices().voices:
             if any(lang.startswith(prefix) for lang in voice.language_codes):
@@ -137,7 +135,7 @@ class Utf2Tts:
                     "".join(voice.language_codes),
                 )
 
-    def google_tts(self, rows: pd.DataFrame, path: Path):
+    def google_tts(self, rows: pd.DataFrame, path: Path) -> None:
         """TTS using Google cloud.
 
         There's a "synthesize long audio" API, but that requires creating
@@ -154,10 +152,11 @@ class Utf2Tts:
                 audio_encoding=gg_tts.AudioEncoding.MP3,
                 speaking_rate=float(self.args.rate) or 1.0,
             )
+        assert isinstance(self.gg_client, gg_tts.TextToSpeechClient)
 
         mp3 = path.with_suffix(".mp3")
         print(f"{path.name} (words={rows.n_words.sum()}) ...")
-        with open(mp3, "wb") as ofo:
+        with mp3.open("wb") as ofo:
             for _, row in rows.iterrows():
                 ssml = (
                     f'<speak>{html.escape(row.text)}</speak>'
@@ -175,3 +174,7 @@ class Utf2Tts:
 
 if __name__ == "__main__":
     Utf2Tts().main()
+
+# /// script
+# dependencies = ["google-cloud-texttospeech"]
+# ///

@@ -256,6 +256,5 @@ if __name__ == "__main__":
     DocxShuffle().main()
 
 # /// script
-# requires-python = ">=3.14"
 # dependencies = ["numpy", "lxml"]
 # ///

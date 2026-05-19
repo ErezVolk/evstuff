@@ -149,7 +149,6 @@ if __name__ == "__main__":
     main()
 
 # /// script
-# requires-python = ">=3.14"
 # dependencies = ["pandas", "numpy", "xlrd", "seaborn"]
 # ///
 # vim: set ft=python:

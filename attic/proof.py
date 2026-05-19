@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Checks things in .docx files."""
-# pyright: reportMissingImports=false,reportAttributeAccessIssue=false
-# mypy: disable-error-code="import-untyped"
+__TODO__ = """
+- Hebrew Maqaf
+"""
 
 import argparse
 import datetime
@@ -9,17 +10,14 @@ import re
 import shutil
 import subprocess
 import typing as t
-
 from collections import Counter
 from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
 
-from lxml import etree
+from lxml import etree  # ty: ignore[unresolved-import]
 
 from docx_worker import DocxWorker
-
-# TODO: Hebrew Maqaf
 
 
 class Proof(DocxWorker):
@@ -177,7 +175,7 @@ class Proof(DocxWorker):
     antidict: re.Pattern | None
     antiwords: Counter
     args: argparse.Namespace
-    comments: dict[str, list[str]]
+    comments: dict[str, list[etree._Entity]]
     formula_style_id: str
     opath: Path
 
@@ -232,7 +230,7 @@ class Proof(DocxWorker):
             self._consider_overwrite()
 
         if changed and self.args.open:
-            subprocess.run(["open", str(self.opath)], check=False)
+            subprocess.run(["/usr/bin/open", str(self.opath)], check=False)
 
     def _save_to(self, infix: str) -> None:
         """Save the XML files in a nice format."""
@@ -368,7 +366,7 @@ class Proof(DocxWorker):
             "  and"
             " following-sibling::*[1]["
             "  self::w:r[not(w:rPr/w:rtl)]"  # Pre-LTR
-            # "  self::w:r[w:t[re:test(., '^[^א-ת]+$')]]"  # Pre-non-RTL
+            # (removed?) "  self::w:r[w:t[re:test(., '^[^א-ת]+$')]]"  # Pre-non-RTL
             " ]"
             "  and"
             " w:t["
@@ -572,3 +570,7 @@ class Proof(DocxWorker):
 
 if __name__ == "__main__":
     Proof().main()
+
+# /// script
+# dependencies = ["lxml"]
+# ///

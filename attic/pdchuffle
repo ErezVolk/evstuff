@@ -262,7 +262,6 @@ if __name__ == "__main__":
     Pdchuffle().main()
 
 # /// script
-# requires-python = ">=3.14"
 # dependencies = ["pandas", "numpy", "pymupdf"]
 # ///
 # vim: set ft=python:

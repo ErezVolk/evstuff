@@ -1,13 +1,13 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Based on code from https://github.com/fab-jul/parse_dictionaries."""
+
 import itertools
 import json
 import zlib
 from pathlib import Path
 
-import regex as re
-from lxml import etree
-
+import regex as re  # ty: ignore[unresolved-import]
+from lxml import etree  # ty: ignore[unresolved-import]
 
 ROOT = Path(
     "/System/Library/AssetsV2"
@@ -178,3 +178,7 @@ def _split(input_bytes: bytes, *, verbose: bool) -> tuple[list[tuple[str, str]],
 
 if __name__ == "__main__":
     main()
+
+# /// script
+# dependencies = ["lxml", "regex"]
+# ///
