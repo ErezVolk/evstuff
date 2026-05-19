@@ -1,4 +1,4 @@
-fortune
+which fortune > /dev/null && fortune
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -130,7 +130,7 @@ export PATH=$HOME/bin:${HOME}/.local/bin:${HOMEBREW_PREFIX}/bin:$PATH
 
 source <(fzf --zsh)
 
-test -e  $HOME/src/fzf-git.sh/fzf-git.sh ] && source $HOME/src/fzf-git.sh/fzf-git.sh
+test -e  $HOME/src/fzf-git.sh/fzf-git.sh && source $HOME/src/fzf-git.sh/fzf-git.sh
 
 # END EREZ
 
