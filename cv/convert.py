@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 """Create translation CVs."""
-# pylint: disable=import-error
 # pyright: reportMissingImports=false
+# mypy: disable-error-code="import-untyped,import-not-found"
 
 import argparse
 import re
@@ -9,8 +9,8 @@ import sys
 import typing as t
 from pathlib import Path
 
-import pandas as pd
-from docxtpl import DocxTemplate
+import pandas as pd  # ty: ignore[unresolved-import]
+from docxtpl import DocxTemplate  # ty: ignore[unresolved-import]
 
 HERE = Path.cwd().resolve()
 THIS = Path(__file__).resolve()
