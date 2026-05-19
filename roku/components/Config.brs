@@ -41,7 +41,7 @@ Function loadConfig() as Object
 {
     Title: "Kan Hinuhit"
     streamFormat: "hls"
-    Stream: "https://kan23.media.kan.org.il/hls/live/2024691/2024691/source1_2.5k/chunklist.m3u8"
+    Stream: "https://n-121-5.il.cdn-redge.media/livehls/oil/kancdn-live/live/kan_edu/live.livx/playlist.m3u8?renditions&fmp4&dvr=7200000"
 }
 {
     Title: "Knesset"
