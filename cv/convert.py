@@ -1,21 +1,24 @@
-#!/usr/bin/env python3
-"""Create translation CVs"""
+#!/usr/bin/env -S uv run --script
+"""Create translation CVs."""
 # pylint: disable=import-error
 # pyright: reportMissingImports=false
+
 import argparse
-from pathlib import Path
 import re
 import sys
+import typing as t
+from pathlib import Path
 
-from docxtpl import DocxTemplate
 import pandas as pd
+from docxtpl import DocxTemplate
 
 HERE = Path.cwd().resolve()
 THIS = Path(__file__).resolve()
 
 
 class ConvertCV:
-    """Create translation CVs"""
+    """Create translation CVs."""
+
     parser: argparse.ArgumentParser
     args: argparse.Namespace
     works: pd.DataFrame
@@ -23,8 +26,8 @@ class ConvertCV:
     lgs: pd.DataFrame
     latin_langs: set[str]
 
-    def parse_args(self):
-        """Usage of this script"""
+    def parse_args(self) -> None:
+        """Usage of this script."""
         known_lgs = [
             match.group(1)
             for path in HERE.iterdir()
@@ -43,15 +46,15 @@ class ConvertCV:
         self.args = parser.parse_args()
         self.parser = parser
 
-    def run(self):
-        """The main function"""
+    def run(self) -> None:
+        """Do your stuff."""
         self.parse_args()
         self.read_tables()
 
         for lang in self.args.langs:
             self.convert_to(lang)
 
-    def read_tables(self):
+    def read_tables(self) -> None:
         """Read the lists of works, publishers, etc."""
         self.read_works()
         pubs = self.read_tsv("publishers")
@@ -64,8 +67,8 @@ class ConvertCV:
         if bad_lgs:
             for _, work in self.works[self.works.lg.isin(bad_lgs)].iterrows():
                 print(
-                    f'Was "{work.title_he}" really translated'
-                    f' from the "{work.lg}"?'
+                    f'Was "{work.title_he}" really translated '
+                    f'from the "{work.lg}"?'
                 )
             self.die("Unknown language code(s)")
 
@@ -101,8 +104,8 @@ class ConvertCV:
             bad = self.works[tmap].title_he
             self.die(f"Missing original titles(s): {' '.join(map(repr, bad))}")
 
-    def read_works(self):
-        """Read works table and remove unwanted things"""
+    def read_works(self) -> None:
+        """Read works table and remove unwanted things."""
         self.works = self.read_tsv("works")
         n_all = len(self.works)
 
@@ -115,13 +118,13 @@ class ConvertCV:
 
         self.works["is_book"] = self.works.in_he == ""
 
-    def die(self, msg: str):
-        """Print error message and quit"""
+    def die(self, msg: str) -> t.Never:
+        """Print error message and quit."""
         print(msg)
         sys.exit(-1)
 
-    def convert_to(self, lang: str):
-        """Generate CV for a single language"""
+    def convert_to(self, lang: str) -> None:
+        """Generate CV for a single language."""
         if lang == "he":
             self.convert_to_hebrew()
             return
@@ -177,12 +180,9 @@ class ConvertCV:
 
         self.feed_template(lang, frame)
 
-    def convert_to_hebrew(self):
-        """Generate CV for Hebrew"""
-        orig_map = {
-            orig: row["lg_he"]
-            for orig, row in self.lgs.iterrows()
-        }
+    def convert_to_hebrew(self) -> None:
+        """Generate CV for Hebrew."""
+        orig_map = {orig: row["lg_he"] for orig, row in self.lgs.iterrows()}
         frame = pd.DataFrame(
             {
                 "language": self.works.lg.map(orig_map),
@@ -198,7 +198,7 @@ class ConvertCV:
         # Multi-author works
         tmap = frame.author.str.contains(",")
         frame.loc[tmap, "author"] = frame[tmap].author.str.replace(
-            r",\s*", " ו", regex=True
+            r",\s*", " \u05D5", regex=True
         )
 
         # Make sure all works have a title in this language
@@ -208,13 +208,10 @@ class ConvertCV:
 
         self.feed_template("he", frame)
 
-    def feed_template(self, lang: str, frame: pd.DataFrame):
-        """Create the actual output files"""
+    def feed_template(self, lang: str, frame: pd.DataFrame) -> None:
+        """Create the actual output files."""
         # Sort and number
-        frame.sort_values(
-            ["language", "year"],
-            inplace=True,
-        )
+        frame = frame.sort_values(["language", "year"])
         frame["n"] = frame.title.notna().cumsum()
 
         path = Path(f"erez-volk-cv-{lang}.docx")
@@ -243,22 +240,18 @@ class ConvertCV:
 
         # And a rerun script
         rerun = Path(f"{path}.rerun")
-        with open(rerun, "wt", encoding="ascii") as fobj:
-            fobj.write(
-                f"#!/bin/sh\n"
-                f"cd {HERE}\n"
-                f"./convert -l {lang}\n"
-            )
+        with rerun.open("wt", encoding="ascii") as fobj:
+            fobj.write(f"#!/bin/sh\ncd {HERE}\n./convert -l {lang}\n")
         rerun.chmod(0o755)
 
     def read_tsv(self, stem: str) -> pd.DataFrame:
-        """Read tab-separated values and strip whitespace"""
+        """Read tab-separated values and strip whitespace."""
         path = f"{stem}.tsv"
         frame = pd.read_csv(path, sep="\t")
         print(f"Reading {path}: n = {len(frame)}")
         frame.index.name = "line"
         frame.index = frame.index + 2
-        for col, dtype in zip(frame.columns, frame.dtypes):
+        for col, dtype in zip(frame.columns, frame.dtypes, strict=True):
             if pd.api.types.is_string_dtype(dtype):
                 frame[col] = frame[col].fillna("").str.strip()
         return frame
@@ -266,3 +259,8 @@ class ConvertCV:
 
 if __name__ == "__main__":
     ConvertCV().run()
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["pandas", "docxtpl"]
+# ///
