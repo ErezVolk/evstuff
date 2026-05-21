@@ -8,8 +8,9 @@ from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
-from docx_worker import DocxWorker
 from lxml import etree
+
+from docx_worker import DocxWorker
 
 
 class DocxShuffle(DocxWorker):
@@ -118,7 +119,7 @@ class DocxShuffle(DocxWorker):
         self.reorder(
             [
                 pnode
-                for line, pnodes in sorted(self.l2ps.items())
+                for _, pnodes in sorted(self.l2ps.items())
                 for pnode in pnodes
             ],
         )
@@ -127,7 +128,7 @@ class DocxShuffle(DocxWorker):
         self.reorder(
             [
                 pnode
-                for line, pnodes in sorted(
+                for _, pnodes in sorted(
                     self.l2ps.items(),
                     key=lambda item: "".join(reversed(item[0])),
                 )
@@ -139,7 +140,7 @@ class DocxShuffle(DocxWorker):
         self.reorder(
             [
                 pnodes[0]
-                for line, pnodes in sorted(
+                for _, pnodes in sorted(
                     self.l2ps.items(), key=lambda i: len(i[0]),
                 )
             ],
@@ -256,5 +257,5 @@ if __name__ == "__main__":
     DocxShuffle().main()
 
 # /// script
-# dependencies = ["numpy", "lxml"]
+# dependencies = ["numpy", "lxml", "lxml-stubs"]
 # ///
