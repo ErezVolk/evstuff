@@ -15,6 +15,7 @@ def main() -> None:
     xmlfn: Path
     for xmlfn in args.xmls:
         try:
+            print(f"Formatting {xmlfn}")
             with xmlfn.open("r") as xmlfo:
                 doc = etree.parse(xmlfo)
             pretty = etree.tostring(
@@ -36,3 +37,4 @@ if __name__ == "__main__":
 # /// script
 # dependencies = ["lxml"]
 # ///
+# vim: set ft=python:
