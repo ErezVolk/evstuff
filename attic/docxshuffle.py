@@ -16,6 +16,7 @@ from docx_worker import DocxWorker
 class DocxShuffle(DocxWorker):
     """Shuffle paragraphs in a Word document."""
 
+    parser: argparse.ArgumentParser
     args: argparse.Namespace
     body: etree._Entity
     rng: np.random.Generator
@@ -77,18 +78,32 @@ class DocxShuffle(DocxWorker):
             action="store_true",
             help="do NOT strip baloons",
         )
-        self.args = parser.parse_args()
-        if self.args.input is None:
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "--destyle",
+            action="store_true",
+            help="remove all paragraph styles",
+        )
+        group.add_argument(
+            "--restyle",
+            metavar="STLE",
+            help="set all paragraphs to STYLE",
+        )
+        args = parser.parse_args()
+        if args.input is None:
             docs = self.glob_docs()
             if len(docs) != 1:
                 parser.error(
                     f"{len(docs)} .docx files found, please specify input",
                 )
-            (self.args.input,) = docs
-            print(f"Working on the only .docx here, {self.args.input}")
+            (args.input,) = docs
+            print(f"Working on the only .docx here, {args.input}")
 
-        if not self.args.stem:
-            self.args.stem = self.args.input.stem
+        if not args.stem:
+            args.stem = args.input.stem
+
+        self.parser = parser
+        self.args = args
 
     def pre_work(self) -> Path:
         """Return path of docx to read."""
@@ -173,6 +188,10 @@ class DocxShuffle(DocxWorker):
         self.meat_pnodes = []
 
         self.color_background()
+        if self.args.destyle:
+            self.destyle()
+        elif self.args.restyle:
+            self.restyle()
 
         self.l2ps = defaultdict(list)
         for pnode in pnodes:
@@ -206,6 +225,19 @@ class DocxShuffle(DocxWorker):
                 },
             )
             self.body.append(node)
+
+    def destyle(self) -> None:
+        """Remove all paragraph style references."""
+        for node in self.xpath(self.body, "./w:p/w:pPr/w:pStyle"):
+            node.getparent().remove(node)
+
+    def restyle(self) -> None:
+        """Replace all paragraph styles."""
+        style_id = self.find_style_id(self.args.restyle)
+        if not style_id:
+            self.parser.error('Cannot find style "{self.args.restyle}".')
+        for node in self.xpath(self.body, "./w:p/w:pPr/w:pStyle"):
+            node.attrib[self.wtag("val")] = style_id
 
     def randomize(self) -> None:
         """Read/Write random seed file."""
