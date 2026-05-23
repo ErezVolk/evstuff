@@ -26,6 +26,8 @@ def unparse(parser: argparse.ArgumentParser, args: argparse.Namespace) -> list[s
                     continue
             elif ivalue == action.default:
                 continue
+            elif action.nargs == argparse.OPTIONAL and ivalue == action.const:
+                pass  # Include in output, but omit the value
             else:
                 for item in (ivalue if isinstance(ivalue, list) else [ivalue]):
                     if isinstance(item, Path):

@@ -73,14 +73,20 @@ def test_default_value(parser: ArgumentParser) -> None:
     assert_punp(parser, [])
 
 
-# TODO: const=
+def test_zero_or_one_with_const(parser: ArgumentParser) -> None:
+    parser.add_argument("-a", nargs="?", const="ha")
+    assert punp(parser, ["-a", "broch"]) == ["-a", "broch"]
+    assert punp(parser, ["-a"]) == ["-a"]
+
+
+# TODO: runner file; runner with empty string
 
 
 def punp(parser: ArgumentParser, cli: list[str]) -> list[str]:
     return evutils.unparse(parser, parser.parse_args(cli))
 
 
-def assert_punp(parser: ArgumentParser, cli: list[str]):
+def assert_punp(parser: ArgumentParser, cli: list[str]) -> None:
     assert punp(parser, cli) == cli
 
 
