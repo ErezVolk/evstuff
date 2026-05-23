@@ -15,23 +15,23 @@ def unparse(parser: argparse.ArgumentParser, args: argparse.Namespace) -> list[s
 
         which = optionals if (opts := action.option_strings) else positionals
 
-        vals = []
+        ovalue = []
         if isinstance(action, argparse._StoreTrueAction):
             if not getattr(args, action.dest):
                 continue
         elif isinstance(action, argparse._StoreAction):
-            value = getattr(args, action.dest)
-            if value is None:
+            ivalue = getattr(args, action.dest)
+            if ivalue is None:
                 if action.nargs != argparse.OPTIONAL:
                     continue
             else:
-                for elem in (value if isinstance(value, list) else [value]):
-                    if isinstance(elem, Path):
-                        elem = elem.resolve()
-                    vals.append(elem)
+                for item in (ivalue if isinstance(ivalue, list) else [ivalue]):
+                    if isinstance(item, Path):
+                        item = item.resolve()
+                    ovalue.append(item)
 
         if opts:
             opt = next((opt for opt in opts if opt.startswith("--")), opts[0])
             which.append(opt)
-        which.extend(map(str, vals))
+        which.extend(map(str, ovalue))
     return [*optionals, *positionals]
