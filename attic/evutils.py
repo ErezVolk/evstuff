@@ -28,10 +28,10 @@ def unparse(parser: argparse.ArgumentParser, args: argparse.Namespace) -> list[s
                 for elem in (value if isinstance(value, list) else [value]):
                     if isinstance(elem, Path):
                         elem = elem.resolve()
-                    vals.append(str(elem))
+                    vals.append(elem)
 
         if opts:
             opt = next((opt for opt in opts if opt.startswith("--")), opts[0])
             which.append(opt)
-        which.extend(vals)
+        which.extend(map(str, vals))
     return [*optionals, *positionals]
