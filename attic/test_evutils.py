@@ -16,7 +16,7 @@ def parser() -> ArgumentParser:
 
 def test_unparse_string_arg(parser: ArgumentParser) -> None:
     parser.add_argument("--string")
-    assert punp(parser, ["--string", "hello"]) == ["--string", "hello"]
+    assert_punp(parser, ["--string", "hello"])
 
 
 def test_take_long_options(parser: ArgumentParser) -> None:
@@ -28,8 +28,8 @@ def test_take_long_options(parser: ArgumentParser) -> None:
 
 def test_unparse_store_true(parser: ArgumentParser) -> None:
     parser.add_argument("-y", action="store_true")
-    assert punp(parser, []) == []
-    assert punp(parser, ["-y"]) == ["-y"]
+    assert_punp(parser, [])
+    assert_punp(parser, ["-y"])
 
 
 def test_path_arg(parser: ArgumentParser) -> None:
@@ -39,26 +39,37 @@ def test_path_arg(parser: ArgumentParser) -> None:
 
 def test_int_arg(parser: ArgumentParser) -> None:
     parser.add_argument("-i", type=int)
-    assert punp(parser, ["-i", "123"]) == ["-i", "123"]
+    assert_punp(parser, ["-i", "123"])
 
 
 def test_positional(parser: ArgumentParser) -> None:
     parser.add_argument("a")
     parser.add_argument("b")
-    assert punp(parser, ["one", "two"]) == ["one", "two"]
+    assert_punp(parser, ["one", "two"])
 
 
 def test_zero_or_one(parser: ArgumentParser) -> None:
     parser.add_argument("-x", nargs="?")
-    assert punp(parser, ["-x", "X"]) == ["-x", "X"]
-    assert punp(parser, ["-x"]) == ["-x"]
+    assert_punp(parser, ["-x", "X"])
+    assert_punp(parser, ["-x"])
 
 
-# TODO: "?", "*", default=, const=
+def test_zero_or_more(parser: ArgumentParser) -> None:
+    parser.add_argument("-x", nargs="*")
+    assert_punp(parser, ["-x"])
+    assert_punp(parser, ["-x", "1"])
+    assert_punp(parser, ["-x", "1", "2"])
+
+
+# TODO: "+", default=, const=
 
 
 def punp(parser: ArgumentParser, cli: list[str]) -> list[str]:
     return evutils.unparse(parser, parser.parse_args(cli))
+
+
+def assert_punp(parser: ArgumentParser, cli: list[str]):
+    assert punp(parser, cli) == cli
 
 
 # /// script
