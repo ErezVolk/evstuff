@@ -31,8 +31,7 @@ def unparse(parser: argparse.ArgumentParser, args: argparse.Namespace) -> list[s
                     vals.append(str(elem))
 
         if opts:
-            which.append(
-                next((opt for opt in opts if opt.startswith("--")), opts[0])
-            )
+            opt = next((opt for opt in opts if opt.startswith("--")), opts[0])
+            which.append(opt)
         which.extend(vals)
     return [*optionals, *positionals]
