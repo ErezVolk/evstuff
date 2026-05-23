@@ -61,6 +61,12 @@ def test_zero_or_more(parser: ArgumentParser) -> None:
     assert_punp(parser, ["-x", "1", "2"])
 
 
+def test_one_or_more(parser: ArgumentParser) -> None:
+    parser.add_argument("-y", nargs="*")
+    assert_punp(parser, ["-y", "1"])
+    assert_punp(parser, ["-y", "1", "2"])
+
+
 # TODO: "+", default=, const=
 
 

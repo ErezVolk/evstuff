@@ -29,6 +29,8 @@ def unparse(parser: argparse.ArgumentParser, args: argparse.Namespace) -> list[s
                     if isinstance(item, Path):
                         item = item.resolve()
                     ovalue.append(item)
+        else:
+            raise TypeError(f"Not supported: {action.__class__.__name__}")
 
         if opts:
             opt = next((opt for opt in opts if opt.startswith("--")), opts[0])
