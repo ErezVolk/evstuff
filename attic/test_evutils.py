@@ -67,7 +67,13 @@ def test_one_or_more(parser: ArgumentParser) -> None:
     assert_punp(parser, ["-y", "1", "2"])
 
 
-# TODO: "+", default=, const=
+def test_default_value(parser: ArgumentParser) -> None:
+    parser.add_argument("-a", type=int, default=42)
+    assert_punp(parser, ["-a", "1"])
+    assert_punp(parser, [])
+
+
+# TODO: const=
 
 
 def punp(parser: ArgumentParser, cli: list[str]) -> list[str]:
