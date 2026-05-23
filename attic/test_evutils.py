@@ -1,6 +1,10 @@
 #!/usr/bin/env -S uvx pytest -v
 # ruff: noqa: D100, D103
 # ty: ignore[unresolved-import]
+import os
+import sys
+import tempfile
+import typing as t
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -12,6 +16,12 @@ from . import evutils
 @pytest.fixture
 def parser() -> ArgumentParser:
     return ArgumentParser()
+
+
+@pytest.fixture
+def tdir() -> t.Generator[Path]:
+    with tempfile.TemporaryDirectory() as tdir:
+        yield Path(tdir)
 
 
 def test_unparse_string_arg(parser: ArgumentParser) -> None:
@@ -79,7 +89,15 @@ def test_zero_or_one_with_const(parser: ArgumentParser) -> None:
     assert punp(parser, ["-a"]) == ["-a"]
 
 
-# TODO: runner file; runner with empty string
+def test_rerunner_basic(parser: ArgumentParser, tdir: Path) -> None:
+    parser.add_argument("-x")
+    evutils.write_runner((path := tdir / "run"), parser, parser.parse_args(["-x", ""]))
+    assert os.access(path, os.X_OK)
+    with path.open("r") as fobj:
+        lines = [line.strip() for line in fobj]
+    prog = Path(sys.argv[0]).resolve()
+    assert lines[0] == "#!/bin/sh"
+    assert lines[-1] == f"{prog} -x ''"
 
 
 def punp(parser: ArgumentParser, cli: list[str]) -> list[str]:
