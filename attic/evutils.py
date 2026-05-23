@@ -17,10 +17,12 @@ def write_runner(
         prog = Path(sys.argv[0])
     if isinstance(prog, Path):
         prog = str(prog.resolve())
+
     cli = [prog, *unparse(parser, args)]
     lines = [
         "#!/bin/sh",
         "# GENERATED FILE, DO NOT EDIT",
+        "",
         " ".join(shlex.quote(elem) for elem in cli),
     ]
     with path.open("wt") as fobj:
