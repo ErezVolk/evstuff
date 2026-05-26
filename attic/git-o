@@ -8,7 +8,8 @@ usage() {
   echo "options:"
   echo " -h           show this help message and exit"
   echo " -q           output nothing if local is identical to remote"
-  echo " -m BRANCH    merge with BRANCH"
+  echo " -m BRANCH    merge --ff-only with BRANCH"
+  echo " -M BRANCH    merge with BRANCH"
   echo " -l           perform no server communication"
   echo " -p           push if the local branch is ahead of the remote"
 }
@@ -18,7 +19,8 @@ QUIET=""
 LOCAL=""
 PUSH=""
 MERGE=""
-while getopts ":lpqhm:" opt; do
+MERGE_OPTS=""
+while getopts ":lpqhm:M:" opt; do
   case ${opt} in
     l)
       LOCAL="y"
@@ -31,6 +33,11 @@ while getopts ":lpqhm:" opt; do
       ;;
     m)
       MERGE=${OPTARG}
+      MERGE_OPTS="--ff-only"
+      ;;
+    M)
+      MERGE=${OPTARG}
+      MERGE_OPTS=""
       ;;
     h)
       usage
@@ -98,7 +105,7 @@ if [ -n "$STATUS" ]; then
 elif [ $LOCAL = $REMOTE ]; then
     [ -n "${QUIET}" ] || echo "✔ $ROOT"  # Up to date
     if [ -n "${MERGE}" ]; then
-      show_git merge -q --ff-only $MERGE
+      show_git merge -q "${MERGE_OPTS}" $MERGE
       NEWLOCAL=$(do_git rev-parse @)
       if [ "${NEWLOCAL}" != "${LOCAL}" ]; then
         on_pushable
