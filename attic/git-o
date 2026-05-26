@@ -105,7 +105,7 @@ if [ -n "$STATUS" ]; then
 elif [ $LOCAL = $REMOTE ]; then
     [ -n "${QUIET}" ] || echo "✔ $ROOT"  # Up to date
     if [ -n "${MERGE}" ]; then
-      show_git merge -q "${MERGE_OPTS}" $MERGE
+      show_git merge -q $MERGE_OPTS $MERGE
       NEWLOCAL=$(do_git rev-parse @)
       if [ "${NEWLOCAL}" != "${LOCAL}" ]; then
         on_pushable
