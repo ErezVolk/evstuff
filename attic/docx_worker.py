@@ -1,15 +1,13 @@
 """DocxWorker: Base class for scripts that do stuff to .docx files."""
 # pyright: reportAttributeAccessIssue=false
 import abc
+import typing as t
 import zipfile as zf
 from collections import Counter
 from collections.abc import Callable
 from collections.abc import Iterable
 from pathlib import Path
 from pathlib import PurePosixPath
-from typing import IO
-from typing import ClassVar
-from typing import TypeAlias
 
 from lxml import etree  # type: ignore[import-untyped]
 
@@ -28,7 +26,7 @@ class DocxWorker(abc.ABC):
 
     _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     _OXML = "http://schemas.openxmlformats.org"
-    _NS: ClassVar[dict[str, str]] = {
+    _NS: t.ClassVar[dict[str, str]] = {
         "w": _W,
         "a": _OXML + "/drawingml/2006/main",
         "r": _OXML + "/officeDocument/2006/relationships",
@@ -36,8 +34,8 @@ class DocxWorker(abc.ABC):
         "re": "http://exslt.org/regular-expressions",
     }
 
-    CounterLike: TypeAlias = dict[str, int]
-    Sorter: TypeAlias = Callable[[CounterLike], Iterable[tuple[str, int]]]
+    type CounterLike = dict[str, int]
+    type Sorter = Callable[[CounterLike], Iterable[tuple[str, int]]]
 
     counts: CounterLike
     doc: etree._ElementTree  # The "main" document
@@ -135,7 +133,7 @@ class DocxWorker(abc.ABC):
                 with ozip.open(info.filename, "w") as ofo:
                     self._write_entry(info, ofo)
 
-    def _write_entry(self, info: zf.ZipInfo, ofo: IO) -> None:
+    def _write_entry(self, info: zf.ZipInfo, ofo: t.IO) -> None:
         """Write or copy Zip file entry."""
         path = PurePosixPath(info.filename)
         if str(path.parent) == self.WORD_FOLDER and path.stem in self.docs:

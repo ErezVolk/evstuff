@@ -370,8 +370,7 @@ class Whoms:
 
         ods: Paths = self.deflatten_to(flat, model, "ods", changed=changed)
         if changed:
-            with digest.open("w", encoding="utf-8") as fobj:
-                fobj.write(digested)
+            digest.write_text(digested, encoding="UTF-8")
             if self.args.git_commit or self.args.git_push:
                 flag = "-F" if self.args.git_commit else "-t"
                 cmd = ["git", "commit", flat.name, flag, csv.diff.name]
@@ -454,8 +453,7 @@ def file_digest(path: Path) -> str:
 def read_digest(path: Path) -> str | None:
     """Read the (hash) file."""
     try:
-        with path.open("r", encoding="utf8") as fobj:
-            return fobj.read().strip()
+        return path.read_text(encoding="utf-8")
     except FileNotFoundError:
         return None
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Help extracting some semblance of index from PDF files."""
 # pyright: reportMissingImports=false
 # pylint: disable=import-error
@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-import pymupdf  # pylint: disable=import-error
+import pymupdf  # ty: ignore[unresolved-import]
 
 THIS = Path(__file__)
 
@@ -101,8 +101,7 @@ class MakeIndex:
 
         idx.parent.mkdir(parents=True, exist_ok=True)
         print(f" > Writing {idx}")
-        with idx.open("w", encoding="utf-8") as fobj:
-            fobj.write(text)
+        idx.write_text(text, encoding="utf-8")
 
     def get_text(self, page: pymupdf.Page) -> str:
         """Get text from a page."""
@@ -138,3 +137,7 @@ class MakeIndex:
 
 if __name__ == "__main__":
     MakeIndex().run()
+
+# /// script
+# dependencies = ["pymupdf"]
+# ///

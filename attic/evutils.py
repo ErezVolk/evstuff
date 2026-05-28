@@ -25,8 +25,7 @@ def write_runner(
         "",
         " ".join(shlex.quote(elem) for elem in cli),
     ]
-    with path.open("wt") as fobj:
-        fobj.write("\n".join(lines))
+    path.write_text("\n".join(lines))
     path.chmod(0o755)
 
 

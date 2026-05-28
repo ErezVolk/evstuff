@@ -82,14 +82,14 @@ __TODO__ = """
 NOW = datetime.datetime.now(tz=datetime.UTC).astimezone()
 WIDTH = shutil.get_terminal_size().columns
 SEP = " ‖ "
-Filename: t.TypeAlias = str | Path
+type Filename = str | Path
 Label = t.NewType("Label", str)
 Layout = t.NewType("Layout", str)
-Entry: t.TypeAlias = "Etude | BookRef"
-Books: t.TypeAlias = dict[Label, "Book"]
-Decks: t.TypeAlias = dict[Layout, "Deck"]
-Strs: t.TypeAlias = Iterable[str]
-StringDict: t.TypeAlias = dict[str, t.Any]
+type Entry = "Etude | BookRef"
+type Books = dict[Label, "Book"]
+type Decks = dict[Layout, "Deck"]
+type Strs = Iterable[str]
+type StringDict = dict[str, t.Any]
 
 log = logging.getLogger("pmp")
 tracked: set[Layout] = set()
@@ -923,8 +923,7 @@ class PracticeMakesPerfect:
 
     def _print_last(self, book: str) -> None:
         """Read the annals file and print the last entry."""
-        with self.args.annals_file.open("r", encoding="utf-8") as fobj:
-            annals = fobj.read()
+        annals = self.args.annals_file.read_text(encoding="utf-8")
         suffix = f" {book}" if book else ""
         start = end = unk = len(annals)
         for mobj in re.finditer(self.ENTRY_REGEX, annals):

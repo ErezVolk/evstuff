@@ -3,11 +3,10 @@
 import argparse
 import json
 import re
-from io import StringIO
 from pathlib import Path
 
-import lxml.etree
-import requests
+import requests  # ty: ignore[unresolved-import]
+from lxml import etree
 
 
 class BingWallpaper:
@@ -28,7 +27,7 @@ class BingWallpaper:
         self.directory.mkdir(exist_ok=True)
         self.scan_existing()
         self.download_archive()
-        for country_code in self.COUNTRIES:
+        for country_code in self.args.countries or self.COUNTRIES:
             self.download(country_code)
 
     def parse_args(self) -> None:
@@ -59,6 +58,12 @@ class BingWallpaper:
             "-6",
             "--allow-ipv6",
             action="store_true",
+        )
+        parser.add_argument(
+            "-c",
+            "--countries",
+            metavar="COUNTRY_CODE",
+            nargs="+",
         )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
@@ -106,25 +111,25 @@ class BingWallpaper:
         if not page_r or not page_r.text:
             return
 
-        parser = lxml.etree.HTMLParser()
+        parser = etree.HTMLParser()
         try:
-            html = lxml.etree.parse(StringIO(page_r.text), parser)
-        except lxml.etree.XMLSyntaxError:
+            html = etree.fromstring(page_r.text, parser)
+        except etree.XMLSyntaxError:
             print(
                 f"ERROR: Invalid HTML (length={len(page_r.text)}) "
                 f"returned from {url}",
             )
             return
+
         for node in html.xpath('./head/link[@as="image"]'):
             if node.get("id") not in ("preloadBg", "bgLink"):
                 continue
 
-            astext = lxml.etree.tostring(node).decode()
-            self.handle_href(
-                node.get("href"),
-                desc=astext,
-                source=country_code,
-            )
+            if not (href := node.get("href")):
+                continue
+
+            astext = etree.tostring(node).decode()
+            self.handle_href(href, desc=astext, source=country_code)
 
     def handle_href(
         self,
@@ -181,13 +186,13 @@ class BingWallpaper:
                 f"Already downloaded {fname} "
                 f"from {self.stem_to_state[stem]}",
             )
-            return
+            if not self.args.force:
+                return
 
         self.write(f"Downloading {remote_name} as {fname}")
 
         file_r = requests.get(url, timeout=self.args.timeout)
-        with (self.directory / fname).open("wb") as fobj:
-            fobj.write(file_r.content)
+        (self.directory / fname).write_bytes(file_r.content)
         self.stem_to_state[stem] = source
 
     def write(self, *args: str) -> None:
@@ -207,3 +212,4 @@ if __name__ == "__main__":
 # /// script
 # dependencies = ["lxml", "requests"]
 # ///
+# vim: set ft=python:
