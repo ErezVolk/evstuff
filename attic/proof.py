@@ -15,7 +15,7 @@ from collections import defaultdict
 from copy import deepcopy
 from pathlib import Path
 
-from lxml import etree  # ty: ignore[unresolved-import]
+from lxml import etree
 
 from docx_worker import DocxWorker
 
@@ -476,7 +476,6 @@ class Proof(DocxWorker):
         """Find the formula style."""
         formula_style_id = self.find_style_id(self.args.style)
         if formula_style_id is None:
-            print(f'No style named "{self.args.style}" in {self.args.input}')
             return False
         self.formula_style_id = formula_style_id
         return True

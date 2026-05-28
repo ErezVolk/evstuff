@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Erez Volk's Rsync Backup."""
+"""Erez Volk's Restic Backup."""
 import argparse
 import shlex
 import subprocess
@@ -116,7 +116,7 @@ class EvRb:
             args.append("--dry-run")
         self.restic(args)
 
-    def restic(self, args: list[str]) -> None:
+    def restic(self, args: list[str | Path]) -> None:
         """Call restic."""
         args = [
             "/usr/bin/caffeinate",
@@ -126,7 +126,7 @@ class EvRb:
             "--insecure-no-password",
             *map(str, args),
         ]
-        print(" ".join(shlex.quote(arg) for arg in args))
+        print(" ".join(shlex.quote(str(arg)) for arg in args))
         input("Press Enter to run...")
         subprocess.run(args, check=True)
 

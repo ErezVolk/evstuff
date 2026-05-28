@@ -4,11 +4,13 @@ import argparse
 import collections
 import csv
 import hashlib
-import os
 import stat
 import subprocess
 import typing as t
 from pathlib import Path
+
+if t.TYPE_CHECKING:
+    import os
 
 __TODO__ = """
 - Proper, rsync/tar-like exclude
