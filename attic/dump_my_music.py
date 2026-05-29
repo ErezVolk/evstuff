@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Export Apple Music library to CSV on macOS."""
+import argparse
 import csv
 import dataclasses as dcl
 import logging
@@ -81,19 +82,44 @@ class Album:
         ]
 
 
+@dcl.dataclass
+class Args:
+    """Command-line arguments."""
+
+    output: Path
+    pulse: int
+
+
 class DumpMyMusic:
     """Export Apple Music library to CSV on macOS."""
 
+    args: Args
     curr: Album | None = None
     total_tracks: int = 0
     seen_tracks: int = 0
     seen_albums: int = 0
     seen_millis: int = 0
     heartbeat: float = 0.0
-    PULSE = 60
 
     def main(self) -> None:
         """Export Apple Music library to CSV on macOS."""
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "-o",
+            "--output",
+            type=Path,
+            default="music.csv",
+            help="CSV file",
+        )
+        parser.add_argument(
+            "--pulse",
+            type=int,
+            metavar="SECONDS",
+            default=60,
+            help="progress update interval",
+        )
+        self.args = Args(**vars(parser.parse_args()))
+
         logger.info("Reading Apple Music library...")
 
         count_proc = subprocess.run(
@@ -117,7 +143,7 @@ class DumpMyMusic:
             return
 
         self.heartbeat = time.monotonic()
-        with Path("music.csv").open("w", newline="") as fobj:
+        with self.args.output.open("w", newline="") as fobj:
             self.csvw = csv.writer(fobj)
             self.csvw.writerow(Album.header())
 
@@ -147,7 +173,7 @@ class DumpMyMusic:
             self.curr.millis += millis
             self.curr.tracks += 1
         now = time.monotonic()
-        if (now - self.heartbeat) >= self.PULSE:
+        if (now - self.heartbeat) >= self.args.pulse:
             logger.info(
                 "Working: %d track(s) (%d%%), %d album(s), %s",
                 self.seen_tracks,
