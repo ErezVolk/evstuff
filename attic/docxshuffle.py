@@ -45,7 +45,7 @@ class DocxShuffle(DocxWorker):
         parser.add_argument(
             "-s",
             "--stem",
-            type=Path,
+            type=str,
             help="Common part of all output files",
         )
         parser.add_argument(
