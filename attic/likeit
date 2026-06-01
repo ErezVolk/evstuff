@@ -9,14 +9,9 @@ import subprocess
 import time
 from pathlib import Path
 
-try:
-    import browser_cookie3  # type: ignore[import-not-found,import-untyped]
-    import pandas as pd  # type: ignore[import-not-found,import-untyped]
-    import requests  # type: ignore[import-not-found,import-untyped]
-except ImportError:
-    print("Please install requirements.")
-    raise
-
+import browser_cookie3  # ty: ignore[unresolved-import]
+import pandas as pd  # ty: ignore[unresolved-import]
+import requests  # ty: ignore[unresolved-import]
 
 logging.basicConfig(format="%(asctime)s %(message)s")
 log = logging.getLogger(__name__)
@@ -71,7 +66,7 @@ class LikeIt:
 
     args: argparse.Namespace
 
-    def run(self) -> None:
+    def run(self) -> None:  # noqa: C901, PLR0915
         """Do the work."""
         self.args = self.parse_cli()
 
@@ -207,6 +202,6 @@ if __name__ == "__main__":
     LikeIt().run()
 
 # /// script
-# dependencies = ["pandas", "requests", "browser_cookie3", "openpyxl"]
+# dependencies = ["pandas", "requests", "browser_cookie3", "openpyxl", "xlrd"]
 # ///
 # vim: set ft=python:
