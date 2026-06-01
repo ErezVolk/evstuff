@@ -48,10 +48,16 @@ class LikeIt:
             help="Say more",
         )
         parser.add_argument(
+            "-W",
+            "--no-write",
+            action="store_true",
+            help="Do not create output file",
+        )
+        parser.add_argument(
             "-O",
             "--no-open",
             action="store_true",
-            help="Even if reading a spreadsheet, don't open",
+            help="Even if reading a spreadsheet, don't open resulting file",
         )
         parser.add_argument(
             "ltws",
@@ -145,8 +151,7 @@ class LikeIt:
                 break
 
             if done and time.time() - checkpoint > self.TOO_LONG:
-                log.info("Courtesy writing %s", self.args.output)
-                wishlist.to_excel(self.args.output)
+                self.write(wishlist)
                 checkpoint = time.time()
 
         self.report(wishlist, done)
@@ -177,18 +182,26 @@ class LikeIt:
         """Print summary."""
         log.info("Number of works successfully queried: %d", len(done))
         if done:
-            log.info("Writing %s", self.args.output)
-            if self.args.output.suffix.lower() == ".csv":
-                wishlist.to_csv(self.args.output)
-            else:
-                wishlist.to_excel(self.args.output)
+            self.write(wishlist)
 
-        if not self.args.no_open and not self.args.ltws:
-            subprocess.run([
-                "/usr/bin/open",
-                str(self.args.input),
-                str(self.args.output),
-            ], check=False)
+        if self.args.no_write or self.args.no_open or self.args.ltws:
+            return
+
+        subprocess.run([
+            "/usr/bin/open",
+            str(self.args.input),
+            str(self.args.output),
+        ], check=False)
+
+    def write(self, wishlist: pd.DataFrame) -> None:
+        """Write the file."""
+        if self.args.no_write:
+            return
+        log.info("Writing %s", self.args.output)
+        if self.args.output.suffix.lower() == ".csv":
+            wishlist.to_csv(self.args.output)
+        else:
+            wishlist.to_excel(self.args.output)
 
     @classmethod
     def ltw_title(cls, ltw: str) -> str:
