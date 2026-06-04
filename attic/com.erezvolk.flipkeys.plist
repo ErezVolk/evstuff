@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://apple.com">
+<!--
+cp com.erezvolk.flipkeys.plist ~/Library/LaunchAgents
+launchctl load ~/Library/LaunchAgents/com.erezvolk.flipkeys.plist
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.erezvolk.flipkeys</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>hidutil</string>
+        <string>property</string>
+        <string>--set</string>
+        <string>{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000035,"HIDKeyboardModifierMappingDst":0x700000064},{"HIDKeyboardModifierMappingSrc":0x700000064,"HIDKeyboardModifierMappingDst":0x700000035}]}</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
+
