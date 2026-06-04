@@ -1,0 +1,2 @@
+#!/bin/sh
+yt-dlp -f 'bestaudio[ext=m4a] / bestaudio[ext=mp3]' --embed-metadata --embed-thumbnail "$@"
