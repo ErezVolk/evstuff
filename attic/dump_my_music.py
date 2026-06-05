@@ -17,15 +17,21 @@ SCRIPT_LIST = r"""
 tell application "Music"
     repeat with t in every track of library playlist 1
         try
-            set tArtist to artist of t
+            set tArt to artist of t
         on error
-            set tArtist to "N/A"
+            set tArt to "N/A"
         end try
 
         try
-            set tAlbum to album of t
+            set tAlb to album of t
         on error
-            set tAlbum to "N/A"
+            set tAlb to "N/A"
+        end try
+
+        try
+            set tTrk to name of t
+        on error
+            set tTrk to "N/A"
         end try
 
         try
@@ -35,12 +41,20 @@ tell application "Music"
         end try
 
         try
-            set tMillis to 1000 * duration of t as integer
+            set tMS to 1000 * duration of t as integer
         on error
-            set tMillis to 0
+            set tMS to 0
         end try
 
-        log (tArtist & tab & tAlbum & tab & tYear & tab & tMillis)
+        set tCount to played count of t
+
+        log (¬
+            tArt & tab & ¬
+            tAlb & tab & ¬
+            tTrk & tab & ¬
+            tYear & tab & ¬
+            tMS & tab & ¬
+            tCount)
     end repeat
 end tell
 """
@@ -94,7 +108,7 @@ class DumpMyMusic:
     """Export Apple Music library to CSV on macOS."""
 
     args: Args
-    curr: Album | None = None
+    curr: tuple[str, str] | None = None
     total_tracks: int = 0
     seen_tracks: int = 0
     seen_albums: int = 0
@@ -145,11 +159,17 @@ class DumpMyMusic:
         self.heartbeat = time.monotonic()
         with self.args.output.open("w", newline="") as fobj:
             self.csvw = csv.writer(fobj)
-            self.csvw.writerow(Album.header())
+            self.csvw.writerow([
+                "Artist",
+                "Album",
+                "Track",
+                "Year",
+                "Millis",
+                "Played",
+            ])
 
             for line in list_proc.stdout:
                 self._handle(line)
-            self._ship()
 
         code = list_proc.wait()
         if code != 0:
@@ -158,20 +178,27 @@ class DumpMyMusic:
 
     def _handle(self, line: str) -> None:
         try:
-            artist, title, year, smillis = line.strip().split("\t")
+            artist, album, track, year, millis, count = line.strip().split("\t")
         except ValueError:
             logger.exception("Weird line %r", line)
             return
 
         self.seen_tracks += 1
-        self.seen_millis += (millis := int(smillis))
-        if self.curr is None or not self.curr.same(artist, title):
+        self.seen_millis += int(millis)
+        aaid = (artist, album)
+
+        if self.curr != aaid:
             self.seen_albums += 1
-            self._ship()
-            self.curr = Album(artist, title, year, millis)
-        else:
-            self.curr.millis += millis
-            self.curr.tracks += 1
+            self.curr = aaid
+        self.csvw.writerow([
+            artist,
+            album,
+            track,
+            year,
+            millis,
+            count,
+        ])
+
         now = time.monotonic()
         if (now - self.heartbeat) >= self.args.pulse:
             logger.info(
@@ -182,10 +209,6 @@ class DumpMyMusic:
                 self._hhmmss(),
             )
             self.heartbeat = now
-
-    def _ship(self) -> None:
-        if self.curr is not None:
-            self.csvw.writerow(self.curr.row())
 
     def _hhmmss(self) -> str:
         ss = self.seen_millis // 1000
