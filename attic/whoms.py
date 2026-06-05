@@ -268,9 +268,8 @@ class Whoms:
         if len(stars := new_guys.query("total > 1")) > 0:
             starness = stars.total.max()
             star = stars[stars.total == starness].sample(1).index[0]
-            works_with = self.substr_map(unheard.Whom, star)
-            if len(works_with) > 0:
-                self.print_one_of(works_with, f"{starness}-popular new guy")
+            works_with = unheard[self.substr_map(unheard.Whom, star)]
+            self.print_one_of(works_with, f"{starness}-popular new guy")
         elif len(names := set(new_guys.index)) > 0:
             rows = albums[
                 albums.Whoms.apply(lambda ppl: len(set(ppl) & names) > 0)
