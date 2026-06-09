@@ -8,7 +8,6 @@ import tempfile
 import typing as t
 from pathlib import Path
 
-import IPython
 import pandas as pd
 import scipy.stats
 
@@ -207,7 +206,8 @@ class Whoms:
         self.choose_heard(albums)
 
         if self.args.interact:
-            IPython.embed()
+            ipy = importlib.import_module("IPython")  # Lazy import since why force it
+            ipy.embed(header="You might want to check out albums, whoms, unheard")
 
     @classmethod
     def describe(cls, minutes: pd.Series) -> Stats:
