@@ -1,7 +1,6 @@
 #!/usr/bin/env -S uv run --script
 """Figure out whom is whom."""
 import argparse
-import code
 import hashlib
 import importlib
 import subprocess
@@ -9,6 +8,7 @@ import tempfile
 import typing as t
 from pathlib import Path
 
+import IPython
 import pandas as pd
 import scipy.stats
 
@@ -207,9 +207,7 @@ class Whoms:
         self.choose_heard(albums)
 
         if self.args.interact:
-            cvars = {"whoms": whoms, "albums": albums, "unheard": unheard}
-            console = code.InteractiveConsole(cvars)
-            console.interact(banner=f"Enjoy! Locals: {' '.join(cvars)}")
+            IPython.embed()
 
     @classmethod
     def describe(cls, minutes: pd.Series) -> Stats:
@@ -496,5 +494,5 @@ if __name__ == "__main__":
     Whoms().main()
 
 # /// script
-# dependencies = ["pandas", "scipy", "seaborn", "odfpy"]
+# dependencies = ["pandas", "scipy", "seaborn", "odfpy", "ipython"]
 # ///
