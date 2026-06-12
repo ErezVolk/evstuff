@@ -14,6 +14,15 @@ logger = logging.getLogger(__name__)
 SCRIPT_COUNT = r"""tell application "Music" to count tracks of library playlist 1"""
 
 SCRIPT_LIST = r"""
+on replace_chars(this_text, search_string, replacement_string)
+ set AppleScript's text item delimiters to the search_string
+ set the item_list to every text item of this_text
+ set AppleScript's text item delimiters to the replacement_string
+ set this_text to the item_list as string
+ set AppleScript's text item delimiters to ""
+ return this_text
+end replace_chars
+
 tell application "Music"
     repeat with t in every track of library playlist 1
         try
@@ -46,9 +55,13 @@ tell application "Music"
             set tMillis to 0
         end try
 
-        set tGenre to genre of t
         set tComment to comment of t
+        set tComment to replace_chars(comment, "\n", " | ")
+
+        set tGenre to genre of t
+
         set tLiked to favorited of t or album favorited of t
+
         set tCount to played count of t
 
         log (¬
@@ -200,7 +213,7 @@ class DumpMyMusic:
     def _handle(self, line: str) -> None:
         try:
             finding = Finding(*line.strip().split("\t"))
-        except ValueError:
+        except (ValueError, TypeError):
             logger.exception("Weird line %r", line)
             return
 
