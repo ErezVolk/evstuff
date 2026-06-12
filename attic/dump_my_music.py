@@ -46,6 +46,12 @@ tell application "Music"
             set tMillis to 0
         end try
 
+        set tComment to comment of t
+        set tcParas to paragraphs of tComment
+        if (number of items in tcParas is greater than 1) then
+            set tComment to item 1 of tcParas
+        end if
+
         set tGenre to genre of t
 
         set tLiked to favorited of t or album favorited of t
@@ -59,6 +65,7 @@ tell application "Music"
             tYear & tab & ¬
             tMillis & tab & ¬
             tGenre & tab & ¬
+            tComment & tab & ¬
             tLiked & tab & ¬
             tCount)
     end repeat
@@ -117,6 +124,7 @@ class Finding(t.NamedTuple):
     year: str
     millis: str
     genre: str
+    comment: str
     liked: str
     count: str
 
@@ -183,6 +191,7 @@ class DumpMyMusic:
                 "Year",
                 "Millis",
                 "Genre",
+                "Comment",
                 "Liked",
                 "Played",
             ])
@@ -216,6 +225,7 @@ class DumpMyMusic:
             finding.year,
             finding.millis,
             finding.genre,
+            finding.comment,
             finding.liked,
             finding.count,
         ])
