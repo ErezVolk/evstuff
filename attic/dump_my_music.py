@@ -17,21 +17,21 @@ SCRIPT_LIST = r"""
 tell application "Music"
     repeat with t in every track of library playlist 1
         try
-            set tArt to artist of t
+            set tArtist to artist of t
         on error
-            set tArt to "N/A"
+            set tArtist to "N/A"
         end try
 
         try
-            set tAlb to album of t
+            set tAlbum to album of t
         on error
-            set tAlb to "N/A"
+            set tAlbum to "N/A"
         end try
 
         try
-            set tTrk to name of t
+            set tTrack to name of t
         on error
-            set tTrk to "N/A"
+            set tTrack to "N/A"
         end try
 
         try
@@ -41,21 +41,23 @@ tell application "Music"
         end try
 
         try
-            set tMS to 1000 * duration of t as integer
+            set tMillis to 1000 * duration of t as integer
         on error
-            set tMS to 0
+            set tMillis to 0
         end try
 
+        set tGenre to genre of t
         set tComment to comment of t
         set tLiked to favorited of t or album favorited of t
         set tCount to played count of t
 
         log (¬
-            tArt & tab & ¬
-            tAlb & tab & ¬
-            tTrk & tab & ¬
+            tArtist & tab & ¬
+            tAlbum & tab & ¬
+            tTrack & tab & ¬
             tYear & tab & ¬
-            tMS & tab & ¬
+            tMillis & tab & ¬
+            tGenre & tab & ¬
             tComment & tab & ¬
             tLiked & tab & ¬
             tCount)
@@ -114,6 +116,7 @@ class Finding(t.NamedTuple):
     track: str
     year: str
     millis: str
+    genre: str
     comment: str
     liked: str
     count: str
@@ -180,6 +183,7 @@ class DumpMyMusic:
                 "Track",
                 "Year",
                 "Millis",
+                "Genre",
                 "Comment",
                 "Liked",
                 "Played",
@@ -213,6 +217,7 @@ class DumpMyMusic:
             finding.track,
             finding.year,
             finding.millis,
+            finding.genre,
             finding.comment,
             finding.liked,
             finding.count,
