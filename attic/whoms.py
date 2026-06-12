@@ -1,5 +1,6 @@
 #!/usr/bin/env -S uv run --script
 """Figure out whom is whom."""
+
 import argparse
 import hashlib
 import importlib
@@ -8,8 +9,8 @@ import tempfile
 import typing as t
 from pathlib import Path
 
-import pandas as pd
-import scipy.stats
+import pandas as pd  # ty: ignore[unresolved-import]
+import scipy.stats  # ty: ignore[unresolved-import]
 
 
 class Paths(t.NamedTuple):
@@ -151,12 +152,14 @@ class Whoms:
     def choose(self, albums: pd.DataFrame) -> None:
         """Choose albums, print reports."""
         albums["heard"] = albums.When.notna()
-        albums["Whom"] = albums.Whom.fillna("N/A")
+        albums["Whom"] = albums.Whom.fillna("").replace(
+            r"^([?]+|N/A)$", "", regex=True
+        )
         albums["Whoms"] = albums.Whom.str.replace(
             r"\s*[,&]\s*", "|", regex=True,
         ).str.split("|")
 
-        whalbums = albums.explode("Whoms")
+        whalbums = albums.explode("Whoms").query("Whoms != ''")
         whoms = whalbums.Whoms.value_counts().to_frame("total")
         whoms["heard"] = whalbums[whalbums.heard].Whoms.value_counts()
         whoms["heard"] = whoms.heard.fillna(0).astype(int)
@@ -318,6 +321,8 @@ class Whoms:
 
     def print_one_of(self, rows: pd.DataFrame | pd.Series, inset: str) -> None:
         """Print one random album with an extra text."""
+        if rows.empty:
+            return
         print(f"- ({inset}) {row_desc(rows.sample(1).iloc[0])}")
 
     @classmethod
