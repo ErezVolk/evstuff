@@ -2,10 +2,10 @@
 """Export Apple Music library to CSV on macOS."""
 import argparse
 import csv
-import dataclasses as dcl
 import logging
 import subprocess
 import time
+import typing as t
 from pathlib import Path
 
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
@@ -46,6 +46,8 @@ tell application "Music"
             set tMS to 0
         end try
 
+        set tComment to comment of t
+        set tLiked to favorited of t or album favorited of t
         set tCount to played count of t
 
         log (¬
@@ -54,14 +56,15 @@ tell application "Music"
             tTrk & tab & ¬
             tYear & tab & ¬
             tMS & tab & ¬
+            tComment & tab & ¬
+            tLiked & tab & ¬
             tCount)
     end repeat
 end tell
 """
 
 
-@dcl.dataclass
-class Album:
+class Album(t.NamedTuple):
     """An album."""
 
     artist: str
@@ -96,12 +99,24 @@ class Album:
         ]
 
 
-@dcl.dataclass
-class Args:
+class Args(t.NamedTuple):
     """Command-line arguments."""
 
     output: Path
     pulse: int
+
+
+class Finding(t.NamedTuple):
+    """Line passed from AppleScript."""
+
+    artist: str
+    album: str
+    track: str
+    year: str
+    millis: str
+    comment: str
+    liked: str
+    count: str
 
 
 class DumpMyMusic:
@@ -165,6 +180,8 @@ class DumpMyMusic:
                 "Track",
                 "Year",
                 "Millis",
+                "Comment",
+                "Liked",
                 "Played",
             ])
 
@@ -178,25 +195,27 @@ class DumpMyMusic:
 
     def _handle(self, line: str) -> None:
         try:
-            artist, album, track, year, millis, count = line.strip().split("\t")
+            finding = Finding(*line.strip().split("\t"))
         except ValueError:
             logger.exception("Weird line %r", line)
             return
 
         self.seen_tracks += 1
-        self.seen_millis += int(millis)
-        aaid = (artist, album)
+        self.seen_millis += int(finding.millis)
+        aaid = (finding.artist, finding.album)
 
         if self.curr != aaid:
             self.seen_albums += 1
             self.curr = aaid
         self.csvw.writerow([
-            artist,
-            album,
-            track,
-            year,
-            millis,
-            count,
+            finding.artist,
+            finding.album,
+            finding.track,
+            finding.year,
+            finding.millis,
+            finding.comment,
+            finding.liked,
+            finding.count,
         ])
 
         now = time.monotonic()
