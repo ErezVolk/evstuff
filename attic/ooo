@@ -1,5 +1,5 @@
 #!/bin/sh
-[ -f ~/.ooo-no-brew-upgrade ] || brew upgrade
+[ -f ~/.ooo-no-brew-upgrade ] || brew upgrade --no-ask
 if [ -f ~/.oooroots ]; then
 	while read r; do
 		git -C $HOME/"$r" oo

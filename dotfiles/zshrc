@@ -112,7 +112,7 @@ source $ZSH/oh-my-zsh.sh
 # BEGIN EREZ
 alias ls='ls -F --color=auto'
 alias lsh='ls -sh'
-alias brug='brew upgrade; bing-wallpaper; ggev'
+alias brug='brew upgrade --no-ask; bing-wallpaper; ggev'
 export MMW_ITERM=1
 
 export LESS="-X -r"
