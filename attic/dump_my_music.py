@@ -14,15 +14,6 @@ logger = logging.getLogger(__name__)
 SCRIPT_COUNT = r"""tell application "Music" to count tracks of library playlist 1"""
 
 SCRIPT_LIST = r"""
-on replace_chars(this_text, search_string, replacement_string)
- set AppleScript's text item delimiters to the search_string
- set the item_list to every text item of this_text
- set AppleScript's text item delimiters to the replacement_string
- set this_text to the item_list as string
- set AppleScript's text item delimiters to ""
- return this_text
-end replace_chars
-
 tell application "Music"
     repeat with t in every track of library playlist 1
         try
@@ -55,9 +46,6 @@ tell application "Music"
             set tMillis to 0
         end try
 
-        set tComment to comment of t
-        set tComment to replace_chars(comment, "\n", " | ")
-
         set tGenre to genre of t
 
         set tLiked to favorited of t or album favorited of t
@@ -71,7 +59,6 @@ tell application "Music"
             tYear & tab & ¬
             tMillis & tab & ¬
             tGenre & tab & ¬
-            tComment & tab & ¬
             tLiked & tab & ¬
             tCount)
     end repeat
@@ -130,7 +117,6 @@ class Finding(t.NamedTuple):
     year: str
     millis: str
     genre: str
-    comment: str
     liked: str
     count: str
 
@@ -197,7 +183,6 @@ class DumpMyMusic:
                 "Year",
                 "Millis",
                 "Genre",
-                "Comment",
                 "Liked",
                 "Played",
             ])
@@ -231,7 +216,6 @@ class DumpMyMusic:
             finding.year,
             finding.millis,
             finding.genre,
-            finding.comment,
             finding.liked,
             finding.count,
         ])
