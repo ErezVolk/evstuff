@@ -202,7 +202,7 @@ class Whoms:
                 print("Bad query:", exc)
                 return
 
-        if len(unheard) > 0:
+        if not unheard.empty:
             self.choose_unheard(albums, unheard, whoms)
         else:
             print("Time to find more music.")
@@ -311,8 +311,9 @@ class Whoms:
     def choose_heard(self, albums: pd.DataFrame) -> None:
         """Choose things to relisten to."""
         relisten = albums[self.substr_map(albums.How, "relisten")]
-        if len(relisten) > 0:
-            self.print_one_of(relisten, "relisten")
+        if relisten.empty:
+            relisten = albums[albums.When.noan()]
+        self.print_one_of(relisten, "relisten")
 
     def print_rows(self, rows: pd.DataFrame) -> None:
         """Print a list of albums."""
@@ -329,7 +330,7 @@ class Whoms:
     def substr_map(cls, series: pd.Series, substr: str) -> pd.Series:
         """Return Series[boolean] of values containing substring."""
         as_str = series.astype("string").str
-        return as_str.contains(substr, regex=False).fillna(value=False)
+        return as_str.contains(substr, regex=False, case=False).fillna(value=False)
 
     def do_read(self, path: Path) -> pd.DataFrame:
         """Actually read a file, deflattening if required."""
@@ -499,5 +500,6 @@ if __name__ == "__main__":
     Whoms().main()
 
 # /// script
+# requires-python = ">=3.14"
 # dependencies = ["pandas", "scipy", "seaborn", "odfpy", "ipython"]
 # ///
