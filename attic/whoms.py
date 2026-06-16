@@ -312,7 +312,7 @@ class Whoms:
         """Choose things to relisten to."""
         relisten = albums[self.substr_map(albums.How, "relisten")]
         if len(relisten) <= 1:
-            relisten = albums[albums.When.noan()]
+            relisten = albums[albums.When.notna()]
         self.print_one_of(relisten, "relisten")
 
     def print_rows(self, rows: pd.DataFrame) -> None:
