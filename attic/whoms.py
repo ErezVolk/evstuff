@@ -311,7 +311,7 @@ class Whoms:
     def choose_heard(self, albums: pd.DataFrame) -> None:
         """Choose things to relisten to."""
         relisten = albums[self.substr_map(albums.How, "relisten")]
-        if relisten.empty:
+        if len(relisten) <= 1:
             relisten = albums[albums.When.noan()]
         self.print_one_of(relisten, "relisten")
 
