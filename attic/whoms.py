@@ -311,9 +311,12 @@ class Whoms:
     def choose_heard(self, albums: pd.DataFrame) -> None:
         """Choose things to relisten to."""
         relisten = albums[self.substr_map(albums.How, "relisten")]
-        if len(relisten) <= 1:
+        if (n_relisten := len(relisten)) <= 1:
             relisten = albums[albums.When.notna()]
-        self.print_one_of(relisten, "relisten")
+            inset = "relisten by default"
+        else:
+            inset = f"relisten out of {n_relisten}"
+        self.print_one_of(relisten, inset)
 
     def print_rows(self, rows: pd.DataFrame) -> None:
         """Print a list of albums."""
