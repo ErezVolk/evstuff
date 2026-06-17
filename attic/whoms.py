@@ -198,8 +198,14 @@ class Whoms:
             try:
                 albums = albums.query(self.args.query)
                 unheard = unheard.query(self.args.query)
-            except NameError as exc:
+            except (NameError, KeyError) as exc:
                 print("Bad query:", exc)
+                return
+            if albums.empty:
+                print("This query leaves nothing, it's probably incorrect.")
+                return
+            if unheard.empty:
+                print("Already heard everything in this query.")
                 return
 
         if not unheard.empty:
