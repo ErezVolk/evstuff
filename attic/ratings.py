@@ -12,6 +12,7 @@ import argparse
 import contextlib
 import csv
 import re
+import subprocess
 import sys
 import typing as t
 import urllib.parse
@@ -94,6 +95,12 @@ class AlbumRatings:
             action="store_true",
             help="Report progress on stderr",
         )
+        parser.add_argument(
+            "-O",
+            "--open",
+            action="store_true",
+            help="Open after writing",
+        )
         self.args = parser.parse_args()
         self.parser = parser
 
@@ -124,6 +131,9 @@ class AlbumRatings:
             scored = [s for s in scored if s.scores]
         self.emit(scored)
 
+        if self.args.open:
+            self.show_output()
+
     def emit(self, scored: list[Scored]) -> None:
         """Write a CSV with one column per reviewer, ordered by frequency."""
         reviewers = self.reviewer_columns(scored)
@@ -142,8 +152,15 @@ class AlbumRatings:
         if self.args.output == "-":
             yield sys.stdout
         else:
-            with Path(self.args.stdout).open("w", encoding="utf-8") as fobj:
+            with Path(self.args.output).open("w", encoding="utf-8") as fobj:
                 yield fobj
+
+    def show_output(self) -> None:
+        """Open the resulting .csv with the configure app."""
+        if self.args.output == "-":
+            print("Cannot open, file not written.")
+        else:
+            subprocess.run(["/usr/bin/open", self.args.output], check=False)
 
     def reviewer_columns(self, scored: list[Scored]) -> list[str]:
         """Reviewer column names, most-common first, merging case variants."""
