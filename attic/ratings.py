@@ -9,6 +9,7 @@ Stone, Christgau, ...) as a CSV with one column per reviewer.
 """
 
 import argparse
+import contextlib
 import csv
 import re
 import sys
@@ -16,6 +17,7 @@ import typing as t
 import urllib.parse
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import requests  # ty: ignore[unresolved-import]
 from bs4 import BeautifulSoup  # ty: ignore[unresolved-import]
@@ -70,8 +72,7 @@ class AlbumRatings:
         parser.add_argument(
             "-o",
             "--output",
-            type=argparse.FileType("w", encoding="utf-8"),
-            default=sys.stdout,
+            default="-",
             help="Write CSV here (default: stdout)",
         )
         parser.add_argument(
@@ -126,13 +127,23 @@ class AlbumRatings:
     def emit(self, scored: list[Scored]) -> None:
         """Write a CSV with one column per reviewer, ordered by frequency."""
         reviewers = self.reviewer_columns(scored)
-        writer = csv.writer(self.args.output)
-        writer.writerow(["album", *reviewers, "url"])
-        for s in scored:
-            folded = {name.casefold(): rating for name, rating in s.scores.items()}
-            row = [folded.get(name.casefold(), "") for name in reviewers]
-            writer.writerow([s.title, *row, s.url])
+        with self.open_output() as fobj:
+            writer = csv.writer(fobj)
+            writer.writerow(["album", *reviewers, "url"])
+            for s in scored:
+                folded = {name.casefold(): rating for name, rating in s.scores.items()}
+                row = [folded.get(name.casefold(), "") for name in reviewers]
+                writer.writerow([s.title, *row, s.url])
         self.log(f"Wrote {len(scored)} row(s), {len(reviewers)} reviewer column(s).")
+
+    @contextlib.contextmanager
+    def open_output(self) -> t.Generator[t.TextIO]:
+        """Return a writer for the output argument."""
+        if self.args.output == "-":
+            yield sys.stdout
+        else:
+            with Path(self.args.stdout).open("w", encoding="utf-8") as fobj:
+                yield fobj
 
     def reviewer_columns(self, scored: list[Scored]) -> list[str]:
         """Reviewer column names, most-common first, merging case variants."""
@@ -236,7 +247,7 @@ class AlbumRatings:
         for element in row.find_all(name=True):
             match = STARS_RE.search(element.get("title") or "")
             if match:
-                return f"{match.group(1)}/{match.group(2)}"
+                return match.group(1)
         return self.cell_text(cell)
 
     @staticmethod
