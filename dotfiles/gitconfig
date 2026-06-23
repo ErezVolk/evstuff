@@ -1,7 +1,10 @@
+# vim: set ft=gitconfig:
+
 [alias]
 	co = checkout
-	logg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	switch = switch
 	logp = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit -p
+	logf = log --color --graph --oneline --name-only
 [user]
 	email = erez.volk@gmail.com
 	name = Erez Volk
