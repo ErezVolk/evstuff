@@ -2,7 +2,7 @@
 
 [alias]
 	co = checkout
-	switch = switch
+	sw = switch
 	logg = log --color=auto --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 	logp = log --color=auto --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit -p
 	logf = log --color=auto --graph --oneline --name-only
