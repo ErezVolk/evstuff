@@ -1,2 +1,4 @@
 --hidden
---ignore-vcs
+
+--glob=!.git/
+--glob=!.venv/
