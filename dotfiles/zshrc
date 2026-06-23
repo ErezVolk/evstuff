@@ -117,6 +117,8 @@ export MMW_ITERM=1
 
 export LESS="-X -r"
 
+export RIPGREP_CONFIG_PATH="${HOME}/.ripgreprc"
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:${HOMEBREW_PREFIX}/bin:$PATH
 export MANPATH="${HOMEBREW_PREFIX}/share/man:$MANPATH"
