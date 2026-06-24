@@ -38,7 +38,7 @@ STARS_RE = re.compile(r"(\d+(?:\.\d+)?)\s*/\s*(\d+)\s+stars?", re.IGNORECASE)
 
 # Phrases that mark the ratings box and rows within it that aren't reviewers.
 BOX_MARKERS = ("professional ratings", "review scores")
-SKIP_SOURCES = {"source", "aggregate scores", "review scores"}
+BLACKLIST = {"source", "aggregate scores", "review scores"}
 
 
 class Album(t.NamedTuple):
@@ -62,6 +62,7 @@ class AlbumRatings:
     parser: argparse.ArgumentParser
     args: argparse.Namespace
     session: requests.Session
+    whitelist: list[str]
 
     def parse_cli(self) -> None:
         """Parse command-line arguments."""
@@ -75,6 +76,14 @@ class AlbumRatings:
             "--output",
             default="-",
             help="Write CSV here (default: stdout)",
+        )
+        parser.add_argument(
+            "-w",
+            "--whitelist",
+            metavar="SUBSTRING",
+            nargs="*",
+            required=False,
+            help="Only include reviewers containing one or more the SUBSTRINGs",
         )
         parser.add_argument(
             "-a",
@@ -103,6 +112,7 @@ class AlbumRatings:
         )
         self.args = parser.parse_args()
         self.parser = parser
+        self.whitelist = list(map(str.casefold, self.args.whitelist or []))
 
     def fail(self, msg: str) -> t.Never:
         """Fail because of the user."""
@@ -244,8 +254,12 @@ class AlbumRatings:
             if len(cells) != len(self.BOX_COLUMNS):
                 continue
             source = self.cell_text(cells[0])
-            if source.casefold() in SKIP_SOURCES:
+            folded = source.casefold()
+            if folded in BLACKLIST:
                 continue
+            if self.whitelist:
+                if not any(subst in folded for subst in self.whitelist):
+                    continue
             rating = self.cell_rating(row, cells[1])
             if source and rating:
                 scores.setdefault(source, rating)

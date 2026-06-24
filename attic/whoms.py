@@ -266,16 +266,18 @@ class Whoms:
               f"{row_desc(oldest_added)}")
         the_rest = unheard.drop(oldest_added.name)
 
-        n_oldest_released = the_rest.sort_values("t").head()
-        oldest_released = n_oldest_released.sample(1).iloc[0]
-        print(f"- (one of {len(n_oldest_released)} oldest released) "
-              f"{row_desc(oldest_released)}")
-        the_rest = unheard.drop(oldest_released.name)
+        if not the_rest.empty:
+            n_oldest_released = the_rest.sort_values("t").head()
+            oldest_released = n_oldest_released.sample(1).iloc[0]
+            print(f"- (one of {len(n_oldest_released)} oldest released) "
+                  f"{row_desc(oldest_released)}")
+            the_rest = unheard.drop(oldest_released.name)
 
-        n_longest = the_rest.sort_values("minutes").tail()
-        longest = n_longest.sample(1).iloc[0]
-        print(f"- (one of {len(n_longest)} longest) "
-              f"{row_desc(longest)}")
+        if not the_rest.empty:
+            n_longest = the_rest.sort_values("minutes").tail()
+            longest = n_longest.sample(1).iloc[0]
+            print(f"- (one of {len(n_longest)} longest) "
+                  f"{row_desc(longest)}")
 
         new_guys = whoms.query("heard == 0")
         if len(stars := new_guys.query("total > 1")) > 0:
