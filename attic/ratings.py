@@ -107,7 +107,9 @@ class AlbumRatings:
         parser.add_argument(
             "-O",
             "--open",
-            action="store_true",
+            nargs="?",
+            metavar="APPLICATION",
+            const="",
             help="Open after writing",
         )
         self.args = parser.parse_args()
@@ -141,7 +143,7 @@ class AlbumRatings:
             scored = [s for s in scored if s.scores]
         self.emit(scored)
 
-        if self.args.open:
+        if self.args.open is not None:
             self.show_output()
 
     def emit(self, scored: list[Scored]) -> None:
@@ -169,8 +171,11 @@ class AlbumRatings:
         """Open the resulting .csv with the configure app."""
         if self.args.output == "-":
             print("Cannot open, file not written.")
-        else:
-            subprocess.run(["/usr/bin/open", self.args.output], check=False)
+            return
+        cmd = ["/usr/bin/open", self.args.output]
+        if self.args.open:
+            cmd.extend(["-a", self.args.open])
+        subprocess.run(cmd, check=False)
 
     def reviewer_columns(self, scored: list[Scored]) -> list[str]:
         """Reviewer column names, most-common first, merging case variants."""
