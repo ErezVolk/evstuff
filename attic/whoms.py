@@ -483,9 +483,9 @@ def row_desc(row: pd.Series) -> str:
     who = one_of(row.Who)
     whom = one_of(row.Whom)
     what = f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
-    if who == whom and not who.endswith(" et al."):
+    if not whom or (who == whom and not who.endswith(" et al.")):
         return f'{what} ({row["dt"]})'
-    return f'{what} (with {one_of(row.Whom)}, {row["dt"]})'
+    return f'{what} (with {whom}, {row["dt"]})'
 
 
 def k_of_n(heard: pd.Series) -> str:
