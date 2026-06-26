@@ -14,7 +14,7 @@ import typing as t
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
+import pandas as pd  # ty: ignore[unresolved-import]
 import pymupdf  # ty: ignore[unresolved-import]
 from google.cloud import texttospeech as gg_tts  # ty: ignore[unresolved-import]
 
@@ -92,7 +92,7 @@ class Pdf2Utf:
         self.parser = parser
         self.args = parser.parse_args()
 
-    def main(self) -> None:
+    def main(self) -> None:  # noqa: C901, PLR0915, PLR0912
         """Do it."""
         self.parse_args()
 
@@ -231,7 +231,7 @@ class Pdf2Utf:
         para_tmap.iloc[0] = True
 
         book.loc[para_tmap, "para"] = np.arange(1, para_tmap.sum() + 1)
-        book.para = book.para.fillna(method="pad").astype(int)
+        book.para = book.para.ffill().astype(int)
 
         self.ddump(book, "pre-paras")
 
@@ -244,7 +244,7 @@ class Pdf2Utf:
         paras["header"] = book[para_tmap].header.to_numpy()
         paras.loc[paras.index[0], "header"] = True
         paras.loc[paras.header, "chap"] = np.arange(paras.header.sum()) + 1
-        paras.chap = paras.chap.fillna(method="pad").astype(int)
+        paras.chap = paras.chap.ffill().astype(int)
         self.ddump(paras, "paras")
 
         print(f"Writing {self.args.output}")
@@ -425,5 +425,5 @@ if __name__ == "__main__":
     Pdf2Utf().main()
 
 # /// script
-# dependencies = ["pymupdf", "google-cloud-texttospeech"]
+# dependencies = ["pymupdf", "google-cloud-texttospeech", "numpy", "pandas"]
 # ///
