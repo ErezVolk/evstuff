@@ -130,8 +130,7 @@ export PATH="${HOMEBREW_PREFIX}/opt/findutils/libexec/gnubin:$PATH"
 export PATH="${HOMEBREW_PREFIX}/opt/grep/libexec/gnubin:$PATH"
 export PATH=$HOME/bin:${HOME}/.local/bin:${HOMEBREW_PREFIX}/bin:$PATH
 
-source <(fzf --zsh)
-
+which fzf > /dev/null && source <(fzf --zsh)
 test -e  $HOME/src/fzf-git.sh/fzf-git.sh && source $HOME/src/fzf-git.sh/fzf-git.sh
 
 # END EREZ
