@@ -25,7 +25,7 @@
 
 *_bass = [ bass ]
 
-bass = [ seed 1@raybrown scale chord learn 2@revise more ]
+bass = [ seed 1@raybrown scale chord 1@nb learn 2@revise more ]
 
 KEY := C|F|B♭|E♭|A♭|D♭|G|D|A|E|B|F♯
 MODE := Ionian|Dorian|Phrygian|Lydian|Mixolydian|Aeolian|Locrian
@@ -45,17 +45,18 @@ chord:
   Today-{} across the fingerboard: {2*CHORD}
 
 learn:
-  Play a today-blues: NONE
   Work on "Cherokee" {} [Manhattan 3/12]: {<Downes|Chorus|Brownify>}
-  Work on a ii-V-I phrase: NONE
-  Jeff's approach-to-chord-tones exercise: NONE
-  Jeff's Solo using chord tones: NONE
-  Nicolas' transposing drill for _grilles_: NONE
-  Nicolas' one model baseline for a piece: NONE
   Learn "How Deep is the Ocean" [Nicolas 2026-06-20, youtu.be/yURyGKZ6oAY, from "This Is Always"]: NONE
   Work on "It Could Happen to You" [for some reason; transcribe some solos and figure them out]: NONE
   **Learn "Sweet Georgia Brown" [Manhattan 4/12]: NONE
   Reproduce Gomez' solo on "Birks' Works": NONE
+
+nb:
+  NB Work on a ii-V-I phrase: NONE
+  NB Jeff's approach-to-chord-tones exercise: NONE
+  NB Jeff's Solo using chord tones: NONE
+  NB Nicolas' transposing drill for _grilles_: NONE
+  NB Nicolas' one model baseline for a piece: NONE
 
 -learn-next-nicholas:
   Learn "Funk in Deep Freeze" [Nicolas 2026-06-13, youtu.be/6f4MsfuIeEM]: NONE
