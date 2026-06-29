@@ -1,5 +1,6 @@
 #!/usr/bin/env -S uv run --script
 """Calculate translation stats."""
+import importlib
 from argparse import ArgumentParser
 from datetime import UTC
 from datetime import datetime
@@ -7,43 +8,45 @@ from datetime import time
 from functools import partial
 from pathlib import Path
 
-import matplotlib.pyplot as plt  # type: ignore[import-not-found,import-untyped]
+import matplotlib.pyplot as plt  # ty: ignore[unresolved-import]
 import numpy as np
 import numpy.typing as npt
-import pandas as pd  # type: ignore[import-not-found,import-untyped]
-import seaborn as sns  # type: ignore[import-not-found,import-untyped]
+import pandas as pd  # ty: ignore[unresolved-import]
+import seaborn as sns  # ty: ignore[unresolved-import]
 
 EPOCH_DATETIME = datetime(1899, 12, 31, 0, 0, 0, tzinfo=UTC)  # Stupid Excel
 ROOT = Path.home() / "translation"
 
 
-def main() -> None:
+def main() -> None:  # noqa: PLR0915
     """Calculate translation stats."""
     parser = ArgumentParser()
     parser.add_argument("-i", "--input", type=Path, default=ROOT / "skel" / "stats.xls")
     parser.add_argument("-o", "--output", type=Path, default=ROOT / "stats.pdf")
     parser.add_argument("--show", action="store_true")
+    parser.add_argument("-I", "--interace", action="store_true")
     args = parser.parse_args()
 
     sns.set()
-    sheet = pd.read_excel(
+    works = pd.read_excel(
         args.input,
         converters={"Time": partial(time_to_hours, state={})},
     )
-    sheet["Hours"] = sheet.Time.astype(float)
+    works["Hours"] = works.Time.astype(float)
+    works["T-GD+"] = works["T-Chars+"] / 24000
+    works["O-W/T-GD+"] = works["O-Words"] / works["T-GD+"]
+    works["O-C/T-GD+"] = works["O-Chars"] / works["T-GD+"]
+    works["O-W/H"] = works["O-Words"] / works["Hours"]
 
-    lgs = sheet[
-        (sheet["O-Words"] > 0) & (sheet["T-Chars+"] > 0) & (sheet["O-Chars"] > 0)
+    lgs = works[
+        (works["O-Words"] > 0) & (works["T-Chars+"] > 0) & (works["O-Chars"] > 0)
     ].copy()
     lgs["Books"] = 1
     lgs = lgs.groupby(["Lg"]).sum(numeric_only=True)
-    lgs["T-GD+"] = lgs["T-Chars+"] / 24000
-    lgs["O-W/T-GD+"] = lgs["O-Words"] / lgs["T-GD+"]
-    lgs["O-C/T-GD+"] = lgs["O-Chars"] / lgs["T-GD+"]
     lgs["O-C/O-W"] = (lgs["O-Chars"] / lgs["O-Words"]).round(1)
 
-    sheet = sheet[sheet.Hours.notna()]
-    stats = sheet.groupby(["Lg", "T/E"]).sum(numeric_only=True)
+    works = works[works.Hours.notna()]
+    stats = works.groupby(["Lg", "T/E"]).sum(numeric_only=True)
     stats["O-W/H"] = (stats["O-Words"] / stats["Hours"]).round(0).astype(int)
 
     stats["lgow"] = stats.groupby("Lg")["O-Words"].transform("sum")
@@ -57,7 +60,7 @@ def main() -> None:
         ["O-Chars", "O-Words", "O-C/O-W", "O-W/T-GD+", "O-C/T-GD+", "Hours", "Books"],
     ]
 
-    plats = sheet.loc[sheet["O-W/H"] > 0].copy()
+    plats = works.loc[works["O-W/H"] > 0].copy()
     for lang, row in lgs.iterrows():
         kws = int(row["O-Words"]) // 1000
         hrs = row["Hours"]
@@ -88,6 +91,26 @@ def main() -> None:
         if col != "O-C/O-W":
             stats[col] = stats[col].map(lambda val: f"{val:,.0f}")
 
+    stats = stats.join(
+        works.dropna(
+            subset=["O-Words", "O-W/H"]
+        ).groupby(["T/E", "Lg"]).apply(
+            lambda g: "{:.0f} ±{:.0f}".format(
+                *weighted_avg_and_std(g["O-W/H"], g["O-Words"])
+            )
+        ).rename("±O-W/H")
+    )
+
+    stats = stats.join(
+        works.dropna(
+            subset=["O-Words", "O-W/T-GD+"]
+        ).groupby("Lg").apply(
+            lambda g: "{:.0f} ±{:.0f}".format(
+                *weighted_avg_and_std(g["O-W/T-GD+"], g["O-Words"])
+            )
+        ).rename("±O-W/GD+")
+    )
+
     ohw_min = plats["O-W/H"].min()
     ohw_max = plats["O-W/H"].max()
     hcol = f"histogram ({int(ohw_min)}..{int(ohw_max)})"
@@ -108,6 +131,10 @@ def main() -> None:
 
     if args.show:
         plt.show(block=True)
+
+    if args.interace:
+        ipy = importlib.import_module("IPython")  # Lazy import since why force it
+        ipy.embed(header="You might want to check out works, lgs, stats")
 
 
 def time_to_hours(timestamp: str | time | datetime, state: dict) -> float:
@@ -145,10 +172,28 @@ def histogram(
     return "".join(chars)
 
 
+def weighted_avg_and_std(
+    values: npt.NDArray, weights: npt.NDArray
+) -> tuple[float, float]:
+    """Return the weighted average and standard deviation.
+
+    https://stackoverflow.com/questions/2413522/weighted-standard-deviation-in-numpy
+
+    They weights are in effect first normalized so that they
+    sum to 1 (and so they must not all be 0).
+
+    values, weights -- NumPy ndarrays with the same shape.
+    """
+    average = np.average(values, weights=weights)
+    # Fast and numerically precise:
+    variance = np.average((values - average)**2, weights=weights)
+    return (average, np.sqrt(variance))
+
+
 if __name__ == "__main__":
     main()
 
 # /// script
-# dependencies = ["pandas", "numpy", "xlrd", "seaborn"]
+# dependencies = ["pandas", "numpy", "xlrd", "seaborn", "ipython"]
 # ///
 # vim: set ft=python:
