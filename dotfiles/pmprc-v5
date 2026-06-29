@@ -47,8 +47,7 @@ chord:
 learn:
   Work on "Cherokee" {} [Manhattan 3/12]: {<Downes|Chorus|Brownify>}
   Learn "How Deep is the Ocean" [Nicolas 2026-06-20, youtu.be/yURyGKZ6oAY, from "This Is Always"]: NONE
-  Work on "It Could Happen to You" [for some reason; transcribe some solos and figure them out]: NONE
-  **Learn "Sweet Georgia Brown" [Manhattan 4/12]: NONE
+  **Work on "It Could Happen to You" [for some reason; transcribe some solos and figure them out]: NONE
   Reproduce Gomez' solo on "Birks' Works": NONE
 
 nb:
@@ -61,7 +60,6 @@ nb:
 
 -learn-next-nicholas:
   Learn "Funk in Deep Freeze" [Nicolas 2026-06-13, youtu.be/6f4MsfuIeEM]: NONE
-  Revise "So What" [Liban 2026-03-28, Nicolas 2026-06-13, youtu.be/ylXk1LBvIqU]: NONE
   Learn "My Little Suede Shoes" [Nicolas 2026-06-27, youtu.be/-JKDFD1PZ8Y]: NONE
   Recall "You Don't Know What Love Is" {} [Nicolas 2026-06-27 youtu.be/rY0mpQBxtc8]: {<Downes|Chorus|Brownify>}
 
@@ -69,17 +67,18 @@ nb:
   **Learn "All Blues": NONE
   **Learn "Autumn Leaves" [Liban 2026-03-28]: NONE
   **Learn "Blue Bossa": NONE
+  **Learn "Honeysuckle Rose" [Manhattan 9/12]: NONE
+  **Learn "How High the Moon" [Manhattan 6/12]: NONE
+  **Learn "Indiana/Donna Lee" [Manhattan 5/12]: NONE
+  **Learn "Lover" [Manhattan 13/12]: NONE
+  **Learn "Night and Day" [Manhattan 12/12]: NONE
+  **Learn "Perdido" [Manhattan 8/12]: NONE
   **Learn "Satin Doll": NONE
+  **Revise "So What" [Liban 2026-03-28, Nicolas 2026-06-13, youtu.be/ylXk1LBvIqU]: NONE
   **Learn "Straight, No Chaser": NONE
   **Learn "Summertime": NONE
   **Learn "Take the “A” Train": NONE
-  **Learn "Indiana/Donna Lee" [Manhattan 5/12]: NONE
-  **Learn "How High the Moon" [Manhattan 6/12]: NONE
-  **Learn "Perdido" [Manhattan 8/12]: NONE
-  **Learn "Honeysuckle Rose" [Manhattan 9/12]: NONE
   **Learn "Whispering" [Manhattan 9/12]: NONE
-  **Learn "Night and Day" [Manhattan 12/12]: NONE
-  **Learn "Lover" [Manhattan 13/12]: NONE
 
 -learn-next-on-some-lists:
   *Learn "Blues for Alice": NONE
@@ -125,36 +124,37 @@ nb:
   Learn "You and the Night and the Music": NONE
 
 revise:
-  Recall "A Night in Tunisia" [Nicolas 2026-06-06, youtu.be/1jccsHMOdZo]: NONE
-  Recall "All the Things You Are" {} [Manhattan 11/12]: {<Downes|Chorus|Brownify>}
-  Recall "Anthropology" [Liban 2026-03-28]: NONE
-  Recall "Billie's Bounce" [Liban]: NONE
+  **Recall "A Night in Tunisia" [Nicolas 2026-06-06, youtu.be/1jccsHMOdZo]: NONE
+  **Recall "All the Things You Are" {} [Manhattan 11/12]: {<Downes|Chorus|Brownify>}
+  **Recall "Anthropology" [Liban 2026-03-28]: NONE
+  **Recall "Billie's Bounce" [Liban]: NONE
   Recall "Blue Minor" [Nicolas 2026-02-21, from "Cool Struttin'"]: NONE
   Recall "Blue Monk" [Nicolas 2026-03-28, from "Thelonius in Action", youtu.be/cWOz9mILqbA]: NONE
-  Recall "But Not For Me" [Remember Israel Crosby, Percy Heath]: NONE
+  **Recall "But Not For Me" [Remember Israel Crosby, Percy Heath]: NONE
   Recall "Central Park West": NONE
   Recall "Dat Dere": NONE
-  Recall "Four" [Not very good]: NONE
+  **Recall "Four" [Not very good]: NONE
   Recall "Goodbye Pork Pie Hat": NONE
   Recall "Line for Lyons" [Nicolas 2026-04-11, from Baker/Mulligan "Carnegie Hall Concert" youtu.be/eZZnIhq7b5I]: NONE
   Recall "Melody for C" [Nicolas 2026-01-17, from Sonny Clark, "Leapin' and Lopin'"]: NONE
   Recall "Moonlight in Vermont": NONE
   Recall "Nardis": NONE
-  Recall "Ornithology": NONE
-  Recall "Out of Nowhere" [Remember Ray Brown, Manhattan 7/12]: NONE
+  *Recall "Ornithology": NONE
+  **Recall "Out of Nowhere" [Remember Ray Brown, Manhattan 7/12]: NONE
   Recall "Remember" [Nicolas 2025-12-13, Hank Mobley]: NONE
   Recall "Rhythm-a-Ning" [Nicolas 2026-03-28, from "Criss-Cross", youtu.be/8piShQZXIY8]: NONE
   Recall "Sea Journey": NONE
-  Recall "Solar": NONE
+  **Recall "Solar": NONE
   Recall "Sonny's Mood" [Nicolas 2026-01-31, from "Dial S for Sonny", youtu.be/Qc5BH2-6zI8]: NONE
-  Recall "Stella by Starlight" {}: {<Downes|Chorus|Brownify>}
-  Recall "There Will Never Be Another You" [Remember Buster Williams]: NONE
+  **Recall "Stella by Starlight" {}: {<Downes|Chorus|Brownify>}
+  **Recall "Sweet Georgia Brown" [Manhattan 4/12]: NONE
+  **Recall "There Will Never Be Another You" [Remember Buster Williams]: NONE
   Recall "They Say It's Wonderful" [So-so]: NONE
   Recall "Top of My Head": NONE
   Recall "Tricotism": NONE
-  Recall "Wave": NONE
+  *Recall "Wave": NONE
   Recall "Whims of Chambers" [Nicolas 2026-04-11, from "Whims of Chambers", youtu.be/ZrtC3DdGPp8]: NONE
-  Recall "You Don't Know What Love Is" {}: {<Downes|Chorus|Brownify>}
+  **Recall "You Don't Know What Love Is" {}: {<Downes|Chorus|Brownify>}
   Recall "You've Changed" [Nicolas 2026-01-10, from Keith Jarrett, "The Out-Of-Towners"]: NONE
 
 more:
@@ -262,6 +262,7 @@ _nextBebopHeads:
   Well, You Needn’t: NONE
   Yeah: NONE
 # Downes' list
+# https://www.neffmusic.com/blog/2017/05/100-must-know-tune-consensus-list/
 
 current:
   Today's Bob DeBoo/{} [BLIND!]: {Major|Minor|⁷}  # TODO: {m⁷|Augmented|m⁷ᵇ⁵} {to C/E/G/C^/G^} {whole|half|N/4}
