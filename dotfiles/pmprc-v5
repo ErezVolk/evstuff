@@ -23,6 +23,12 @@
 #   - Play in 3, 5, bossa, rhumba, whatever
 # - Work on bebop phrases
 
+cb:
+  Keep in mind [C shape, hold cork]: NONE
+  Half notes open strings, cross fingers: NONE
+  Blues with roots: NONE
+  Blues, Bass line with arpeggios: NONE
+
 *_bass = [ bass ]
 
 bass = [ seed 1@raybrown scale chord 1@nb learn 2@revise more ]
