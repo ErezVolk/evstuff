@@ -10,6 +10,7 @@ usage() {
   echo " -q           output nothing if local is identical to remote"
   echo " -m BRANCH    merge --ff-only with BRANCH"
   echo " -M BRANCH    merge with BRANCH"
+  echo " -B BRANCH    rebase BRANCH"
   echo " -l           perform no server communication"
   echo " -p           push if the local branch is ahead of the remote"
 }
@@ -20,7 +21,8 @@ LOCAL=""
 PUSH=""
 MERGE=""
 MERGE_OPTS=""
-while getopts ":lpqhm:M:" opt; do
+REBASE=""
+while getopts ":lpqhm:M:B:" opt; do
   case ${opt} in
     l)
       LOCAL="y"
@@ -34,10 +36,16 @@ while getopts ":lpqhm:M:" opt; do
     m)
       MERGE=${OPTARG}
       MERGE_OPTS="--ff-only"
+      REBASE=""
       ;;
     M)
       MERGE=${OPTARG}
       MERGE_OPTS=""
+      REBASE=""
+      ;;
+    B)
+      MERGE=""
+      REBASE=${OPTARG}
       ;;
     h)
       usage
@@ -106,16 +114,18 @@ on_pushable()
   fi
 }
 
-maybe_merge()
+maybe_merge_or_rebase()
 {
-  if [ -n "${MERGE}" ]; then
+  if [ -n "${REBASE}" ]; then
+    show_git rebase $REBASE
+  elif [ -n "${MERGE}" ]; then
     show_git merge -q $MERGE_OPTS $MERGE
   fi
 }
 
 REMOTE=$(do_git rev-parse @{u})
 if [ $? -ne 0 ]; then  # Not a remote-tracking branch
-  maybe_merge
+  maybe_merge_or_rebase
   exit
 fi
 
@@ -124,7 +134,7 @@ BASE=$(do_git merge-base $LOCAL $REMOTE)
 
 if [ $LOCAL = $REMOTE ]; then
   [ -n "${QUIET}" ] || echo "✔ $ROOT"  # Up to date
-  maybe_merge
+  maybe_merge_or_rebase
   NEWLOCAL=$(do_git rev-parse @)
   if [ "${NEWLOCAL}" != "${LOCAL}" ]; then
     on_pushable
