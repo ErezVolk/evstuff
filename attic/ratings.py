@@ -24,7 +24,8 @@ import requests  # ty: ignore[unresolved-import]
 from bs4 import BeautifulSoup  # ty: ignore[unresolved-import]
 from bs4 import Tag  # ty: ignore[unresolved-import]
 
-WIKI = "https://en.wikipedia.org"
+NETLOC = "en.wikipedia.org"
+WIKI = "https://" + NETLOC
 UA = "albumratings/1.0 (https://en.wikipedia.org; album rating collector)"
 
 # Namespaces that are not articles (e.g. /wiki/File:..., /wiki/Category:...).
@@ -225,14 +226,20 @@ class AlbumRatings:
     def anchor_to_album(self, anchor: Tag) -> Album | None:
         """Turn a wiki-link into an Album, or None if it is not an article."""
         href = anchor.get("href") or ""
-        if not href.startswith("/wiki/"):
+        if not href:
             return None
-        path = urllib.parse.unquote(href[len("/wiki/"):])
-        page = path.split("#", 1)[0]
+        parts = urllib.parse.urlsplit(href)
+        if parts.netloc and parts.netloc != NETLOC:
+            return None
+        path = parts.path
+        page = path.removeprefix("/wiki/")
+        if page == path:
+            return None
+        page = urllib.parse.unquote(page)
         if ":" in page and page.split(":", 1)[0] in NAMESPACES:
             return None
         title = anchor.get_text(strip=True) or page.replace("_", " ")
-        return Album(title=title, url=WIKI + href)
+        return Album(title=title, url=WIKI + path)
 
     def rate_album(self, album: Album) -> Scored:
         """Fetch an album page and extract its professional ratings."""
