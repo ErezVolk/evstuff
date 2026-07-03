@@ -119,6 +119,11 @@ class Whoms:
             "--shortest-new-guys",
             action="store_true",
         )
+        parser.add_argument(
+            "-R",
+            "--relisten-all",
+            action="store_true",
+        )
         self.args = parser.parse_args()
         self.parser = parser
 
@@ -319,9 +324,9 @@ class Whoms:
     def choose_heard(self, albums: pd.DataFrame) -> None:
         """Choose things to relisten to."""
         relisten = albums[self.substr_map(albums.How, "relisten")]
-        if (n_relisten := len(relisten)) <= 1:
+        if self.args.relisten_all or (n_relisten := len(relisten)) <= 1:
             relisten = albums[albums.When.notna()]
-            inset = "relisten by default"
+            inset = "relisten"
         else:
             inset = f"relisten out of {n_relisten}"
         self.print_one_of(relisten, inset)
