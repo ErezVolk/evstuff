@@ -25,9 +25,11 @@
 
 cb:
   Keep in mind [C shape, hold cork]: NONE
+  Half notes open strings, metronome: NONE
   Half notes open strings, cross fingers: NONE
+  C scale: NONE
   Blues with roots: NONE
-  Blues, Bass line with arpeggios: NONE
+  Blues, Bass line with arpeggios, up to around D: NONE
 
 *_bass = [ bass ]
 
