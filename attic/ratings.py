@@ -24,8 +24,8 @@ import requests  # ty: ignore[unresolved-import]
 from bs4 import BeautifulSoup  # ty: ignore[unresolved-import]
 from bs4 import Tag  # ty: ignore[unresolved-import]
 
-NETLOC = "en.wikipedia.org"
-WIKI = "https://" + NETLOC
+WIKI = "en.wikipedia.org"
+ALLM = "www.allmusic.com"
 UA = "albumratings/1.0 (https://en.wikipedia.org; album rating collector)"
 
 # Namespaces that are not articles (e.g. /wiki/File:..., /wiki/Category:...).
@@ -47,6 +47,7 @@ class Album(t.NamedTuple):
 
     title: str
     url: str
+    site: str
 
 
 class Scored(t.NamedTuple):
@@ -191,6 +192,38 @@ class AlbumRatings:
         return [spellings[k].most_common(1)[0][0] for k in keys]
 
     def find_albums(self, url: str) -> list[Album]:
+        """Return albums from a website."""
+        server = urllib.parse.urlsplit(url).netloc.lower()
+        if server == WIKI:
+            return self.find_albums_in_wiki(url)
+        if server == ALLM:
+            return self.find_albums_in_allmusic(url)
+
+        return self.fail(f"Unknwon server {server}")  # The return is to appease ruff
+
+    def find_albums_in_allmusic(self, url: str) -> list[Album]:
+        """Return albums for an artist from allmusic.com."""
+        soup = self.get_soup(url)
+        return [
+            Album(
+                title=anchor.get("title") or url,
+                url=url,
+                site=ALLM,
+            )
+            for anchor in soup.select("td.creditMeta > span.album > a[href]")
+            if (url := self.get_allmusic_url(anchor.get("href")))
+        ]
+
+    def get_allmusic_url(self, href: str | None) -> str | None:
+        """Get the URL for an ALlMusic album."""
+        if href is None:
+            return None
+        parts = urllib.parse.urlsplit(href)
+        if parts.netloc and parts.netloc.lower() != ALLM:
+            return None
+        return f"https://{ALLM}/{parts.path}"
+
+    def find_albums_in_wiki(self, url: str) -> list[Album]:
         """Return albums linked (as italicised wiki-links) in Discography."""
         soup = self.get_soup(url)
         heading = self.find_discography_heading(soup)
@@ -229,7 +262,7 @@ class AlbumRatings:
         if not href:
             return None
         parts = urllib.parse.urlsplit(href)
-        if parts.netloc and parts.netloc != NETLOC:
+        if parts.netloc and parts.netloc.lower() != WIKI:
             return None
         path = parts.path
         page = path.removeprefix("/wiki/")
@@ -239,23 +272,42 @@ class AlbumRatings:
         if ":" in page and page.split(":", 1)[0] in NAMESPACES:
             return None
         title = anchor.get_text(strip=True) or page.replace("_", " ")
-        return Album(title=title, url=WIKI + path)
+        return Album(title=title, url="https://{WIKI}/{path}", site=WIKI)
 
     def rate_album(self, album: Album) -> Scored:
         """Fetch an album page and extract its professional ratings."""
+        scores: dict[str, str] | None = None
+
         try:
             soup = self.get_soup(album.url)
+            if album.site == WIKI:
+                scores = self.score_album_on_wiki(soup)
+            elif album.site == ALLM:
+                scores = self.score_album_on_allmusic(soup)
+            else:
+                raise ValueError(f"What is {album.site}")
         except requests.RequestException as exc:
             self.log(f"  ! {album.title}: {exc}")
-            return Scored(album.title, album.url, {})
-        scores = self.parse_ratings(soup)
-        summary = ", ".join(f"{k} {v}" for k, v in scores.items()) or "(none)"
-        self.log(f"  {album.title}: {summary}")
+        if scores is None:
+            scores = {}
         return Scored(album.title, album.url, scores)
+
+    def score_album_on_allmusic(self, soup: BeautifulSoup) -> dict[str, str] | None:
+        """Fetch an album allmusic page and extract its professional ratings."""
+        rating = soup.select_one("div.allmusicRating")
+        if rating is None:
+            return None
+        score = 0
+        for klass in rating["class"]:
+            if klass.startswith("ratingAllmusic"):
+                score = max(score, int(klass.removeprefix("ratingAllmusic")))
+        if score == 0:
+            return None
+        return {"AllMusic": str(score)}
 
     BOX_COLUMNS = ("source", "rating")
 
-    def parse_ratings(self, soup: BeautifulSoup) -> dict[str, str]:
+    def score_album_on_wiki(self, soup: BeautifulSoup) -> dict[str, str]:
         """Return {reviewer: rating} from the album's ratings box."""
         table = self.find_ratings_box(soup)
         if table is None:
