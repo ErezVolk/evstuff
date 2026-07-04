@@ -11,6 +11,7 @@ Stone, Christgau, ...) as a CSV with one column per reviewer.
 import argparse
 import contextlib
 import csv
+import dataclasses as dcs
 import re
 import subprocess
 import sys
@@ -42,20 +43,17 @@ BOX_MARKERS = ("professional ratings", "review scores")
 BLACKLIST = {"source", "aggregate scores", "review scores"}
 
 
-class Album(t.NamedTuple):
+type Scores = dict[str, str]
+
+
+@dcs.dataclass
+class Album:
     """An album linked from the discography."""
 
     title: str
     url: str
     site: str
-
-
-class Scored(t.NamedTuple):
-    """An album together with its reviewer -> rating mapping."""
-
-    title: str
-    url: str
-    scores: dict[str, str]  # reviewer name -> rating, e.g. {"AllMusic": "4/5"}
+    scores: Scores = dcs.field(default_factory=dict)
 
 
 class AlbumRatings:
@@ -148,7 +146,7 @@ class AlbumRatings:
         if self.args.open is not None:
             self.show_output()
 
-    def emit(self, scored: list[Scored]) -> None:
+    def emit(self, scored: list[Album]) -> None:
         """Write a CSV with one column per reviewer, ordered by frequency."""
         reviewers = self.reviewer_columns(scored)
         with self.open_output() as fobj:
@@ -179,7 +177,7 @@ class AlbumRatings:
             cmd.extend(["-a", self.args.open])
         subprocess.run(cmd, check=False)
 
-    def reviewer_columns(self, scored: list[Scored]) -> list[str]:
+    def reviewer_columns(self, scored: list[Album]) -> list[str]:
         """Reviewer column names, most-common first, merging case variants."""
         albums_per: Counter[str] = Counter()  # casefold key -> #albums
         spellings: dict[str, Counter[str]] = {}  # casefold key -> seen names
@@ -204,15 +202,30 @@ class AlbumRatings:
     def find_albums_in_allmusic(self, url: str) -> list[Album]:
         """Return albums for an artist from allmusic.com."""
         soup = self.get_soup(url)
-        return [
-            Album(
+        url_to_album: dict[str, Album] = {}
+        url: str | None
+        for rating in soup.select("td.musicRating div.allmusicRating"):
+            anchor = rating.parent.parent.select_one("td.meta span.title a[href]")
+            if not anchor:
+                continue
+            url = self.get_allmusic_url(anchor.get("href"))
+            if not url:
+                continue
+            url_to_album[url] = Album(
                 title=anchor.get("title") or url,
                 url=url,
                 site=ALLM,
+                scores=self.parse_allmusic_rating_tag(rating),
             )
-            for anchor in soup.select("td.creditMeta > span.album > a[href]")
-            if (url := self.get_allmusic_url(anchor.get("href")))
-        ]
+        for anchor in soup.select("td.creditMeta span.album a[href]"):
+            url = self.get_allmusic_url(anchor.get("href"))
+            if url and url not in url_to_album:
+                url_to_album[url] = Album(
+                    title=anchor.get("title") or url,
+                    url=url,
+                    site=ALLM,
+                )
+        return list(url_to_album.values())
 
     def get_allmusic_url(self, href: str | None) -> str | None:
         """Get the URL for an ALlMusic album."""
@@ -274,9 +287,12 @@ class AlbumRatings:
         title = anchor.get_text(strip=True) or page.replace("_", " ")
         return Album(title=title, url="https://{WIKI}/{path}", site=WIKI)
 
-    def rate_album(self, album: Album) -> Scored:
+    def rate_album(self, album: Album) -> Album:
         """Fetch an album page and extract its professional ratings."""
-        scores: dict[str, str] | None = None
+        if album.scores:
+            return album
+
+        scores: Scores | None = None
 
         try:
             soup = self.get_soup(album.url)
@@ -288,31 +304,34 @@ class AlbumRatings:
                 raise ValueError(f"What is {album.site}")
         except requests.RequestException as exc:
             self.log(f"  ! {album.title}: {exc}")
-        if scores is None:
-            scores = {}
-        return Scored(album.title, album.url, scores)
+        album.scores = scores if scores is not None else {}
+        return album
 
-    def score_album_on_allmusic(self, soup: BeautifulSoup) -> dict[str, str] | None:
+    def score_album_on_allmusic(self, soup: BeautifulSoup) -> Scores | None:
         """Fetch an album allmusic page and extract its professional ratings."""
         rating = soup.select_one("div.allmusicRating")
         if rating is None:
             return None
+        return self.parse_allmusic_rating_tag(rating)
+
+    def parse_allmusic_rating_tag(self, rating: BeautifulSoup) -> Scores:
+        """Parse a rating tag."""
         score = 0
         for klass in rating["class"]:
             if klass.startswith("ratingAllmusic"):
                 score = max(score, int(klass.removeprefix("ratingAllmusic")))
         if score == 0:
-            return None
+            return {}
         return {"AllMusic": str(score)}
 
     BOX_COLUMNS = ("source", "rating")
 
-    def score_album_on_wiki(self, soup: BeautifulSoup) -> dict[str, str]:
+    def score_album_on_wiki(self, soup: BeautifulSoup) -> Scores:
         """Return {reviewer: rating} from the album's ratings box."""
         table = self.find_ratings_box(soup)
         if table is None:
             return {}
-        scores: dict[str, str] = {}
+        scores: Scores = {}
         for row in table.find_all("tr"):
             cells = row.find_all(["th", "td"], recursive=False)
             if len(cells) != len(self.BOX_COLUMNS):
