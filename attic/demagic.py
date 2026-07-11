@@ -47,9 +47,10 @@ class Demagic:
             capture_output=True,
         )
         devices = json.loads(proc.stdout)
+        devices = [dev for dev in devices if dev.get("name")]
         if not args.interactive:
-            substring = args.substring.lower()
-            todo = [dev for dev in devices if substring in dev.get("name", "").lower()]
+            substring = args.substring.casefold()
+            todo = [dev for dev in devices if substring in dev["name"].casefold()]
         else:
             indices = beaupy.select_multiple(
                 [dev["name"] for dev in devices],
