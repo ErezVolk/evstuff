@@ -96,6 +96,7 @@ class EvRb:
                 Path.home() / ".local",
                 Path.home() / ".pub-cache",
                 Path.home() / "Music/Music",
+                Path.home() / "Movies",
                 "cache",
                 ".cache",
                 "_cacache",
