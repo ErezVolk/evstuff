@@ -1,5 +1,6 @@
 #!/usr/bin/env -S uv run --script
 """Unpair bluetooth devices."""
+import argparse
 import json
 import shutil
 import subprocess
@@ -7,25 +8,26 @@ import sys
 import typing as t
 
 import beaupy  # ty: ignore[unresolved-import]
-import typer  # ty: ignore[unresolved-import]
 
 
-def main(
-    substring: t.Annotated[
-        str,
-        typer.Option("-s", "--substring", help="Detach devices containing SUBSTRING."),
-    ] = "Magic",
-    *,
-    interactive: t.Annotated[
-        bool,
-        typer.Option(
-            "-i",
-            "--interactive",
-            help="Select devices interactively (ignores SUBSTRING).",
-        ),
-    ] = False,
-) -> None:
+def main() -> None:
     """Unpair bluetooth devices."""
+    parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-s",
+        "--substring",
+        help="Detach devices containing SUBSTRING.",
+        default="Magic",
+    )
+    group.add_argument(
+        "-i",
+        "--interactive",
+        action="store_true",
+        help="Select devices interactively",
+    )
+    args = parser.parse_args()
+
     blueutil = shutil.which("blueutil")
     if not blueutil:
         fail("blueutil not found; install it with `brew install blueutil`")
@@ -44,8 +46,8 @@ def main(
 
     proc = run(["--paired", "--format", "json"], check=True, capture_output=True)
     devices = json.loads(proc.stdout)
-    if not interactive:
-        substring = substring.lower()
+    if not args.interactive:
+        substring = args.substring.lower()
         todo = [dev for dev in devices if substring in dev.get("name", "").lower()]
     else:
         indices = beaupy.select_multiple(
@@ -80,8 +82,8 @@ def fail(message: str, code: int = -1) -> t.Never:
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    main()
 
 # /// script
-# dependencies = ["typer", "beaupy"]
+# dependencies = ["beaupy"]
 # ///
