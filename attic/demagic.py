@@ -6,14 +6,24 @@ import subprocess
 import sys
 import typing as t
 
-import typer
+import beaupy  # ty: ignore[unresolved-import]
+import typer  # ty: ignore[unresolved-import]
 
 
 def main(
     substring: t.Annotated[
         str,
-        typer.Option(help="Detach devices containing SUBSTRING."),
-    ] = "Magic"
+        typer.Option("-s", "--substring", help="Detach devices containing SUBSTRING."),
+    ] = "Magic",
+    *,
+    interactive: t.Annotated[
+        bool,
+        typer.Option(
+            "-i",
+            "--interactive",
+            help="Select devices interactively (ignores SUBSTRING).",
+        ),
+    ] = False,
 ) -> None:
     """Unpair bluetooth devices."""
     blueutil = shutil.which("blueutil")
@@ -34,8 +44,16 @@ def main(
 
     proc = run(["--paired", "--format", "json"], check=True, capture_output=True)
     devices = json.loads(proc.stdout)
-    substring = substring.lower()
-    todo = [dev for dev in devices if substring in dev.get("name", "").lower()]
+    if not interactive:
+        substring = substring.lower()
+        todo = [dev for dev in devices if substring in dev.get("name", "").lower()]
+    else:
+        indices = beaupy.select_multiple(
+            [dev["name"] for dev in devices],
+            return_indices=True,
+        )
+        todo = [devices[idx] for idx in indices]
+
     if not todo:
         print("No matching devices found.")
         return
@@ -55,7 +73,7 @@ def main(
     )
 
 
-def fail(message: str, code: int =-1) -> t.Never:
+def fail(message: str, code: int = -1) -> t.Never:
     """Print a message and exit."""
     print(message)
     sys.exit(code)
@@ -65,5 +83,5 @@ if __name__ == "__main__":
     typer.run(main)
 
 # /// script
-# dependencies = ["typer"]
+# dependencies = ["typer", "beaupy"]
 # ///
