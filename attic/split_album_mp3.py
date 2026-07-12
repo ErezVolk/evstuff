@@ -18,17 +18,16 @@ TRACK_EXPRS = (
     r"(?P<time>[0-9:]+) (?P<title>\S.*\S)",
 )
 
+NOT_COMMA = "_"
 COVER_TAG = "APIC:Album cover"
 
 
 __TODO__ = """
 - Other formats
 - The ones with lengths
-- No commas in names
-- Track count? Using id3v2 if available?
-- Check for mp3splt
-- Take URL, call yt-dlp --print filename
-- Split from mp3 (`mutagen.file(path)["TXXX:description"].text[0].split("\n")`)
+- Check for mp3splt/yt-dlp
+- lines from mp3 (`mutagen.file(path)["TXXX:description"].text[0].split("\n")`)
+  - But should ignore other lines.
 """
 
 
@@ -40,12 +39,12 @@ class SplitAlbum:
         with Path("album.toml").open("rb") as fobj:
             info = tomllib.load(fobj)
 
-        whole = info["whole"]
-        if not Path(whole).is_file():
+        whole = Path(self._get_whole(info))
+        if not whole.is_file():
             self._fail(f"File not found: {whole}")
 
         artist = info["artist"]
-        album = info["album"]
+        album = info["album"].replace(",", NOT_COMMA)
         year = info["year"]
         genre = info.get("genre", 8)
 
@@ -72,6 +71,7 @@ class SplitAlbum:
         ).replace(
             r"^0+(\d)", r"\1", regex=True
         )
+        tracks["title"] = tracks.title.str.replace(",", NOT_COMMA, regex=False)
 
         # Youtube comment is START TIMES
         tracks["start"] = tracks.time
@@ -80,23 +80,27 @@ class SplitAlbum:
 
         tracks["number"] = tracks.index + 1
 
-        folder = f"{artist} - {album}"
+        folder = Path(f"{artist} - {album}")
+        tracks["stem"] = tracks.number.astype(str) + " - " + tracks.title
+
         common_tags = f"@a={artist},@b={album},@y={year},@g={genre}"
         cmds = [
             [
                 "mp3splt",
-                "-o", f"{folder}/{row.number} - {row.title}",
+                "-d", folder,
+                "-o", row.stem,
                 "-g", f"[{common_tags},@t={row.title},@n={row.number}]",
                 whole, row.start, row.stop,
             ]
             for _, row in tracks.iterrows()
         ]
         for cmd in cmds:
-            print(" ".join(map(shlex.quote, cmd)))
+            print(" ".join(map(shlex.quote, map(str, cmd))))
         input("Press Enter to run...")
         for cmd in cmds:
             subprocess.run(cmd, check=True)
         self._extract_cover(whole, folder)
+        self._try_id3v2(folder, tracks)
 
         subprocess.run(["/usr/bin/open", folder], check=False)
 
@@ -104,7 +108,27 @@ class SplitAlbum:
         print(message)
         sys.exit()
 
-    def _extract_cover(self, mp3: str, folder: str) -> None:
+    def _get_whole(self, info: dict) -> str:
+        if not (url := info.get("url")):
+            return info["whole"]
+        cmd = [
+            "yt-dlp",
+            "-t", "mp3",
+            "--print", "filename",
+            "--embed-thumbnail", "--embed-metadata",
+            "--no-playlist",
+            url
+        ]
+        print(" ".join(cmd))
+        proc = subprocess.run(cmd, check=True, capture_output=True, encoding="utf-8")
+        whole = Path(proc.stdout.strip())
+        if not whole.is_file():
+            if not (whole := whole.with_suffix(".mp3")).is_file():
+                raise RuntimeError("Can't find downloaded file")
+        print(f"Downloaded {whole}")
+        return str(whole)
+
+    def _extract_cover(self, mp3: Path, folder: Path) -> None:
         try:
             mut = mutagen.File(mp3)
             cover = mut[COVER_TAG]
@@ -118,6 +142,20 @@ class SplitAlbum:
             print(f"Cannot extract cover: {exc}")
         except KeyError:
             print("Cannot extract cover: No cover")
+
+    def _try_id3v2(self, folder: Path, tracks: pd.DataFrame) -> None:
+        cmds = [
+            [
+                "id3v2",
+                "-T", f"{row.number}/{len(tracks)}",
+                folder / f"{row.stem}.mp3",
+            ]
+            for _, row in tracks.iterrows()
+        ]
+        for cmd in cmds:
+            proc = subprocess.run(cmd, check=False)
+            if proc.returncode != 0:
+                return
 
 
 if __name__ == "__main__":
