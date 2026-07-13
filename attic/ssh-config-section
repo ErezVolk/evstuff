@@ -1,0 +1,7 @@
+# vim: set ft=sshconfig:
+# NB: Ordering matters
+
+Host evext.github.com
+ Hostname github.com
+ User git
+ IdentityFile ~/.ssh/id_evext
