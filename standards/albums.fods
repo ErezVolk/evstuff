@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2026-07-14T22:40:14.049510000</dc:date><meta:editing-duration>P234DT2H10M22S</meta:editing-duration><meta:editing-cycles>7009</meta:editing-cycles><meta:generator>LibreOffice/26.2.4.2$MacOSX_X86_64 LibreOffice_project/0229ac93fcf0d7cbc6376066c6f35021cef002dc</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="14873" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2026-07-13T15:31:00.032380000</dc:date><meta:editing-duration>P234DT1H50M43S</meta:editing-duration><meta:editing-cycles>7005</meta:editing-cycles><meta:generator>LibreOffice/26.2.4.2$MacOSX_AARCH64 LibreOffice_project/0229ac93fcf0d7cbc6376066c6f35021cef002dc</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="14878" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">44535</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">714834</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">715285</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
-       <config:config-item config:name="CursorPositionX" config:type="int">1</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">1578</config:config-item>
+       <config:config-item config:name="CursorPositionX" config:type="int">6</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">1584</config:config-item>
        <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
@@ -23,7 +23,7 @@
        <config:config-item config:name="PositionLeft" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">1560</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">1558</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">80</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -36,7 +36,7 @@
       </config:config-item-map-entry>
      </config:config-item-map-named>
      <config:config-item config:name="ActiveTable" config:type="string">Sheet1</config:config-item>
-     <config:config-item config:name="HorizontalScrollbarWidth" config:type="int">1184</config:config-item>
+     <config:config-item config:name="HorizontalScrollbarWidth" config:type="int">1145</config:config-item>
      <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
      <config:config-item config:name="ZoomValue" config:type="int">80</config:config-item>
      <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -120,9 +120,9 @@
    <config:config-item config:name="IsSnapToRaster" config:type="boolean">false</config:config-item>
    <config:config-item config:name="LinkUpdateMode" config:type="short">3</config:config-item>
    <config:config-item config:name="LoadReadonly" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrinterName" config:type="string">Brother HL-L8260CDW series</config:config-item>
+   <config:config-item config:name="PrinterName" config:type="string">Default printer</config:config-item>
    <config:config-item config:name="PrinterPaperFromSetup" config:type="boolean">false</config:config-item>
-   <config:config-item config:name="PrinterSetup" config:type="base64Binary">QwH+/0Jyb3RoZXIgSEwtTDgyNjBDRFcgc2VyaWVzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQnJvdGhlciBITC1MODI2MENEVyBzZXJpZXMtQWlyUAAWAAQABAAAAAAAAAAEAAhSAAAEdAAAAAAAABIAQ09NUEFUX0RVUExFWF9NT0RFEwBEdXBsZXhNb2RlOjpVbmtub3duDABQUklOVEVSX05BTUUaAEJyb3RoZXIgSEwtTDgyNjBDRFcgc2VyaWVzCwBEUklWRVJfTkFNRSMAQnJvdGhlciBITC1MODI2MENEVyBzZXJpZXMtQWlyUHJpbnQ=</config:config-item>
+   <config:config-item config:name="PrinterSetup" config:type="base64Binary">FQH+/0RlZmF1bHQgcHJpbnRlcgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAAQABAAAAAAAAAAEAAhSAAAEdAAAAAAAABIAQ09NUEFUX0RVUExFWF9NT0RFEwBEdXBsZXhNb2RlOjpVbmtub3duDABQUklOVEVSX05BTUUPAERlZmF1bHQgcHJpbnRlcgsARFJJVkVSX05BTUUAAA==</config:config-item>
    <config:config-item config:name="RasterIsVisible" config:type="boolean">false</config:config-item>
    <config:config-item config:name="RasterResolutionX" config:type="int">1000</config:config-item>
    <config:config-item config:name="RasterResolutionY" config:type="int">1000</config:config-item>
@@ -157,7 +157,6 @@
   <style:font-face style:name="Arial Unicode MS" svg:font-family="&apos;Arial Unicode MS&apos;" style:font-family-generic="system" style:font-pitch="variable"/>
   <style:font-face style:name="Helvetica" svg:font-family="Helvetica" style:font-family-generic="swiss"/>
   <style:font-face style:name="Liberation Sans" svg:font-family="&apos;Liberation Sans&apos;" style:font-family-generic="swiss" style:font-pitch="variable"/>
-  <style:font-face style:name="PingFang SC" svg:font-family="&apos;PingFang SC&apos;" style:font-family-generic="system" style:font-pitch="variable"/>
   <style:font-face style:name="YuGothic" svg:font-family="YuGothic" style:font-family-generic="system" style:font-pitch="variable"/>
  </office:font-face-decls>
  <office:styles>
@@ -477,7 +476,7 @@
      <text:p><text:sheet-name>???</text:sheet-name><text:s/>(<text:title>???</text:title>)</text:p>
     </style:region-left>
     <style:region-right>
-     <text:p><text:date style:data-style-name="N2" text:date-value="2026-07-14">00/00/0000</text:date>, <text:time style:data-style-name="N2" text:time-value="22:39:09.840658000">00:00:00</text:time></text:p>
+     <text:p><text:date style:data-style-name="N2" text:date-value="2026-07-13">00/00/0000</text:date>, <text:time style:data-style-name="N2" text:time-value="10:15:28.445199000">00:00:00</text:time></text:p>
     </style:region-right>
    </style:header>
    <style:header-left style:display="false"/>
@@ -47247,6 +47246,29 @@
       <text:p>1527</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Joe Farrell</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=3c6WZd-u5dw" xlink:type="simple">Outback</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1972" calcext:value-type="float">
+      <text:p>1972</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H33M00S" calcext:value-type="time">
+      <text:p>0:33</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>AllMusic-6</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Buster Williams</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1528" calcext:value-type="float">
+      <text:p>1528</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Joshua Redman</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
@@ -47267,8 +47289,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1528" calcext:value-type="float">
-      <text:p>1528</text:p>
+     <table:table-cell office:value-type="float" office:value="1529" calcext:value-type="float">
+      <text:p>1529</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Peter Brötzmann &amp; Heather Leigh</text:p>
@@ -47295,8 +47317,8 @@
      <table:table-cell/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1529" calcext:value-type="float">
-      <text:p>1529</text:p>
+     <table:table-cell office:value-type="float" office:value="1530" calcext:value-type="float">
+      <text:p>1530</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Louis Smith</text:p>
@@ -47319,8 +47341,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1530" calcext:value-type="float">
-      <text:p>1530</text:p>
+     <table:table-cell office:value-type="float" office:value="1531" calcext:value-type="float">
+      <text:p>1531</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Elmo Hope</text:p>
@@ -47351,8 +47373,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1531" calcext:value-type="float">
-      <text:p>1531</text:p>
+     <table:table-cell office:value-type="float" office:value="1532" calcext:value-type="float">
+      <text:p>1532</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Thomas Fonnesbæk &amp; Justin Kauflin</text:p>
@@ -47379,8 +47401,8 @@
      <table:table-cell/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1532" calcext:value-type="float">
-      <text:p>1532</text:p>
+     <table:table-cell office:value-type="float" office:value="1533" calcext:value-type="float">
+      <text:p>1533</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Phineas Newborn</text:p>
@@ -47403,8 +47425,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1533" calcext:value-type="float">
-      <text:p>1533</text:p>
+     <table:table-cell office:value-type="float" office:value="1534" calcext:value-type="float">
+      <text:p>1534</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Pepper Adams Quartet</text:p>
@@ -47435,8 +47457,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1534" calcext:value-type="float">
-      <text:p>1534</text:p>
+     <table:table-cell office:value-type="float" office:value="1535" calcext:value-type="float">
+      <text:p>1535</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Pepper Adams</text:p>
@@ -47465,8 +47487,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1535" calcext:value-type="float">
-      <text:p>1535</text:p>
+     <table:table-cell office:value-type="float" office:value="1536" calcext:value-type="float">
+      <text:p>1536</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>John Abercrombie Quartet</text:p>
@@ -47495,8 +47517,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1536" calcext:value-type="float">
-      <text:p>1536</text:p>
+     <table:table-cell office:value-type="float" office:value="1537" calcext:value-type="float">
+      <text:p>1537</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Jimmy Raney Trio</text:p>
@@ -47527,8 +47549,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1537" calcext:value-type="float">
-      <text:p>1537</text:p>
+     <table:table-cell office:value-type="float" office:value="1538" calcext:value-type="float">
+      <text:p>1538</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Urbie Green</text:p>
@@ -47559,8 +47581,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1538" calcext:value-type="float">
-      <text:p>1538</text:p>
+     <table:table-cell office:value-type="float" office:value="1539" calcext:value-type="float">
+      <text:p>1539</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Hank Jones, Christian McBride, Jimmy Cobb</text:p>
@@ -47582,8 +47604,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1539" calcext:value-type="float">
-      <text:p>1539</text:p>
+     <table:table-cell office:value-type="float" office:value="1540" calcext:value-type="float">
+      <text:p>1540</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Cedar Walton</text:p>
@@ -47606,8 +47628,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1540" calcext:value-type="float">
-      <text:p>1540</text:p>
+     <table:table-cell office:value-type="float" office:value="1541" calcext:value-type="float">
+      <text:p>1541</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Renee Rosnes</text:p>
@@ -47638,8 +47660,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1541" calcext:value-type="float">
-      <text:p>1541</text:p>
+     <table:table-cell office:value-type="float" office:value="1542" calcext:value-type="float">
+      <text:p>1542</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Jeremy Pelt</text:p>
@@ -47668,8 +47690,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1542" calcext:value-type="float">
-      <text:p>1542</text:p>
+     <table:table-cell office:value-type="float" office:value="1543" calcext:value-type="float">
+      <text:p>1543</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Allyn Ferguson</text:p>
@@ -47691,8 +47713,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1543" calcext:value-type="float">
-      <text:p>1543</text:p>
+     <table:table-cell office:value-type="float" office:value="1544" calcext:value-type="float">
+      <text:p>1544</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Jeff Colella, Putter Smith</text:p>
@@ -47715,8 +47737,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1544" calcext:value-type="float">
-      <text:p>1544</text:p>
+     <table:table-cell office:value-type="float" office:value="1545" calcext:value-type="float">
+      <text:p>1545</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>George Mraz</text:p>
@@ -47747,8 +47769,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1545" calcext:value-type="float">
-      <text:p>1545</text:p>
+     <table:table-cell office:value-type="float" office:value="1546" calcext:value-type="float">
+      <text:p>1546</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>George Mraz, Jason Brown, David Hazeltine</text:p>
@@ -47779,8 +47801,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1546" calcext:value-type="float">
-      <text:p>1546</text:p>
+     <table:table-cell office:value-type="float" office:value="1547" calcext:value-type="float">
+      <text:p>1547</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Zoe Rahman, George Mraz</text:p>
@@ -47811,8 +47833,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1547" calcext:value-type="float">
-      <text:p>1547</text:p>
+     <table:table-cell office:value-type="float" office:value="1548" calcext:value-type="float">
+      <text:p>1548</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Paul Kogut, George Mraz &amp; Lewis Nash</text:p>
@@ -47843,8 +47865,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1548" calcext:value-type="float">
-      <text:p>1548</text:p>
+     <table:table-cell office:value-type="float" office:value="1549" calcext:value-type="float">
+      <text:p>1549</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Slide Hampton Quintet</text:p>
@@ -47867,8 +47889,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1549" calcext:value-type="float">
-      <text:p>1549</text:p>
+     <table:table-cell office:value-type="float" office:value="1550" calcext:value-type="float">
+      <text:p>1550</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Stan Getz</text:p>
@@ -47890,8 +47912,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1550" calcext:value-type="float">
-      <text:p>1550</text:p>
+     <table:table-cell office:value-type="float" office:value="1551" calcext:value-type="float">
+      <text:p>1551</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Beirach, Huebner &amp; Mraz</text:p>
@@ -47922,8 +47944,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1551" calcext:value-type="float">
-      <text:p>1551</text:p>
+     <table:table-cell office:value-type="float" office:value="1552" calcext:value-type="float">
+      <text:p>1552</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Richie Beirach Trio</text:p>
@@ -47954,8 +47976,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1552" calcext:value-type="float">
-      <text:p>1552</text:p>
+     <table:table-cell office:value-type="float" office:value="1553" calcext:value-type="float">
+      <text:p>1553</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Jim Hall</text:p>
@@ -47984,8 +48006,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1553" calcext:value-type="float">
-      <text:p>1553</text:p>
+     <table:table-cell office:value-type="float" office:value="1554" calcext:value-type="float">
+      <text:p>1554</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Archie Shepp Quartet</text:p>
@@ -48014,8 +48036,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1554" calcext:value-type="float">
-      <text:p>1554</text:p>
+     <table:table-cell office:value-type="float" office:value="1555" calcext:value-type="float">
+      <text:p>1555</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>John Hicks, Peter Leitch</text:p>
@@ -48046,8 +48068,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1555" calcext:value-type="float">
-      <text:p>1555</text:p>
+     <table:table-cell office:value-type="float" office:value="1556" calcext:value-type="float">
+      <text:p>1556</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Eddie Higgins</text:p>
@@ -48070,8 +48092,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1556" calcext:value-type="float">
-      <text:p>1556</text:p>
+     <table:table-cell office:value-type="float" office:value="1557" calcext:value-type="float">
+      <text:p>1557</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Eddie Jefferson</text:p>
@@ -48094,8 +48116,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1557" calcext:value-type="float">
-      <text:p>1557</text:p>
+     <table:table-cell office:value-type="float" office:value="1558" calcext:value-type="float">
+      <text:p>1558</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Ike Queben</text:p>
@@ -48118,8 +48140,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1558" calcext:value-type="float">
-      <text:p>1558</text:p>
+     <table:table-cell office:value-type="float" office:value="1559" calcext:value-type="float">
+      <text:p>1559</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Oscar Peterson Trio</text:p>
@@ -48142,8 +48164,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1559" calcext:value-type="float">
-      <text:p>1559</text:p>
+     <table:table-cell office:value-type="float" office:value="1560" calcext:value-type="float">
+      <text:p>1560</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Thelonious Monk</text:p>
@@ -48166,8 +48188,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1560" calcext:value-type="float">
-      <text:p>1560</text:p>
+     <table:table-cell office:value-type="float" office:value="1561" calcext:value-type="float">
+      <text:p>1561</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Don Cherry</text:p>
@@ -48190,8 +48212,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1561" calcext:value-type="float">
-      <text:p>1561</text:p>
+     <table:table-cell office:value-type="float" office:value="1562" calcext:value-type="float">
+      <text:p>1562</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Johnny Griffin</text:p>
@@ -48214,8 +48236,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1562" calcext:value-type="float">
-      <text:p>1562</text:p>
+     <table:table-cell office:value-type="float" office:value="1563" calcext:value-type="float">
+      <text:p>1563</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Zoot Sims</text:p>
@@ -48246,8 +48268,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1563" calcext:value-type="float">
-      <text:p>1563</text:p>
+     <table:table-cell office:value-type="float" office:value="1564" calcext:value-type="float">
+      <text:p>1564</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Najponk, George Mraz, Matt Fishwick</text:p>
@@ -48276,8 +48298,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1564" calcext:value-type="float">
-      <text:p>1564</text:p>
+     <table:table-cell office:value-type="float" office:value="1565" calcext:value-type="float">
+      <text:p>1565</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Najponk, George Mraz, Matt Fishwick</text:p>
@@ -48305,8 +48327,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1565" calcext:value-type="float">
-      <text:p>1565</text:p>
+     <table:table-cell office:value-type="float" office:value="1566" calcext:value-type="float">
+      <text:p>1566</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>George Mraz Trio</text:p>
@@ -48337,8 +48359,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1566" calcext:value-type="float">
-      <text:p>1566</text:p>
+     <table:table-cell office:value-type="float" office:value="1567" calcext:value-type="float">
+      <text:p>1567</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Billy Hart</text:p>
@@ -48360,8 +48382,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1567" calcext:value-type="float">
-      <text:p>1567</text:p>
+     <table:table-cell office:value-type="float" office:value="1568" calcext:value-type="float">
+      <text:p>1568</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Black Reneissance</text:p>
@@ -48389,8 +48411,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1568" calcext:value-type="float">
-      <text:p>1568</text:p>
+     <table:table-cell office:value-type="float" office:value="1569" calcext:value-type="float">
+      <text:p>1569</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Buster Williams Trio</text:p>
@@ -48421,8 +48443,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1569" calcext:value-type="float">
-      <text:p>1569</text:p>
+     <table:table-cell office:value-type="float" office:value="1570" calcext:value-type="float">
+      <text:p>1570</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Marcello Cardillo, Buster Williams &amp; Tommaso Perazzo</text:p>
@@ -48453,8 +48475,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1570" calcext:value-type="float">
-      <text:p>1570</text:p>
+     <table:table-cell office:value-type="float" office:value="1571" calcext:value-type="float">
+      <text:p>1571</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Henri Texier</text:p>
@@ -48485,8 +48507,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1571" calcext:value-type="float">
-      <text:p>1571</text:p>
+     <table:table-cell office:value-type="float" office:value="1572" calcext:value-type="float">
+      <text:p>1572</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Phil Woods</text:p>
@@ -48509,8 +48531,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1572" calcext:value-type="float">
-      <text:p>1572</text:p>
+     <table:table-cell office:value-type="float" office:value="1573" calcext:value-type="float">
+      <text:p>1573</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Louis Sclavis, Aldo Romano &amp; Henri Texier</text:p>
@@ -48533,8 +48555,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1573" calcext:value-type="float">
-      <text:p>1573</text:p>
+     <table:table-cell office:value-type="float" office:value="1574" calcext:value-type="float">
+      <text:p>1574</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Henri Texier</text:p>
@@ -48563,8 +48585,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1574" calcext:value-type="float">
-      <text:p>1574</text:p>
+     <table:table-cell office:value-type="float" office:value="1575" calcext:value-type="float">
+      <text:p>1575</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Artifacts</text:p>
@@ -48591,8 +48613,8 @@
      <table:table-cell/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1575" calcext:value-type="float">
-      <text:p>1575</text:p>
+     <table:table-cell office:value-type="float" office:value="1576" calcext:value-type="float">
+      <text:p>1576</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Mary Halvorson</text:p>
@@ -48623,8 +48645,8 @@
      </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1576" calcext:value-type="float">
-      <text:p>1576</text:p>
+     <table:table-cell office:value-type="float" office:value="1577" calcext:value-type="float">
+      <text:p>1577</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Sylvie Courvoisier &amp; Mary Halvorson</text:p>
@@ -48647,8 +48669,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1577" calcext:value-type="float">
-      <text:p>1577</text:p>
+     <table:table-cell office:value-type="float" office:value="1578" calcext:value-type="float">
+      <text:p>1578</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Stan Kenton</text:p>
@@ -48671,8 +48693,8 @@
      <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1578" calcext:value-type="float">
-      <text:p>1578</text:p>
+     <table:table-cell office:value-type="float" office:value="1579" calcext:value-type="float">
+      <text:p>1579</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>TRUE</text:p>
@@ -48699,8 +48721,8 @@
      <table:table-cell/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1579" calcext:value-type="float">
-      <text:p>1579</text:p>
+     <table:table-cell office:value-type="float" office:value="1580" calcext:value-type="float">
+      <text:p>1580</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Ralph Alessi</text:p>
@@ -48727,8 +48749,8 @@
      <table:table-cell/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1580" calcext:value-type="float">
-      <text:p>1580</text:p>
+     <table:table-cell office:value-type="float" office:value="1581" calcext:value-type="float">
+      <text:p>1581</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Kit Downes, Petter Eldh &amp; James Maddren</text:p>
@@ -48755,8 +48777,8 @@
      <table:table-cell/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
-     <table:table-cell office:value-type="float" office:value="1581" calcext:value-type="float">
-      <text:p>1581</text:p>
+     <table:table-cell office:value-type="float" office:value="1582" calcext:value-type="float">
+      <text:p>1582</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Rufus Reid &amp; Out Front Trio</text:p>
@@ -48791,8 +48813,8 @@
      <table:table-cell office:value-type="float" office:value="2024" calcext:value-type="float">
       <text:p>2024</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="time" office:time-value="PT00H39M00S" calcext:value-type="time">
-      <text:p>0:39</text:p>
+     <table:table-cell office:value-type="time" office:time-value="PT00H38M00S" calcext:value-type="time">
+      <text:p>0:38</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Tiny Desk</text:p>
@@ -48800,15 +48822,9 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Anna Butterss</text:p>
      </table:table-cell>
-     <table:table-cell office:value-type="date" office:date-value="2026-07-14" calcext:value-type="date">
-      <text:p>2026-07</text:p>
-     </table:table-cell>
-     <table:table-cell/>
-     <table:table-cell office:value-type="string" calcext:value-type="string">
-      <text:p>Kind of video game music, too detached. I&apos;m tempted to speak of nonbinary music.</text:p>
-     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1046992">
+    <table:table-row table:style-name="ro1" table:number-rows-repeated="1046991">
      <table:table-cell table:number-columns-repeated="10"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
