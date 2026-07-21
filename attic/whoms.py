@@ -367,14 +367,14 @@ class Whoms:
         fig.savefig(path)
 
     def deflatten(self, flat: Path) -> Path:
-        """Convert FODS to ODS (for reading) and CSV (for diff)."""
+        """Convert FODS to ODS (for reading) and CSV (for diff). Return the ODS."""
         while flat.is_symlink():
             flat = flat.parent / flat.readlink()
         flat = flat.absolute()
         digested = file_digest(flat)
 
-        model = flat.with_name(f".auto-{flat.stem}.fods")
-        digest = flat.with_name(f".auto-{flat.stem}.digested")
+        model = flat.with_name(f".auto-{flat.stem}.model")
+        digest = model.with_suffix(".digested")
         changed = read_digest(digest) != digested
         csv: Paths = self.deflatten_to(flat, model, "csv", changed=changed)
         with csv.diff.open("w", encoding="utf-8") as dfo:
