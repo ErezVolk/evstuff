@@ -379,8 +379,8 @@ class Whoms:
         digested = file_digest(flat)
 
         model = flat.with_name(f".auto-{flat.stem}.model")
-        digest = model.with_suffix(".digested")
-        changed = read_digest(digest) != digested
+        intestine = model.with_suffix(".digested")
+        changed = self._is_changed(flat, intestine, digested)
         csv = self.deflatten_to(flat, model, "csv", changed=changed, diffable=True)
         with csv.diff.open("w", encoding="utf-8") as dfo:
             dfo.write(flat.name)
@@ -400,15 +400,27 @@ class Whoms:
 
         ods = self.deflatten_to(flat, model, "ods", changed=changed)
         if changed:
-            digest.write_text(digested, encoding="UTF-8")
+            intestine.write_text(digested, encoding="UTF-8")
             if self.args.git_commit or self.args.git_push:
                 flag = "-F" if self.args.git_commit else "-t"
                 args = ["commit", flat.name, flag, csv.diff.name]
                 proc = self.git(args, cwd=flat.parent, check=False)
-                if proc.returncode == 0 and self.args.git_push:
+                if proc and proc.returncode == 0 and self.args.git_push:
                     self.git(["push"], cwd=flat.parent)
 
         return ods.curr
+
+    def _is_changed(self, path: Path, intestine: Path, digested: str) -> bool:
+        args = ["diff", "--quiet", path.name]
+        proc = self.git(
+            args, cwd=path.parent, check=False, stdout=subprocess.PIPE, echo=False
+        )
+        if proc:
+            if proc.returncode == 0:
+                return False
+            if proc.returncode == 1:
+                return True
+        return read_digest(intestine) != digested
 
     def deflatten_to(
         self,
@@ -470,13 +482,17 @@ class Whoms:
         cwd: Path,
         *,
         check: bool = True,
-        encoding: str | None = None,
         stdout: t.IO | int | None = None,
-    ) -> subprocess.CompletedProcess:
+        echo: bool = True,
+    ) -> subprocess.CompletedProcess | None:
         """Run a Git command."""
         cmd = ["git", *args]
-        print(">", " ".join(cmd))
-        return self.run(cmd, cwd=cwd, check=check, encoding=encoding, stdout=stdout)
+        if echo:
+            print(">", " ".join(cmd))
+        try:
+            return self.run(cmd, cwd=cwd, check=check, stdout=stdout)
+        except FileNotFoundError:
+            return None
 
     def run(
         self,
