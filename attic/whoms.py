@@ -449,7 +449,7 @@ class Whoms:
         prev_flat = where / flat.name
         with prev_flat.open("wb") as pfo:
             proc = self.git(args, cwd=flat.parent, check=False, stdout=pfo)
-            if proc.returncode != 0:
+            if proc is None or proc.returncode != 0:
                 return
         self._convert(prev_flat, dest, where, f"{flat.name}@HEAD")
 
