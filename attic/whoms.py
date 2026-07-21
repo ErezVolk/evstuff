@@ -163,6 +163,11 @@ class Whoms:
         albums["Whoms"] = albums.Whom.str.replace(
             r"\s*[,&]\s*", "|", regex=True,
         ).str.split("|")
+        albums["Whichs"] = albums.Which.str.replace(
+            r"\s*\([^)]*\)", "", regex=True
+        ).str.split(
+            ","
+        ).explode().str.strip().reset_index(drop=True)  # For interactive mode
 
         whalbums = albums.explode("Whoms").query("Whoms != ''")
         whoms = whalbums.Whoms.value_counts().to_frame("total")
@@ -376,7 +381,7 @@ class Whoms:
         model = flat.with_name(f".auto-{flat.stem}.model")
         digest = model.with_suffix(".digested")
         changed = read_digest(digest) != digested
-        csv: Paths = self.deflatten_to(flat, model, "csv", changed=changed)
+        csv = self.deflatten_to(flat, model, "csv", changed=changed, diffable=True)
         with csv.diff.open("w", encoding="utf-8") as dfo:
             dfo.write(flat.name)
             dfo.write("\n\n")
@@ -393,18 +398,15 @@ class Whoms:
                 ]
                 self.run(cmd, stdout=dfo, check=False, encoding="utf-8")
 
-        ods: Paths = self.deflatten_to(flat, model, "ods", changed=changed)
+        ods = self.deflatten_to(flat, model, "ods", changed=changed)
         if changed:
             digest.write_text(digested, encoding="UTF-8")
             if self.args.git_commit or self.args.git_push:
                 flag = "-F" if self.args.git_commit else "-t"
-                cmd = ["git", "commit", flat.name, flag, csv.diff.name]
-                print(">", " ".join(cmd))
-                proc = self.run(cmd, cwd=flat.parent, check=False)
+                args = ["commit", flat.name, flag, csv.diff.name]
+                proc = self.git(args, cwd=flat.parent, check=False)
                 if proc.returncode == 0 and self.args.git_push:
-                    cmd = ["git", "push"]
-                    print(">", " ".join(cmd))
-                    self.run(cmd, cwd=flat.parent)
+                    self.git(["push"], cwd=flat.parent)
 
         return ods.curr
 
@@ -415,28 +417,43 @@ class Whoms:
         extension: str,
         *,
         changed: bool,
+        diffable: bool = False,
     ) -> Paths:
         """Deflatten one file to one format."""
         curr = model.with_suffix(f".{extension}")
         prev = model.with_suffix(f".prev.{extension}")
         diff = model.with_suffix(f".diff.{extension}")
 
-        exists = curr.is_file()
-        if changed or not exists:
-            print(f"{path} -> {curr}")
-            if exists:
-                curr.copy(prev)
+        if changed or not curr.is_file():
             with tempfile.TemporaryDirectory() as tdir:
-                cmd = [
-                    "soffice",
-                    "--headless", "--convert-to", extension,
-                    str(path),
-                ]
-                self.run(cmd, cwd=tdir, stdout=subprocess.PIPE)
-
-                created = Path(tdir) / f"{path.stem}.{extension}"
-                created.move(curr)
+                tpath = Path(tdir)
+                if changed and diffable:
+                    self._checkout_and_convert(path, prev, tpath)
+                self._convert(path, curr, tpath)
         return Paths(prev=prev, curr=curr, diff=diff)
+
+    def _checkout_and_convert(self, flat: Path, dest: Path, where: Path) -> None:
+        args = ["show", f"HEAD:./{flat.name}"]
+        prev_flat = where / flat.name
+        with prev_flat.open("wb") as pfo:
+            proc = self.git(args, cwd=flat.parent, check=False, stdout=pfo)
+            if proc.returncode != 0:
+                return
+        self._convert(prev_flat, dest, where, f"{flat.name}@HEAD")
+
+    def _convert(
+        self, flat: Path, dest: Path, where: Path, disp: str | None = None
+    ) -> None:
+        print(f"{disp or flat.name} -> {dest.name}")
+        cmd = [
+            "soffice",
+            "--headless", "--convert-to", dest.suffix.removeprefix("."),
+            str(flat),
+        ]
+        self.run(cmd, cwd=where, stdout=subprocess.PIPE)
+
+        created = where / f"{flat.stem}{dest.suffix}"
+        created.move(dest)
 
     @classmethod
     def different(cls, stat1: Stats, stat2: Stats) -> bool:
@@ -446,6 +463,20 @@ class Whoms:
             stat2.mean, stat2.std, stat2.nobs,
         )
         return ttest.pvalue <= cls.ALPHA
+
+    def git(
+        self,
+        args: list[str],
+        cwd: Path,
+        *,
+        check: bool = True,
+        encoding: str | None = None,
+        stdout: t.IO | int | None = None,
+    ) -> subprocess.CompletedProcess:
+        """Run a Git command."""
+        cmd = ["git", *args]
+        print(">", " ".join(cmd))
+        return self.run(cmd, cwd=cwd, check=check, encoding=encoding, stdout=stdout)
 
     def run(
         self,
