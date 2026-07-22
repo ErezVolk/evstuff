@@ -16,6 +16,7 @@ import unidecode
 
 TRACK_EXPRS = (
     r"(?P<time>[0-9:]+) (?P<title>\S.*\S)",
+    r"""(\d+\)?)\s*(['"])(?P<title>[^'"]+)\2\s*\((?P<time>[0-9:]+)\)""",
 )
 
 NOT_COMMA = "_"
@@ -33,11 +34,26 @@ __TODO__ = """
 
 class SplitAlbum:
     """Split album."""
+    INPUT = Path("album.toml")
+    MUST_HAVE = {
+        "whole",
+        "artist",
+        "album",
+        "year",
+        "tracks",
+    }
+    MAY_HAVE = {
+        "url",
+        "genre",
+    }
 
     def run(self) -> None:
         """Split album."""
-        with Path("album.toml").open("rb") as fobj:
+        with self.INPUT.open("rb") as fobj:
             info = tomllib.load(fobj)
+
+        if missing := self.MUST_HAVE - info.keys():
+            raise KeyError(f"Missing in {self.INPUT}: {' '.join(missing)}")
 
         whole = Path(self._get_whole(info))
         if not whole.is_file():
@@ -54,10 +70,17 @@ class SplitAlbum:
             for line in track_desc.split("\n")
             if (meat := line.strip())
         ]
+        n_lines = len(track_lines)
         for expr in TRACK_EXPRS:
             mobjs = [re.fullmatch(expr, line) for line in track_lines]
-            if all(mobj is not None for mobj in mobjs):
+            bad_lines = [line for line, mobj in zip(track_lines, mobjs) if mobj is None]
+            n_bad = len(bad_lines)
+            if n_bad == 0:
                 break
+            if n_bad < n_lines:
+                print(f"Regex {expr!r} matches some lines but not all. Unmatched:")
+                for line in bad_lines:
+                    print(f" - {line!r}")
         else:
             self._fail("Don't know how to interpret these tracks.")
 
