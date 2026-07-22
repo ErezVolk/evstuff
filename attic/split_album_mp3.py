@@ -17,6 +17,7 @@ import unidecode
 TRACK_EXPRS = (
     r"(?P<time>[0-9:]+) (?P<title>\S.*\S)",
     r"""(\d+\)?)\s*(['"])(?P<title>[^'"]+)\2\s*\((?P<time>[0-9:]+)\)""",
+    r"""\d+[.]?\s+(?P<title>\S.*\S)\s+(?P<time>[0-9:]+)""",
 )
 
 NOT_COMMA = "_"
@@ -34,25 +35,26 @@ __TODO__ = """
 
 class SplitAlbum:
     """Split album."""
+
     INPUT = Path("album.toml")
-    MUST_HAVE = {
+    MUST_HAVE = (
         "whole",
         "artist",
         "album",
         "year",
         "tracks",
-    }
-    MAY_HAVE = {
+    )
+    MAY_HAVE = (
         "url",
         "genre",
-    }
+    )
 
     def run(self) -> None:
         """Split album."""
         with self.INPUT.open("rb") as fobj:
             info = tomllib.load(fobj)
 
-        if missing := self.MUST_HAVE - info.keys():
+        if missing := set(self.MUST_HAVE) - info.keys():
             raise KeyError(f"Missing in {self.INPUT}: {' '.join(missing)}")
 
         whole = Path(self._get_whole(info))
@@ -73,7 +75,11 @@ class SplitAlbum:
         n_lines = len(track_lines)
         for expr in TRACK_EXPRS:
             mobjs = [re.fullmatch(expr, line) for line in track_lines]
-            bad_lines = [line for line, mobj in zip(track_lines, mobjs) if mobj is None]
+            bad_lines = [
+                line
+                for line, mobj in zip(track_lines, mobjs, strict=True)
+                if mobj is None
+            ]
             n_bad = len(bad_lines)
             if n_bad == 0:
                 break
