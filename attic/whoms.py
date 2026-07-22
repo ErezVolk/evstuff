@@ -4,8 +4,10 @@
 import argparse
 import hashlib
 import importlib
+import shlex
 import subprocess
 import tempfile
+import time
 import typing as t
 from pathlib import Path
 
@@ -38,6 +40,7 @@ class Whoms:
 
     parser: argparse.ArgumentParser
     args: argparse.Namespace
+    times: dict[str, float]
     ALPHA = 0.05
 
     def parse_cli(self) -> None:
@@ -135,6 +138,7 @@ class Whoms:
         """Figure out whom is whom."""
         self.parse_cli()
 
+        self.times = {}
         errors: list[str] = []
         for path in self.args.inputs:
             if path.is_file():
@@ -153,6 +157,9 @@ class Whoms:
 
         if not self.args.convert_and_exit:
             self.choose(albums)
+
+        if self.args.verbose:
+            self.report_times()
 
     def choose(self, albums: pd.DataFrame) -> None:
         """Choose albums, print reports."""
@@ -200,7 +207,7 @@ class Whoms:
         if self.args.graph:
             self.write_pdf(self.args.graph, albums)
         if self.args.verbose:
-            print(whoms.iloc[:10])
+            print(whoms.iloc[:5])
             print()
 
         unheard = albums.loc[albums.When.isna()]
@@ -336,6 +343,14 @@ class Whoms:
             inset = f"relisten out of {n_relisten}"
         self.print_one_of(relisten, inset)
 
+    def report_times(self) -> None:
+        """Print what took so long."""
+        if not self.times:
+            return
+        print("\nDurations:")
+        for cmd, duration in sorted(self.times.items(), key=lambda e: -e[1]):
+            print(f" [{duration:.02f} Sec]\t{cmd}")
+
     def print_rows(self, rows: pd.DataFrame) -> None:
         """Print a list of albums."""
         for _, row in rows.iterrows():
@@ -396,7 +411,7 @@ class Whoms:
                     "-s", "-U0",
                     str(csv.prev), str(csv.curr),
                 ]
-                self.run(cmd, stdout=dfo, check=False, encoding="utf-8")
+                self.run(cmd, redirect=dfo, check=False, encoding="utf-8")
 
         ods = self.deflatten_to(flat, model, "ods", changed=changed)
         if changed:
@@ -413,7 +428,7 @@ class Whoms:
     def _is_changed(self, path: Path, intestine: Path, digested: str) -> bool:
         args = ["diff", "--quiet", path.name]
         proc = self.git(
-            args, cwd=path.parent, check=False, stdout=subprocess.PIPE, echo=False
+            args, cwd=path.parent, check=False, echo=False, redirect=subprocess.DEVNULL
         )
         if proc:
             if proc.returncode == 0:
@@ -448,7 +463,7 @@ class Whoms:
         args = ["show", f"HEAD:./{flat.name}"]
         prev_flat = where / flat.name
         with prev_flat.open("wb") as pfo:
-            proc = self.git(args, cwd=flat.parent, check=False, stdout=pfo)
+            proc = self.git(args, cwd=flat.parent, check=False, redirect=pfo)
             if proc is None or proc.returncode != 0:
                 return
         self._convert(prev_flat, dest, where, f"{flat.name}@HEAD")
@@ -462,7 +477,7 @@ class Whoms:
             "--headless", "--convert-to", dest.suffix.removeprefix("."),
             str(flat),
         ]
-        self.run(cmd, cwd=where, stdout=subprocess.PIPE)
+        self.run(cmd, cwd=where, redirect=subprocess.DEVNULL)
 
         created = where / f"{flat.stem}{dest.suffix}"
         created.move(dest)
@@ -482,7 +497,7 @@ class Whoms:
         cwd: Path,
         *,
         check: bool = True,
-        stdout: t.IO | int | None = None,
+        redirect: t.IO | int | None = None,
         echo: bool = True,
     ) -> subprocess.CompletedProcess | None:
         """Run a Git command."""
@@ -490,7 +505,7 @@ class Whoms:
         if echo:
             print(">", " ".join(cmd))
         try:
-            return self.run(cmd, cwd=cwd, check=check, stdout=stdout)
+            return self.run(cmd, cwd=cwd, check=check, redirect=redirect)
         except FileNotFoundError:
             return None
 
@@ -500,20 +515,25 @@ class Whoms:
         *,
         check: bool = True,
         encoding: str | None = None,
-        stdout: t.IO | int | None = None,
+        redirect: t.IO | int | None = None,
         cwd: str | Path | None = None,
     ) -> subprocess.CompletedProcess:
         """Run the command described by args.
 
         Wraps `subprocess.run()`.
         """
-        return subprocess.run(
+        start_time = time.monotonic()
+        proc = subprocess.run(
             args,
-            stdout=stdout,
+            stdout=redirect,
+            stderr=redirect,
             check=check,
             encoding=encoding,
             cwd=cwd,
         )
+        duration = time.monotonic() - start_time
+        self.times[" ".join(map(shlex.quote, args))] = duration
+        return proc
 
 
 def file_digest(path: Path) -> str:
