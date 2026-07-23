@@ -228,7 +228,7 @@ class Whoms:
 
         if self.args.interact:
             ipy = importlib.import_module("IPython")  # Lazy import since why force it
-            which = albums.Which.str.replace(  # noqa: F841
+            which = albums.Which.str.title().replace(  # noqa: F841
                 r"\s*\([^)]*\)", "", regex=True
             ).str.strip().replace(
                 r"\s*,\s*", ",", regex=True
