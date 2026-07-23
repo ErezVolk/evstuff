@@ -170,11 +170,6 @@ class Whoms:
         albums["Whoms"] = albums.Whom.str.replace(
             r"\s*[,&]\s*", "|", regex=True,
         ).str.split("|")
-        albums["Whichs"] = albums.Which.str.replace(
-            r"\s*\([^)]*\)", "", regex=True
-        ).str.split(
-            ","
-        ).explode().str.strip().reset_index(drop=True)  # For interactive mode
 
         whalbums = albums.explode("Whoms").query("Whoms != ''")
         whoms = whalbums.Whoms.value_counts().to_frame("total")
@@ -233,7 +228,18 @@ class Whoms:
 
         if self.args.interact:
             ipy = importlib.import_module("IPython")  # Lazy import since why force it
-            ipy.embed(header="You might want to check out albums, whoms, unheard")
+            which = albums.Which.str.replace(  # noqa: F841
+                r"\s*\([^)]*\)", "", regex=True
+            ).str.strip().replace(
+                r"\s*,\s*", ",", regex=True
+            ).str.split(
+                ","
+            ).explode().to_frame().join(
+                albums[["n", "Who", "What"]]
+            ).reset_index(drop=True).query(
+                'Which.notna() and Which != ""'
+            )
+            ipy.embed(header="Check out albums, whoms, unheard, which")
 
     @classmethod
     def describe(cls, minutes: pd.Series) -> Stats:
