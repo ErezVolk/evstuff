@@ -227,7 +227,6 @@ class Whoms:
         self.choose_heard(albums)
 
         if self.args.interact:
-            ipy = importlib.import_module("IPython")  # Lazy import since why force it
             which = albums.Which.str.title().replace(  # noqa: F841
                 r"\s*\([^)]*\)", "", regex=True
             ).str.strip().replace(
@@ -239,7 +238,12 @@ class Whoms:
             ).reset_index(drop=True).query(
                 'Which.notna() and Which != ""'
             )
-            ipy.embed(header="Check out albums, whoms, unheard, which")
+
+            ipy = importlib.import_module("IPython")  # Lazy import since why force it
+            config = ipy.terminal.ipapp.load_default_config()
+            config.InteractiveShellEmbed = config.TerminalInteractiveShell
+            config.InteractiveShellEmbed.confirm_exit = False
+            ipy.embed(header="Check out albums, whoms, unheard, which", config=config)
 
     @classmethod
     def describe(cls, minutes: pd.Series) -> Stats:
