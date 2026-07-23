@@ -227,17 +227,17 @@ class Whoms:
         self.choose_heard(albums)
 
         if self.args.interact:
-            which = albums.Which.str.title().replace(  # noqa: F841
+            which = albums.Which.str.casefold().replace(  # noqa: F841
                 r"\s*\([^)]*\)", "", regex=True
             ).str.strip().replace(
                 r"\s*,\s*", ",", regex=True
             ).str.split(
                 ","
-            ).explode().to_frame().join(
+            ).explode().to_frame().dropna().query(
+                'Which != ""'
+            ).join(
                 albums[["n", "Who", "What"]]
-            ).reset_index(drop=True).query(
-                'Which.notna() and Which != ""'
-            )
+            ).reset_index(drop=True)
 
             ipy = importlib.import_module("IPython")  # Lazy import since why force it
             config = ipy.terminal.ipapp.load_default_config()
