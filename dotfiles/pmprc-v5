@@ -24,12 +24,10 @@
 # - Work on bebop phrases
 
 cb:
-  Keep in mind [C shape, hold cork]: NONE
-  Half notes open strings, metronome: NONE
-  Half notes open strings, cross fingers: NONE
-  C scale: NONE
-  Blues with roots: NONE
-  Blues, Bass line with arpeggios, up to around D: NONE
+  Half notes open strings, metronome, cross fingers: NONE
+  Simandl's C Scale: NONE
+  Nicolas' Blues arpeggios [NB transitions, even to open strings]: NONE
+  Word on Billie's Bounce: NONE
 
 *_bass = [ bass ]
 
