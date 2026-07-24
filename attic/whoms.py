@@ -436,16 +436,15 @@ class Whoms:
         return ods.curr
 
     def _is_changed(self, path: Path, intestine: Path, digested: str) -> bool:
+        if read_digest(intestine) != digested:
+            return True  # Need to regenerate, no matter what.
         args = ["diff", "--quiet", path.name]
         proc = self.git(
             args, cwd=path.parent, check=False, echo=False, redirect=subprocess.DEVNULL
         )
-        if proc:
-            if proc.returncode == 0:
-                return False
-            if proc.returncode == 1:
-                return True
-        return read_digest(intestine) != digested
+        if proc is None:
+            return False  # Git not found
+        return proc.returncode == 1  # "modified" and not "same" or "not in a repo"
 
     def deflatten_to(
         self,
