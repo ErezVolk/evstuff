@@ -146,6 +146,72 @@ class Deck(abc.ABC):
         raise SerializationError("Not supported")
 
 
+class Reporter:
+    """In charge of the "history" CSV file."""
+
+    path: Path
+    by_layout: dict[Layout | None, dict[str, str]]
+    now: str
+    then: str
+
+    def __init__(self, report_file: Path) -> None:
+        """Initialize, read old report if possible."""
+        self.now = str(today := NOW.date())
+        self.then = str(today - datetime.timedelta(days=7))
+        self.path = report_file
+
+        try:
+            default = {"label": "N/A", "layout": "N/A"}
+            with self.path.open(encoding="utf-8", newline="") as csvfo:
+                rows = [default | row for row in csv.DictReader(csvfo)]
+            log.debug("Read %s (N = %s)", self.path, len(rows))
+            self.by_layout = {Layout(row["layout"]): row for row in rows}
+        except (FileNotFoundError, ValueError, KeyError, csv.Error) as exc:
+            self.by_layout = {}
+            log.debug("Cannot read %s: %s", report_file, exc)
+
+    def save_report(self, decks: Decks) -> None:
+        """Write report CSV to disk."""
+        to_save = [self.deck_row(deck) for deck in decks.values()]
+        for layout in self.by_layout.keys() - decks.keys():
+            row = self.by_layout[layout]
+            if (used := row.get("used")) and used >= self.then:
+                row["gone"] = row.get("gone") or self.now
+                to_save.append(row)
+        if not to_save:
+            log.debug("Nothing to write to %s", self.path)
+            return
+
+        to_save.sort(key=lambda row: row["label"].lower())
+        colset = set.union(*[set(row) for row in to_save])
+        cols = ["label", "layout", *sorted(colset - {"label", "layout"})]
+
+        log.debug("Save %s (%d x %d)", self.path, len(to_save), len(cols))
+        with self.path.open("w", encoding="utf-8", newline="") as csvfo:
+            writer = csv.DictWriter(csvfo, fieldnames=cols)
+            writer.writeheader()
+            for row in to_save:
+                writer.writerow(row)
+
+    def deck_row(self, deck: Deck) -> StringDict:
+        """Get or make the row for a deck."""
+        rows = self.by_layout
+        row = rows.pop(deck.layout, None) or rows.pop(deck.old_layout, {})
+        self.update(row, deck)
+        return row
+
+    def update(self, row: StringDict, deck: Deck) -> None:
+        """Update row in report to reflect deck use in this session."""
+        row.update(label=deck.label, layout=deck.layout, blurb=deck.blurb)
+        row.pop("gone", None)
+        if deck.counts["drawn"]:
+            row["used"] = self.now
+        for event, count in deck.counts.items():
+            if not (was := row.get(event, "N/A")).isnumeric():
+                was = 0
+            row[event] = int(was) + count
+
+
 class SavableDeck(Deck):
     """A deck whose state can be saved."""
 
@@ -638,7 +704,7 @@ class PracticeMakesPerfect:
     decks: Decks
     starred: list[Label]
     state: StringDict
-    reporter: "Reporter"
+    reporter: Reporter
     annals: t.TextIO
 
     STATE_VER = "v4"
@@ -990,8 +1056,12 @@ class ConfigParser:  # pylint: disable=too-many-instance-attributes
 
             if self.match(r"([^:|]+):=(.*)"):
                 self.do_deck(label=self.group(1), keys=self.group(2))
-            elif self.match(r"([*]?)(\S[^:]*):"):
-                self.do_book(label=self.group(2), star=bool(self.group(1)))
+            elif self.match(r"([*]?)(\S[^:]*):(:?)"):
+                self.do_book(
+                    label=self.group(2),
+                    star=bool(self.group(1)),
+                    serial=bool(self.group(3)),
+                )
             elif self.match(r"\s+([^:]*):\s+(.*)"):
                 self.do_etude(template=self.group(1), deckstr=self.group(2))
             elif self.match(f"\\s+{self.PART_RE}\\s*") and self.group("at"):
@@ -1155,72 +1225,6 @@ class Restorer:
             except SerializationError as exc:
                 log.debug("Not restoring %s: %s", deck.blurb, exc)
         log.debug("Resuming %d of %d decks", n_used, len(self.decks))
-
-
-class Reporter:
-    """In charge of the "history" CSV file."""
-
-    path: Path
-    by_layout: dict[Layout | None, dict[str, str]]
-    now: str
-    then: str
-
-    def __init__(self, report_file: Path) -> None:
-        """Initialize, read old report if possible."""
-        self.now = str(today := NOW.date())
-        self.then = str(today - datetime.timedelta(days=7))
-        self.path = report_file
-
-        try:
-            default = {"label": "N/A", "layout": "N/A"}
-            with self.path.open(encoding="utf-8", newline="") as csvfo:
-                rows = [default | row for row in csv.DictReader(csvfo)]
-            log.debug("Read %s (N = %s)", self.path, len(rows))
-            self.by_layout = {Layout(row["layout"]): row for row in rows}
-        except (FileNotFoundError, ValueError, KeyError, csv.Error) as exc:
-            self.by_layout = {}
-            log.debug("Cannot read %s: %s", report_file, exc)
-
-    def save_report(self, decks: Decks) -> None:
-        """Write report CSV to disk."""
-        to_save = [self.deck_row(deck) for deck in decks.values()]
-        for layout in self.by_layout.keys() - decks.keys():
-            row = self.by_layout[layout]
-            if (used := row.get("used")) and used >= self.then:
-                row["gone"] = row.get("gone") or self.now
-                to_save.append(row)
-        if not to_save:
-            log.debug("Nothing to write to %s", self.path)
-            return
-
-        to_save.sort(key=lambda row: row["label"].lower())
-        colset = set.union(*[set(row) for row in to_save])
-        cols = ["label", "layout", *sorted(colset - {"label", "layout"})]
-
-        log.debug("Save %s (%d x %d)", self.path, len(to_save), len(cols))
-        with self.path.open("w", encoding="utf-8", newline="") as csvfo:
-            writer = csv.DictWriter(csvfo, fieldnames=cols)
-            writer.writeheader()
-            for row in to_save:
-                writer.writerow(row)
-
-    def deck_row(self, deck: Deck) -> StringDict:
-        """Get or make the row for a deck."""
-        rows = self.by_layout
-        row = rows.pop(deck.layout, None) or rows.pop(deck.old_layout, {})
-        self.update(row, deck)
-        return row
-
-    def update(self, row: StringDict, deck: Deck) -> None:
-        """Update row in report to reflect deck use in this session."""
-        row.update(label=deck.label, layout=deck.layout, blurb=deck.blurb)
-        row.pop("gone", None)
-        if deck.counts["drawn"]:
-            row["used"] = self.now
-        for event, count in deck.counts.items():
-            if not (was := row.get(event, "N/A")).isnumeric():
-                was = 0
-            row[event] = int(was) + count
 
 
 if __name__ == "__main__":

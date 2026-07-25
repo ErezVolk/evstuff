@@ -23,11 +23,13 @@
 #   - Play in 3, 5, bossa, rhumba, whatever
 # - Work on bebop phrases
 
-cb:
-  ***NB** [Musicality, Don't raise 4th finger too much]: NONE
+cb = [ contrebasse ]
+
+contrebasse::
+  ***NB** [Musicality, Transitions, Don't raise 4th finger too much]: NONE
   Half notes open strings, metronome, cross fingers: NONE
   Simandl's C Scale: NONE
-  Nicolas' Blues arpeggios [NB transitions, even to open strings]: NONE
+  Nicolas' Blues arpeggios [NB D->F♯ transition]: NONE
   Word on Billie's Bounce: NONE
 
 *_bass = [ bass ]

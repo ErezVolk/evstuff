@@ -12,6 +12,7 @@ target-version = "py314"
 select = ["ALL"]
 ignore = [
    "COM812",  # Missing trailing comma
+   "CPY001",  # Missing copyright notice (!?)
    "D105",  # Missing docstring in magic method
    "D107",  # Missing docstring in "__init__"
    "D203",  # Blank line *before* class docstring (?!)
