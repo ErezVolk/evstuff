@@ -100,7 +100,14 @@ class SplitAlbum:
         ).replace(
             r"^0+(\d)", r"\1", regex=True
         )
-        tracks["title"] = tracks.title.str.replace(",", NOT_COMMA, regex=False)
+
+        long = tracks.time.str.split(r"[.]", expand=True, n=2).dropna()
+        if not long.empty:
+            long["mm"] = (long[0].astype(int) * 60 + long[1].astype(int)).astype(str)
+            long["time"] = long[["mm", 2]].agg(".".join, axis=1)
+            tracks.loc[long.index, "time"] = long.time
+
+        tracks["title"] = tracks.title.str.replace(r"[,/]", NOT_COMMA, regex=True)
 
         # Youtube comment is START TIMES
         tracks["start"] = tracks.time
