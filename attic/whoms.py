@@ -227,7 +227,12 @@ class Whoms:
         self.choose_heard(albums)
 
         if self.args.interact:
-            which = albums.Which.str.casefold().replace(  # noqa: F841
+            ns = {
+                "albums": albums,
+                "whoms": whoms,
+                "unheard": unheard,
+            }
+            ns["which"] = which = albums.Which.str.casefold().replace(
                 r"\s*\([^)]*\)", "", regex=True
             ).str.strip().replace(
                 r"\s*,\s*", ",", regex=True
@@ -238,12 +243,19 @@ class Whoms:
             ).join(
                 albums[["n", "Who", "What"]]
             ).reset_index(drop=True)
+            ns["like"] =  which[
+                ~which.Which.str.startswith("[")
+            ].Which.value_counts().to_frame().reset_index()
 
             ipy = importlib.import_module("IPython")  # Lazy import since why force it
             config = ipy.terminal.ipapp.load_default_config()
             config.InteractiveShellEmbed = config.TerminalInteractiveShell
             config.InteractiveShellEmbed.confirm_exit = False
-            ipy.embed(header="Check out albums, whoms, unheard, which", config=config)
+            ipy.embed(
+                header="Check out " + ", ".join(ns),
+                config=config,
+                user_ns=ns,
+            )
 
     @classmethod
     def describe(cls, minutes: pd.Series) -> Stats:
