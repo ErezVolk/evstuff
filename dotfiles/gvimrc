@@ -6,16 +6,10 @@ function RandomColorScheme()
   unlet mycolors
 endfunction
 
-let hostname = substitute(system('hostname'), '\n', '', '')
-if hostname =~ "ErezBook"
-    let here = fnamemodify(getcwd(), ":t")
-    if here == "sandbox"
-        colorscheme evening
-    elseif here == "cloud" || here == "trials"
-        colorscheme peachpuff
-    else
-        colorscheme morning
-    endif
+if getcwd() =~ '/worktrees\(/\|$\)'
+    colorscheme morning
+elseif getcwd() =~ '^' . expand('~/src') . '\(/\|$\)'
+    call RandomColorScheme()
 else
     colorscheme peachpuff
 endif
