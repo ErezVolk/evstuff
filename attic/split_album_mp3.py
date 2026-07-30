@@ -1,6 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # ty: ignore[unresolved-import]
 """Split album."""
+
 import mimetypes
 import re
 import shlex
@@ -14,10 +15,11 @@ import mutagen
 import pandas as pd
 import unidecode
 
+_TIME = r"(?P<time>[0-9]+:[0-9]+(:[0-9]+)?)"
 TRACK_EXPRS = (
-    r"(?P<time>[0-9:]+) (?P<title>\S.*\S)",
-    r"""(\d+\)?)\s*(['"])(?P<title>[^'"]+)\2\s*\((?P<time>[0-9:]+)\)""",
-    r"""\d+[.]?\s+(?P<title>\S.*\S)\s+(?P<time>[0-9:]+)""",
+    rf"{_TIME} (?P<title>\S.*\S)",
+    rf"""(\d+\)?)\s*(['"])(?P<title>[^'"]+)\2\s*\({_TIME}\)""",
+    rf"""\d+[.]?\s+(?P<title>\S.*\S)\s+{_TIME}""",
 )
 
 NOT_COMMA = "_"
@@ -68,9 +70,7 @@ class SplitAlbum:
 
         track_desc = unidecode.unidecode(info["tracks"])
         track_lines = [
-            meat
-            for line in track_desc.split("\n")
-            if (meat := line.strip())
+            meat for line in track_desc.split("\n") if (meat := line.strip())
         ]
         n_lines = len(track_lines)
         for expr in TRACK_EXPRS:
@@ -90,19 +90,15 @@ class SplitAlbum:
         else:
             self._fail("Don't know how to interpret these tracks.")
 
-        tracks = pd.DataFrame([
-            mobj.groupdict() for mobj in mobjs if mobj is not None
-        ])
-        tracks["time"] = tracks.time.str.replace(
-            ":", ".", regex=False
-        ).replace(
-            r"^0+\.([0-9]+\.[0-9]+)", r"\1", regex=True
-        ).replace(
-            r"^0+(\d)", r"\1", regex=True
+        tracks = pd.DataFrame([mobj.groupdict() for mobj in mobjs if mobj is not None])
+        tracks["time"] = (
+            tracks.time.str.replace(":", ".", regex=False)
+            .replace(r"^0+\.([0-9]+\.[0-9]+)", r"\1", regex=True)
+            .replace(r"^0+(\d)", r"\1", regex=True)
         )
 
         long = tracks.time.str.split(r"[.]", expand=True, n=2).dropna()
-        if not long.empty:
+        if len(long.columns) == 3 and not long.empty:
             long["mm"] = (long[0].astype(int) * 60 + long[1].astype(int)).astype(str)
             long["time"] = long[["mm", 2]].agg(".".join, axis=1)
             tracks.loc[long.index, "time"] = long.time
@@ -123,10 +119,15 @@ class SplitAlbum:
         cmds = [
             [
                 "mp3splt",
-                "-d", folder,
-                "-o", row.stem,
-                "-g", f"[{common_tags},@t={row.title},@n={row.number}]",
-                whole, row.start, row.stop,
+                "-d",
+                folder,
+                "-o",
+                row.stem,
+                "-g",
+                f"[{common_tags},@t={row.title},@n={row.number}]",
+                whole,
+                row.start,
+                row.stop,
             ]
             for _, row in tracks.iterrows()
         ]
@@ -149,11 +150,14 @@ class SplitAlbum:
             return info["whole"]
         cmd = [
             "yt-dlp",
-            "-t", "mp3",
-            "--print", "filename",
-            "--embed-thumbnail", "--embed-metadata",
+            "-t",
+            "mp3",
+            "--print",
+            "filename",
+            "--embed-thumbnail",
+            "--embed-metadata",
             "--no-playlist",
-            url
+            url,
         ]
         print(" ".join(cmd))
         proc = subprocess.run(cmd, check=True, capture_output=True, encoding="utf-8")
@@ -183,7 +187,8 @@ class SplitAlbum:
         cmds = [
             [
                 "id3v2",
-                "-T", f"{row.number}/{len(tracks)}",
+                "-T",
+                f"{row.number}/{len(tracks)}",
                 folder / f"{row.stem}.mp3",
             ]
             for _, row in tracks.iterrows()
