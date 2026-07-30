@@ -232,18 +232,20 @@ class Whoms:
                 "whoms": whoms,
                 "unheard": unheard,
             }
-            ns["which"] = which = albums.Which.str.casefold().replace(
+            which = albums.Which.str.casefold().replace(
                 r"\s*\([^)]*\)", "", regex=True
             ).str.strip().replace(
                 r"\s*,\s*", ",", regex=True
             ).str.split(
                 ","
-            ).explode().to_frame().dropna().query(
-                'Which != ""'
-            ).join(
+            ).explode().to_frame()
+            which = which[
+                ~which.Which.isin(["", "the whole thing"])
+            ].join(
                 albums[["n", "Who", "What"]]
             ).reset_index(drop=True)
-            ns["like"] =  which[
+            ns["which"] = which
+            ns["like"] = which[
                 ~which.Which.str.startswith("[")
             ].Which.value_counts().to_frame().reset_index()
 
