@@ -131,6 +131,8 @@ class SplitAlbum:
             ]
             for _, row in tracks.iterrows()
         ]
+        if folder.is_dir():
+            cmds.insert(0, ["rm", "-Rfv", folder])
         for cmd in cmds:
             print(" ".join(map(shlex.quote, map(str, cmd))))
         input("Press Enter to run...")
