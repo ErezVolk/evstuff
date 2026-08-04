@@ -127,6 +127,11 @@ class Whoms:
             "--relisten-all",
             action="store_true",
         )
+        parser.add_argument(
+            "-W",
+            "--whom",
+            help="Shorthand for a filter on substrings of `Whom`."
+        )
         self.args = parser.parse_args()
         self.parser = parser
 
@@ -188,11 +193,13 @@ class Whoms:
             f"{k_of_n(albums.heard)} albums",
             f"{k_of_n(whoms.heard)} players",
             f"{x_of_y(int(hours_heard), int(hours_total))} hours",
-            f"{self.describe(albums.minutes)} ("
-            f"heard: {heard_stats}"
-            f" {sep} "
-            f"unheard: {unheard_stats}"
-            f")",
+            (
+                f"{self.describe(albums.minutes)} ("
+                f"heard: {heard_stats}"
+                f" {sep} "
+                f"unheard: {unheard_stats}"
+                f")"
+            ),
         ]
         print("Heard", ", ".join(heards))
 
@@ -205,21 +212,23 @@ class Whoms:
             print(whoms.iloc[:5])
             print()
 
-        unheard = albums.loc[albums.When.isna()]
+        if self.args.whom:
+            albums = albums[
+                albums.Whom.str.contains(self.args.whom, regex=False, case=False)
+            ]
+
         if self.args.query:
             try:
                 albums = albums.query(self.args.query)
-                unheard = unheard.query(self.args.query)
             except (NameError, KeyError) as exc:
                 print("Bad query:", exc)
                 return
-            if albums.empty:
-                print("This query leaves nothing, it's probably incorrect.")
-                return
-            if unheard.empty:
-                print("Already heard everything in this query.")
-                return
 
+        if albums.empty:
+            print("Nothing to work with. Probably bad filter.")
+            return
+
+        unheard = albums.loc[albums.When.isna()]
         if not unheard.empty:
             self.choose_unheard(albums, unheard, whoms)
         else:
@@ -232,32 +241,36 @@ class Whoms:
                 "whoms": whoms,
                 "unheard": unheard,
             }
-            which = albums.Which.str.casefold().replace(
-                r"\s*\([^)]*\)", "", regex=True
-            ).str.strip().replace(
-                r"\s*,\s*", ",", regex=True
-            ).str.split(
-                ","
-            ).explode().to_frame()
-            which = which[
-                ~which.Which.isin(["", "the whole thing"])
-            ].join(
-                albums[["n", "Who", "What"]]
-            ).reset_index(drop=True)
-            ns["which"] = which
-            ns["like"] = which[
-                ~which.Which.str.startswith("[")
-            ].Which.value_counts().to_frame().reset_index()
+            self._interact(ns)
 
-            ipy = importlib.import_module("IPython")  # Lazy import since why force it
-            config = ipy.terminal.ipapp.load_default_config()
-            config.InteractiveShellEmbed = config.TerminalInteractiveShell
-            config.InteractiveShellEmbed.confirm_exit = False
-            ipy.embed(
-                header="Check out " + ", ".join(ns),
-                config=config,
-                user_ns=ns,
-            )
+    def _interact(self, ns: dict[str, pd.DataFrame]) -> None:
+        albums = ns["albums"]
+        which = albums.Which.str.casefold().replace(
+            r"\s*\([^)]*\)", "", regex=True
+        ).str.strip().replace(
+            r"\s*,\s*", ",", regex=True
+        ).str.split(
+            ","
+        ).explode().to_frame()
+        which = which[
+            ~which.Which.isin(["", "the whole thing"])
+        ].join(
+            albums[["n", "Who", "What"]]
+        ).reset_index(drop=True)
+        ns["which"] = which
+        ns["like"] = which[
+            ~which.Which.str.startswith("[")
+        ].Which.value_counts().to_frame().reset_index()
+
+        ipy = importlib.import_module("IPython")  # Lazy import since why force it
+        config = ipy.terminal.ipapp.load_default_config()
+        config.InteractiveShellEmbed = config.TerminalInteractiveShell
+        config.InteractiveShellEmbed.confirm_exit = False
+        ipy.embed(
+            header="Check out " + ", ".join(ns),
+            config=config,
+            user_ns=ns,
+        )
 
     @classmethod
     def describe(cls, minutes: pd.Series) -> Stats:
