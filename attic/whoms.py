@@ -245,13 +245,14 @@ class Whoms:
 
     def _interact(self, ns: dict[str, pd.DataFrame]) -> None:
         albums = ns["albums"]
-        which = albums.Which.str.casefold().replace(
+        albums["Whichs"] = whichs = albums.Which.str.casefold().replace(
             r"\s*\([^)]*\)", "", regex=True
         ).str.strip().replace(
             r"\s*,\s*", ",", regex=True
         ).str.split(
             ","
-        ).explode().to_frame()
+        )
+        which = whichs.explode().to_frame()
         which = which[
             ~which.Which.isin(["", "the whole thing"])
         ].join(
