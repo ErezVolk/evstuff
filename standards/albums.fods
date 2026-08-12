@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2026-08-11T15:45:41.675040000</dc:date><meta:editing-duration>P241DT13H45M19S</meta:editing-duration><meta:editing-cycles>7430</meta:editing-cycles><meta:generator>LibreOffice/26.2.5.2$MacOSX_AARCH64 LibreOffice_project/cd7284b4cbbfeb507e630c1aac019f4157393acb</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="15649" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2026-08-12T10:16:27.973667000</dc:date><meta:editing-duration>P242DT8H16M1S</meta:editing-duration><meta:editing-cycles>7436</meta:editing-cycles><meta:generator>LibreOffice/26.2.5.2$MacOSX_AARCH64 LibreOffice_project/cd7284b4cbbfeb507e630c1aac019f4157393acb</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="15687" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">44535</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">752313</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">754571</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
        <config:config-item config:name="CursorPositionX" config:type="int">7</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">1426</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">1667</config:config-item>
        <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
@@ -23,7 +23,7 @@
        <config:config-item config:name="PositionLeft" config:type="int">3</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">1409</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">1637</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">80</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -480,7 +480,7 @@
      <text:p><text:sheet-name>???</text:sheet-name><text:s/>(<text:title>???</text:title>)</text:p>
     </style:region-left>
     <style:region-right>
-     <text:p><text:date style:data-style-name="N2" text:date-value="2026-08-11">00/00/0000</text:date>, <text:time style:data-style-name="N2" text:time-value="10:36:37.767230000">00:00:00</text:time></text:p>
+     <text:p><text:date style:data-style-name="N2" text:date-value="2026-08-12">00/00/0000</text:date>, <text:time style:data-style-name="N2" text:time-value="10:36:37.767230000">00:00:00</text:time></text:p>
     </style:region-right>
    </style:header>
    <style:header-left style:display="false"/>
@@ -51328,7 +51328,131 @@
      </table:table-cell>
      <table:table-cell/>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1046909">
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1666" calcext:value-type="float">
+      <text:p>1666</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>John Abercrombie Trio</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=tQgcBqyPQyo" xlink:type="simple">Straight Flight</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1979" calcext:value-type="float">
+      <text:p>1979</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H39M00S" calcext:value-type="time">
+      <text:p>0:39</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="date" office:date-value="2026-08-12" calcext:value-type="date">
+      <text:p>2026-08</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>My Foolish Heart, Nardis (bowed intro)</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Very nice standards album. Mraz excels</text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1667" calcext:value-type="float">
+      <text:p>1667</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Beirach, Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Round About Bartok</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="2000" calcext:value-type="float">
+      <text:p>2000</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H08M00S" calcext:value-type="time">
+      <text:p>1:08</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1668" calcext:value-type="float">
+      <text:p>1668</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=F7eeaXBzMnE&amp;list=RDF7eeaXBzMnE&amp;start_radio=1" xlink:type="simple">My Foolish Heart</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1995" calcext:value-type="float">
+      <text:p>1995</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H05M00S" calcext:value-type="time">
+      <text:p>1:05</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1669" calcext:value-type="float">
+      <text:p>1669</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Walter Norris, George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/playlist?list=PLyK-2uwkhizambP7s96QUh6LkPtxPqvgO" xlink:type="simple">Drifting</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1974" calcext:value-type="float">
+      <text:p>1974</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H48M00S" calcext:value-type="time">
+      <text:p>0:48</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1670" calcext:value-type="float">
+      <text:p>1670</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Guillermo McGill</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=MIkdZSu-5Sk&amp;list=RDMIkdZSu-5Sk&amp;start_radio=1" xlink:type="simple">The Art of Respect</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="2013" calcext:value-type="float">
+      <text:p>2013</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H55M00S" calcext:value-type="time">
+      <text:p>0:55</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1" table:number-rows-repeated="1046904">
      <table:table-cell table:number-columns-repeated="10"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
