@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://apple.com">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-cp com.erezvolk.flipkeys.plist ~/Library/LaunchAgents
-launchctl load ~/Library/LaunchAgents/com.erezvolk.flipkeys.plist
+Do not double-click this file: Finder opens it in Xcode. Install it with launchctl.
+
+cp com.erezvolk.flipkeys.plist ~/Library/LaunchAgents/
+launchctl bootout gui/$(id -u)/com.erezvolk.flipkeys 2>/dev/null
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.erezvolk.flipkeys.plist
+launchctl kickstart gui/$(id -u)/com.erezvolk.flipkeys
+
+The --matching predicate limits the flip to the built-in keyboard and to Apple
+Magic Keyboards. Any other external keyboard keeps its own layout.
+
+hidutil matches a service by Product, VendorID, or ProductID. It ignores
+UsagePage and Usage. To get the Product string of a keyboard, run:
+
+hidutil list
 -->
 <plist version="1.0">
 <dict>
@@ -10,8 +22,10 @@ launchctl load ~/Library/LaunchAgents/com.erezvolk.flipkeys.plist
     <string>com.erezvolk.flipkeys</string>
     <key>ProgramArguments</key>
     <array>
-        <string>hidutil</string>
+        <string>/usr/bin/hidutil</string>
         <string>property</string>
+        <string>--matching</string>
+        <string>[{"Product":"Apple Internal Keyboard / Trackpad"},{"Product":"Magic Keyboard"},{"Product":"Magic Keyboard with Numeric Keypad"},{"Product":"Magic Keyboard with Touch ID"},{"Product":"Magic Keyboard with Touch ID and Numeric Keypad"}]</string>
         <string>--set</string>
         <string>{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000035,"HIDKeyboardModifierMappingDst":0x700000064},{"HIDKeyboardModifierMappingSrc":0x700000064,"HIDKeyboardModifierMappingDst":0x700000035}]}</string>
     </array>
@@ -19,4 +33,3 @@ launchctl load ~/Library/LaunchAgents/com.erezvolk.flipkeys.plist
     <true/>
 </dict>
 </plist>
-
