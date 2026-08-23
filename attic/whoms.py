@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pandas as pd  # ty: ignore[unresolved-import]
 import scipy.stats  # ty: ignore[unresolved-import]
+from rich import print  # ruff: ignore[A004]
 
 
 class Paths(t.NamedTuple):
@@ -592,7 +593,9 @@ def row_desc(row: pd.Series) -> str:
     who = one_of(row.Who)
     whom = one_of(row.Whom)
     what = f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
-    if not whom or (who == whom and not who.endswith(" et al.")):
+    if ibid := who == whom:
+        whom = "[i]ibid.[/i]"
+    elif not whom or (ibid and not who.endswith(" et al.")):
         return f'{what} ({row["dt"]})'
     return f'{what} (with {whom}, {row["dt"]})'
 
