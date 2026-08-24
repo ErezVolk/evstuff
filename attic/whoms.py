@@ -624,5 +624,5 @@ if __name__ == "__main__":
 
 # /// script
 # requires-python = ">=3.14"
-# dependencies = ["pandas", "scipy", "seaborn", "odfpy", "ipython"]
+# dependencies = ["pandas", "scipy", "seaborn", "odfpy", "ipython", "rich"]
 # ///
