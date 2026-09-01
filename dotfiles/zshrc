@@ -121,14 +121,22 @@ export RIPGREP_CONFIG_PATH="${HOME}/.ripgreprc"
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:${HOMEBREW_PREFIX}/bin:$PATH
-export MANPATH="${HOMEBREW_PREFIX}/share/man:$MANPATH"
-export PATH="${HOMEBREW_PREFIX}/opt/gnu-sed/libexec/gnubin:$PATH"
-export PATH="${HOMEBREW_PREFIX}/opt/gnu-tar/libexec/gnubin:$PATH"
-export PATH="${HOMEBREW_PREFIX}/opt/make/libexec/gnubin:$PATH"
-export PATH="${HOMEBREW_PREFIX}/opt/coreutils/libexec/gnubin:$PATH"
-export PATH="${HOMEBREW_PREFIX}/opt/findutils/libexec/gnubin:$PATH"
-export PATH="${HOMEBREW_PREFIX}/opt/grep/libexec/gnubin:$PATH"
-export PATH=$HOME/bin:${HOME}/.local/bin:${HOMEBREW_PREFIX}/bin:$PATH
+if [ -d "${HOMEBREW_PREFIX}/share/man:$MANPATH" ]; then
+       export MANPATH="${HOMEBREW_PREFIX}/share/man:$MANPATH"
+fi
+
+for p in gnu-sed gnu-tar make coreutils findutils grep; do
+        d="${HOMEBREW_PREFIX}/opt/$p/libexec/gnubin"
+        if [ -d $d ]; then
+                export PATH="$d:$PATH"
+        fi
+done
+
+if [ -d ${HOMEBREW_PREFIX}/bin ]; then
+        export PATH="${HOMEBREW_PREFIX}/bin:$PATH"
+fi
+
+export PATH=$HOME/bin:${HOME}/.local/bin:$PATH
 
 which fzf > /dev/null && source <(fzf --zsh)
 test -e  $HOME/src/fzf-git.sh/fzf-git.sh && source $HOME/src/fzf-git.sh/fzf-git.sh
