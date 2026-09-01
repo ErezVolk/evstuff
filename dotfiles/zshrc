@@ -113,6 +113,7 @@ source $ZSH/oh-my-zsh.sh
 alias ls='ls -F --color=auto'
 alias lsh='ls -sh'
 alias brug='brew upgrade --no-ask; bing-wallpaper; ggev'
+alias prug='sudo port selfupdate; bing-wallpaper; ggev'
 export MMW_ITERM=1
 
 export LESS="-X -r"
