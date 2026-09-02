@@ -1,6 +1,12 @@
 #!/bin/sh
-[ -f ~/.ooo-no-brew-upgrade ] || brew upgrade --no-ask
+if [ -f ~/.ooo-brew-upgrade-cask ]; then
+	brew upgrade --no-ask --cask
+elif [ ! -f ~/.ooo-no-brew-upgrade ]; then
+	brew upgrade --no-ask
+fi
+
 which port > /dev/null && [ ! -f ~/.ooo-no-port-update ] && sudo port selfupdate
+
 if [ -f ~/.oooroots ]; then
 	while read r; do
 		git -C $HOME/"$r" oo
