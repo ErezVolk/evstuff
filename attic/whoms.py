@@ -289,8 +289,6 @@ class Whoms:
         """Format floating-point minutes as mm:ss."""
         mm = int(minutes)
         ss = int((minutes - mm) * 60)
-        if ss == 0:
-            return f"{mm}m"
         return f"{mm}:{ss:02d}"
 
     @classmethod
