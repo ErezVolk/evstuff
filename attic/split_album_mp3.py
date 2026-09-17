@@ -20,6 +20,7 @@ TRACK_EXPRS = (
     rf"{_TIME} (?P<title>\S.*\S)",
     rf"""(\d+\)?)\s*(['"])(?P<title>[^'"]+)\2\s*\({_TIME}\)""",
     rf"""\d+[.)]?\s+(?P<title>\S.*\S)\s+{_TIME}""",
+    rf"""(?P<title>[[A-Za-z][^0-9]*\S) {_TIME}""",
 )
 
 NOT_COMMA = "_"
