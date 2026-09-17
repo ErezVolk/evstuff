@@ -246,20 +246,12 @@ class Whoms:
 
     def _interact(self, ns: dict[str, pd.DataFrame]) -> None:
         albums = ns["albums"]
-        albums["Whichs"] = whichs = albums.Which.str.casefold().replace(
-            r"\s*\([^)]*\)", "", regex=True
-        ).str.strip().replace(
-            r"\s*,\s*", ",", regex=True
-        ).str.split(
-            ","
-        )
-        which = whichs.explode().to_frame()
-        which = which[
-            ~which.Which.isin(["", "the whole thing"])
-        ].join(
-            albums[["n", "Who", "What"]]
-        ).reset_index(drop=True)
-        ns["which"] = which
+
+        (albums["Whence"], ns["whence"]) = self._decomma(albums, "Whence")
+
+        (albums["Whichs"], which) = self._decomma(albums, "Which")
+        ns["which"] = which[which.Which != "the whole thing"]
+
         ns["like"] = which[
             ~which.Which.str.startswith("[")
         ].Which.value_counts().to_frame().reset_index()
@@ -273,6 +265,21 @@ class Whoms:
             config=config,
             user_ns=ns,
         )
+
+    def _decomma(
+        self, albums: pd.DataFrame, column: str
+    ) -> tuple[pd.Series, pd.DataFrame]:
+        series = albums[column].str.casefold().replace(
+            r"\s*\([^)]*\)", "", regex=True
+        ).str.strip().replace(
+            r"\s*,\s*", ",", regex=True
+        ).str.split(
+            ","
+        )
+        frame = series.explode().to_frame()
+        frame = frame[frame[column] != ""]
+        frame = frame.join(albums[["n", "Who", "What", "heard"]]).reset_index(drop=True)
+        return (series, frame)
 
     @classmethod
     def describe(cls, minutes: pd.Series) -> Stats:
