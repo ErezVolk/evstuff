@@ -126,8 +126,7 @@ if [ -d "${HOMEBREW_PREFIX}/share/man:$MANPATH" ]; then
        export MANPATH="${HOMEBREW_PREFIX}/share/man:$MANPATH"
 fi
 
-for p in gnu-sed gnu-tar make coreutils findutils grep; do
-        d="${HOMEBREW_PREFIX}/opt/$p/libexec/gnubin"
+for d in ${HOMEBREW_PREFIX}/opt/*/libexec/gnubin; do
         if [ -d $d ]; then
                 export PATH="$d:$PATH"
         fi
