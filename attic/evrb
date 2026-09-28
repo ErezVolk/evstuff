@@ -7,6 +7,7 @@ import typing as t
 from pathlib import Path
 
 __TODO__ = """
+- Include, i.e.,: exclude=Library/Application Support/* !Library/Application Supprt/Alfred
 - Case where there's more than one disk attached
 - A restore option
 - Write default exclude file
