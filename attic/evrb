@@ -7,11 +7,19 @@ import typing as t
 from pathlib import Path
 
 __TODO__ = """
-- Include, i.e.,: exclude=Library/Application Support/* !Library/Application Supprt/Alfred
 - Case where there's more than one disk attached
 - A restore option
 - Write default exclude file
 - Backup multiple machines
+
+- Include, i.e.,: exclude=Library/Application Support/* !Library/Application Supprt/Alfred
+  - Library/Application Support/Adobe/Adobe PDF/Settings
+  - Library/Application Support/Alfred
+  - Library/Application Support/BetterTouchTool
+  - Library/Containers/com.anystonetech.Anytune-Mac
+  - Library/Containers/com.microsoft.*
+  - Library/Group Containers/UBF8T346G9.*
+  - Library/Preferences/org.pqrs.Karabiner-*
 """
 
 
@@ -111,6 +119,7 @@ class EvRb:
             Path.home(),
             "--verbose",
             "--exclude-caches",
+            "--exclude-cloud-files",
         ]
         for item in self.exclude:
             args.extend(["--iexclude", str(item)])
