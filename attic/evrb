@@ -1,25 +1,54 @@
 #!/usr/bin/env python3
 """Erez Volk's Restic Backup."""
 import argparse
+import os.path
 import shlex
 import subprocess
 import typing as t
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 __TODO__ = """
 - Case where there's more than one disk attached
 - A restore option
-- Write default exclude file
 - Backup multiple machines
+"""
 
-- Include, i.e.,: exclude=Library/Application Support/* !Library/Application Supprt/Alfred
-  - Library/Application Support/Adobe/Adobe PDF/Settings
-  - Library/Application Support/Alfred
-  - Library/Application Support/BetterTouchTool
-  - Library/Containers/com.anystonetech.Anytune-Mac
-  - Library/Containers/com.microsoft.*
-  - Library/Group Containers/UBF8T346G9.*
-  - Library/Preferences/org.pqrs.Karabiner-*
+
+EXCLUDE = """
+$HOME/Library/*
+
+!$HOME/Library/Preferences
+$HOME/Library/Preferences/*
+!$HOME/Library/Preferences/org.pqrs.Karabiner-*
+
+!$HOME/Library/Group Containers
+$HOME/Library/Group Containers/*
+!$HOME/Library/Group Containers/UBF8T346G9.*
+
+!$HOME/Library/Containers
+$HOME/Library/Containers/*
+!$HOME/Library/Containers/com.microsoft.*
+!$HOME/Library/Containers/com.anystonetech.*
+
+!$HOME/Library/Application Support
+$HOME/Library/Application Support/*
+!$HOME/Library/Application Support/Alfred
+!$HOME/Library/Application Support/BetterTouchTool
+
+!$HOME/Library/Application Support/Adobe
+$HOME/Library/Application Support/Adobe/*
+!$HOME/Library/Application Support/Adobe/Adobe PDF
+
+$HOME/.Trash
+$HOME/.local
+$HOME/.pub-cache
+$HOME/Music/Music
+$HOME/Movies
+cache
+.cache
+_cacache
+Caches
 """
 
 
@@ -63,13 +92,11 @@ class EvRb:
     args: argparse.Namespace
     parser: argparse.ArgumentParser
     root: Path
-    exclude: list[Path | str]
 
     def run(self) -> None:
         """Incremental backup to external volume."""
         self.parse_args()
         self.find_root()
-        self.find_exclude()
         self.backup()
 
     def fail(self, message: str) -> t.Never:
@@ -94,38 +121,26 @@ class EvRb:
             print(f"Creating {root}/")
             self.restic(["init"])
 
-    def find_exclude(self) -> None:
-        """Figure out exclude list."""
-        if self.args.exclude is not None:
-            self.exclude = self.args.exclude
-        else:
-            self.exclude = [
-                Path.home() / "Library",
-                Path.home() / ".Trash",
-                Path.home() / ".local",
-                Path.home() / ".pub-cache",
-                Path.home() / "Music/Music",
-                Path.home() / "Movies",
-                "cache",
-                ".cache",
-                "_cacache",
-                "Caches",
-            ]
-
     def backup(self) -> None:
         """Run restic."""
-        args = [
-            "backup",
-            Path.home(),
-            "--verbose",
-            "--exclude-caches",
-            "--exclude-cloud-files",
-        ]
-        for item in self.exclude:
-            args.extend(["--iexclude", str(item)])
-        if self.args.dry_run:
-            args.append("--dry-run")
-        self.restic(args)
+        with TemporaryDirectory() as td:
+            args = [
+                "backup",
+                Path.home(),
+                "--verbose",
+                "--exclude-caches",
+                "--exclude-cloud-files",
+            ]
+            if self.args.exclude:
+                for item in self.args.exclude:
+                    args.extend(["--iexclude", str(item)])
+            else:
+                exclude_file = Path(td) / "exclude.txt"
+                exclude_file.write_text(os.path.expandvars(EXCLUDE))
+                args.extend(["--iexclude-file", str(exclude_file)])
+            if self.args.dry_run:
+                args.append("--dry-run")
+            self.restic(args)
 
     def restic(self, args: list[str | Path]) -> None:
         """Call restic."""
