@@ -1,0 +1,2 @@
+#!/bin/sh
+yt-dlp --print-to-file "%(playlist_index)s %(title)s.%(ext)s" "%(playlist)s/%(playlist_title)s.m3u" -o "%(playlist)s/%(playlist_index)s %(title)s [%(id)s].%(ext)s" "$@"
