@@ -35,6 +35,7 @@ $HOME/Library/Containers/*
 $HOME/Library/Application Support/*
 !$HOME/Library/Application Support/Alfred
 !$HOME/Library/Application Support/BetterTouchTool
+!$HOME/Library/Application Support/com.operasoftware.Opera
 
 !$HOME/Library/Application Support/Adobe
 $HOME/Library/Application Support/Adobe/*
