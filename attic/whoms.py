@@ -229,6 +229,8 @@ class Whoms:
             print("Nothing to work with. Probably bad filter.")
             return
 
+        self.check_numbers(albums)
+
         unheard = albums.loc[albums.When.isna()]
         if not unheard.empty:
             self.choose_unheard(albums, unheard, whoms)
@@ -360,6 +362,13 @@ class Whoms:
                 parts.append("s")
             if n_rows > 0:
                 self.print_one_of(rows, "".join(parts))
+
+    def check_numbers(self, albums: pd.DataFrame) -> None:
+        """Make sure the numbers are linear."""
+        delta = albums.n.diff().dropna()
+        bad = delta.index[delta != 1]
+        if not bad.empty:
+            print("[b]NB[/b]: Bad [i]n[/i] in line(s)", ", ".join(map(str, bad + 1)))
 
     def show_wip(self, unheard: pd.DataFrame) -> pd.DataFrame:
         """Remind user of work in progress."""
