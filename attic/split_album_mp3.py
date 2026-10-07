@@ -50,6 +50,7 @@ class SplitAlbum:
     MAY_HAVE = (
         "url",
         "genre",
+        "comment",
     )
 
     def run(self) -> None:
@@ -68,6 +69,7 @@ class SplitAlbum:
         album = info["album"].replace(",", NOT_COMMA)
         year = info["year"]
         genre = info.get("genre", 8)
+        comment = info.get("comment", "")
 
         track_desc = unidecode.unidecode(info["tracks"])
         track_lines = [
@@ -140,7 +142,7 @@ class SplitAlbum:
         for cmd in cmds:
             subprocess.run(cmd, check=True)
         self._extract_cover(whole, folder)
-        self._try_id3v2(folder, tracks)
+        self._try_id3v2(folder, tracks, comment)
 
         subprocess.run(["/usr/bin/open", folder], check=False)
 
@@ -186,13 +188,15 @@ class SplitAlbum:
         except KeyError:
             print("Cannot extract cover: No cover")
 
-    def _try_id3v2(self, folder: Path, tracks: pd.DataFrame) -> None:
+    def _try_id3v2(self, folder: Path, tracks: pd.DataFrame, comment: str) -> None:
+        extra = ["-c", comment] if comment else []
         cmds = [
             [
                 "id3v2",
                 "-T",
                 f"{row.number}/{len(tracks)}",
                 folder / f"{row.stem}.mp3",
+                *extra,
             ]
             for _, row in tracks.iterrows()
         ]
