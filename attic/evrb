@@ -18,6 +18,8 @@ __TODO__ = """
 EXCLUDE = """
 $HOME/Library/*
 
+!$HOME/Library/Fonts
+
 !$HOME/Library/Preferences
 $HOME/Library/Preferences/*
 !$HOME/Library/Preferences/org.pqrs.Karabiner-*
