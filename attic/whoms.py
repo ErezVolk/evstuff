@@ -213,6 +213,8 @@ class Whoms:
             print(whoms.iloc[:5])
             print()
 
+        self.check_numbers(albums)
+
         if self.args.whom:
             albums = albums[
                 albums.Whom.str.contains(self.args.whom, regex=False, case=False)
@@ -228,8 +230,6 @@ class Whoms:
         if albums.empty:
             print("Nothing to work with. Probably bad filter.")
             return
-
-        self.check_numbers(albums)
 
         unheard = albums.loc[albums.When.isna()]
         if not unheard.empty:
