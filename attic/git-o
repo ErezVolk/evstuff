@@ -90,10 +90,17 @@ bold=$(tput bold)
 offbold=$(tput sgr0)
 
 #
-# Always fetch
+# If not remote, quit; otherwise fetch
 #
-set_title "git fetch $ROOT"
-[ -n "${LOCAL}" ] || show_git fetch --quiet --prune --all || exit   # Fails if no remote; this is the only server communication
+if [ -z "${LOCAL}" ]; then
+  if [ -z $(do_git remote) ]; then
+    echo "${bold}-${offbold} $ROOT"  # No remote configured
+    exit
+  fi
+
+  set_title "git fetch $ROOT"
+  show_git fetch --quiet --prune --all || exit  # This is the only server communication
+fi
 
 #
 # If local changes, always abort
