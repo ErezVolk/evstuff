@@ -94,7 +94,7 @@ offbold=$(tput sgr0)
 #
 if [ -z "${LOCAL}" ]; then
   if [ -z $(do_git remote) ]; then
-    echo "${bold}-${offbold} $ROOT"  # No remote configured
+    echo "${bold}☐${offbold} $ROOT"  # No remote configured
     exit
   fi
 
