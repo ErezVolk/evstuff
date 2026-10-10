@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Extract PDF pages with annotations."""
 import argparse
 from pathlib import Path
 
-import pymupdf  # type: ignore; pip install pymupdf
+import pymupdf  # ty: ignore[unresolved-import]
 
 HALF = pymupdf.Matrix(.5, .5)
 
@@ -90,3 +90,8 @@ def should_copy(inpage: pymupdf.Page, modoc: pymupdf.Document) -> bool:
 
 if __name__ == "__main__":
     extract_annotations()
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["pymupdf"]
+# ///
