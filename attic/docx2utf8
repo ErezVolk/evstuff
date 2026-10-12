@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Extract text from a Word document."""
 import argparse
 import re
@@ -112,3 +112,8 @@ class Docx2Utf8(DocxWorker):
 
 if __name__ == "__main__":
     Docx2Utf8().main()
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["lxml"]
+# ///
