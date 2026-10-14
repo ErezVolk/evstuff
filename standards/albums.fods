@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.4" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2026-10-14T14:49:24.327530000</dc:date><meta:editing-duration>P254DT1H45M46S</meta:editing-duration><meta:editing-cycles>8137</meta:editing-cycles><meta:generator>LibreOffice/26.8.0.3$MacOSX_AARCH64 LibreOffice_project/bce0998afefdbc355585ca324285661a2170ba77</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="17039" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2023-08-14T15:42:29.592334580</meta:creation-date><dc:date>2026-10-14T17:02:36.098097000</dc:date><meta:editing-duration>P254DT3H58M40S</meta:editing-duration><meta:editing-cycles>8172</meta:editing-cycles><meta:generator>LibreOffice/26.8.0.3$MacOSX_AARCH64 LibreOffice_project/bce0998afefdbc355585ca324285661a2170ba77</meta:generator><meta:document-statistic meta:table-count="1" meta:cell-count="17191" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">44535</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">816434</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">825916</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
        <config:config-item config:name="CursorPositionX" config:type="int">7</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">1806</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">1825</config:config-item>
        <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
        <config:config-item config:name="VerticalSplitPosition" config:type="int">1</config:config-item>
        <config:config-item config:name="ActiveSplitRange" config:type="short">2</config:config-item>
-       <config:config-item config:name="PositionLeft" config:type="int">7</config:config-item>
+       <config:config-item config:name="PositionLeft" config:type="int">6</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">1788</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">1808</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">120</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -406,6 +406,10 @@
   <style:style style:name="ce6" style:family="table-cell" style:parent-style-name="Default">
    <style:table-cell-properties style:text-align-source="fix" style:repeat-content="false"/>
    <style:paragraph-properties fo:text-align="start" fo:margin-left="0cm"/>
+  </style:style>
+  <style:style style:name="ce8" style:family="table-cell" style:parent-style-name="Default">
+   <style:table-cell-properties style:text-align-source="fix" style:repeat-content="false"/>
+   <style:paragraph-properties fo:text-align="justify" fo:margin-left="0cm"/>
   </style:style>
   <style:style style:name="ce23" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N0"/>
   <style:style style:name="ce24" style:family="table-cell" style:parent-style-name="Default">
@@ -12041,7 +12045,7 @@
       <text:p>2025-02</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Default" office:value-type="string" calcext:value-type="string">
-      <text:p>Bye Bye Blackbird, How High the Moon, Bags Groove</text:p>
+      <text:p>Bye Bye Blackbird, How High the Moon, Bags&apos; Groove</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Wow, masterful and fun! Relisten.</text:p>
@@ -53211,11 +53215,15 @@
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Sirone, Richard Pierce</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell office:value-type="date" office:date-value="2026-10-14" calcext:value-type="date">
+      <text:p>2026-10</text:p>
+     </table:table-cell>
      <table:table-cell office:value-type="string" calcext:value-type="string">
       <text:p>Bialero</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Wonderful. The jazz side of avant-garde Zappa, with agonizing screams. Relisten.</text:p>
+     </table:table-cell>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="float" office:value="1720" calcext:value-type="float">
@@ -55793,7 +55801,499 @@
       <text:p>Calm and quite nice, but the boppier melodies (Avenue A) didn&apos;t work for me. The bass is great.</text:p>
      </table:table-cell>
     </table:table-row>
-    <table:table-row table:style-name="ro1" table:number-rows-repeated="1046767">
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1808" calcext:value-type="float">
+      <text:p>1808</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Joe Henderson Trio</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=hUbshxiXrZY" xlink:type="simple">Jazz Jamboree 1992</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1992" calcext:value-type="float">
+      <text:p>1992</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H31M00S" calcext:value-type="time">
+      <text:p>1:31</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1809" calcext:value-type="float">
+      <text:p>1809</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>John Abercrombie Quartet</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=ca0DK8Mejgc" xlink:type="simple">Juan-les-pins 1979-07-19</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1979" calcext:value-type="float">
+      <text:p>1979</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H27M00S" calcext:value-type="time">
+      <text:p>0:27</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1810" calcext:value-type="float">
+      <text:p>1810</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Hank Jones Trio with James Moody</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=EgP1-c5mfa0" xlink:type="simple">Live at the Konzertscheune, Salzau, July 2009</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="2009" calcext:value-type="float">
+      <text:p>2009</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H01M00S" calcext:value-type="time">
+      <text:p>1:01</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1811" calcext:value-type="float">
+      <text:p>1811</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Roland Hanna</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=bPCJhjEsRAE" xlink:type="simple">The New York Jazz Quartet in Chicago</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1981" calcext:value-type="float">
+      <text:p>1981</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H40M00S" calcext:value-type="time">
+      <text:p>0:40</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1812" calcext:value-type="float">
+      <text:p>1812</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Joe Lovano &amp; Hank Jones Quartet</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=O4aNJ58UIpE" xlink:type="simple">Live at The Barbican, 3rd July 2004</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="2004" calcext:value-type="float">
+      <text:p>2004</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H04M00S" calcext:value-type="time">
+      <text:p>1:04</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1813" calcext:value-type="float">
+      <text:p>1813</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Tete Montoliu Trio</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=lthwiwuaCps" xlink:type="simple">I Wanna Talk About You</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1980" calcext:value-type="float">
+      <text:p>1980</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H58M00S" calcext:value-type="time">
+      <text:p>0:58</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1814" calcext:value-type="float">
+      <text:p>1814</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>John Abercrombie Quartet</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=iE6dCn_nHs0" xlink:type="simple">Live at The Hague July 14, 1979</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1979" calcext:value-type="float">
+      <text:p>1979</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H20M00S" calcext:value-type="time">
+      <text:p>0:20</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1815" calcext:value-type="float">
+      <text:p>1815</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Warne Marsh Quartet</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=PVilHvqDNqI" xlink:type="simple">1983-10-26, Village Vanguard, New York</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1983" calcext:value-type="float">
+      <text:p>1983</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H46M00S" calcext:value-type="time">
+      <text:p>1:46</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1816" calcext:value-type="float">
+      <text:p>1816</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Iva Bittová, George Mráz</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=im7_PPskFRI" xlink:type="simple">Concert 2008-07-19</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="2008" calcext:value-type="float">
+      <text:p>2008</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H11M00S" calcext:value-type="time">
+      <text:p>1:11</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1817" calcext:value-type="float">
+      <text:p>1817</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Chris Connor, Hank Jones Trio</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=yS-c3v7ZyMA" xlink:type="simple">Angel Eyes</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1991" calcext:value-type="float">
+      <text:p>1991</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H45M00S" calcext:value-type="time">
+      <text:p>0:45</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1818" calcext:value-type="float">
+      <text:p>1818</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Oscar Peterson</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=cffWxhGvV5A" xlink:type="simple">The Rare 1971 Trio Session Recordings</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1971" calcext:value-type="float">
+      <text:p>1971</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H37M00S" calcext:value-type="time">
+      <text:p>0:37</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1819" calcext:value-type="float">
+      <text:p>1819</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>McCoy Tyner Trio</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=tGB0LU3js14" xlink:type="simple">2002-04-05, Regattabar, Cambridge, MA</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce23" office:value-type="float" office:value="2002" calcext:value-type="float">
+      <text:p>2002</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT02H32M00S" calcext:value-type="time">
+      <text:p>2:32</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1820" calcext:value-type="float">
+      <text:p>1820</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Joe Henderson Trio</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=raMCn2iPf-8" xlink:type="simple">Kimball&apos;s East, 1994-03-11 Late Show</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1994" calcext:value-type="float">
+      <text:p>1994</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H28M00S" calcext:value-type="time">
+      <text:p>1:28</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1821" calcext:value-type="float">
+      <text:p>1821</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Freddie Hubbard Quintet</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=LmOH3LAiWWc" xlink:type="simple">Live at Symphony Space, New York City</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1983" calcext:value-type="float">
+      <text:p>1983</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H57M00S" calcext:value-type="time">
+      <text:p>0:57</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1822" calcext:value-type="float">
+      <text:p>1822</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Freddy Cole</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=vZvI_w4gI74" xlink:type="simple">Love Makes the Changes</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1998" calcext:value-type="float">
+      <text:p>1998</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H56M00S" calcext:value-type="time">
+      <text:p>0:56</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>David Williams, George Mraz, Will Lee</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1823" calcext:value-type="float">
+      <text:p>1823</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Stan Getz</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=9du7qND1suk" xlink:type="simple">Live in Santa Cruz</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1986" calcext:value-type="float">
+      <text:p>1986</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT02H10M00S" calcext:value-type="time">
+      <text:p>2:10</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1824" calcext:value-type="float">
+      <text:p>1824</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Linda Ronstadt</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=r2eHbxODfTw" xlink:type="simple">Keeping Out Of Mischief</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1981" calcext:value-type="float">
+      <text:p>1981</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H33M00S" calcext:value-type="time">
+      <text:p>0:33</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="date" office:date-value="2026-10-14" calcext:value-type="date">
+      <text:p>2026-10</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Lover Man</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>A pleasant surprise! Very well executed, perhaps because she doesn&apos;t do &quot;jazz&quot;. These could be reference versions. Very cool.</text:p>
+     </table:table-cell>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1825" calcext:value-type="float">
+      <text:p>1825</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Joe Henderson Sextet</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=yIxYcAXWVjY" xlink:type="simple">1998-05-10, Jazzfest, Bern, Switzerland</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1998" calcext:value-type="float">
+      <text:p>1998</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H00M00S" calcext:value-type="time">
+      <text:p>1:00</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1826" calcext:value-type="float">
+      <text:p>1826</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Stan Getz &amp; Gerry Mulligan</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce8" office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=1Fnc1IBL1Pk" xlink:type="simple">1985-09-01, Chicago Jazz Festival</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1985" calcext:value-type="float">
+      <text:p>1985</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H56M00S" calcext:value-type="time">
+      <text:p>0:56</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1827" calcext:value-type="float">
+      <text:p>1827</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Zoot Sims &amp; Jimmy Rowles</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string"><text:p><text:a xlink:href="https://www.youtube.com/watch?v=Gc_-Uou0XPw" xlink:type="simple">If I&apos;m Lucky</text:a></text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1977" calcext:value-type="float">
+      <text:p>1977</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT00H46M00S" calcext:value-type="time">
+      <text:p>0:46</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell office:value-type="float" office:value="1828" calcext:value-type="float">
+      <text:p>1828</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Archie Shepp Quartet</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>True Blue</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="1998" calcext:value-type="float">
+      <text:p>1998</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="time" office:time-value="PT01H13M00S" calcext:value-type="time">
+      <text:p>1:13</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>Me</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string" calcext:value-type="string">
+      <text:p>George Mraz</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="3"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro1" table:number-rows-repeated="1046746">
      <table:table-cell table:number-columns-repeated="10"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
