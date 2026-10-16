@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pandas as pd  # ty: ignore[unresolved-import]
 import scipy.stats  # ty: ignore[unresolved-import]
-from rich import print  # ruff: ignore[A004]
+from rich import print  # ty: ignore[unresolved-import]
 
 
 class Paths(t.NamedTuple):
@@ -144,6 +144,7 @@ class Whoms:
         """Figure out whom is whom."""
         self.parse_cli()
 
+        self.need_diff = self.args.git_commit or self.args.git_push
         self.times = {}
         errors: list[str] = []
         for path in self.args.inputs:
@@ -449,27 +450,29 @@ class Whoms:
         model = flat.with_name(f".auto-{flat.stem}.model")
         intestine = model.with_suffix(".digested")
         changed = self._is_changed(flat, intestine, digested)
-        csv = self.deflatten_to(flat, model, "csv", changed=changed, diffable=True)
-        with csv.diff.open("w", encoding="utf-8") as dfo:
-            dfo.write(flat.name)
-            dfo.write("\n\n")
 
-            if csv.prev.is_file():
-                dfo.flush()
+        if self.need_diff:
+            csv = self.deflatten_to(flat, model, "csv", changed=changed, diffable=True)
+            with csv.diff.open("w", encoding="utf-8") as dfo:
+                dfo.write(flat.name)
+                dfo.write("\n\n")
 
-                cmd = [
-                    "diff",
-                    "-L before",
-                    "-L after",
-                    "-s", "-U0",
-                    str(csv.prev), str(csv.curr),
-                ]
-                self.run(cmd, redirect=dfo, check=False, encoding="utf-8")
+                if csv.prev.is_file():
+                    dfo.flush()
+
+                    cmd = [
+                        "diff",
+                        "-L before",
+                        "-L after",
+                        "-s", "-U0",
+                        str(csv.prev), str(csv.curr),
+                    ]
+                    self.run(cmd, redirect=dfo, check=False, encoding="utf-8")
 
         ods = self.deflatten_to(flat, model, "ods", changed=changed)
         if changed:
             intestine.write_text(digested, encoding="UTF-8")
-            if self.args.git_commit or self.args.git_push:
+            if self.need_diff:
                 flag = "-F" if self.args.git_commit else "-t"
                 args = ["commit", flat.name, flag, csv.diff.name]
                 proc = self.git(args, cwd=flat.parent, check=False)
@@ -607,9 +610,9 @@ def row_desc(row: pd.Series) -> str:
     who = one_of(row.Who)
     whom = one_of(row.Whom)
     what = f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
-    if ibid := who == whom:
+    if who == whom:
         whom = "[i]ibid.[/i]"
-    elif not whom or (ibid and not who.endswith(" et al.")):
+    elif not whom:
         return f'{what} ({row["dt"]})'
     return f'{what} (with {whom}, {row["dt"]})'
 
