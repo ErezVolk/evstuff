@@ -51,6 +51,7 @@ class SplitAlbum:
         "url",
         "genre",
         "comment",
+        "cover_url",
     )
 
     def run(self) -> None:
@@ -143,7 +144,8 @@ class SplitAlbum:
             subprocess.run(cmd, check=True)
         self._extract_cover(whole, folder)
         self._try_id3v2(folder, tracks, comment)
-
+        if cover_url := info.get("cover_url"):
+            self._try_get_cover(folder, cover_url)
         subprocess.run(["/usr/bin/open", folder], check=False)
 
     def _fail(self, message: str) -> t.Never:
@@ -195,15 +197,19 @@ class SplitAlbum:
                 "id3v2",
                 "-T",
                 f"{row.number}/{len(tracks)}",
-                folder / f"{row.stem}.mp3",
+                f"{row.stem}.mp3",
                 *extra,
             ]
             for _, row in tracks.iterrows()
         ]
         for cmd in cmds:
-            proc = subprocess.run(cmd, check=False)
+            proc = subprocess.run(cmd, check=False, cwd=folder)
             if proc.returncode != 0:
                 return
+
+    def _try_get_cover(self, folder: Path, cover_url: str) -> None:
+        cmd = ["curl", "-O", cover_url]
+        subprocess.run(cmd, check=False, cwd=folder)
 
 
 if __name__ == "__main__":
