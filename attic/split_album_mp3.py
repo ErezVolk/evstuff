@@ -117,6 +117,8 @@ class SplitAlbum:
         tracks["number"] = tracks.index + 1
 
         folder = Path(f"{artist} - {album}")
+        tracks["album"] = album
+        tracks["artist"] = artist
         tracks["stem"] = tracks.number.astype(str) + " - " + tracks.title
 
         common_tags = f"@a={artist},@b={album},@y={year},@g={genre}"
@@ -192,17 +194,16 @@ class SplitAlbum:
 
     def _try_id3v2(self, folder: Path, tracks: pd.DataFrame, comment: str) -> None:
         extra = ["-c", comment] if comment else []
-        cmds = [
-            [
+        for _, row in tracks.iterrows():
+            cmd = [
                 "id3v2",
-                "-T",
-                f"{row.number}/{len(tracks)}",
+                "-a", row.artist,
+                "-A", row.album,
+                "-t", row.title,
+                "-T", f"{row.number}/{len(tracks)}",
                 f"{row.stem}.mp3",
                 *extra,
             ]
-            for _, row in tracks.iterrows()
-        ]
-        for cmd in cmds:
             proc = subprocess.run(cmd, check=False, cwd=folder)
             if proc.returncode != 0:
                 return
