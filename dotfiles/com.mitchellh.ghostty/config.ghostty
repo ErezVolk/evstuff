@@ -1,3 +1,6 @@
 # font-family = "MesloLGS NF"
 font-size = 18
 macos-titlebar-style = "tabs"
+tab-inherit-working-directory = false
+window-inherit-working-directory = false
+window-subtitle = working-directory
