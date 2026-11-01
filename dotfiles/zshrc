@@ -122,17 +122,19 @@ export RIPGREP_CONFIG_PATH="${HOME}/.ripgreprc"
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:${HOMEBREW_PREFIX}/bin:$PATH
-if [ -d "${HOMEBREW_PREFIX}/share/man:$MANPATH" ]; then
+if [[ -d "${HOMEBREW_PREFIX}/share/man:$MANPATH" ]]; then
        export MANPATH="${HOMEBREW_PREFIX}/share/man:$MANPATH"
 fi
 
+blacklist=(libtool)
+__blacklist="/(${(j:|:)blacklist})/"
 for d in ${HOMEBREW_PREFIX}/opt/*/libexec/gnubin; do
-        if [ -d $d ]; then
+        if [[ -d $d && ! $d =~ $__blacklist ]]; then
                 export PATH="$d:$PATH"
         fi
 done
 
-if [ -d ${HOMEBREW_PREFIX}/bin ]; then
+if [[ -d ${HOMEBREW_PREFIX}/bin ]]; then
         export PATH="${HOMEBREW_PREFIX}/bin:$PATH"
 fi
 
