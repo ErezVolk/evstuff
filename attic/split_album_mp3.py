@@ -17,7 +17,7 @@ import unidecode
 
 _TIME = r"(?P<time>[0-9]+:[0-9]+(:[0-9]+)?)"
 TRACK_EXPRS = (
-    rf"{_TIME} (?P<title>\S.*\S)",
+    rf"{_TIME}\s+(?P<title>\S.*\S)\s*",
     rf"""(\d+\)?)\s*(['"])(?P<title>[^'"]+)\2\s*\({_TIME}\)""",
     rf"""\d+[.)]?\s+(?P<title>\S.*\S)\s+{_TIME}""",
     rf"""(?P<title>[[A-Za-z][^0-9]*\S) {_TIME}""",
