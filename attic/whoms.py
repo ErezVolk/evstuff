@@ -129,6 +129,11 @@ class Whoms:
             action="store_true",
         )
         parser.add_argument(
+            "-A",
+            "--all",
+            action="store_true",
+        )
+        parser.add_argument(
             "-W",
             "--whom",
             help="Shorthand for a filter on substrings of `Whom`."
@@ -232,7 +237,10 @@ class Whoms:
             print("Nothing to work with. Probably bad filter.")
             return
 
-        unheard = albums.loc[albums.When.isna()]
+        if self.args.all:
+            unheard = albums.copy()
+        else:
+            unheard = albums.loc[albums.When.isna()]
         if not unheard.empty:
             self.choose_unheard(albums, unheard, whoms)
         else:
@@ -380,11 +388,12 @@ class Whoms:
             self.print_rows(unheard[is_wip])
 
         unheard = unheard[~is_wip]
-        sus = unheard[unheard.How.notna()]
-        n_sus = len(sus)
-        if n_sus > 0:
-            print(f"Unheard but described ({n_sus}):")
-            self.print_rows(sus)
+        if not self.args.all:
+            sus = unheard[unheard.How.notna()]
+            n_sus = len(sus)
+            if n_sus > 0:
+                print(f"Unheard but described ({n_sus}):")
+                self.print_rows(sus)
         return unheard
 
     def choose_heard(self, albums: pd.DataFrame) -> None:
