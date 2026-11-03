@@ -129,14 +129,13 @@ fi
 blacklist=(libtool)
 __blacklist="/(${(j:|:)blacklist})/"
 for d in ${HOMEBREW_PREFIX}/opt/*/libexec/gnubin; do
-        if [[ -d $d && ! $d =~ $__blacklist ]]; then
-                export PATH="$d:$PATH"
-        fi
+        [[ -d $d && ! $d =~ $__blacklist ]] && export PATH="$d:$PATH"
 done
 
-if [[ -d ${HOMEBREW_PREFIX}/bin ]]; then
-        export PATH="${HOMEBREW_PREFIX}/bin:$PATH"
-fi
+for p in ${HOMEBREW_PREFIX} ${HOME}/.cargo ${HOME}/.local; do
+        d=${p}/bin
+        [[ -d $d ]] && export PATH="$d:$PATH"
+done
 
 export PATH=$HOME/bin:${HOME}/.local/bin:$PATH
 
