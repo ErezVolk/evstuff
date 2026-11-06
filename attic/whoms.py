@@ -36,6 +36,9 @@ class Stats(t.NamedTuple):
         return self.desc
 
 
+NO_STATS = Stats("N/A", 0.0, 0.0, 0)
+
+
 class Whoms:
     """Recommend an album."""
 
@@ -138,6 +141,12 @@ class Whoms:
             "--whom",
             help="Shorthand for a filter on substrings of `Whom`."
         )
+        parser.add_argument(
+            "-2",
+            "--wprev",
+            action="store_true",
+            help="Make 'heard' mean 'heard once'.",
+        )
         self.args = parser.parse_args()
         self.parser = parser
 
@@ -175,7 +184,12 @@ class Whoms:
 
     def choose(self, albums: pd.DataFrame) -> None:
         """Choose albums, print reports."""
-        albums["heard"] = albums.When.notna()
+        if self.args.all:
+            albums["heard"] = False
+        else:
+            albums["heard"] = albums.When.notna()
+            if self.args.wprev:
+                albums["heard"] &= albums.When != albums.Wprev
         albums["Whom"] = albums.Whom.fillna("").replace(
             r"^([?]+|N/A)$", "", regex=True
         )
@@ -193,8 +207,14 @@ class Whoms:
         albums["hours"] = hours
         hours_total = hours.sum()
         hours_heard = hours[albums.heard].sum()
-        heard_stats = self.describe(albums[albums.heard].minutes)
-        unheard_stats = self.describe(albums[~albums.heard].minutes)
+        if albums.heard.any():
+            heard_stats = self.describe(albums[albums.heard].minutes)
+        else:
+            heard_stats = NO_STATS
+        if albums.heard.all():
+            unheard_stats = NO_STATS
+        else:
+            unheard_stats = self.describe(albums[~albums.heard].minutes)
         sep = "≉" if self.different(heard_stats, unheard_stats) else "≈"
         heards = [
             f"{k_of_n(albums.heard)} albums",
@@ -240,7 +260,7 @@ class Whoms:
         if self.args.all:
             unheard = albums.copy()
         else:
-            unheard = albums.loc[albums.When.isna()]
+            unheard = albums.loc[~albums.heard]
         if not unheard.empty:
             self.choose_unheard(albums, unheard, whoms)
         else:
@@ -388,7 +408,7 @@ class Whoms:
             self.print_rows(unheard[is_wip])
 
         unheard = unheard[~is_wip]
-        if not self.args.all:
+        if not self.args.all and not self.args.wprev:
             sus = unheard[unheard.How.notna()]
             n_sus = len(sus)
             if n_sus > 0:
@@ -400,7 +420,7 @@ class Whoms:
         """Choose things to relisten to."""
         relisten = albums[self.substr_map(albums.How, "relisten")]
         if self.args.relisten_all or (n_relisten := len(relisten)) <= 1:
-            relisten = albums[albums.When.notna()]
+            relisten = albums[~albums.heard]
             inset = "relisten"
         else:
             inset = f"relisten out of {n_relisten}"
