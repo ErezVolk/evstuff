@@ -13,8 +13,12 @@ __pycache__
 sandbox
 htmlcov
 .coverage
+
 *.xcuserstate
 *.xcuserdatad
+xcuserdata/
+project.xcworkspace/
+
 standards/real-books
 standards/.auto-*
 *.mscz
