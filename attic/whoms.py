@@ -291,10 +291,11 @@ class Whoms:
             ~which.Which.str.startswith("[")
         ].Which.value_counts().to_frame().reset_index()
 
-        ipy = importlib.import_module("IPython")  # Lazy import since why force it
-        config = ipy.terminal.ipapp.load_default_config()
-        config.InteractiveShellEmbed = config.TerminalInteractiveShell
+        tcfg = importlib.import_module("traitlets.config")
+        config = tcfg.Config()
         config.InteractiveShellEmbed.confirm_exit = False
+
+        ipy = importlib.import_module("IPython")
         ipy.embed(
             header="Check out " + ", ".join(ns),
             config=config,
@@ -674,5 +675,5 @@ if __name__ == "__main__":
 
 # /// script
 # requires-python = ">=3.14"
-# dependencies = ["pandas", "scipy", "seaborn", "odfpy", "ipython", "rich"]
+# dependencies = ["pandas", "scipy", "seaborn", "odfpy", "ipython", "rich", "traitlets"]
 # ///
