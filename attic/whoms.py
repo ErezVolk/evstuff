@@ -184,18 +184,7 @@ class Whoms:
 
     def choose(self, albums: pd.DataFrame) -> None:
         """Choose albums, print reports."""
-        if self.args.all:
-            albums["heard"] = False
-        else:
-            albums["heard"] = albums.When.notna()
-            if self.args.wprev:
-                albums["heard"] &= albums.When != albums.Wprev
-        albums["Whom"] = albums.Whom.fillna("").replace(
-            r"^([?]+|N/A)$", "", regex=True
-        )
-        albums["Whoms"] = albums.Whom.str.replace(
-            r"\s*[,&]\s*", "|", regex=True,
-        ).str.split("|")
+        albums = self._fix(albums)
 
         whalbums = albums.explode("Whoms").query("Whoms != ''")
         whoms = whalbums.Whoms.value_counts().to_frame("total")
@@ -205,8 +194,6 @@ class Whoms:
         hours = albums["dt"].apply(lambda dt: dt.hour + dt.minute / 60)
         albums["minutes"] = hours * 60
         albums["hours"] = hours
-        hours_total = hours.sum()
-        hours_heard = hours[albums.heard].sum()
         if albums.heard.any():
             heard_stats = self.describe(albums[albums.heard].minutes)
         else:
@@ -215,6 +202,9 @@ class Whoms:
             unheard_stats = NO_STATS
         else:
             unheard_stats = self.describe(albums[~albums.heard].minutes)
+
+        hours_total = hours.sum()
+        hours_heard = hours[albums.heard].sum()
         sep = "≉" if self.different(heard_stats, unheard_stats) else "≈"
         heards = [
             f"{k_of_n(albums.heard)} albums",
@@ -257,10 +247,7 @@ class Whoms:
             print("Nothing to work with. Probably bad filter.")
             return
 
-        if self.args.all:
-            unheard = albums.copy()
-        else:
-            unheard = albums.loc[~albums.heard]
+        unheard = albums.loc[~albums.heard]
         if not unheard.empty:
             self.choose_unheard(albums, unheard, whoms)
         else:
@@ -274,6 +261,23 @@ class Whoms:
                 "unheard": unheard,
             }
             self._interact(ns)
+
+    def _fix(self, albums: pd.DataFrame) -> pd.DataFrame:
+        if self.args.all:
+            albums["heard"] = False
+        elif self.args.wprev:
+            curr = albums.When.astype("string").str[:10]
+            prev = albums.Wprev.astype("string").str[:10]
+            albums["heard"] = albums.When.notna() & (curr != prev)
+        else:
+            albums["heard"] = albums.When.notna()
+        albums["Whom"] = albums.Whom.fillna("").replace(
+            r"^([?]+|N/A)$", "", regex=True
+        )
+        albums["Whoms"] = albums.Whom.str.replace(
+            r"\s*[,&]\s*", "|", regex=True,
+        ).str.split("|")
+        return albums
 
     def _interact(self, ns: dict[str, pd.DataFrame]) -> None:
         albums = ns["albums"]
