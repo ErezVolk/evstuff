@@ -9,7 +9,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from pathlib import PurePosixPath
 
-from lxml import etree  # type: ignore[import-untyped]
+from lxml import etree  # ty: ignore[import-not-found]
 
 __all__ = [
     "DocxWorker",
@@ -41,8 +41,8 @@ class DocxWorker(abc.ABC):
     doc: etree._ElementTree  # The "main" document
     docs: dict[str, etree._ElementTree]  # Stem -> content-holding XML tree
     izip: zf.ZipFile
-    styles: etree._Entity | None = None
     word_folder: zf.Path
+    _styles: etree._Entity | None = None
 
     @classmethod
     def glob_docs(cls, folder: Path | None = None) -> list[Path]:
@@ -96,11 +96,14 @@ class DocxWorker(abc.ABC):
         """Build a Path pointing to an XML inside the zip."""
         return self.word_folder / f"{stem}.xml"
 
+    @property
+    def styles(self) -> etree._Entity:
+        if self._styles is None:
+            self._styles = self.load_word_xml("styles").getroot()
+        return self._styles
+
     def find_style_id(self, name: str) -> str | None:
         """Get a style ID."""
-        if self.styles is None:
-            self.styles = self.load_word_xml("styles").getroot()
-
         expr = f"//w:style[w:name[@w:val='{name}']]"
         for node in self.xpath(self.styles, expr):
             return node.get(self.wtag("styleId"))
