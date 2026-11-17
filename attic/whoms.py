@@ -360,21 +360,21 @@ class Whoms:
         n_oldest_added = unheard.sort_values("n").head()
         oldest_added = n_oldest_added.sample(1).iloc[0]
         print(f"- (one of {len(n_oldest_added)} oldest added) "
-              f"{row_desc(oldest_added)}")
+              f"{self.row_desc(oldest_added)}")
         the_rest = unheard.drop(oldest_added.name)
 
         if not the_rest.empty:
             n_oldest_released = the_rest.sort_values("t").head()
             oldest_released = n_oldest_released.sample(1).iloc[0]
             print(f"- (one of {len(n_oldest_released)} oldest released) "
-                  f"{row_desc(oldest_released)}")
+                  f"{self.row_desc(oldest_released)}")
             the_rest = unheard.drop(oldest_released.name)
 
         if not the_rest.empty:
             n_longest = the_rest.sort_values("minutes").tail()
             longest = n_longest.sample(1).iloc[0]
             print(f"- (one of {len(n_longest)} longest) "
-                  f"{row_desc(longest)}")
+                  f"{self.row_desc(longest)}")
 
         new_guys = whoms.query("heard == 0")
         if len(stars := new_guys.query("total > 1")) > 0:
@@ -442,13 +442,13 @@ class Whoms:
     def print_rows(self, rows: pd.DataFrame) -> None:
         """Print a list of albums."""
         for _, row in rows.iterrows():
-            print(f"- {row_desc(row)}")
+            print(f"- {self.row_desc(row)}")
 
     def print_one_of(self, rows: pd.DataFrame | pd.Series, inset: str) -> None:
         """Print one random album with an extra text."""
         if rows.empty:
             return
-        print(f"- ({inset}) {row_desc(rows.sample(1).iloc[0])}")
+        print(f"- ({inset}) {self.row_desc(rows.sample(1).iloc[0])}")
 
     @classmethod
     def substr_map(cls, series: pd.Series, substr: str) -> pd.Series:
@@ -598,6 +598,21 @@ class Whoms:
         except FileNotFoundError:
             return None
 
+    def row_desc(self, row: pd.Series) -> str:
+        """Nicely format a "to listen" row."""
+        who = one_of(row.Who)
+        whom = one_of(row.Whom)
+        parts = [f"[{row.n}", f'"{row.What}"', f"({row.t}) by {one_of(row.Who)}"]
+        if not whom:
+            parts.append(f'({row["dt"]})')
+        else:
+            if who == whom:
+                whom = "[i]ibid.[/i]"
+            parts.append(f'(with {whom}, {row["dt"]})')
+        if self.args.wprev:
+            parts.append(f"(prev {str(row.Wprev)[:10]})")
+        return " ".join(parts)
+
     def run(
         self,
         args: list[str],
@@ -637,18 +652,6 @@ def read_digest(path: Path) -> str | None:
         return path.read_text(encoding="utf-8")
     except FileNotFoundError:
         return None
-
-
-def row_desc(row: pd.Series) -> str:
-    """Nicely format a "to listen" row."""
-    who = one_of(row.Who)
-    whom = one_of(row.Whom)
-    what = f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
-    if who == whom:
-        whom = "[i]ibid.[/i]"
-    elif not whom:
-        return f'{what} ({row["dt"]})'
-    return f'{what} (with {whom}, {row["dt"]})'
 
 
 def k_of_n(heard: pd.Series) -> str:
