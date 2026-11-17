@@ -613,7 +613,7 @@ class Whoms:
         """Nicely format a "to listen" row."""
         who = one_of(row.Who)
         whom = one_of(row.Whom)
-        parts = [f"[{row.n}", f'"{row.What}"', f"({row.t}) by {one_of(row.Who)}"]
+        parts = [f"[{row.n}]", f'"{row.What}"', f"({row.t}) by {one_of(row.Who)}"]
         if not whom:
             parts.append(f'({row["dt"]})')
         else:
