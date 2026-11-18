@@ -14,6 +14,8 @@ __all__ = [
     "DocxWorker",
 ]
 
+type XPathable = etree._Element | etree._ElementTree  # noqa: SLF001
+
 
 class DocxWorker(abc.ABC):
     """Do stuff to .docx files."""
@@ -97,6 +99,7 @@ class DocxWorker(abc.ABC):
 
     @property
     def styles(self) -> etree._Element:
+        """Get the styles XML."""
         if self._styles is None:
             self._styles = self.load_word_xml("styles").getroot()
         return self._styles
@@ -109,7 +112,7 @@ class DocxWorker(abc.ABC):
 
         return None
 
-    def xpath(self, node: etree._Element | etree._ElementTree, expr: str) -> Iterable[etree._Element]:
+    def xpath(self, node: XPathable, expr: str) -> Iterable[etree._Element]:
         """Wrap for etree.xpath, with namespaces."""
         yield from node.xpath(expr, namespaces=self._NS)
 
@@ -119,12 +122,12 @@ class DocxWorker(abc.ABC):
             yield from self.xpath(doc, expr)
 
     @classmethod
-    def find(cls, node: etree._Element | etree._ElementTree, expr: str) -> etree._Element | None:
+    def find(cls, node: XPathable, expr: str) -> etree._Element | None:
         """Wrap etree.find, with namespaces."""
         return node.find(expr, namespaces=cls._NS)
 
     @classmethod
-    def must_find(cls, node: etree._Element | etree._ElementTree, expr: str) -> etree._Element:
+    def must_find(cls, node: XPathable, expr: str) -> etree._Element:
         """Wrap etree.find, with namespaces."""
         found = cls.find(node, expr)
         if not found:

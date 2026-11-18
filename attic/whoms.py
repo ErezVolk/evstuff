@@ -10,13 +10,12 @@ import time
 import typing as t
 from pathlib import Path
 
-lazy import IPython
-lazy import seaborn as sns
-lazy import traitlets.config
-
 import pandas as pd
 import scipy.stats
 from rich import print as rprint
+lazy import IPython
+lazy import seaborn as sns
+lazy import traitlets.config
 
 
 class Paths(t.NamedTuple):
