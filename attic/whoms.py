@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pandas as pd  # ty: ignore[unresolved-import]
 import scipy.stats  # ty: ignore[unresolved-import]
-from rich import print  # ty: ignore[unresolved-import]
+from rich import print as rprint  # ty: ignore[unresolved-import]b0
 
 
 class Paths(t.NamedTuple):
@@ -173,7 +173,7 @@ class Whoms:
                 errors.append(f"No {path}...")
         else:
             for error in errors:
-                print(error)
+                rprint(error)
             self.fail("Please specify --inputs")
 
         if not self.args.convert_and_exit:
@@ -194,14 +194,7 @@ class Whoms:
         hours = albums["dt"].apply(lambda dt: dt.hour + dt.minute / 60)
         albums["minutes"] = hours * 60
         albums["hours"] = hours
-        if albums.heard.any():
-            heard_stats = self.describe(albums[albums.heard].minutes)
-        else:
-            heard_stats = NO_STATS
-        if albums.heard.all():
-            unheard_stats = NO_STATS
-        else:
-            unheard_stats = self.describe(albums[~albums.heard].minutes)
+        heard_stats, unheard_stats = self._get_hearing_stats(albums)
 
         hours_total = hours.sum()
         hours_heard = hours[albums.heard].sum()
@@ -218,7 +211,7 @@ class Whoms:
                 f")"
             ),
         ]
-        print("Heard", ", ".join(heards))
+        rprint("Heard", ", ".join(heards))
 
         whoms["cov"] = whoms.heard / whoms.total
         if self.args.output:
@@ -226,8 +219,8 @@ class Whoms:
         if self.args.graph:
             self.write_pdf(self.args.graph, albums)
         if self.args.verbose:
-            print(whoms.iloc[:5])
-            print()
+            rprint(whoms.iloc[:5])
+            rprint()
 
         self.check_numbers(albums)
 
@@ -240,18 +233,18 @@ class Whoms:
             try:
                 albums = albums.query(self.args.query)
             except (NameError, KeyError) as exc:
-                print("Bad query:", exc)
+                rprint("Bad query:", exc)
                 return
 
         if albums.empty:
-            print("Nothing to work with. Probably bad filter.")
+            rprint("Nothing to work with. Probably bad filter.")
             return
 
         unheard = albums.loc[~albums.heard]
         if not unheard.empty:
             self.choose_unheard(albums, unheard, whoms)
         else:
-            print("Time to find more music.")
+            rprint("Time to find more music.")
         self.choose_heard(albums)
 
         if self.args.interact:
@@ -261,6 +254,17 @@ class Whoms:
                 "unheard": unheard,
             }
             self._interact(ns)
+
+    def _get_hearing_stats(self, albums: pd.DataFrame) -> tuple[str, str]:
+        if albums.heard.any():
+            heard_stats = self.describe(albums[albums.heard].minutes)
+        else:
+            heard_stats = NO_STATS
+        if albums.heard.all():
+            unheard_stats = NO_STATS
+        else:
+            unheard_stats = self.describe(albums[~albums.heard].minutes)
+        return (heard_stats, unheard_stats)
 
     def _fix(self, albums: pd.DataFrame) -> pd.DataFrame:
         if self.args.all:
@@ -354,27 +358,27 @@ class Whoms:
             shorts = unheard
         sample_size = min(self.args.count, len(shorts))
         offer = shorts.sample(n=sample_size).sort_values("n")
-        print(f"Suggestions ({len(offer)} / {len(shorts)} / {len(unheard)}):")
+        rprint(f"Suggestions ({len(offer)} / {len(shorts)} / {len(unheard)}):")
         self.print_rows(offer)
 
         n_oldest_added = unheard.sort_values("n").head()
         oldest_added = n_oldest_added.sample(1).iloc[0]
-        print(f"- (one of {len(n_oldest_added)} oldest added) "
-              f"{row_desc(oldest_added)}")
+        rprint(f"- (one of {len(n_oldest_added)} oldest added) "
+              f"{self.row_desc(oldest_added)}")
         the_rest = unheard.drop(oldest_added.name)
 
         if not the_rest.empty:
             n_oldest_released = the_rest.sort_values("t").head()
             oldest_released = n_oldest_released.sample(1).iloc[0]
-            print(f"- (one of {len(n_oldest_released)} oldest released) "
-                  f"{row_desc(oldest_released)}")
+            rprint(f"- (one of {len(n_oldest_released)} oldest released) "
+                  f"{self.row_desc(oldest_released)}")
             the_rest = unheard.drop(oldest_released.name)
 
         if not the_rest.empty:
             n_longest = the_rest.sort_values("minutes").tail()
             longest = n_longest.sample(1).iloc[0]
-            print(f"- (one of {len(n_longest)} longest) "
-                  f"{row_desc(longest)}")
+            rprint(f"- (one of {len(n_longest)} longest) "
+                  f"{self.row_desc(longest)}")
 
         new_guys = whoms.query("heard == 0")
         if len(stars := new_guys.query("total > 1")) > 0:
@@ -402,14 +406,14 @@ class Whoms:
         delta = albums.n.diff().dropna()
         bad = delta.index[delta != 1]
         if not bad.empty:
-            print("[b]NB[/b]: Bad [i]n[/i] in line(s)", ", ".join(map(str, bad + 1)))
+            rprint("[b]NB[/b]: Bad [i]n[/i] in line(s)", ", ".join(map(str, bad + 1)))
 
     def show_wip(self, unheard: pd.DataFrame) -> pd.DataFrame:
         """Remind user of work in progress."""
         is_wip = self.substr_map(unheard.How, "WIP")
         n_wip = sum(is_wip)
         if n_wip > 0:
-            print(f"Work In Progress ({n_wip}):")
+            rprint(f"Work In Progress ({n_wip}):")
             self.print_rows(unheard[is_wip])
 
         unheard = unheard[~is_wip]
@@ -417,7 +421,7 @@ class Whoms:
             sus = unheard[unheard.How.notna()]
             n_sus = len(sus)
             if n_sus > 0:
-                print(f"Unheard but described ({n_sus}):")
+                rprint(f"Unheard but described ({n_sus}):")
                 self.print_rows(sus)
         return unheard
 
@@ -429,26 +433,33 @@ class Whoms:
             inset = "relisten"
         else:
             inset = f"relisten out of {n_relisten}"
-        self.print_one_of(relisten, inset)
+        self.print_one_of(relisten, inset, with_date=True)
 
     def report_times(self) -> None:
         """Print what took so long."""
         if not self.times:
             return
-        print("\nDurations:")
+        rprint("\nDurations:")
         for cmd, duration in sorted(self.times.items(), key=lambda e: -e[1]):
-            print(f" [{duration:.02f} Sec]\t{cmd}")
+            rprint(f" [{duration:.02f} Sec]\t{cmd}")
 
     def print_rows(self, rows: pd.DataFrame) -> None:
         """Print a list of albums."""
         for _, row in rows.iterrows():
-            print(f"- {row_desc(row)}")
+            rprint(f"- {self.row_desc(row)}")
 
-    def print_one_of(self, rows: pd.DataFrame | pd.Series, inset: str) -> None:
+    def print_one_of(
+        self,
+        rows: pd.DataFrame | pd.Series,
+        inset: str,
+        *,
+        with_date: bool = False
+    ) -> None:
         """Print one random album with an extra text."""
         if rows.empty:
             return
-        print(f"- ({inset}) {row_desc(rows.sample(1).iloc[0])}")
+        row = rows.sample(1).iloc[0]
+        rprint(f"- ({inset}) {self.row_desc(row, with_date=with_date)}")
 
     @classmethod
     def substr_map(cls, series: pd.Series, substr: str) -> pd.Series:
@@ -471,7 +482,7 @@ class Whoms:
             x="minutes", hue="heard",
             kde=True,
         )
-        print(f"Writing {path}")
+        rprint(f"Writing {path}")
         fig.savefig(path)
 
     def deflatten(self, flat: Path) -> Path:
@@ -560,7 +571,7 @@ class Whoms:
     def _convert(
         self, flat: Path, dest: Path, where: Path, disp: str | None = None
     ) -> None:
-        print(f"{disp or flat.name} -> {dest.name}")
+        rprint(f"{disp or flat.name} -> {dest.name}")
         cmd = [
             "soffice",
             "--headless", "--convert-to", dest.suffix.removeprefix("."),
@@ -592,11 +603,27 @@ class Whoms:
         """Run a Git command."""
         cmd = ["git", *args]
         if echo:
-            print(">", " ".join(cmd))
+            rprint(">", " ".join(cmd))
         try:
             return self.run(cmd, cwd=cwd, check=check, redirect=redirect)
         except FileNotFoundError:
             return None
+
+    def row_desc(self, row: pd.Series, *, with_date: bool = False) -> str:
+        """Nicely format a "to listen" row."""
+        who = one_of(row.Who)
+        whom = one_of(row.Whom)
+        parts = [f"[{row.n}]", f'"{row.What}"', f"({row.t}) by {one_of(row.Who)}"]
+        if not whom:
+            parts.append(f'({row["dt"]})')
+        else:
+            if who == whom:
+                whom = "[i]ibid.[/i]"
+            parts.append(f'(with {whom}, {row["dt"]})')
+        if with_date or self.args.wprev:
+            if row.When:
+                parts.append(f"(heard {str(row.When)[:10]})")
+        return " ".join(parts)
 
     def run(
         self,
@@ -637,18 +664,6 @@ def read_digest(path: Path) -> str | None:
         return path.read_text(encoding="utf-8")
     except FileNotFoundError:
         return None
-
-
-def row_desc(row: pd.Series) -> str:
-    """Nicely format a "to listen" row."""
-    who = one_of(row.Who)
-    whom = one_of(row.Whom)
-    what = f'[{row.n}] "{row.What}" ({row.t}) by {one_of(row.Who)}'
-    if who == whom:
-        whom = "[i]ibid.[/i]"
-    elif not whom:
-        return f'{what} ({row["dt"]})'
-    return f'{what} (with {whom}, {row["dt"]})'
 
 
 def k_of_n(heard: pd.Series) -> str:
