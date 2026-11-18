@@ -3,7 +3,6 @@
 
 import argparse
 import hashlib
-import importlib
 import shlex
 import subprocess
 import tempfile
@@ -11,9 +10,13 @@ import time
 import typing as t
 from pathlib import Path
 
-import pandas as pd  # ty: ignore[unresolved-import]
-import scipy.stats  # ty: ignore[unresolved-import]
-from rich import print as rprint  # ty: ignore[unresolved-import]b0
+lazy import IPython
+lazy import seaborn as sns
+lazy import traitlets.config
+
+import pandas as pd
+import scipy.stats
+from rich import print as rprint
 
 
 class Paths(t.NamedTuple):
@@ -295,12 +298,10 @@ class Whoms:
             ~which.Which.str.startswith("[")
         ].Which.value_counts().to_frame().reset_index()
 
-        tcfg = importlib.import_module("traitlets.config")
-        config = tcfg.Config()
+        config = traitlets.config.Config()
         config.InteractiveShellEmbed.confirm_exit = False
 
-        ipy = importlib.import_module("IPython")
-        ipy.embed(
+        IPython.embed(
             header="Check out " + ", ".join(ns),
             config=config,
             user_ns=ns,
@@ -475,7 +476,6 @@ class Whoms:
 
     def write_pdf(self, path: Path, albums: pd.DataFrame) -> None:
         """Write some stats as a graph."""
-        sns = importlib.import_module("seaborn")  # Lazy import since it's slow
         sns.set()
         fig = sns.displot(
             data=albums,
@@ -689,6 +689,6 @@ if __name__ == "__main__":
     Whoms().main()
 
 # /// script
-# requires-python = ">=3.14"
+# requires-python = ">=3.15"
 # dependencies = ["pandas", "scipy", "seaborn", "odfpy", "ipython", "rich", "traitlets"]
 # ///

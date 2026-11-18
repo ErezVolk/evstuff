@@ -19,10 +19,10 @@ class DocxShuffle(DocxWorker):
 
     parser: argparse.ArgumentParser
     args: argparse.Namespace
-    body: etree._Entity
+    body: etree._Element
     rng: np.random.Generator
-    l2ps: dict[str, etree._Entity]
-    meat_pnodes: list[etree._Entity]
+    l2ps: dict[str, list[etree._Element]]
+    meat_pnodes: list[etree._Element]
     seed_path: Path
 
     def parse_args(self) -> None:
@@ -130,7 +130,7 @@ class DocxShuffle(DocxWorker):
                 self.wtag("commentRangeEnd"),
             )
 
-        self.body = self.find(self.doc, "./w:body")
+        self.body = self.must_find(self.doc, "./w:body")
         self.parse_text()
 
         new_pnodes = [random.choice(pnodes) for pnodes in self.l2ps.values()]
@@ -204,7 +204,11 @@ class DocxShuffle(DocxWorker):
 
         self.l2ps = defaultdict(list)
         for pnode in pnodes:
-            text = "".join(tnode.text for tnode in self.pnode_tnodes(pnode))
+            text = "".join(
+                tnode.text
+                for tnode in self.pnode_tnodes(pnode)
+                if tnode.text
+            )
             if len(text) < self.args.min_length:
                 continue
             if self.args.max_length:
@@ -238,7 +242,8 @@ class DocxShuffle(DocxWorker):
     def destyle(self) -> None:
         """Remove all paragraph style references."""
         for node in self.xpath(self.body, "./w:p/w:pPr/w:pStyle"):
-            node.getparent().remove(node)
+            if (parent := node.getparent()) is not None:
+                parent.remove(node)
 
     def restyle(self) -> None:
         """Replace all paragraph styles."""
@@ -281,7 +286,7 @@ class DocxShuffle(DocxWorker):
         with self.seed_path.open("wb") as fobj:
             pickle.dump(self.rng, fobj)
 
-    def reorder(self, pnodes: list[etree._Entity]) -> None:
+    def reorder(self, pnodes: list[etree._Element]) -> None:
         """Replace paragraphs with new order."""
         for pnode in list(self.xpath(self.body, "./w:p")):
             self.body.remove(pnode)
@@ -308,4 +313,7 @@ if __name__ == "__main__":
 
 # /// script
 # dependencies = ["numpy", "lxml", "lxml-stubs"]
+#
+# [tool.ty.environment]
+# root = ["."]
 # ///

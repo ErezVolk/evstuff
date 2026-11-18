@@ -5,7 +5,7 @@ import json
 import re
 from pathlib import Path
 
-import requests  # ty: ignore[unresolved-import]
+import requests
 from lxml import etree
 
 
@@ -75,7 +75,7 @@ class BingWallpaper:
         self.args = parser.parse_args()
 
         if not self.args.allow_ipv6:
-            requests.packages.urllib3.util.connection.HAS_IPV6 = False
+            requests.packages.urllib3.util.connection.HAS_IPV6 = False  # ty: ignore[missing-attribute]
 
     def scan_existing(self) -> None:
         """Find out what files we already have."""

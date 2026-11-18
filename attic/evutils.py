@@ -1,5 +1,4 @@
 """Common utilities."""
-# ruff: noqa: SLF001, C901, PLW2901, PLR0912
 import argparse
 import shlex
 import sys

@@ -1,8 +1,29 @@
 [project]
 name = "evstuff"
 version = "0.1"
-requires-python = ">= 3.14"
+requires-python = ">= 3.15"
+dependencies = [
+  "audioop-lts",
+  "ipython",
+  "lxml",
+  "lxml-stubs",
+  "numpy",
+  "odfpy",
+  "pandas",
+  "pyaudio",
+  "pydub",
+  "requests",
+  "rich",
+  "seaborn",
+  "scipy",
+  "traitlets",
+  "types-lxml",
+]
 
+[tool.pylint.MASTER]
+extension-pkg-allow-list = [
+    "lxml",
+]
 
 [tool.ruff]
 line-length = 88

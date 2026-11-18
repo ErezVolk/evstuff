@@ -1,5 +1,4 @@
 """DocxWorker: Base class for scripts that do stuff to .docx files."""
-# pyright: reportAttributeAccessIssue=false
 import abc
 import typing as t
 import zipfile as zf
@@ -9,7 +8,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from pathlib import PurePosixPath
 
-from lxml import etree  # ty: ignore[import-not-found]
+from lxml import etree
 
 __all__ = [
     "DocxWorker",
@@ -42,7 +41,7 @@ class DocxWorker(abc.ABC):
     docs: dict[str, etree._ElementTree]  # Stem -> content-holding XML tree
     izip: zf.ZipFile
     word_folder: zf.Path
-    _styles: etree._Entity | None = None
+    _styles: etree._Element | None = None
 
     @classmethod
     def glob_docs(cls, folder: Path | None = None) -> list[Path]:
@@ -97,7 +96,7 @@ class DocxWorker(abc.ABC):
         return self.word_folder / f"{stem}.xml"
 
     @property
-    def styles(self) -> etree._Entity:
+    def styles(self) -> etree._Element:
         if self._styles is None:
             self._styles = self.load_word_xml("styles").getroot()
         return self._styles
@@ -106,23 +105,31 @@ class DocxWorker(abc.ABC):
         """Get a style ID."""
         expr = f"//w:style[w:name[@w:val='{name}']]"
         for node in self.xpath(self.styles, expr):
-            return node.get(self.wtag("styleId"))
+            return node.attrib.get(self.wtag("styleId"))
 
         return None
 
-    def xpath(self, node: etree._Entity, expr: str) -> Iterable[etree._Entity]:
+    def xpath(self, node: etree._Element | etree._ElementTree, expr: str) -> Iterable[etree._Element]:
         """Wrap for etree.xpath, with namespaces."""
         yield from node.xpath(expr, namespaces=self._NS)
 
-    def doc_xpath(self, expr: str) -> Iterable[etree._Entity]:
+    def doc_xpath(self, expr: str) -> Iterable[etree._Element]:
         """Xpath for each content document."""
         for doc in self.docs.values():
             yield from self.xpath(doc, expr)
 
     @classmethod
-    def find(cls, node: etree._Entity, expr: str) -> etree._Entity:
+    def find(cls, node: etree._Element | etree._ElementTree, expr: str) -> etree._Element | None:
         """Wrap etree.find, with namespaces."""
         return node.find(expr, namespaces=cls._NS)
+
+    @classmethod
+    def must_find(cls, node: etree._Element | etree._ElementTree, expr: str) -> etree._Element:
+        """Wrap etree.find, with namespaces."""
+        found = cls.find(node, expr)
+        if not found:
+            raise RuntimeError(f"Could not find {expr!r}")
+        return found
 
     @classmethod
     def wtag(cls, tag: str) -> str:
@@ -179,7 +186,7 @@ class DocxWorker(abc.ABC):
         self,
         tag: str,
         attrib: dict[str, str] | None = None,
-    ) -> etree._Entity:
+    ) -> etree._Element:
         """Create <w:*> node."""
         if attrib:
             attrib = {self.wtag(key): val for key, val in attrib.items()}
@@ -188,11 +195,11 @@ class DocxWorker(abc.ABC):
     R_XPATH = "w:r | w:ins/w:r | w:hyperlink/w:r"
     RT_XPATH = f"({R_XPATH})/w:t"
 
-    def pnode_tnodes(self, pnode: etree._Entity) -> Iterable[etree._Entity]:
+    def pnode_tnodes(self, pnode: etree._Element) -> Iterable[etree._Element]:
         """Yield every w:r/w:t node in a w:p node."""
         yield from self.xpath(pnode, self.RT_XPATH)
 
-    def pnode_text(self, pnode: etree._Entity) -> Iterable[str]:
+    def pnode_text(self, pnode: etree._Element) -> Iterable[str]:
         """Yield chunks of text."""
         for rnode in self.xpath(pnode, self.R_XPATH):
             for node in self.xpath(rnode, "w:tab | w:t | w:br[not(@*)]"):
