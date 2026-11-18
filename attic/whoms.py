@@ -255,7 +255,7 @@ class Whoms:
             }
             self._interact(ns)
 
-    def _get_hearing_stats(self, albums: pd.DataFrame) -> tuple[str, str]:
+    def _get_hearing_stats(self, albums: pd.DataFrame) -> tuple[Stats, Stats]:
         if albums.heard.any():
             heard_stats = self.describe(albums[albums.heard].minutes)
         else:
