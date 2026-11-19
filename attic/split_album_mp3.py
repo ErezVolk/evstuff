@@ -21,6 +21,7 @@ TRACK_EXPRS = (
     rf"""(\d+\)?)\s*(['"])(?P<title>[^'"]+)\2\s*\({_TIME}\)""",
     rf"""\d+[.)]?\s+(?P<title>\S.*\S)\s+{_TIME}""",
     rf"""(?P<title>[[A-Za-z][^0-9]*\S) {_TIME}""",
+    rf'''"(?P<title>[[A-Za-z][^0-9]*\S)"\s+-\s+{_TIME}''',
 )
 
 NOT_COMMA = "_"
@@ -172,7 +173,8 @@ class SplitAlbum:
         proc = subprocess.run(cmd, check=True, capture_output=True, encoding="utf-8")
         whole = Path(proc.stdout.strip())
         if not whole.is_file():
-            if not (whole := whole.with_suffix(".mp3")).is_file():
+            whole = whole.with_suffix(".mp3")
+            if not whole.is_file():
                 raise RuntimeError("Can't find downloaded file")
         print(f"Downloaded {whole}")
         return str(whole)
