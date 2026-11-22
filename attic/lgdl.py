@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 """Search and download from libgen."""
 import argparse
 import logging
@@ -12,12 +12,12 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-import bs4  # type: ignore[import-untyped]
-import requests  # type: ignore[import-untyped]
-import requests.exceptions  # type: ignore[import-untyped]
-import rich.logging  # type: ignore[import-untyped]
-import rich.progress  # type: ignore[import-untyped]
-from simple_term_menu import TerminalMenu  # type: ignore[import-untyped]
+import bs4
+import requests
+import requests.exceptions
+import rich.logging
+import rich.progress
+from simple_term_menu import TerminalMenu  # ty: ignore[import-not-found]
 
 ANSI_BOLD = "\033[1m"
 ANSI_CLEAR = "\033[0m"
@@ -726,3 +726,8 @@ class Http:
 
 if __name__ == "__main__":
     LibgenDownload().run()
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["requests", "rich", "simple_term_menu", "beautifulsoup4"]
+# ///

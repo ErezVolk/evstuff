@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from pathlib import Path
 
-from wp2tt.docx import DocxInput
+from wp2tt.docx import DocxInput  # ty: ignore[import-not-found]
 
 _NIQQ = "\u05B0-\u05BC\u05C1\u05C2"
 _ALPH = "\u05D0-\u05EA"

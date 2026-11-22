@@ -14,7 +14,7 @@ import pandas as pd
 
 JCPC = Path("Jazz-Chord-Progressions-Corpus")
 
-Fields: t.TypeAlias = dict[str, str]
+Fields: t.TypeAlias = dict[str, str | int]
 
 
 class Feedable(abc.ABC):
@@ -393,8 +393,9 @@ def num2let(num: int) -> str:
     return LETTERS[num % 12]
 
 
-def let2num(letter: str) -> int:
+def let2num(letter: str | int) -> int:
     """Convert things like A# to a number in base-12."""
+    assert isinstance(letter, str)
     base = "CCDDEFFGGAAB".index(letter[0])
     if len(letter) == 1:
         return base
