@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-import pymupdf  # ty: ignore[unresolved-import]
+import pymupdf
 
 HALF = pymupdf.Matrix(.5, .5)
 
@@ -76,13 +76,13 @@ def extract_annotations() -> None:
     outdoc.ez_save(args.output)
 
 
-def should_copy(inpage: pymupdf.Page, modoc: pymupdf.Document) -> bool:
+def should_copy(inpage: pymupdf.Page, modoc: pymupdf.Document | None) -> bool:
     """Check whether a page should be copied."""
     if inpage.annot_names():
         return True
     if modoc is None:
         return False
-    mopage = modoc[inpage.number]
+    mopage = modoc.load_page(inpage.number)
     inpix = inpage.get_pixmap(matrix=HALF)
     mopix = mopage.get_pixmap(matrix=HALF)
     return inpix.digest != mopix.digest

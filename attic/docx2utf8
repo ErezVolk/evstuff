@@ -6,7 +6,7 @@ import typing as t
 import unicodedata as ud
 from pathlib import Path
 
-from docx_worker import DocxWorker  # type: ignore[import-not-found]
+from docx_worker import DocxWorker
 
 Strings: t.TypeAlias = t.Iterable[str]
 
@@ -62,6 +62,7 @@ class Docx2Utf8(DocxWorker):
         npars = self.nlines = 0
         with self.outpath.open("w", encoding="utf-8") as ofo:
             body = self.find(self.doc, "./w:body")
+            assert body is not None
             try:
                 for pno in self.xpath(body, "./w:p"):
                     npars += 1
@@ -116,4 +117,7 @@ if __name__ == "__main__":
 # /// script
 # requires-python = ">=3.14"
 # dependencies = ["lxml"]
+#
+# [tool.ty.environment]
+# root = ["."]
 # ///

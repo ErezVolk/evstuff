@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 """Simple 2-up for PDFs."""
-# pyright: reportMissingImports=false
-# pylint: disable=import-error
-
 import argparse
 from pathlib import Path
 

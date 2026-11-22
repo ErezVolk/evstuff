@@ -14,9 +14,9 @@ import typing as t
 from pathlib import Path
 
 import numpy as np
-import pandas as pd  # ty: ignore[unresolved-import]
-import pymupdf  # ty: ignore[unresolved-import]
-from google.cloud import texttospeech as gg_tts  # ty: ignore[unresolved-import]
+import pandas as pd
+import pymupdf
+from google.cloud import texttospeech as gg_tts  # ty: ignore[import-not-found]
 
 PAUSE_TO_GAP_MS = {3: 4000, 2: 3000, 1: 1000}
 PAUSE_TO_MIN_WORDS = {3: 1, 2: 5, 1: 20}
@@ -266,7 +266,7 @@ class Pdf2Utf:
         words = pd.DataFrame.from_records(
             [
                 [page_no, page.get_label() or str(page_no), * rec]
-                for page_no, page in enumerate(doc, 1)
+                for page_no, page in enumerate(doc.pages(), 1)
                 for rec in self.get_page_text(page)
             ],
             columns=[

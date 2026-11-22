@@ -12,6 +12,7 @@ dependencies = [
   "pandas",
   "pyaudio",
   "pydub",
+  "pymupdf",
   "requests",
   "rich",
   "seaborn",

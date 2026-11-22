@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-import pymupdf  # ty: ignore[unresolved-import]
+import pymupdf
 
 
 def main() -> None:
