@@ -21,9 +21,9 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-import requests  # ty: ignore[unresolved-import]
-from bs4 import BeautifulSoup  # ty: ignore[unresolved-import]
-from bs4 import Tag  # ty: ignore[unresolved-import]
+import requests
+from bs4 import BeautifulSoup
+from bs4 import Tag
 
 WIKI = "en.wikipedia.org"
 ALLM = "www.allmusic.com"
@@ -205,14 +205,18 @@ class AlbumRatings:
         url_to_album: dict[str, Album] = {}
         url: str | None
         for rating in soup.select("td.musicRating div.allmusicRating"):
-            anchor = rating.parent.parent.select_one("td.meta span.title a[href]")
+            if not (parent := rating.parent):
+                continue
+            if not (grandparent := parent.parent):
+                continue
+            anchor = grandparent.select_one("td.meta span.title a[href]")
             if not anchor:
                 continue
             url = self.get_allmusic_url(anchor.get("href"))
             if not url:
                 continue
             url_to_album[url] = Album(
-                title=anchor.get("title") or url,
+                title=self._get_or(anchor, "title", url),
                 url=url,
                 site=ALLM,
                 scores=self.parse_allmusic_rating_tag(rating),
@@ -221,15 +225,15 @@ class AlbumRatings:
             url = self.get_allmusic_url(anchor.get("href"))
             if url and url not in url_to_album:
                 url_to_album[url] = Album(
-                    title=anchor.get("title") or url,
+                    title=self._get_or(anchor, "title", url),
                     url=url,
                     site=ALLM,
                 )
         return list(url_to_album.values())
 
-    def get_allmusic_url(self, href: str | None) -> str | None:
+    def get_allmusic_url(self, href) -> str | None:
         """Get the URL for an ALlMusic album."""
-        if href is None:
+        if not isinstance(href, str):
             return None
         parts = urllib.parse.urlsplit(href)
         if parts.netloc and parts.netloc.lower() != ALLM:
@@ -272,7 +276,7 @@ class AlbumRatings:
     def anchor_to_album(self, anchor: Tag) -> Album | None:
         """Turn a wiki-link into an Album, or None if it is not an article."""
         href = anchor.get("href") or ""
-        if not href:
+        if not isinstance(href, str):
             return None
         parts = urllib.parse.urlsplit(href)
         if parts.netloc and parts.netloc.lower() != WIKI:
@@ -314,7 +318,7 @@ class AlbumRatings:
             return None
         return self.parse_allmusic_rating_tag(rating)
 
-    def parse_allmusic_rating_tag(self, rating: BeautifulSoup) -> Scores:
+    def parse_allmusic_rating_tag(self, rating: Tag) -> Scores:
         """Parse a rating tag."""
         score = 0
         for klass in rating["class"]:
@@ -359,7 +363,8 @@ class AlbumRatings:
     def cell_rating(self, row: Tag, cell: Tag) -> str:
         """Rating from a row: star title ("4/5") if present, else cell text."""
         for element in row.find_all(name=True):
-            match = STARS_RE.search(element.get("title") or "")
+            title = self._get_or(element, "title")
+            match = STARS_RE.search(title)
             if match:
                 return match.group(1)
         return self.cell_text(cell)
@@ -378,6 +383,10 @@ class AlbumRatings:
         response = self.session.get(url, timeout=30)
         response.raise_for_status()
         return BeautifulSoup(response.text, "lxml")
+
+    def _get_or(self, tag: Tag, key: str, default: str = "") -> str:
+        value = tag.get(key)
+        return value if isinstance(value, str) else default
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ import subprocess
 import sys
 import typing as t
 
-import beaupy  # ty: ignore[unresolved-import]
+import beaupy  # ty: ignore[import-not-found]
 
 BLUETOOTH_PAGE = "x-apple.systempreferences:com.apple.preferences.Bluetooth"
 

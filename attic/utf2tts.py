@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-from google.cloud import texttospeech as gg_tts  # ty: ignore[unresolved-import]
+from google.cloud import texttospeech as gg_tts  # ty: ignore[import-not-found]
 
 PAUSE_TO_GAP_MS = {3: 4000, 2: 3000, 1: 1000}
 

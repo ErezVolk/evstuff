@@ -9,8 +9,8 @@ import sys
 import typing as t
 from pathlib import Path
 
-import pandas as pd  # ty: ignore[unresolved-import]
-from docxtpl import DocxTemplate  # ty: ignore[unresolved-import]
+import pandas as pd  # ty: ignore[import-not-found]
+from docxtpl import DocxTemplate  # ty: ignore[import-not-found]
 
 HERE = Path.cwd().resolve()
 THIS = Path(__file__).resolve()

@@ -1,5 +1,5 @@
 #!/usr/bin/env -S uv run --script
-# ty: ignore[unresolved-import]
+# ty: ignore[import-not-found]
 """Split album."""
 
 import mimetypes

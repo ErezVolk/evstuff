@@ -19,6 +19,8 @@ from lxml import etree
 
 from docx_worker import DocxWorker
 
+type NodeType = etree._Entity | etree._Element
+
 
 class Proof(DocxWorker):
     """Checks things in .docx files."""
@@ -175,7 +177,7 @@ class Proof(DocxWorker):
     antidict: re.Pattern | None
     antiwords: Counter
     args: argparse.Namespace
-    comments: dict[str, list[etree._Entity]]
+    comments: dict[str, list[NodeType]]
     formula_style_id: str
     opath: Path
 
@@ -239,14 +241,14 @@ class Proof(DocxWorker):
             print(f"Writing {output}")
             doc.write(output, encoding="utf-8", pretty_print=True)
 
-    def _first(self, node: etree._Entity, expr: str) -> etree._Entity | None:
+    def _first(self, node: NodeType, expr: str) -> NodeType | None:
         """Return first entity matching xpath."""
         for entity in self.xpath(node, expr):
             return entity
         return None
 
     @classmethod
-    def _find(cls, node: etree._Entity, expr: str) -> etree._Entity:
+    def _find(cls, node: NodeType, expr: str) -> NodeType | None:
         """Wrap etree.find, with namespaces."""
         return node.find(expr, namespaces=cls._NS)
 
@@ -320,7 +322,8 @@ class Proof(DocxWorker):
                 addend = self._mknode(rnode, text[idx_prev:], italic=False)
                 rnode.addprevious(addend)
                 self._count("non-italicized part", addend)
-            rnode.getparent().remove(rnode)
+            if (parent := rnode.getparent()):
+                parent.remove(rnode)
 
         return self.counts[self.TOTAL_ITALICIZED_KEY] > 0
 
@@ -332,6 +335,7 @@ class Proof(DocxWorker):
             f"]/w:t[re:test(., ' ')]"  # Contains spaces
         )
         for tnode in self.doc_xpath(expr):
+            assert tnode.text is not None
             tnode.text = tnode.text.replace(" ", "\xA0")
             self._count("nbsp", tnode)
 
@@ -391,10 +395,16 @@ class Proof(DocxWorker):
         )
         for tnode in self.doc_xpath(expr):
             self._count("rtl formulas", tnode)
-            self._count(f"rtl formula: {tnode.text.strip()!r}")
-            tnode.text = tnode.text.translate(self.FLIP)
-            rtl = self.find(tnode.getparent(), "./w:rPr/w:rtl")
-            rtl.getparent().remove(rtl)
+            if (text := tnode.text) is None:
+                continue
+            self._count(f"rtl formula: {text.strip()!r}")
+            tnode.text = text.translate(self.FLIP)
+            if (parent := tnode.getparent()) is None:
+                continue
+            rtl = self.find(parent, "./w:rPr/w:rtl")
+            if rtl is None:
+                continue
+            parent.remove(rtl)
         return self.counts["rtl formulas"] > 0
 
     def _note_suspects(self) -> None:
@@ -462,14 +472,16 @@ class Proof(DocxWorker):
             t_expr = "./w:r/w:t"
 
         text = "\n".join(
-            "".join(tnode.text for tnode in self.xpath(pnode, t_expr))
+            "".join(tnode.text or "" for tnode in self.xpath(pnode, t_expr))
             for pnode in self.doc_xpath("//w:p[w:r/w:t]")
         )
         for match in self.antidict.finditer(text):
             self.antiwords[match.group(0)] += 1
 
-    def _is_rtl(self, rnode: etree._Entity) -> bool:
+    def _is_rtl(self, rnode: NodeType | None) -> bool:
         """Check whether a <w:r> node is RTL."""
+        if rnode is None:
+            return False
         return self._first(rnode, "./w:rPr/w:rtl") is not None
 
     def find_formula_style(self) -> bool:
@@ -481,11 +493,11 @@ class Proof(DocxWorker):
         return True
 
     def _mknode(
-        self, model: etree._Entity,
+        self, model: NodeType,
         text: str,
         *,
         italic: bool,
-    ) -> etree._Entity:
+    ) -> NodeType:
         """Create a duplicate of `model` with different text."""
         rnode = deepcopy(model)
         self._set_rnode_text(rnode, text)
@@ -493,16 +505,18 @@ class Proof(DocxWorker):
             self._add_to_rprops(rnode, "i")
         return rnode
 
-    def _set_rnode_text(self, rnode: etree._Entity, text: str) -> None:
+    def _set_rnode_text(self, rnode: NodeType, text: str) -> None:
         """Replace <w:t> inside <w:r>."""
         tnode = self._find(rnode, "w:t")
+        if tnode is None:
+            return
         tnode.text = text
         if text[0].isspace() or text[-1].isspace():
             tnode.set(
                 "{http://www.w3.org/XML/1998/namespace}space", "preserve",
             )
 
-    def _count(self, key: str, node: etree._Entity | None = None) -> None:
+    def _count(self, key: str, node: NodeType | None = None) -> None:
         """Save a comment to be postracted."""
         self.counts[key] += 1
         if node is not None:
@@ -544,14 +558,14 @@ class Proof(DocxWorker):
         print(f"{src} -> {dst}")
         shutil.copy(src, dst)
 
-    def _add_rstyle(self, rnode: etree._Entity, style_id: str) -> None:
+    def _add_rstyle(self, rnode: NodeType, style_id: str) -> None:
         """Add w:rStyle tag. tag."""
         props = self._find(rnode, "w:rPr")
         if props is None:
             props = self.make_w("rPr")
         props.append(self.make_w("rStyle", attrib={"val": style_id}))
 
-    def _add_to_rprops(self, rnode: etree._Entity, tag: str) -> None:
+    def _add_to_rprops(self, rnode: NodeType, tag: str) -> None:
         """Add the italic/rtl/etc. tag."""
         props = self._find(rnode, "w:rPr")
         if props is None:
@@ -559,12 +573,14 @@ class Proof(DocxWorker):
         props.append(self.make_w(tag))
 
     @classmethod
-    def _rnode_text(cls, rnode: etree._Entity) -> str:
+    def _rnode_text(cls, rnode: NodeType | None) -> str:
         """Return <w:t> node of a <w:r> node."""
+        if rnode is None:
+            return ""
         tnode = cls._find(rnode, "w:t")
         if tnode is None:
             return ""
-        return tnode.text
+        return tnode.text or ""
 
 
 if __name__ == "__main__":
@@ -572,4 +588,7 @@ if __name__ == "__main__":
 
 # /// script
 # dependencies = ["lxml"]
+#
+# [tool.ty.environment]
+# root = ["."]
 # ///

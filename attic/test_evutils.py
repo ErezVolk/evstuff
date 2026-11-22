@@ -1,6 +1,6 @@
 #!/usr/bin/env -S uvx pytest -v
 # ruff: noqa: D100, D103
-# ty: ignore[unresolved-import]
+# ty: ignore[import-not-found]
 import os
 import sys
 import tempfile

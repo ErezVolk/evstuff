@@ -13,12 +13,14 @@ dependencies = [
   "pyaudio",
   "pydub",
   "pymupdf",
+  "regex",
   "requests",
   "rich",
   "seaborn",
   "scipy",
   "traitlets",
   "types-lxml",
+  "unidecode",
 ]
 
 [tool.pylint.MASTER]

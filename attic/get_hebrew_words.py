@@ -6,8 +6,8 @@ import json
 import zlib
 from pathlib import Path
 
-import regex as re  # ty: ignore[unresolved-import]
-from lxml import etree  # ty: ignore[unresolved-import]
+import regex as re
+from lxml import etree
 
 ROOT = Path(
     "/System/Library/AssetsV2"
@@ -43,7 +43,7 @@ def main() -> None:
     print(f"Number of entries: {len(entries)}")
 
     with TXTS.open("w", encoding="utf8") as fobj:
-        words = {}
+        words: dict[str, str] = {}
         for key, xml in entries:
             node = etree.fromstring(xml)
 
@@ -160,6 +160,7 @@ def _split(input_bytes: bytes, *, verbose: bool) -> tuple[list[tuple[str, str]],
         domain = xml_entry.nsmap["d"]
         key = f"{{{domain}}}title"
         name = xml_entry.get(key)  # Lookup the attribute in the tree.
+        assert name is not None
 
         entries.append((name, entry_text))
 
@@ -173,7 +174,7 @@ def _split(input_bytes: bytes, *, verbose: bool) -> tuple[list[tuple[str, str]],
         # and the new lines (for a total of 5 bytes).
         input_bytes = input_bytes[next_offset + 5:]
         total_offset += next_offset
-    return entries, stop_further_parsing
+    return (entries, stop_further_parsing)
 
 
 if __name__ == "__main__":

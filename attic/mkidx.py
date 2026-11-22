@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-import pymupdf  # ty: ignore[unresolved-import]
+import pymupdf
 
 THIS = Path(__file__)
 
@@ -124,7 +124,7 @@ class MakeIndex:
                 )
             if self.args.dpi:
                 kwargs["dpi"] = self.args.dpi
-            pixmap = page.get_pixmap(**kwargs)
+            pixmap = page.get_pixmap(**kwargs)  # ty: ignore[invalid-argument-type]
             pixmap.pil_save(tiff)
             pixmap.pil_save(f"{THIS.stem}.tiff")
             cli = ["tesseract"]

@@ -5,7 +5,7 @@ import sys
 import time
 from pathlib import Path
 
-import requests  # ty: ignore[import-not-found]
+import requests
 from fake_useragent import UserAgent  # ty: ignore[import-not-found]
 
 THIS = Path(__file__)

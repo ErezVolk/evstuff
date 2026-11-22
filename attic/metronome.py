@@ -81,7 +81,7 @@ class ByteLoop:
         self.offset = 0
         self.granularity = granularity
 
-    def get(self, nbytes: int) -> bytes:
+    def get(self, nbytes: int) -> bytes | bytearray:
         """Get another chunk."""
         limit = min(self.offset + nbytes, len(self.data))
         chunk = self.data[self.offset:limit]
