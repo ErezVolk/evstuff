@@ -271,12 +271,12 @@ class Whoms:
     def _fix(self, albums: pd.DataFrame) -> pd.DataFrame:
         if self.args.all:
             albums["heard"] = False
-        elif self.args.wprev:
-            curr = albums.When.astype("string").str[:10]
-            prev = albums.Wprev.astype("string").str[:10]
-            albums["heard"] = albums.When.notna() & (curr != prev)
         else:
             albums["heard"] = albums.When.notna()
+            if self.args.wprev:
+                curr = albums.When.astype("string").str[:10]
+                prev = albums.Wprev.astype("string").str[:10]
+                albums["heard"] &= (curr != prev) & ~self.substr_map(albums.How, "unlisten")
         albums["Whom"] = albums.Whom.fillna("").replace(
             r"^([?]+|N/A)$", "", regex=True
         )
