@@ -146,7 +146,7 @@ class Whoms:
         )
         parser.add_argument(
             "-2",
-            "--wprev",
+            "--again",
             action="store_true",
             help="Make 'heard' mean 'heard once'.",
         )
@@ -272,7 +272,7 @@ class Whoms:
     def _fix(self, albums: pd.DataFrame) -> pd.DataFrame:
         if self.args.all:
             albums["heard"] = False
-        elif self.args.wprev:
+        elif self.args.again:
             curr = albums.When.astype("string").str[:10]
             prev = albums.Wprev.astype("string").str[:10]
             albums["heard"] = (curr != prev) & ~self.substr_map(albums.How, "unlisten")
@@ -418,7 +418,7 @@ class Whoms:
             self.print_rows(unheard[is_wip])
 
         unheard = unheard[~is_wip]
-        if not self.args.all and not self.args.wprev:
+        if not self.args.all and not self.args.again:
             sus = unheard[unheard.How.notna()]
             n_sus = len(sus)
             if n_sus > 0:
@@ -434,7 +434,7 @@ class Whoms:
             inset = "relisten"
         else:
             inset = f"relisten out of {n_relisten}"
-        self.print_one_of(relisten, inset, with_date=True)
+        self.print_one_of(relisten, inset)
 
     def report_times(self) -> None:
         """Print what took so long."""
@@ -453,14 +453,12 @@ class Whoms:
         self,
         rows: pd.DataFrame | pd.Series,
         inset: str,
-        *,
-        with_date: bool = False
     ) -> None:
         """Print one random album with an extra text."""
         if rows.empty:
             return
         row = rows.sample(1).iloc[0]
-        rprint(f"- ({inset}) {self.row_desc(row, with_date=with_date)}")
+        rprint(f"- ({inset}) {self.row_desc(row)}")
 
     @classmethod
     def substr_map(cls, series: pd.Series, substr: str) -> pd.Series:
@@ -609,7 +607,7 @@ class Whoms:
         except FileNotFoundError:
             return None
 
-    def row_desc(self, row: pd.Series, *, with_date: bool = False) -> str:
+    def row_desc(self, row: pd.Series) -> str:
         """Nicely format a "to listen" row."""
         who = one_of(row.Who)
         whom = one_of(row.Whom)
@@ -620,9 +618,8 @@ class Whoms:
             if who == whom:
                 whom = "[i]ibid.[/i]"
             parts.append(f'(with {whom}, {row["dt"]})')
-        if with_date or self.args.wprev:
-            if re.match(r"\d\d\d\d-\d\d-\d\d", (when := str(row.When))):
-                parts.append(f"(heard {when[:10]})")
+        if re.match(r"\d\d\d\d-\d\d-\d\d", (when := str(row.When))):
+            parts.append(f"(heard {when[:10]})")
         return " ".join(parts)
 
     def run(
