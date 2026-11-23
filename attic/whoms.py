@@ -3,6 +3,7 @@
 
 import argparse
 import hashlib
+import re
 import shlex
 import subprocess
 import tempfile
@@ -271,12 +272,12 @@ class Whoms:
     def _fix(self, albums: pd.DataFrame) -> pd.DataFrame:
         if self.args.all:
             albums["heard"] = False
+        elif self.args.wprev:
+            curr = albums.When.astype("string").str[:10]
+            prev = albums.Wprev.astype("string").str[:10]
+            albums["heard"] = (curr != prev) & ~self.substr_map(albums.How, "unlisten")
         else:
             albums["heard"] = albums.When.notna()
-            if self.args.wprev:
-                curr = albums.When.astype("string").str[:10]
-                prev = albums.Wprev.astype("string").str[:10]
-                albums["heard"] &= (curr != prev) & ~self.substr_map(albums.How, "unlisten")
         albums["Whom"] = albums.Whom.fillna("").replace(
             r"^([?]+|N/A)$", "", regex=True
         )
@@ -620,8 +621,8 @@ class Whoms:
                 whom = "[i]ibid.[/i]"
             parts.append(f'(with {whom}, {row["dt"]})')
         if with_date or self.args.wprev:
-            if row.When:
-                parts.append(f"(heard {str(row.When)[:10]})")
+            if re.match(r"\d\d\d\d-\d\d-\d\d", (when := str(row.When))):
+                parts.append(f"(heard {when[:10]})")
         return " ".join(parts)
 
     def run(
