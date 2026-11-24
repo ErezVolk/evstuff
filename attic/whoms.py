@@ -365,21 +365,21 @@ class Whoms:
         n_oldest_added = unheard.sort_values("n").head()
         oldest_added = n_oldest_added.sample(1).iloc[0]
         rprint(f"- (one of {len(n_oldest_added)} oldest added) "
-              f"{self.row_desc(oldest_added)}")
+               f"{self.row_desc(oldest_added)}")
         the_rest = unheard.drop(oldest_added.name)
 
         if not the_rest.empty:
             n_oldest_released = the_rest.sort_values("t").head()
             oldest_released = n_oldest_released.sample(1).iloc[0]
             rprint(f"- (one of {len(n_oldest_released)} oldest released) "
-                  f"{self.row_desc(oldest_released)}")
+                   f"{self.row_desc(oldest_released)}")
             the_rest = unheard.drop(oldest_released.name)
 
         if not the_rest.empty:
             n_longest = the_rest.sort_values("minutes").tail()
             longest = n_longest.sample(1).iloc[0]
             rprint(f"- (one of {len(n_longest)} longest) "
-                  f"{self.row_desc(longest)}")
+                   f"{self.row_desc(longest)}")
 
         new_guys = whoms.query("heard == 0")
         if len(stars := new_guys.query("total > 1")) > 0:
