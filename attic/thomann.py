@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
+"""Check some prices."""
 import difflib
 import json
-import sys
 import time
 from pathlib import Path
 
@@ -15,28 +15,29 @@ PRE_MARKER = '"articleListsSettings":'
 POST_MARKER = ',"filterSettings":'
 
 
-class SameDifference(Exception):
+class _SameDifferenceError(Exception):
     ...
 
 
-def get_browser_headers():
+def _get_browser_headers() -> dict[str, str]:
     ua = UserAgent()
     return {
-        'User-Agent': ua.random,
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Cache-Control': 'max-age=0',
+        "User-Agent": ua.random,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Cache-Control": "max-age=0",
     }
 
 
 
-def main():
+def main() -> None:
+    """Check some prices."""
     curr_time = time.time()
     url_path = THIS.with_suffix(".url")
     html_path = THIS.with_suffix(".html")
@@ -44,23 +45,24 @@ def main():
 
     try:
         prev_time = html_path.stat().st_mtime
+        should_get = curr_time >= prev_time + (4 * HOUR)
     except FileNotFoundError:
-        prev_time = curr_time
+        should_get = True
 
-    if prev_time > curr_time - (4 * HOUR):
+    if not should_get:
         html = html_path.read_text()
     else:
         print("Writing", html_path)
         session = requests.Session()
-        session.headers.update(get_browser_headers())
+        session.headers.update(_get_browser_headers())
 
         url = url_path.read_text().strip()
         r = session.get(url)
         r.raise_for_status()
 
-        html = html_path.read_text()
+        html = r.text
         with html_path.open("wt") as fobj:
-            fobj.write(r.text)
+            fobj.write(html)
 
     pre_index = html.find(PRE_MARKER)
     post_index = html.find(POST_MARKER)
@@ -73,7 +75,12 @@ def main():
         json.dump(articles, fobj, ensure_ascii=False, indent=2)
 
     curr_lines = [
-        f"{a["model"]:<40}€ {int(float(a["price"]["primary"]["rawPrice"]))}\n"
+        (
+            f"{a["manufacturer"]:<20} "
+            f"{a["model"]:<40}"
+            f"€ {int(float(a["price"]["primary"]["rawPrice"]))}"
+            f"\n"
+        )
         for a in articles
         if a["availability"]["isAvailable"]
     ]
@@ -81,15 +88,14 @@ def main():
     try:
         prev_report = report_path.read_text()
         if prev_report == curr_report:
-            raise SameDifference
+            raise _SameDifferenceError
 
         prev_lines = prev_report.splitlines(keepends=True)
         differ = difflib.Differ(charjunk=difflib.IS_CHARACTER_JUNK)
         delta = differ.compare(prev_lines, curr_lines)
         report = "".join(delta)
-    except (FileNotFoundError, SameDifference):
+    except (FileNotFoundError, _SameDifferenceError):
         report = curr_report
-        pass
     print(report)
     report_path.write_text(curr_report)
 
