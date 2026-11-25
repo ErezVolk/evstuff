@@ -1,5 +1,6 @@
 #!/usr/bin/env -S uv run --script
 """Check some prices."""
+import argparse
 import difflib
 import json
 import time
@@ -35,28 +36,42 @@ def _get_browser_headers() -> dict[str, str]:
     }
 
 
+def _parse_cli() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-u", "--url")
+    parser.add_argument("-b", "--basename", type=Path, default=THIS)
+    parser.add_argument("-f", "--force", action="store_true")
+    parser.add_argument("-H", "--no-headers", action="store_true")
+    return parser.parse_args()
+
 
 def main() -> None:
     """Check some prices."""
-    curr_time = time.time()
-    url_path = THIS.with_suffix(".url")
-    html_path = THIS.with_suffix(".html")
-    report_path = THIS.with_suffix(".report")
+    args = _parse_cli()
 
-    try:
-        prev_time = html_path.stat().st_mtime
-        should_get = curr_time >= prev_time + (4 * HOUR)
-    except FileNotFoundError:
+    curr_time = time.time()
+    url_path = args.basename.with_suffix(".url")
+    html_path = args.basename.with_suffix(".html")
+    report_path = args.basename.with_suffix(".report")
+
+    if args.force:
         should_get = True
+    else:
+        try:
+            prev_time = html_path.stat().st_mtime
+            should_get = curr_time >= prev_time + (4 * HOUR)
+        except FileNotFoundError:
+            should_get = True
 
     if not should_get:
         html = html_path.read_text()
     else:
         print("Writing", html_path)
         session = requests.Session()
-        session.headers.update(_get_browser_headers())
+        if not args.no_headers:
+            session.headers.update(_get_browser_headers())
 
-        url = url_path.read_text().strip()
+        url = args.url or url_path.read_text().strip()
         r = session.get(url)
         r.raise_for_status()
 
