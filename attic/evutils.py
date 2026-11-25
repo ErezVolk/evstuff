@@ -1,4 +1,5 @@
 """Common utilities."""
+# ruff: noqa: SLF001 C901 PLR0912
 import argparse
 import shlex
 import sys
@@ -55,8 +56,9 @@ def unparse(parser: argparse.ArgumentParser, args: argparse.Namespace) -> list[s
             else:
                 for item in (ivalue if isinstance(ivalue, list) else [ivalue]):
                     if isinstance(item, Path):
-                        item = item.resolve()
-                    ovalue.append(item)
+                        ovalue.append(item.resolve())
+                    else:
+                        ovalue.append(item)
         else:
             raise TypeError(f"Not supported: {action.__class__.__name__}")
 

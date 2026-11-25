@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pack InDesign published folder."""
 import argparse  # noqa: I001
-import datetime
+import datetime as dt
 from pathlib import Path
 import shutil
 import string
@@ -65,7 +65,7 @@ class PackInDesignPublishedFolder:
 
     def do_folder(self, id_folder: Path, id_pdf: Path) -> int:
         """Found a packed id_folder, ship it."""
-        today = datetime.datetime.now(tz=datetime.UTC).date().isoformat()
+        today = dt.datetime.now(tz=dt.UTC).date().isoformat()
         stump = f"{id_pdf.stem}-{today}"
         for suffix in self.suffixes():
             stem = f"{stump}{suffix}"

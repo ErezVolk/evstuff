@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Download a bunch of lessons"""
+"""Download a bunch of lessons."""
+# ruff: noqa: D400 D401 D415
 import argparse
-from dataclasses import dataclass
-import datetime
-from pathlib import Path
-import subprocess
-import time
+import datetime as dt
 import random
 import re
 import shutil
+import subprocess
 import tempfile
+import time
 import tomllib
 import typing as t
+from dataclasses import dataclass
+from pathlib import Path
 
 import pandas as pd
 
@@ -22,6 +23,7 @@ THIS = Path(__file__)
 @dataclass
 class Renamee:
     """Information about a file to be renamed"""
+
     label: t.Hashable
     mp4: Path
     jpg: Path
@@ -157,11 +159,10 @@ class DownloadLessons:
             self._push()
         elif self.args.command == "fix":
             self._fill_in_things()
+        elif self.args.video_id:
+            self._download_specific_lessons()
         else:
-            if self.args.video_id:
-                self._download_specific_lessons()
-            else:
-                self._download_next_lessons()
+            self._download_next_lessons()
 
     def _load_table(self):
         """Read the CSV"""
@@ -300,7 +301,7 @@ class DownloadLessons:
 
         tmap = self.lsn.VideoID == video_id
         if tmap.any():
-            lines = ','.join(str(line) for line in self.lsn.index[tmap])
+            lines = ",".join(str(line) for line in self.lsn.index[tmap])
             print(f"Video {video_id} is already {self.args.table}:{lines}")
             return
 
@@ -442,7 +443,7 @@ class DownloadLessons:
         names = self.lsn.File.astype("string").str
         return names.fullmatch(r"\d\.\d+ " + self.MAIN_LESSON_RE + r"\.mp4")
 
-    def _write(self):
+    def _write(self) -> None:
         """Write back the csv"""
         if self.saves == 0:
             backup = self.args.table.with_suffix(".bak")
@@ -463,9 +464,9 @@ class DownloadLessons:
         n_all = len(self.lsn)
         return f"{n_all} line(s), {int(n_done)} done"
 
-    def _now(self):
+    def _now(self) -> str:
         """The time"""
-        return datetime.datetime.now().strftime("%H:%M:%S")
+        return dt.datetime.now(tz=dt.UTC).strftime("%H:%M:%S")
 
 
 if __name__ == "__main__":

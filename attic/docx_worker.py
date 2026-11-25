@@ -130,7 +130,7 @@ class DocxWorker(abc.ABC):
     def must_find(cls, node: XPathable, expr: str) -> etree._Element:
         """Wrap etree.find, with namespaces."""
         found = cls.find(node, expr)
-        if not found:
+        if found is None:
             raise RuntimeError(f"Could not find {expr!r}")
         return found
 

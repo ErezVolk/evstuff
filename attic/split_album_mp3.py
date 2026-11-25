@@ -21,11 +21,12 @@ TRACK_EXPRS = (
     rf"""(\d+\)?)\s*(['"])(?P<title>[^'"]+)\2\s*\({_TIME}\)""",
     rf"""\d+[.)]?\s+(?P<title>\S.*\S)\s+{_TIME}""",
     rf"""(?P<title>[[A-Za-z][^0-9]*\S) {_TIME}""",
-    rf'''"(?P<title>[[A-Za-z][^0-9]*\S)"\s+-\s+{_TIME}''',
+    rf""""(?P<title>[[A-Za-z][^0-9]*\S)"\s+-\s+{_TIME}""",
 )
 
 NOT_COMMA = "_"
 COVER_TAG = "APIC:Album cover"
+HMS_NCOLUMNS = 3
 
 
 __TODO__ = """
@@ -63,9 +64,7 @@ class SplitAlbum:
         if missing := set(self.MUST_HAVE) - info.keys():
             raise KeyError(f"Missing in {self.INPUT}: {' '.join(missing)}")
 
-        whole = Path(self._get_whole(info))
-        if not whole.is_file():
-            self._fail(f"File not found: {whole}")
+        whole = self._get_whole(info)
 
         artist = info["artist"]
         album = info["album"].replace(",", NOT_COMMA)
@@ -96,17 +95,7 @@ class SplitAlbum:
             self._fail("Don't know how to interpret these tracks.")
 
         tracks = pd.DataFrame([mobj.groupdict() for mobj in mobjs if mobj is not None])
-        tracks["time"] = (
-            tracks.time.str.replace(":", ".", regex=False)
-            .replace(r"^0+\.([0-9]+\.[0-9]+)", r"\1", regex=True)
-            .replace(r"^0+(\d)", r"\1", regex=True)
-        )
-
-        long = tracks.time.str.split(r"[.]", expand=True, n=2).dropna()
-        if len(long.columns) == 3 and not long.empty:
-            long["mm"] = (long[0].astype(int) * 60 + long[1].astype(int)).astype(str)
-            long["time"] = long[["mm", 2]].agg(".".join, axis=1)
-            tracks.loc[long.index, "time"] = long.time
+        self._add_time_col(tracks)
 
         tracks["title"] = tracks.title.str.replace(r"[,/]", NOT_COMMA, regex=True)
 
@@ -155,9 +144,13 @@ class SplitAlbum:
         print(message)
         sys.exit()
 
-    def _get_whole(self, info: dict) -> str:
+    def _get_whole(self, info: dict) -> Path:
         if not (url := info.get("url")):
-            return info["whole"]
+            whole = Path(info["whole"])
+            if not whole.is_file():
+                self._fail(f"File not found: {whole}")
+            return whole
+
         cmd = [
             "yt-dlp",
             "-t",
@@ -177,7 +170,20 @@ class SplitAlbum:
             if not whole.is_file():
                 raise RuntimeError("Can't find downloaded file")
         print(f"Downloaded {whole}")
-        return str(whole)
+        return whole
+
+    def _add_time_col(self, tracks: pd.DataFrame) -> None:
+        tracks["time"] = (
+            tracks.time.str.replace(":", ".", regex=False)
+            .replace(r"^0+\.([0-9]+\.[0-9]+)", r"\1", regex=True)
+            .replace(r"^0+(\d)", r"\1", regex=True)
+        )
+
+        long = tracks.time.str.split(r"[.]", expand=True, n=2).dropna()
+        if len(long.columns) == HMS_NCOLUMNS and not long.empty:
+            long["mm"] = (long[0].astype(int) * 60 + long[1].astype(int)).astype(str)
+            long["time"] = long[["mm", 2]].agg(".".join, axis=1)
+            tracks.loc[long.index, "time"] = long.time
 
     def _extract_cover(self, mp3: Path, folder: Path) -> None:
         try:

@@ -231,7 +231,7 @@ class AlbumRatings:
                 )
         return list(url_to_album.values())
 
-    def get_allmusic_url(self, href) -> str | None:
+    def get_allmusic_url(self, href) -> str | None:  # noqa: ANN001
         """Get the URL for an ALlMusic album."""
         if not isinstance(href, str):
             return None

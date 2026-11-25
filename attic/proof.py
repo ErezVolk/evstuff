@@ -5,7 +5,7 @@ __TODO__ = """
 """
 
 import argparse
-import datetime
+import datetime as dt
 import re
 import shutil
 import subprocess
@@ -19,7 +19,7 @@ from lxml import etree
 
 from docx_worker import DocxWorker
 
-type NodeType = etree._Entity | etree._Element
+type NodeType = etree._Entity | etree._Element  # noqa: SLF001
 
 
 class Proof(DocxWorker):
@@ -207,7 +207,7 @@ class Proof(DocxWorker):
             self.args.input = docxs[0]
 
         if not self.args.outdir:
-            now = datetime.datetime.now(tz=datetime.UTC)
+            now = dt.datetime.now(tz=dt.UTC)
             self.args.outdir = Path("proof-out") / now.strftime("%Y%m%d-%H%M")
 
         self.args.outdir.mkdir(parents=True, exist_ok=True)
