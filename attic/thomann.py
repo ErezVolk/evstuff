@@ -114,7 +114,7 @@ def main() -> None:
         delta = differ.compare(prev_lines, curr_lines)
         report = "".join(delta)
     except (FileNotFoundError, _SameDifferenceError):
-        report = curr_report + "(Unchanged)"
+        report = curr_report + "[i]NO NEWS[/i]"
     console.print(re.sub(r"(.*)(B-Stock)(.*)", r"[b]\1[r]\2[/r]\3[/b]", report))
     report_path.write_text(curr_report)
 
