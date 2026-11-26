@@ -3,6 +3,7 @@
 import argparse
 import difflib
 import json
+import re
 import time
 from pathlib import Path
 
@@ -114,7 +115,7 @@ def main() -> None:
         report = "".join(delta)
     except (FileNotFoundError, _SameDifferenceError):
         report = curr_report + "(Unchanged)"
-    console.print(report.replace("B-Stock", "[r]B-Stock[/r]"))
+    console.print(re.sub(r"(.*)(B-Stock)(.*)", r"[b]\1[r]\2[/r]\3[/b]", report))
     report_path.write_text(curr_report)
 
 
