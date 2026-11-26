@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 import requests
-import rich
+import rich.console
 from fake_useragent import UserAgent  # ty: ignore[import-not-found]
 
 THIS = Path(__file__)
@@ -50,6 +50,8 @@ def main() -> None:
     """Check some prices."""
     args = _parse_cli()
 
+    console = rich.console.Console()
+
     curr_time = time.time()
     url_path = args.basename.with_suffix(".url")
     html_path = args.basename.with_suffix(".html")
@@ -67,7 +69,7 @@ def main() -> None:
     if not should_get:
         html = html_path.read_text()
     else:
-        rich.print("Writing", html_path)
+        console.print("Writing", html_path)
         session = requests.Session()
         if not args.no_headers:
             session.headers.update(_get_browser_headers())
@@ -83,7 +85,7 @@ def main() -> None:
     pre_index = html.find(PRE_MARKER)
     post_index = html.find(POST_MARKER)
     if not 0 < pre_index < post_index:
-        rich.print("This is not what I expected")
+        console.print("This is not what I expected")
         return
 
     articles = json.loads(html[pre_index + len(PRE_MARKER):post_index])["articles"]
@@ -112,7 +114,7 @@ def main() -> None:
         report = "".join(delta)
     except (FileNotFoundError, _SameDifferenceError):
         report = curr_report + "(Unchanged)"
-    rich.print(report.replace("B-Stock", "[b]B-Stock[/b]"))
+    console.print(report.replace("B-Stock", "[r]B-Stock[/r]"))
     report_path.write_text(curr_report)
 
 
