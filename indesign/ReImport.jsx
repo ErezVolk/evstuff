@@ -1313,8 +1313,11 @@ function ri_disable_reflow(ri) {
     return;
 
   ri_start_subcounter(ri);
-  ri.saved_reflow = ri.doc.textPreferences.smartTextReflow;
+  ri.saved_prefs = ri.doc.textPreferences.properties.toSource();
+  ri.doc.textPreferences.deleteEmptyPages = false;
   ri.doc.textPreferences.smartTextReflow = false;
+  ri.doc.textPreferences.smartTextReflowSync = false;
+
   ri.reflow_changed = true;
   ri_stop_subcounter(ri, "Disable reflow");
 }
@@ -1329,7 +1332,7 @@ function ri_restore_reflow(ri) {
   var saved_preflight = ri.doc.preflightOptions.preflightOff;
 
   ri.doc.preflightOptions.preflightOff = false; 
-  ri.doc.textPreferences.smartTextReflow = ri.saved_reflow;
+  ri.doc.textPreferences.properties = eval(ri.saved_prefs);
   ri.doc.activeProcess.waitForProcess(30);
   ri.doc.preflightOptions.preflightOff = saved_preflight;
   ri.reflow_changed = false;
@@ -1762,6 +1765,8 @@ function ri_get_all_frames_with_para_styles_containins(ri, substr) {
       continue;
     }
     if (!frame || !frame.isValid)
+      continue;
+    if (!frame.parentPage || !frame.parentPage.isValid)
       continue;
     if (!frame.itemLayer || !frame.itemLayer.isValid)
       continue;
