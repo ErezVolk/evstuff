@@ -1242,7 +1242,16 @@ function ri_groom_update_toc(ri) {
   var style_index = ri.ui_groom_toc_style.selectedIndex;
   var style_name = ri.toc_styles[style_index];
   var style = ri.doc.tocStyles.itemByName(style_name);
-  ri.doc.createTOC(style, true);
+
+  try {
+    ri.doc.updateTOC(style);
+  } catch(e1) {
+    try {
+      ri.doc.createTOC(style, true);
+    } catch(e2) {
+      ri_logw(ri, "Couldn't create TOC: " + e1 + " | " + e2);
+    }
+  }
 
   riss_post_toc_line_breaks(ri);
 }
